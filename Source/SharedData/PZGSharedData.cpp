@@ -92,26 +92,49 @@ ax::__String* PZGSharedData::getFullPath(const char* name){
 
 void PZGSharedData::readDataFromFile()
 {
-    
+
     if (synchronized == true) {
         return;
     }
-    
-    const char *gameFilePath = getFullPath("CompleteGameInfo.plist")->getCString();
-    
-    PZLog(gameFilePath);
-    
-    __Dictionary *gamePlist = ax::__Dictionary::createWithContentsOfFile( gameFilePath );
-    if (!gamePlist) {
-        AXLOGE("PZGSharedData::readDataFromFile failed to load plist: {}", gameFilePath ? gameFilePath : "(null)");
+
+    // Use just the filename and let FileUtils resolve it via search paths.
+    // Don't use getFullPath() as it returns an absolute path which FileUtils::getValueMapFromFile()
+    // doesn't handle correctly - it expects relative paths to resolve via search paths.
+    const char* filename = "CompleteGameInfo.plist";
+    auto* fileUtils = ax::FileUtils::getInstance();
+
+    // Check if file exists using search paths
+    const auto fullPath = fileUtils->fullPathForFilename(filename);
+    if (fullPath.empty() || !fileUtils->isFileExist(fullPath)) {
+        AXLOGE("PZGSharedData::readDataFromFile file not found: {}", filename);
+        AXLOGI("Current search paths:");
+        for (const auto& path : fileUtils->getSearchPaths()) {
+            AXLOGI("  - {}", path);
+        }
+        synchronized = true;  // Mark as attempted to avoid retry loop
         return;
     }
 
-    __Array * completeGameArray = (ax::__Array *)gamePlist->objectForKey("completeInfo");
-    if (!completeGameArray) {
-        AXLOGE("PZGSharedData::readDataFromFile missing key 'completeInfo' in: {}", gameFilePath ? gameFilePath : "(null)");
+    AXLOGI("Loading plist from: {}", fullPath);
+
+    // Pass just the filename - FileUtils will use search paths to find it
+    AXLOGI("About to parse plist: {}", filename);
+    __Dictionary *gamePlist = ax::__Dictionary::createWithContentsOfFile(filename);
+    if (!gamePlist) {
+        AXLOGE("PZGSharedData::readDataFromFile failed to parse plist at: {}", fullPath);
+        synchronized = true;  // Mark as attempted to avoid retry loop
         return;
     }
+    AXLOGI("Plist parsed successfully");
+
+    AXLOGI("Looking for 'completeInfo' key...");
+    __Array * completeGameArray = (ax::__Array *)gamePlist->objectForKey("completeInfo");
+    if (!completeGameArray) {
+        AXLOGE("PZGSharedData::readDataFromFile missing key 'completeInfo' in: {}", filename);
+        synchronized = true;  // Mark as attempted to avoid retry loop
+        return;
+    }
+    AXLOGI("Found completeInfo array with {} items", completeGameArray->count());
 
 
     for (int i =0; i< completeGameArray->count(); i++){
@@ -122,94 +145,108 @@ void PZGSharedData::readDataFromFile()
         // PZArtBackground
         if ( className->isEqual( __String::create( C_ART_BACKGROUND_CLASS_NAME ) ) ) {
             PZGArtBackground *artObject = PZGArtBackground::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
         }else
         // PZArtBackground
         if ( className->isEqual( __String::create( C_ART_BACKGROUNDPLAY_CLASS_NAME ) ) ) {
             PZGArtBackgroundPlay *artObject = PZGArtBackgroundPlay::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
         }else
         // PZArtCharacter
         if ( className->isEqual( __String::create( C_ART_CHARACTER_CLASS_NAME ) ) ){
             PZGArtCharacter *artObject = PZGArtCharacter::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
         }else
         // PZArtObstacle
         if ( className->isEqual( __String::create( C_ART_OBSTACLE_CLASS_NAME ) ) ){
             PZGArtObstacle *artObject = PZGArtObstacle::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
-            }
-        }else        
+        }else
         // PZArtCoins
         if ( className->isEqual( __String::create( C_ART_COINS_CLASS_NAME ) ) ){
             PZGArtCoins *artObject = PZGArtCoins::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
         }else
         // PZArtInterface
         if ( className->isEqual( __String::create( C_ART_INTERFACE_CLASS_NAME ) ) ){
             PZGArtInterface *artObject = PZGArtInterface::createWithDictionary(dict);
-            __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
-            if ( arr ){
-                ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( artObject );
-                artResource->setObject(arr, artObject->key->getCString());
+            if (artObject && artObject->key) {
+                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                if ( arr ){
+                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                }
+                else{
+                    arr = __Array::create( );
+                    arr->addObject( artObject );
+                    artResource->setObject(arr, artObject->key->getCString());
+                }
             }
         }else
         // PZSoundObject
         if ( className->isEqual( __String::create( C_SOUND_CLASS_NAME ) ) ){
             PZGSoundData *object = PZGSoundData::createWithDictionary(dict);
-            __Array* arr = ( __Array* )soundResource->objectForKey( object->key->getCString() );
-            if ( arr ){
-                object->index = arr->count();
-                ((__Array*)soundResource->objectForKey( object->key->getCString() ))->addObject( object );
-            }
-            else{
-                arr = __Array::create( );
-                object->index = 0;
-                arr->addObject( object );
-                soundResource->setObject(arr, object->key->getCString());
+            if (object && object->key) {
+                __Array* arr = ( __Array* )soundResource->objectForKey( object->key->getCString() );
+                if ( arr ){
+                    object->index = arr->count();
+                    ((__Array*)soundResource->objectForKey( object->key->getCString() ))->addObject( object );
+                }
+                else{
+                    arr = __Array::create( );
+                    object->index = 0;
+                    arr->addObject( object );
+                    soundResource->setObject(arr, object->key->getCString());
+                }
             }
         }else
         // PZGameplayBasicRunner
@@ -275,41 +312,17 @@ void PZGSharedData::readDataFromFile()
         // PZGameInfoGeneral
         if ( className->isEqual( __String::create( C_GAMEINFO_GENERAL_CLASS_NAME ) ) ){
             PZGGameInfoGeneral *obj = PZGGameInfoGeneral::createWithDictionary(dict);
-            __Array* arr = ( __Array* )gameInfoResource->objectForKey( obj->key->getCString() );
-            if ( arr ){
-                ((__Array*)gameInfoResource->objectForKey( obj->key->getCString() ))->addObject( obj );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( obj );
-                gameInfoResource->setObject(arr, obj->key->getCString());
-            }
+            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
         }else
         // PZGameInfoIAP
         if ( className->isEqual( __String::create( C_GAMEINFO_IAP_CLASS_NAME ) ) ){
             PZGGameInfoIAP *obj = PZGGameInfoIAP::createWithDictionary(dict);
-            __Array* arr = ( __Array* )gameInfoResource->objectForKey( obj->key->getCString() );
-            if ( arr ){
-                ((__Array*)gameInfoResource->objectForKey( obj->key->getCString() ))->addObject( obj );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( obj );
-                gameInfoResource->setObject(arr, obj->key->getCString());
-            }
+            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
         }else
         // PZGameInfoLevel
         if ( className->isEqual( __String::create( C_GAMEINFO_LEVEL_CLASS_NAME ) ) ){
             PZGGameInfoLevel *obj = PZGGameInfoLevel::createWithDictionary(dict);
-            __Array* arr = ( __Array* )gameInfoResource->objectForKey( obj->key->getCString() );
-            if ( arr ){
-                ((__Array*)gameInfoResource->objectForKey( obj->key->getCString() ))->addObject( obj );
-            }
-            else{
-                arr = __Array::create( );
-                arr->addObject( obj );
-                gameInfoResource->setObject(arr, obj->key->getCString());
-            }
+            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
         }
     }
     

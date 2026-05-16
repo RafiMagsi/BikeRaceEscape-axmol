@@ -53,4 +53,14 @@
     return UIInterfaceOrientationLandscapeRight;
 }
 
+- (BOOL)prefersStatusBarHidden
+{
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindow:(UIWindow *)window API_AVAILABLE(ios(16.0))
+{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
 @end
