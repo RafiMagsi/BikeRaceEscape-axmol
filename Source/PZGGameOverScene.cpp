@@ -57,6 +57,9 @@ bool PZGGameOverScene::init() {
 
 
 void PZGGameOverScene::load(const char* keyName){
+    // New overlay instance, ensure we accept restart taps again.
+    restartInProgress = false;
+
     PZGBaseMenuScene::load( keyName );
     PZSettingsController* sc = PZSettingsController::shared();
     
@@ -201,6 +204,12 @@ void PZGGameOverScene::menuBackCallback(Object* pSender) {
 }
 
 void PZGGameOverScene::menuRestartCallback(Object* pSender) {
+    if (restartInProgress) {
+        AXLOGW("PZGGameOverScene::menuRestartCallback: restart already in progress, ignoring");
+        return;
+    }
+    restartInProgress = true;
+
     if(buttonClickedSound){
         buttonClickedSound->playAsSound(false);
     }
@@ -211,6 +220,11 @@ void PZGGameOverScene::menuRestartCallback(Object* pSender) {
 
     
     if (baseScene) {
+        // Disable the HUD menu immediately to avoid double-taps while the scene graph is mutating.
+        if (auto* menu = dynamic_cast<Menu*>(this->getChildByTag(kBaseMenuItemTag))) {
+            menu->setEnabled(false);
+        }
+
         ((PZGGameFieldScene*)baseScene)->gameRestart();
     }
     

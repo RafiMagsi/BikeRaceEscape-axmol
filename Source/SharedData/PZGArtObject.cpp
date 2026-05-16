@@ -27,6 +27,11 @@ PZGArtObject::~PZGArtObject(){
 __Array* PZGArtObject::getResourceFrameNames(){
     
     __Array* array = __Array::create();
+
+    if (!key) {
+        AXLOGW("PZGArtObject::getResourceFrameNames: key is null");
+        return array;
+    }
     
     for (int i=0; i < no_of_sprites; i++) {
         __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);
@@ -38,7 +43,11 @@ __Array* PZGArtObject::getResourceFrameNames(){
 
 ax::Animate*  PZGArtObject::getResourceAnimate(){
 
-    if(no_of_sprites > 0){        
+    if (no_of_sprites > 0) {
+        if (!key) {
+            AXLOGW("PZGArtObject::getResourceAnimate: key is null (index={}, sprites={})", index, no_of_sprites);
+            return nullptr;
+        }
         Animation* anim = Animation::create();
         for (int i=0; i < no_of_sprites; i++) {
             __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);

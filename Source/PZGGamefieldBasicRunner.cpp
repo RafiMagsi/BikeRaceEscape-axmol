@@ -87,7 +87,9 @@ void PZGGamefieldBasicRunner::reset(){
         if (gameStartSound) {
             gameStartSound->stopSound();
         }
-        auto* tmp = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameStart));
+        auto* tmp = (sounds->count() > kSoundIDGameStart)
+            ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameStart))
+            : nullptr;
         if (tmp) {
             gameStartSound = tmp;
             gameStartSound->playAsSound(false);

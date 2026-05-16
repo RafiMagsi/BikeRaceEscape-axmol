@@ -37,6 +37,13 @@ PZGObstacle* PZGObstacle::create( PZGArtObstacle* obstInfo, b2World *world){
 }
 
 void PZGObstacle::init(PZGArtObstacle* obstInfo){
+    if (!obstInfo) {
+        AXLOGE("PZGObstacle::init: obstInfo is null");
+        sprite = nullptr;
+        sprite_flash = nullptr;
+        sprite_death = nullptr;
+        return;
+    }
 
     if (obstInfo->randomizeScale) {
         obstacle_scale = CCRANDOM_0_1() * 0.6 + 0.7;
@@ -73,7 +80,12 @@ void PZGObstacle::init(PZGArtObstacle* obstInfo){
         this->addChild(sprite_flash);
     }
     
-    sprite_death = obstInfo->deathArtObj->getResourceAnimate();
+    sprite_death = nullptr;
+    if (obstInfo->deathArtObj) {
+        sprite_death = obstInfo->deathArtObj->getResourceAnimate();
+    } else {
+        AXLOGW("PZGObstacle::init: deathArtObj is null");
+    }
     
     health = obstInfo->health;
     speed = obstInfo->baseSpeed;
@@ -90,11 +102,15 @@ void PZGObstacle::init(PZGArtObstacle* obstInfo){
             default:
                 break;
         }
-        deathSound = (PZGSoundData*)sounds->objectAtIndex( soundID );
+        deathSound = (sounds->count() > soundID) ? (PZGSoundData*)sounds->objectAtIndex(soundID) : nullptr;
     }
 
     __Array* array = (__Array*)gsd->gameInfoResource->objectForKey("GeneralApplicationSettings");
-    PZGGameInfoGeneral * gameInfoGeneral = (PZGGameInfoGeneral*)array->objectAtIndex(0);
+    PZGGameInfoGeneral * gameInfoGeneral = (array && array->count() > 0) ? (PZGGameInfoGeneral*)array->objectAtIndex(0) : nullptr;
+    if (!gameInfoGeneral) {
+        AXLOGE("PZGObstacle::init: GeneralApplicationSettings missing/empty");
+        return;
+    }
     Size screen = Director::getInstance()->getWinSize();
     PZGObstacleTrajectory trj;
     if (trajectory == 9 ) {

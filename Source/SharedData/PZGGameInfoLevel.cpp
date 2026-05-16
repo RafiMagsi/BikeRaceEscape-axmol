@@ -12,11 +12,19 @@
 
 PZGGameInfoLevel::PZGGameInfoLevel()
 {
-    
+    objects = nullptr;
+    index = 0;
+    startDistance = 0.0f;
+    endDistance = 0.0f;
+    platformInfoKey = nullptr;
+    platformInfoIndex = 0;
+    name = nullptr;
+    className = nullptr;
+    key = nullptr;
 }
 PZGGameInfoLevel::~PZGGameInfoLevel()
 {
-    
+    AX_SAFE_RELEASE_NULL(objects);
 }
 
 PZGGameInfoLevel*  PZGGameInfoLevel::createWithDictionary(ax::__Dictionary * dictionary){
@@ -51,7 +59,10 @@ PZGGameInfoLevel*  PZGGameInfoLevel::createWithDictionary(ax::__Dictionary * dic
     obj->platformInfoIndex = vPlatIdx ? vPlatIdx->intValue() : 0;
 
     
+    AX_SAFE_RELEASE_NULL(obj->objects);
     obj->objects = ax::__Array::create();
+    // Stored as a member; retain so it survives autorelease pool drains between restarts.
+    AX_SAFE_RETAIN(obj->objects);
     
     ax::__Array* array = (ax::__Array*)dictionary->objectForKey("objects");
     if (!array) {

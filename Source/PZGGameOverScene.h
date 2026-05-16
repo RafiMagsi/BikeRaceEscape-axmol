@@ -17,6 +17,7 @@ class PZGGameOverScene : public PZGBaseMenuScene
 {
     
     float gf_distance;
+    bool restartInProgress = false;
     
 public:
     virtual bool init();  
