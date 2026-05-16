@@ -54,26 +54,31 @@ void PZGPauseMenuScene::load(const char* keyName){
     PZSettingsController* sc = PZSettingsController::shared();
     
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
+    // IAP settings are optional in this port; keep pause menu working without them.
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        if (auto* array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
     
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
     if (menu) {
 
         PZGArtInterface *backButtonInfo = (PZGArtInterface*)getItemByName( "GUI_BackButton", keyName );
-        MenuItemSprite *item = (MenuItemSprite*)menu->getChildByTag( backButtonInfo->index );
+        MenuItemSprite *item = (backButtonInfo) ? (MenuItemSprite*)menu->getChildByTag( backButtonInfo->index ) : nullptr;
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGPauseMenuScene::menuBackCallback, this));
         }
 
         PZGArtInterface *restartButtonInfo = (PZGArtInterface*)getItemByName( "GUI_RestartButton", keyName );
-        item = (MenuItemSprite*)menu->getChildByTag( restartButtonInfo->index );
+        item = (restartButtonInfo) ? (MenuItemSprite*)menu->getChildByTag( restartButtonInfo->index ) : nullptr;
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGPauseMenuScene::menuRestartCallback, this));
         }
         
         PZGArtInterface *continueButtonInfo = (PZGArtInterface*)getItemByName( "GUI_ContinueButton", keyName );
-        item = (MenuItemSprite*)menu->getChildByTag( continueButtonInfo->index );
+        item = (continueButtonInfo) ? (MenuItemSprite*)menu->getChildByTag( continueButtonInfo->index ) : nullptr;
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGPauseMenuScene::menuContinueCallback, this));
         }
@@ -81,7 +86,7 @@ void PZGPauseMenuScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 6 );
         if (item) {
-            if (sc->removeAds || iapInfo->removeAd_enabled == false) {
+            if (!iapInfo || sc->removeAds || iapInfo->removeAd_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -92,7 +97,7 @@ void PZGPauseMenuScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 5 );
         if (item) {
-            if (iapInfo->coinShop_enabled == false) {
+            if (!iapInfo || iapInfo->coinShop_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -102,7 +107,7 @@ void PZGPauseMenuScene::load(const char* keyName){
         }
         item = (MenuItemSprite*)menu->getChildByTag( 4 );
         if (item) {
-            if (iapInfo->kidMode_enabled && sc->kidMode == false) {
+            if (iapInfo && iapInfo->kidMode_enabled && sc->kidMode == false) {
                 item->setVisible(true);
                 item->setCallback(AX_CALLBACK_1(PZGBaseMenuScene::buyKidModeCallback, this));
             }

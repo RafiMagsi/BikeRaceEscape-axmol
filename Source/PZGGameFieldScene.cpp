@@ -445,9 +445,25 @@ void PZGGameFieldScene::pauseMenuCallback( Object* pSender ){
         CocosDenshion::SimpleAudioEngine::sharedEngine()->pauseBackgroundMusic();
 
         Scene* pauseScene = PZGPauseMenuScene::scene();
+        if (!pauseScene) {
+            AXLOGE("pauseMenuCallback: failed to create pause scene");
+            gamePause = false;
+            pauseButton->setVisible(true);
+            return;
+        }
         pauseScene->setTag( 20 );
 
-        PZGPauseMenuScene *pauseMenuScene = (PZGPauseMenuScene*)pauseScene->getChildren().at( 0 );
+        PZGPauseMenuScene* pauseMenuScene = nullptr;
+        if (!pauseScene->getChildren().empty()) {
+            pauseMenuScene = dynamic_cast<PZGPauseMenuScene*>(pauseScene->getChildren().at(0));
+        }
+        if (!pauseMenuScene) {
+            AXLOGE("pauseMenuCallback: pause scene has no PZGPauseMenuScene layer");
+            gamePause = false;
+            pauseButton->setVisible(true);
+            return;
+        }
+
         pauseMenuScene->baseScene = this;
         pauseMenuScene->load( "InterfacePM" );
         this->addChild( pauseScene, 200 );
@@ -552,17 +568,33 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
         PZSettingsController* sc = PZSettingsController::shared();
         sc->save();
         
-        character->dead();
-        character->shooting = false;
-        if (character->shootingSound){
-            character->shootingSound->stopSound();
+        if (character) {
+            character->dead();
+            character->shooting = false;
+            if (character->shootingSound){
+                character->shootingSound->stopSound();
+            }
+        } else {
+            AXLOGW("gameOverCallBack: character is null");
         }
         
         Scene* gameOver = PZGGameOverScene::scene();
+        if (!gameOver) {
+            AXLOGE("gameOverCallBack: failed to create game over scene");
+            return;
+        }
         gameOver->setTag( 10 );
         this->addChild( gameOver, 200 );
         
-        PZGGameOverScene *gameOverScene = (PZGGameOverScene*)gameOver->getChildren().at( 0 );
+        if (gameOver->getChildren().empty()) {
+            AXLOGE("gameOverCallBack: game over scene has no children");
+            return;
+        }
+        PZGGameOverScene *gameOverScene = dynamic_cast<PZGGameOverScene*>(gameOver->getChildren().at(0));
+        if (!gameOverScene) {
+            AXLOGE("gameOverCallBack: first child is not PZGGameOverScene");
+            return;
+        }
         gameOverScene->baseScene = this;
         gameOverScene->load( "InterfaceGO" );
         gameOverScene->setDistance( gf_distance );
@@ -594,8 +626,12 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
         PZSettingsController* sc = PZSettingsController::shared();
         
         PZGSharedData *sd = PZGSharedData::sharedInstanse();
-        __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
-        PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
+        PZGGameInfoIAP *iapInfo = nullptr;
+        if (sd) {
+            if (auto* array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+                iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+            }
+        }
         
         this->removeChildByTag(10, true);
         
@@ -608,19 +644,19 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
             MenuItemSprite *item;
             item = (MenuItemSprite*)menu->getChildByTag( 8 );
             if (item) {
-                if (sc->removeAds == false && iapInfo->removeAd_enabled == true) {
+                if (iapInfo && sc->removeAds == false && iapInfo->removeAd_enabled == true) {
                     item->setVisible( true );
                 }
             }
             item = (MenuItemSprite*)menu->getChildByTag( 7 );
             if (item) {
-                if (iapInfo->coinShop_enabled == true){
+                if (iapInfo && iapInfo->coinShop_enabled == true){
                     item->setVisible( true );
                 }
             }
             item = (MenuItemSprite*)menu->getChildByTag( 6 );
             if (item) {
-                if (iapInfo->kidMode_enabled && sc->kidMode == false){
+                if (iapInfo && iapInfo->kidMode_enabled && sc->kidMode == false){
                     item->setVisible( true );
                 }
             }

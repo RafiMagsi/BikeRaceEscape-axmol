@@ -154,6 +154,12 @@ bool PZGGamefieldBasicRunner::init()
 
 void PZGGamefieldBasicRunner::update(float dt){
 
+    if (!character) {
+        AXLOGE("PZGGamefieldBasicRunner::update: character is null");
+        gameOverCallBack(true);
+        return;
+    }
+
     if (tip_counter <= 3 ){
         tip_counter += dt;
         

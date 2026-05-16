@@ -55,8 +55,13 @@ void PZGGameOverScene::load(const char* keyName){
     PZSettingsController* sc = PZSettingsController::shared();
     
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
+    // IAP settings are optional in this port; keep game-over UI working without them.
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        if (auto* array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
     
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
     if (menu) {
@@ -73,7 +78,7 @@ void PZGGameOverScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 6 );
         if (item) {
-            if (sc->removeAds || iapInfo->removeAd_enabled == false) {
+            if (!iapInfo || sc->removeAds || iapInfo->removeAd_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -84,7 +89,7 @@ void PZGGameOverScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 5 );
         if (item) {
-            if (iapInfo->coinShop_enabled == false) {
+            if (!iapInfo || iapInfo->coinShop_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -94,7 +99,7 @@ void PZGGameOverScene::load(const char* keyName){
         }
         item = (MenuItemSprite*)menu->getChildByTag( 4 );
         if (item) {
-            if (iapInfo->kidMode_enabled && sc->kidMode == false) {
+            if (iapInfo && iapInfo->kidMode_enabled && sc->kidMode == false) {
                 item->setVisible(true);
                 item->setCallback(AX_CALLBACK_1(PZGBaseMenuScene::buyKidModeCallback, this));
             }
