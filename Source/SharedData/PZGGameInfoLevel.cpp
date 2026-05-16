@@ -47,15 +47,11 @@ PZGGameInfoLevel*  PZGGameInfoLevel::createWithDictionary(ax::__Dictionary * dic
     obj->endDistance = vEnd ? vEnd->floatValue() : 0.0f;
 
     obj->platformInfoKey = (ax::__String*)dictionary->valueForKey("platfromInfoKey");
-    if (obj->platformInfoKey) {
-        obj->platformInfoKey->retain();
-    }
     auto* vPlatIdx = dictionary->valueForKey("platformInfoIndex");
     obj->platformInfoIndex = vPlatIdx ? vPlatIdx->intValue() : 0;
 
     
     obj->objects = ax::__Array::create();
-    obj->objects->retain();
     
     ax::__Array* array = (ax::__Array*)dictionary->objectForKey("objects");
     if (!array) {

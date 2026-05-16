@@ -39,16 +39,18 @@ PZGGameplayBasicRunner* PZGGameplayBasicRunner::createWithDictionary(ax::__Dicti
     obj->platfromsBetweenIncreaser = dictionary->valueForKey("platfromsBetweenIncreaser")->floatValue();
     obj->platfromsHeightSpread = dictionary->valueForKey("platfromsHeightSpread")->floatValue();
     
-    ax::__Dictionary* dict;
-    ax::__Array* array;
-    ax::Object *arrayObj;
+    ax::__Dictionary* dict = nullptr;
+    ax::__Array* array = nullptr;
+    ax::Object *arrayObj = nullptr;
     
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("platfrom1");
+    // NOTE: in our legacy compat layer, `valueForKey` returns only string-like values.
+    // For nested dict/array objects coming from plist, always use `objectForKey`.
+    dict = ( ax::__Dictionary* )dictionary->objectForKey("platfrom1");
     if (dict) {
         obj->platform1Art = PZGArtObject::createWithDictionary( dict );
     }
     
-    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom1_cp");
+    arrayObj = (ax::Object*)dictionary->objectForKey("platfrom1_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
@@ -58,12 +60,12 @@ PZGGameplayBasicRunner* PZGGameplayBasicRunner::createWithDictionary(ax::__Dicti
         obj->platform1Cp[ 1 ] = s->pointValue();
     }
     
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("platfrom2");
+    dict = ( ax::__Dictionary* )dictionary->objectForKey("platfrom2");
     if (dict) {
         obj->platform2Art = PZGArtObject::createWithDictionary( dict );
     }
     
-    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom2_cp");
+    arrayObj = (ax::Object*)dictionary->objectForKey("platfrom2_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
@@ -73,12 +75,12 @@ PZGGameplayBasicRunner* PZGGameplayBasicRunner::createWithDictionary(ax::__Dicti
         obj->platform2Cp[ 1 ] = s->pointValue();
     }
     
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("platfrom3");
+    dict = ( ax::__Dictionary* )dictionary->objectForKey("platfrom3");
     if (dict) {
         obj->platform3Art = PZGArtObject::createWithDictionary( dict );
     }
     
-    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom3_cp");
+    arrayObj = (ax::Object*)dictionary->objectForKey("platfrom3_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
@@ -90,4 +92,3 @@ PZGGameplayBasicRunner* PZGGameplayBasicRunner::createWithDictionary(ax::__Dicti
     
     return obj;
 }
-

@@ -100,6 +100,8 @@ bool PZGGameFieldScene::init()
 	if ( !Layer::init() )	{
 		return false;
 	}
+
+    AXLOGI("PZGGameFieldScene::init begin");
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     this->setKeypadEnabled(true);
@@ -114,7 +116,15 @@ bool PZGGameFieldScene::init()
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* array = (__Array*)gsd->gameInfoResource->objectForKey("GeneralApplicationSettings");
+    if (!array || array->count() == 0) {
+        AXLOGE("PZGGameFieldScene::init: GeneralApplicationSettings missing/empty");
+        return false;
+    }
     PZGGameInfoGeneral * gameInfoGeneral = (PZGGameInfoGeneral*)array->objectAtIndex(0);
+    if (!gameInfoGeneral) {
+        AXLOGE("PZGGameFieldScene::init: GeneralApplicationSettings[0] is null");
+        return false;
+    }
     isPortraitMode = gameInfoGeneral->isPortraitMode;
     
 
@@ -254,7 +264,8 @@ bool PZGGameFieldScene::init()
 //        setDebugModeEnabled(true);
 //    }
     
-	return true;
+    AXLOGI("PZGGameFieldScene::init end");
+    return true;
 }
 
 void PZGGameFieldScene::load(const char* keyName){

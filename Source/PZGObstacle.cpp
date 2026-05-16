@@ -74,9 +74,6 @@ void PZGObstacle::init(PZGArtObstacle* obstInfo){
     }
     
     sprite_death = obstInfo->deathArtObj->getResourceAnimate();
-    if (sprite_death) {
-        sprite_death->retain();
-    }
     
     health = obstInfo->health;
     speed = obstInfo->baseSpeed;

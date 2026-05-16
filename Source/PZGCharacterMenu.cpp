@@ -76,16 +76,13 @@ void PZGCharacterMenu::load(const char* keyName){
         return;
     }
 
-    __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
-    if (!array || array->count() == 0) {
-        AXLOGW("PZGCharacterMenu::load: IAPSettings not found or empty");
-        return;
+    // IAPSettings is optional for this port; don't early-return or you'll lose all button callbacks.
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (auto* array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+        iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
     }
-
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
     if (!iapInfo) {
-        AXLOGW("PZGCharacterMenu::load: IAPSettings object at index 0 is null");
-        return;
+        AXLOGW("PZGCharacterMenu::load: IAPSettings missing; IAP buttons will be hidden");
     }
 
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
@@ -94,11 +91,16 @@ void PZGCharacterMenu::load(const char* keyName){
         MenuItemSprite *item = (MenuItemSprite*)menu->getChildByTag( 4 ); //INDEX 4 is FOR START GAME BUTTON
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::startGameCallback, this));
+            AXLOGI("PZGCharacterMenu::load: wired StartGame (tag=4)");
+        } else {
+            AXLOGW("PZGCharacterMenu::load: StartGame button (tag=4) not found");
         }
         
         item = (MenuItemSprite*)menu->getChildByTag( 5 ); //INDEX 5 is for BACK BUTTON
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::backCallback, this));
+        } else {
+            AXLOGW("PZGCharacterMenu::load: Back button (tag=5) not found");
         }
         
         item = (MenuItemSprite*)menu->getChildByTag( kUIIDCharacterMenuLeftButton ); //INDEX 1 is for LEFT BUTTON
@@ -119,7 +121,7 @@ void PZGCharacterMenu::load(const char* keyName){
         ///////////////////////
         item = (MenuItemSprite*)menu->getChildByTag( 13 ); //UPGRADE
         if (item) {
-            if (sc->removeAds || iapInfo->removeAd_enabled == false) {
+            if (!iapInfo || sc->removeAds || iapInfo->removeAd_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -130,7 +132,7 @@ void PZGCharacterMenu::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 12 ); //COINSHOP
         if (item) {
-            if (iapInfo->coinShop_enabled == false) {
+            if (!iapInfo || iapInfo->coinShop_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -140,7 +142,7 @@ void PZGCharacterMenu::load(const char* keyName){
         }
         item = (MenuItemSprite*)menu->getChildByTag( 11 ); //KIDMODE
         if (item) {
-            if (iapInfo->kidMode_enabled && sc->kidMode == false) {
+            if (iapInfo && iapInfo->kidMode_enabled && sc->kidMode == false) {
                 item->setVisible(true);
                 item->setCallback(AX_CALLBACK_1(PZGBaseMenuScene::buyKidModeCallback, this));
             }
@@ -149,6 +151,9 @@ void PZGCharacterMenu::load(const char* keyName){
             }
         }
         
+    }
+    else{
+        AXLOGE("PZGCharacterMenu::load: menu (tag=kBaseMenuItemTag) not found; buttons won't respond");
     }
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
@@ -595,6 +600,9 @@ void PZGCharacterMenu::startGameCallback(Object* pSender){
     else if (gameInfoObject->gameTypeId == 6) {
         AXLOGI("loading: BASIC RUNNER GAME");
         pScene = PZGGamefieldBasicRunner::scene();
+        if (!pScene) {
+            AXLOGE("PZGCharacterMenu::startGameCallback: BasicRunner scene creation failed (init returned false)");
+        }
         if (pScene && !pScene->getChildren().empty()) {
             for (size_t i = 0; i < pScene->getChildren().size(); i++) {
                 auto* child = dynamic_cast<PZGGamefieldBasicRunner*>(pScene->getChildren().at(i));

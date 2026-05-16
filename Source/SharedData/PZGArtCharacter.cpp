@@ -23,13 +23,11 @@ PZGArtCharacter* PZGArtCharacter::createWithDictionary(ax::__Dictionary * dictio
     PZGArtCharacter *artObj = new PZGArtCharacter();
     
     artObj->name = (ax::__String*)dictionary-> valueForKey(ART_OBJECT_NAME);
-    artObj->name->retain();
     
     artObj->index = ((ax::__String*)dictionary-> valueForKey("index"))->intValue();
     
     artObj->className = dictionary->valueForKey(OBJECT_CLASS_NAME);
     artObj->key = (ax::__String*)dictionary->valueForKey(ART_OBJECT_KEY);
-    artObj->key->retain();
     artObj->no_of_sprites = (dictionary->valueForKey(ART_NO_OF_SPRITES))->intValue();
     
     artObj->scale = ( (ax::__String*)dictionary->objectForKey( "scale" ))->floatValue();
@@ -41,11 +39,9 @@ PZGArtCharacter* PZGArtCharacter::createWithDictionary(ax::__Dictionary * dictio
     artObj->desctiprion = dictionary->valueForKey( C_ART_CHARACTER_DESCRIPTION );
     artObj->storeId = (ax::__String*)dictionary->valueForKey( "storeId" );
     if (artObj->storeId) {
-        artObj->storeId->retain();
     }
     artObj->storeDescription = (ax::__String*)dictionary->valueForKey( "storeDescription" );
     if (artObj->storeDescription) {
-        artObj->storeDescription->retain();
     }
 
     artObj->enableIAP = ((ax::__String*)dictionary->valueForKey( "enableIAP" ))->boolValue();

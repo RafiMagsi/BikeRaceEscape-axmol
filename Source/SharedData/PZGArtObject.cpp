@@ -117,7 +117,6 @@ PZGArtObject* PZGArtObject::createWithDictionary(ax::__Dictionary * dictionary)
     artObj->name = (ax::__String*)dictionary-> valueForKey(ART_OBJECT_NAME);
     artObj->className = dictionary->valueForKey(OBJECT_CLASS_NAME);
     artObj->key = ( __String* )dictionary->valueForKey(ART_OBJECT_KEY);
-    artObj->key->retain();
     artObj->no_of_sprites = (dictionary->valueForKey(ART_NO_OF_SPRITES))->intValue();
     artObj->index = dictionary->valueForKey("index")->intValue();
     

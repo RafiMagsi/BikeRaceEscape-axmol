@@ -85,9 +85,6 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
         s_body->setScale( character_scale );
 
         s_body_animation = artCharacter->getResourceAnimate();
-        if (s_body_animation) {
-            s_body_animation->retain();
-        }
         this->addChild( s_body );
         AXLOGI("PZGCharacter::init: Body added");
     } else {
@@ -97,9 +94,6 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
     AXLOGI("PZGCharacter::init: Setting up death animation");
     if (artCharacter->deathArtObj) {
         s_body_death = artCharacter->deathArtObj->getResourceAnimate();
-        if (s_body_death) {
-            s_body_death->retain();
-        }
     } else {
         AXLOGW("PZGCharacter::init: deathArtObj is null");
     }
@@ -107,9 +101,6 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
     AXLOGI("PZGCharacter::init: Setting up jump animation");
     if (artCharacter->jumpArtObj) {
         s_body_jump = artCharacter->jumpArtObj->getResourceAnimate();
-        if (s_body_jump) {
-            s_body_jump->retain();
-        }
     } else {
         AXLOGW("PZGCharacter::init: jumpArtObj is null");
     }

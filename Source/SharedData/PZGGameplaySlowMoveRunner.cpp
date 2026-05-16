@@ -41,7 +41,6 @@ PZGGameplaySlowMoveRunner* PZGGameplaySlowMoveRunner::createWithDictionary(ax::_
     dict = ( ax::__Dictionary* )dictionary->valueForKey("platform1");
     if (dict) {
         obj->platform1Art = PZGArtObject::createWithDictionary( dict );
-        obj->platform1Art->retain();
     }
     
     arrayObj = (ax::Object*)dictionary->valueForKey("platform1_cp");

@@ -25,13 +25,10 @@ PZGArtInterface* PZGArtInterface::createWithDictionary(ax::__Dictionary * dictio
     
     obj->className = dictionary->valueForKey("className");
     obj->key = (ax::__String*)dictionary->valueForKey("key");
-    obj->key->retain();
 
     obj->subkey = (ax::__String*)dictionary->valueForKey("subkey");
-    obj->subkey->retain();
-    
+
     obj->name = (ax::__String*)dictionary->valueForKey("name");
-    obj->name->retain();
 
     obj->no_of_sprites = dictionary->valueForKey("no_of_sprites")->intValue();
     obj->index = dictionary->valueForKey("index")->intValue();
@@ -51,7 +48,6 @@ PZGArtInterface* PZGArtInterface::createWithDictionary(ax::__Dictionary * dictio
     obj->rotation = dictionary->valueForKey("rotation")->floatValue();
 
     obj->type = (ax::__String*)dictionary->valueForKey("type");
-    obj->type->retain();
     
     return obj;
 }

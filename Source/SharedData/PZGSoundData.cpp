@@ -32,7 +32,6 @@ PZGSoundData* PZGSoundData::createWithDictionary(ax::__Dictionary * dictionary){
     
     obj->className = dictionary->valueForKey(SOUND_OBJECT);
     obj->key = (ax::__String*)dictionary->valueForKey( "key" );
-    obj->key->retain();
     
     obj->index = dictionary->valueForKey("index")->intValue();
     obj->isMusic = dictionary->valueForKey("isMusic")->boolValue();

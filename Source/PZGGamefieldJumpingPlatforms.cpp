@@ -39,7 +39,6 @@ bool PZGGamefieldJumpingPlatforms::init()
     if (levels) {
         for (int p = 0 ; p < kNum_OFPlatforms; p++) {
             levels_info[ p ] = __Array::create();
-            levels_info[ p ]->retain();
             
             //filtering all levels and adding only levels that ralated to curent platfroms
             for (int i=0; i < levels->count(); i++) {

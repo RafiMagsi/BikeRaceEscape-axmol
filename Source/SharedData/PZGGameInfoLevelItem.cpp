@@ -61,9 +61,6 @@ PZGGameInfoLevelItem*  PZGGameInfoLevelItem::createWithDictionary(ax::__Dictiona
     }
 
     obj->infoObjKey = (ax::__String*)dictionary->valueForKey("infoObjKey");
-    if (obj->infoObjKey) {
-        obj->infoObjKey->retain();
-    }
     
     return obj;
     

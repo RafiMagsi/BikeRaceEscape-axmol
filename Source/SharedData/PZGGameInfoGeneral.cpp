@@ -30,13 +30,10 @@ PZGGameInfoGeneral*  PZGGameInfoGeneral::createWithDictionary(ax::__Dictionary *
     obj->isGameCenterEnabled = dictionary->valueForKey("gameCenter")->boolValue();
    
     obj->neocortexURL = (ax::__String*)dictionary->valueForKey("neocortexURL");
-    obj->neocortexURL->retain();
 
     obj->neocortexURLAndroid = (ax::__String*)dictionary->valueForKey("neocortexURLAndroid");
-    obj->neocortexURLAndroid->retain();
 
     obj->bundleid = (ax::__String*)dictionary->valueForKey("bundleid");
-    obj->bundleid->retain();
     
     return obj;
     

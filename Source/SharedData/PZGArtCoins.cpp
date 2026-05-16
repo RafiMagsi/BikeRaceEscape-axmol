@@ -24,7 +24,6 @@ PZGArtCoins* PZGArtCoins::createWithDictionary(ax::__Dictionary * dictionary){
     
     obj->className = dictionary->valueForKey("className");
     obj->key = (ax::__String*)dictionary->valueForKey("key");
-    obj->key->retain();
     obj->no_of_sprites = dictionary->valueForKey("no_of_sprites")->intValue();
     obj->index = dictionary->valueForKey("index")->intValue();
     

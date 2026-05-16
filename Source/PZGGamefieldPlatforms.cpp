@@ -13,11 +13,24 @@
 USING_NS_AX;
 
 Scene* PZGGamefieldPlatforms::scene(){
-    
+    AXLOGI("PZGGamefieldPlatforms::scene: Creating scene");
+
 	Scene *scene = Scene::create();
+	if (!scene) {
+	    AXLOGE("PZGGamefieldPlatforms::scene: Failed to create Scene");
+	    return nullptr;
+	}
+
 	PZGGamefieldPlatforms *layer = PZGGamefieldPlatforms::create();
-    
+	if (!layer) {
+	    AXLOGE("PZGGamefieldPlatforms::scene: Failed to create PZGGamefieldPlatforms layer");
+	    // Scene::create() returns an autoreleased object; never manually release it here.
+	    return nullptr;
+	}
+
+    AXLOGI("PZGGamefieldPlatforms::scene: Adding layer to scene");
 	scene->addChild(layer);
+	AXLOGI("PZGGamefieldPlatforms::scene: Scene created successfully");
 	return scene;
 }
 
@@ -26,39 +39,93 @@ bool PZGGamefieldPlatforms::init()
 	if ( !Layer::init() )	{
 		return false;
 	}
-    
-    PZGSharedData *gsd = PZGSharedData::sharedInstanse();
-    __Array* array = (__Array*)gsd->gameInfoResource->objectForKey( "GameplaySettings" );
-    gameplayInfo = (PZGGameplayBasicRunner*)array->objectAtIndex( 0 );
-    
-    obstacles_info = (__Array*)gsd->artResource->objectForKey( "Obstacles" );
-    coins_info = (__Array*)gsd->artResource->objectForKey( "Coins" );
-    
-    __Array* levels = (__Array*)gsd->gameInfoResource->objectForKey( "Levels" );
 
-    if (levels) {
+    AXLOGI("PZGGamefieldPlatforms::init: Starting");
+
+    PZGSharedData *gsd = PZGSharedData::sharedInstanse();
+    if (!gsd) {
+        AXLOGE("PZGGamefieldPlatforms::init: gsd is null");
+        return false;
+    }
+
+    __Array* array = (__Array*)gsd->gameInfoResource->objectForKey( "GameplaySettings" );
+    if (!array || array->count() == 0) {
+        AXLOGE("PZGGamefieldPlatforms::init: GameplaySettings not found or empty");
+        return false;
+    }
+
+    gameplayInfo = (PZGGameplayBasicRunner*)array->objectAtIndex( 0 );
+    if (!gameplayInfo) {
+        AXLOGE("PZGGamefieldPlatforms::init: gameplayInfo is null");
+        return false;
+    }
+    AXLOGI("PZGGamefieldPlatforms::init: Got gameplay info");
+
+    if (!gameplayInfo->platform1Art) {
+        AXLOGE("PZGGamefieldPlatforms::init: platform1Art is null");
+        return false;
+    }
+
+    if (!gameplayInfo->platform1Art->key) {
+        AXLOGE("PZGGamefieldPlatforms::init: platform1Art->key is null");
+        return false;
+    }
+
+    AXLOGI("PZGGamefieldPlatforms::init: Platform key: {}", gameplayInfo->platform1Art->key->getCString());
+
+    // Non-critical resources - log warnings but continue
+    obstacles_info = (__Array*)gsd->artResource->objectForKey( "Obstacles" );
+    if (!obstacles_info) {
+        AXLOGW("PZGGamefieldPlatforms::init: obstacles_info not found");
+    } else {
+        AXLOGI("PZGGamefieldPlatforms::init: Got obstacles_info with {} items", obstacles_info->count());
+    }
+
+    coins_info = (__Array*)gsd->artResource->objectForKey( "Coins" );
+    if (!coins_info) {
+        AXLOGW("PZGGamefieldPlatforms::init: coins_info not found");
+    } else {
+        AXLOGI("PZGGamefieldPlatforms::init: Got coins_info with {} items", coins_info->count());
+    }
+
+    __Array* levels = (__Array*)gsd->gameInfoResource->objectForKey( "Levels" );
+    if (!levels) {
+        AXLOGW("PZGGamefieldPlatforms::init: Levels not found");
+    } else {
+        AXLOGI("PZGGamefieldPlatforms::init: Processing {} levels", levels->count());
+
         for (int p = 0 ; p < kNumOFPlatforms; p++) {
             levels_info[ p ] = __Array::create();
-            levels_info[ p ]->retain();
-            
+            // Don't retain - __Array::create() returns autoreleased object
+            // and keeping a reference keeps it alive
+
             //filtering all levels and adding only levels that ralated to curent platfroms
             for (int i=0; i < levels->count(); i++) {
                 PZGGameInfoLevel *level = (PZGGameInfoLevel*)levels->objectAtIndex( i );
-                if (
-                    level->platformInfoKey->compare( gameplayInfo->platform1Art->key->getCString() ) == 0 &&
-                    level->platformInfoIndex == p
-                    ) {
+                if (!level) {
+                    AXLOGW("PZGGamefieldPlatforms::init: Level {} is null", i);
+                    continue;
+                }
+
+                if (!level->platformInfoKey) {
+                    AXLOGW("PZGGamefieldPlatforms::init: Level {} platformInfoKey is null", i);
+                    continue;
+                }
+
+                if (level->platformInfoKey->compare( gameplayInfo->platform1Art->key->getCString() ) == 0 &&
+                    level->platformInfoIndex == p) {
                     levels_info[ p ]->addObject( level );
                 }
             }
-            
-            printf(" --- platform_type_id: %d  COUNT: %d\n", p, levels_info[ p ]->count());
-        }        
+
+            AXLOGI("Platform type {}: {} levels", p, levels_info[ p ]->count());
+        }
     }
-    
-    
+
+    AXLOGI("PZGGamefieldPlatforms::init: Calling reset");
     reset();
 
+    AXLOGI("PZGGamefieldPlatforms::init: Completed successfully");
     return true;
 }
 
@@ -238,23 +305,43 @@ PZGGameInfoLevel* PZGGamefieldPlatforms::getLevelInfo(float distance, int platfo
 }
 
 void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
-    
+
     PZGGameInfoLevel *levelInfo = getLevelInfo(distance, platform_type_id);
-    
+
     if (levelInfo == NULL) {
         return;
     }
-    
+
+    if (!levelInfo->objects) {
+        AXLOGW("PZGGamefieldPlatforms::addLevel: levelInfo->objects is null");
+        return;
+    }
+
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
-    
+
     for (int i=0;  i < levelInfo->objects->count(); i++) {
         PZGGameInfoLevelItem *item = (PZGGameInfoLevelItem*)levelInfo->objects->objectAtIndex( i );
-        
+        if (!item || !item->infoObjKey) {
+            AXLOGW("PZGGamefieldPlatforms::addLevel: Item {} is null or has null infoObjKey", i);
+            continue;
+        }
+
         if (item->infoObjKey->compare( "Coins" ) == 0) {
+            if (!coins_info) {
+                AXLOGW("PZGGamefieldPlatforms::addLevel: coins_info is null, skipping coin");
+                continue;
+            }
+
             int index = getCoinIndex( item );
+            if (index < 0 || index >= (int)coins_info->count()) {
+                AXLOGW("PZGGamefieldPlatforms::addLevel: Coin index {} out of range [0, {})", index, coins_info->count());
+                continue;
+            }
+
             PZGCoin *coin = PZGCoin::create( (PZGArtCoins*)coins_info->objectAtIndex( index ), world);
             if (coin == NULL) {
-                return;
+                AXLOGW("PZGGamefieldPlatforms::addLevel: Failed to create coin at index {}", index);
+                continue;
             }
             
             coin->setPosition( item->position );
@@ -277,10 +364,21 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
             coins[ 0 ] = coin;
         }
         else if( item->infoObjKey->compare( "Obstacles" ) == 0){
+            if (!obstacles_info) {
+                AXLOGW("PZGGamefieldPlatforms::addLevel: obstacles_info is null, skipping obstacle");
+                continue;
+            }
+
             int index = getObstacleIndex( item );
+            if (index < 0 || index >= (int)obstacles_info->count()) {
+                AXLOGW("PZGGamefieldPlatforms::addLevel: Obstacle index {} out of range [0, {})", index, obstacles_info->count());
+                continue;
+            }
+
             PZGObstacle *obstacle = PZGObstacle::create( (PZGArtObstacle*)obstacles_info->objectAtIndex( index ), world);
             if (obstacle == NULL) {
-                return;
+                AXLOGW("PZGGamefieldPlatforms::addLevel: Failed to create obstacle at index {}", index);
+                continue;
             }
             obstacle->setPosition( item->position );
             obstacle->setPosition( ccp(spritePosition.x + obstacle->getPosition().x * kDeviceScale()*2,
@@ -304,80 +402,100 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
 }
 
 void PZGGamefieldPlatforms::addCoins( int typeId ){
-    
+
     if (length < 1200*kDeviceScale()){
         return;
     }
-    
+
+    if (!coins_info) {
+        AXLOGW("PZGGamefieldPlatforms::addCoins: coins_info is null");
+        return;
+    }
+
+    if (typeId < 0 || typeId >= (int)coins_info->count()) {
+        AXLOGW("PZGGamefieldPlatforms::addCoins: typeId {} out of range [0, {})", typeId, coins_info->count());
+        return;
+    }
+
     Size screen = Director::getInstance()->getWinSize();
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
     Vec2 collisionPosition = platforms[ 0 ]->collisionPosition;// platfroms_collision[ 0 ];
     float collisionWidth = platforms[ 0 ]->width;// platforms_width[ 0 ];
-    
-    if (coins_info) {
 
-        
-        PZGCoin *coin = PZGCoin::create( (PZGArtCoins*)coins_info->objectAtIndex( typeId ), world);
-        if (coin == NULL) {
-            return;
-        }
-        coin->setPosition( ccp(spritePosition.x + collisionPosition.x*kDeviceScale() + CCRANDOM_MINUS1_1()*collisionWidth*kDeviceScale(),
-                               spritePosition.y + collisionPosition.y*kDeviceScale() + coin->sprite->getContentSize().height*0.5) );
-                
-        if (coin->getPosition().x < screen.width*1.1) {
-            printf("coin\n");
-            return;
-        }
-        
-        //check for obstacle overlap
-        for (int i=0; i < kMaxBasicRunnerObsctales; i++) {
-            if (obstacles[ i ]) {
-                Rect r = RectMake(obstacles[ i ]->getPosition().x - obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale * 0.5,
-                                      obstacles[ i ]->getPosition().y - obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale * 0.5,
-                                      obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale,
-                                      obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale);
-                
-                Rect rn = RectMake(coin->getPosition().x - coin->sprite->getContentSize().width * 0.5,
-                                       coin->getPosition().y - coin->sprite->getContentSize().height * 0.5,
-                                       coin->sprite->getContentSize().width,
-                                       coin->sprite->getContentSize().height);
-                
-                if (r.intersectsRect( rn )) {
-                    return;
-                }
+    PZGCoin *coin = PZGCoin::create( (PZGArtCoins*)coins_info->objectAtIndex( typeId ), world);
+    if (coin == NULL) {
+        AXLOGW("PZGGamefieldPlatforms::addCoins: Failed to create coin at typeId {}", typeId);
+        return;
+    }
+
+    coin->setPosition( ccp(spritePosition.x + collisionPosition.x*kDeviceScale() + CCRANDOM_MINUS1_1()*collisionWidth*kDeviceScale(),
+                           spritePosition.y + collisionPosition.y*kDeviceScale() + coin->sprite->getContentSize().height*0.5) );
+
+    if (coin->getPosition().x < screen.width*1.1) {
+        printf("coin\n");
+        return;
+    }
+
+    //check for obstacle overlap
+    for (int i=0; i < kMaxBasicRunnerObsctales; i++) {
+        if (obstacles[ i ]) {
+            Rect r = RectMake(obstacles[ i ]->getPosition().x - obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale * 0.5,
+                                  obstacles[ i ]->getPosition().y - obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale * 0.5,
+                                  obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale,
+                                  obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale);
+
+            Rect rn = RectMake(coin->getPosition().x - coin->sprite->getContentSize().width * 0.5,
+                                   coin->getPosition().y - coin->sprite->getContentSize().height * 0.5,
+                                   coin->sprite->getContentSize().width,
+                                   coin->sprite->getContentSize().height);
+
+            if (r.intersectsRect( rn )) {
+                return;
             }
         }
-        
-        
-        if (coins[ kMaxBasicRunnerCoins-1 ] != NULL) {
-            coins[ kMaxBasicRunnerCoins-1 ]->destroyPhysics( world );
-            this->removeChild(coins[ kMaxBasicRunnerCoins-1 ], true);
-        }
-        
-        for (int i = kMaxBasicRunnerCoins-1; i > 0; i--){
-            coins[ i ] = coins[ i-1 ];
-        }
-        
-        this->addChild( coin, 33 );
-        coins[ 0 ] = coin;
     }
+
+    if (coins[ kMaxBasicRunnerCoins-1 ] != NULL) {
+        coins[ kMaxBasicRunnerCoins-1 ]->destroyPhysics( world );
+        this->removeChild(coins[ kMaxBasicRunnerCoins-1 ], true);
+    }
+
+    for (int i = kMaxBasicRunnerCoins-1; i > 0; i--){
+        coins[ i ] = coins[ i-1 ];
+    }
+
+    this->addChild( coin, 33 );
+    coins[ 0 ] = coin;
 }
 void PZGGamefieldPlatforms::addObstacle( int typeId ){
-    
+
     if (length < 1200*kDeviceScale()){
         return;
     }
-    
+
+    if (!obstacles_info) {
+        AXLOGW("PZGGamefieldPlatforms::addObstacle: obstacles_info is null");
+        return;
+    }
+
+    if (typeId < 0 || typeId >= (int)obstacles_info->count()) {
+        AXLOGW("PZGGamefieldPlatforms::addObstacle: typeId {} out of range [0, {})", typeId, obstacles_info->count());
+        return;
+    }
+
     Size screen = Director::getInstance()->getWinSize();
-    
+
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
     Vec2 collisionPosition = platforms[ 0 ]->collisionPosition;// platfroms_collision[ 0 ];
     float collisionWidth = platforms[ 0 ]->width;// platforms_width[ 0 ];
-    
-    if (obstacles_info) {
-        
-        PZGArtObstacle *obstInfo = (PZGArtObstacle*)obstacles_info->objectAtIndex( typeId );
-        PZGObstacle *obstacle = PZGObstacle::create( obstInfo, world);
+
+    PZGArtObstacle *obstInfo = (PZGArtObstacle*)obstacles_info->objectAtIndex( typeId );
+    if (!obstInfo) {
+        AXLOGW("PZGGamefieldPlatforms::addObstacle: obstInfo is null at typeId {}", typeId);
+        return;
+    }
+
+    PZGObstacle *obstacle = PZGObstacle::create( obstInfo, world);
 
         if (obstacle == NULL) {
             return;
@@ -437,9 +555,8 @@ void PZGGamefieldPlatforms::addObstacle( int typeId ){
             obstacles[ i ] = obstacles[ i-1 ];
         }
         
-        this->addChild( obstacle,  32 - (obstacles_info->count() - typeId));
-        obstacles[ 0 ] = obstacle;
-    }
+    this->addChild( obstacle,  32 - (obstacles_info->count() - typeId));
+    obstacles[ 0 ] = obstacle;
 }
 
 void PZGGamefieldPlatforms::update(float dt){
@@ -521,5 +638,4 @@ void PZGGamefieldPlatforms::update(float dt){
     }
 
 }
-
 

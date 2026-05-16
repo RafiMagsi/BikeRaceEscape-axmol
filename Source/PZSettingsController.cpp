@@ -36,7 +36,6 @@ PZSettingsController::PZSettingsController(){
 
 void PZSettingsController::setDocumentPath( const char* path){
     documentPath = __String::create( path );
-    documentPath->retain();
 }
 
 void PZSettingsController::save(){

@@ -24,11 +24,9 @@ PZGArtBackground* PZGArtBackground::createWithDictionary(ax::__Dictionary * dict
     artObj->index = ((ax::__String*)dictionary->valueForKey("index"))->intValue();
     
     artObj->name = (ax::__String*)dictionary-> valueForKey(ART_OBJECT_NAME);
-    artObj->name->retain();
     
     artObj->className = dictionary->valueForKey(OBJECT_CLASS_NAME);
     artObj->key = ( ax::__String* )dictionary->valueForKey(ART_OBJECT_KEY);
-    artObj->key->retain();
     
     artObj->playGroundLayer = ((ax::__String*)dictionary->valueForKey("playGroundLayer"))->boolValue();
     

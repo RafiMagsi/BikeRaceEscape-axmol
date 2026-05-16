@@ -32,6 +32,12 @@ static void pz_addToBucket(ax::__Dictionary* store, ax::Object* object, const ch
     arr->addObject(object);
     store->setObject(arr, key);
 }
+
+static void pz_addToBuckets(ax::__Dictionary* store, ax::Object* object, const char* primaryKey, const char* aliasKey) {
+    pz_addToBucket(store, object, primaryKey);
+    if (aliasKey && primaryKey && std::strcmp(aliasKey, primaryKey) == 0) return;
+    pz_addToBucket(store, object, aliasKey);
+}
 } // namespace
 
 PZGSharedData::PZGSharedData()
@@ -70,13 +76,11 @@ void PZGSharedData::destroyInstanse(){
 void PZGSharedData::setWorkingURL(const char* url){
 //    printf(" URL: %s \n", url);
     workingURL = ax::__String::create( std::string(url) );
-    workingURL->retain();
 }
 
 void PZGSharedData::setDocumentURL(const char* url){
 //    printf(" URL: %s \n", url);
     documentURL = ax::__String::create( std::string(url) );
-    documentURL->retain();
 }
 
 ax::__String* PZGSharedData::getFullPath(const char* name){
@@ -284,62 +288,98 @@ void PZGSharedData::readDataFromFile()
         // PZGameplayBasicRunner
         if ( className->isEqual( __String::create( C_GAMEPLAY_BASICRUNNER_CLASS_NAME ) ) ){
             PZGGameplayBasicRunner *obj = PZGGameplayBasicRunner::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayBasicAvoidance
         if ( className->isEqual( __String::create( C_GAMEPLAY_BASICAVOIDANCE_CLASS_NAME ) ) ){
             PZGGameplayBasicAvoidance *obj = PZGGameplayBasicAvoidance::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayHelicopterGame
         if ( className->isEqual( __String::create( C_GAMEPLAY_HELICOPTER_CLASS_NAME ) ) ){
             PZGGameplayHelicopterGame *obj = PZGGameplayHelicopterGame::createWithDictionary(dict);          
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplaySpaceShooter
         if ( className->isEqual( __String::create( C_GAMEPLAY_SPACESHOOTER_CLASS_NAME ) ) ){
             PZGGameplaySpaceShooter *obj = PZGGameplaySpaceShooter::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayShooterHelicopter
         if ( className->isEqual( __String::create( C_GAMEPLAY_SHOOTINGHELICOPTER_CLASS_NAME ) ) ){
             PZGGameplayShootingHelicopter *obj = PZGGameplayShootingHelicopter::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayShootingRunner
         if ( className->isEqual( __String::create( C_GAMEPLAY_SHOOTINGRUNNER_CLASS_NAME ) ) ){
             PZGGameplayShootingRunner *obj = PZGGameplayShootingRunner::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayTiltAvoidance
         if ( className->isEqual( __String::create( C_GAMEPLAY_TILTAVOIDANCE_CLASS_NAME ) ) ){
             PZGGameplayTiltAvoidance *obj = PZGGameplayTiltAvoidance::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayRoundShooter
         if ( className->isEqual( __String::create( C_GAMEPLAY_ROUNDSHOOTER_CLASS_NAME ) ) ){
             PZGGameplayRoundShooter *obj = PZGGameplayRoundShooter::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplaySlowMoveRunner
         if ( className->isEqual( __String::create( C_GAMEPLAY_SLOWMOVERUNNER_CLASS_NAME ) ) ){
             PZGGameplaySlowMoveRunner *obj = PZGGameplaySlowMoveRunner::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameplayJumpingGame
         if ( className->isEqual( __String::create( C_GAMEPLAY_JUMPING_CLASS_NAME ) ) ){
             PZGGameplayJumpingGame *obj = PZGGameplayJumpingGame::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGGameplayMegaJumpGame
         if ( className->isEqual( __String::create( C_GAMEPLAY_MEGAJUMP_CLASS_NAME ) ) ){
             PZGGameplayMegaJumpGame *obj = PZGGameplayMegaJumpGame::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGGameplayRacingGame
         if ( className->isEqual( __String::create( C_GAMEPLAY_RACINGGAME_CLASS_NAME ) ) ){
             PZGGameplayRacingGame *obj = PZGGameplayRacingGame::createWithDictionary(dict);
-            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+            pz_addToBuckets(gameInfoResource, obj,
+                (obj && obj->key) ? obj->key->getCString() : nullptr,
+                (obj && obj->name) ? obj->name->getCString() : nullptr
+            );
         }else
         // PZGameInfoGeneral
         if ( className->isEqual( __String::create( C_GAMEINFO_GENERAL_CLASS_NAME ) ) ){
