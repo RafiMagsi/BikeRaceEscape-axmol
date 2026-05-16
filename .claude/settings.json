@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat /Users/rafi/Library/Developer/CoreSimulator/Devices/AAAA9D66-DF85-4D0A-9B85-964CED24AF93/data/Containers/Data/Application/6E7B1BFD-484E-4F19-9C7B-779A7A461139/Documents/pz_run_log.txt | tail -150)",
+      "Read(//Users/rafi/Library/Developer/CoreSimulator/Devices/AAAA9D66-DF85-4D0A-9B85-964CED24AF93/data/Containers/Data/Application/6E7B1BFD-484E-4F19-9C7B-779A7A461139/Documents/**)",
+      "Bash(timeout 120 bash -c 'while pgrep -q xcodebuild; do sleep 2; done')",
+      "Bash(pgrep -q xcodebuild)"
+    ]
+  }
+}
