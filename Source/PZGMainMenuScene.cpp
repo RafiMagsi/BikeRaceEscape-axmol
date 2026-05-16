@@ -41,13 +41,23 @@ bool PZGMainMenuScene::init()
 }
 
 void PZGMainMenuScene::load(const char* keyName){
+    AXLOGI("PZGMainMenuScene::load begin - keyName: {}", keyName ? keyName : "(null)");
     PZGBaseMenuScene::load( keyName );
-    
+    AXLOGI("PZGBaseMenuScene::load completed");
+
     PZSettingsController* sc = PZSettingsController::shared();
-    
+
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
     __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
+    if (!array || array->count() == 0) {
+        AXLOGE("PZGMainMenuScene::load - IAPSettings array not found or empty");
+        return;
+    }
     PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
+    if (!iapInfo) {
+        AXLOGE("PZGMainMenuScene::load - IAPSettings object at index 0 is null");
+        return;
+    }
     
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
     if (menu) {

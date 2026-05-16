@@ -82,11 +82,25 @@ void AppDelegate::scheduledLoading() {
 
     // Start at legacy main menu (it knows how to bootstrap its own UI via load()).
     if (auto* scene = PZGMainMenuScene::scene()) {
+        AXLOGI("PZGMainMenuScene created, children count: {}", scene->getChildren().size());
+
+        // Try to find and load the main menu layer
+        bool menuLoaded = false;
         if (!scene->getChildren().empty()) {
-            if (auto* layer = dynamic_cast<PZGMainMenuScene*>(scene->getChildren().at(0))) {
-                layer->load("InterfaceMainMenu");
+            for (auto child : scene->getChildren()) {
+                if (auto* layer = dynamic_cast<PZGMainMenuScene*>(child)) {
+                    AXLOGI("Found PZGMainMenuScene layer, calling load()");
+                    layer->load("InterfaceMainMenu");
+                    menuLoaded = true;
+                    break;
+                }
             }
         }
+
+        if (!menuLoaded) {
+            AXLOGW("Warning: Could not find/load PZGMainMenuScene layer");
+        }
+
         director->replaceScene(scene);
         AXLOGI("AppDelegate::scheduledLoading -> PZGMainMenuScene");
         return;

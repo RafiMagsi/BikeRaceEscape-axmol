@@ -37,11 +37,14 @@ static void pz_addToBucket(ax::__Dictionary* store, ax::Object* object, const ch
 PZGSharedData::PZGSharedData()
 {
     synchronized = false;
-    
+
     artResource = __Dictionary::create();
+    artResource->retain();
     gameInfoResource = __Dictionary::create();
+    gameInfoResource->retain();
     soundResource = __Dictionary::create();
-    
+    soundResource->retain();
+
 }
 PZGSharedData::~PZGSharedData()
 {
@@ -136,7 +139,7 @@ void PZGSharedData::readDataFromFile()
     }
     AXLOGI("Found completeInfo array with {} items", completeGameArray->count());
 
-
+    int processedCount = 0;
     for (int i =0; i< completeGameArray->count(); i++){
         __Dictionary* dict = (__Dictionary*)completeGameArray->objectAtIndex(i);
         
@@ -236,17 +239,15 @@ void PZGSharedData::readDataFromFile()
         if ( className->isEqual( __String::create( C_SOUND_CLASS_NAME ) ) ){
             PZGSoundData *object = PZGSoundData::createWithDictionary(dict);
             if (object && object->key) {
-                __Array* arr = ( __Array* )soundResource->objectForKey( object->key->getCString() );
-                if ( arr ){
+                const char* keyStr = object->key->getCString();
+                // Set index based on current count in the array
+                if (auto* arr = (ax::__Array*)soundResource->objectForKey(keyStr)) {
                     object->index = arr->count();
-                    ((__Array*)soundResource->objectForKey( object->key->getCString() ))->addObject( object );
-                }
-                else{
-                    arr = __Array::create( );
+                } else {
                     object->index = 0;
-                    arr->addObject( object );
-                    soundResource->setObject(arr, object->key->getCString());
                 }
+                // Use safe bucket insertion
+                pz_addToBucket(soundResource, object, keyStr);
             }
         }else
         // PZGameplayBasicRunner
@@ -325,10 +326,9 @@ void PZGSharedData::readDataFromFile()
             pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
         }
     }
-    
-    artResource->retain();
-    gameInfoResource->retain();
-    soundResource->retain();
-    
+
+    AXLOGI("PZGSharedData::readDataFromFile - Finished processing {} items", completeGameArray->count());
+
+    AXLOGI("PZGSharedData::readDataFromFile - completed successfully");
     synchronized = true;
 }

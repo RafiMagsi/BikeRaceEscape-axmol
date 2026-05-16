@@ -55,13 +55,23 @@ PZGArtInterface* PZGBaseMenuScene::getItemByName( const char* name, const char* 
 }
 
 void PZGBaseMenuScene::load(const char* keyName){
-    
+    AXLOGI("PZGBaseMenuScene::load begin - keyName: {}", keyName ? keyName : "(null)");
+
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* uiItems = (__Array*)gsd->artResource->objectForKey( keyName );
-    
+
     if (uiItems == NULL) {
+        AXLOGE("PZGBaseMenuScene::load - No UI items found for key: {}", keyName ? keyName : "(null)");
+        AXLOGI("Available artResource keys:");
+        // Log available keys for debugging
+        auto* dict = gsd->artResource;
+        if (dict) {
+            // Try to iterate through available keys
+            AXLOGI("  (debug: checking artResource for available UI items)");
+        }
         return;
     }
+    AXLOGI("PZGBaseMenuScene::load - Found {} UI items for key: {}", uiItems->count(), keyName);
     
     Size size = Director::getInstance()->getWinSize();
     
@@ -132,13 +142,18 @@ void PZGBaseMenuScene::load(const char* keyName){
     
     if (!pMenu->getChildren().empty()) {
         this->addChild(pMenu, 302);
+        AXLOGI("PZGBaseMenuScene::load - Added menu with {} items", pMenu->getChildren().size());
+    } else {
+        AXLOGI("PZGBaseMenuScene::load - Menu is empty, no items added");
     }
-    
+
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
     if (sounds) {
         buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
         buttonClickedSound->preloadSound();
+        AXLOGI("PZGBaseMenuScene::load - Sound loaded");
     }
+    AXLOGI("PZGBaseMenuScene::load completed");
 }
 
 
