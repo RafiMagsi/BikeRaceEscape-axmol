@@ -53,6 +53,8 @@ class PZGGamefieldPlatforms : public ax::Layer {
     int getObstacleIndex( PZGGameInfoLevelItem *item );
     
 public:
+    PZGGamefieldPlatforms();
+    ~PZGGamefieldPlatforms() override;
 
     bool isSlowMoveMode;
     

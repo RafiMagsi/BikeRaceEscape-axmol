@@ -9,8 +9,26 @@
 #include "PZLegacyCompat.h"
 #include "PZGGamefieldJumpingPlatforms.h"
 #include "constants.h"
+#include <cstring>
 
 USING_NS_AX;
+
+PZGGamefieldJumpingPlatforms::PZGGamefieldJumpingPlatforms()
+    : gameplayInfo(nullptr)
+    , obstacles_info(nullptr)
+    , coins_info(nullptr)
+    , length(0.0f) {
+    std::memset(levels_info, 0, sizeof(levels_info));
+    std::memset(platforms, 0, sizeof(platforms));
+    std::memset(obstacles, 0, sizeof(obstacles));
+    std::memset(coins, 0, sizeof(coins));
+}
+
+PZGGamefieldJumpingPlatforms::~PZGGamefieldJumpingPlatforms() {
+    for (int p = 0; p < kNum_OFPlatforms; ++p) {
+        AX_SAFE_RELEASE_NULL(levels_info[p]);
+    }
+}
 
 Scene* PZGGamefieldJumpingPlatforms::scene(){
     
@@ -29,7 +47,11 @@ bool PZGGamefieldJumpingPlatforms::init()
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* array = (__Array*)gsd->gameInfoResource->objectForKey( "GameplaySettings" );
-    gameplayInfo = (PZGGameplayJumpingGame*)array->objectAtIndex( 0 );
+    gameplayInfo = (array && array->count() > 0) ? (PZGGameplayJumpingGame*)array->objectAtIndex(0) : nullptr;
+    if (!gameplayInfo || !gameplayInfo->platform1Art || !gameplayInfo->platform1Art->key) {
+        AXLOGE("PZGGamefieldJumpingPlatforms::init: GameplaySettings/platform1Art/key missing");
+        return false;
+    }
     
     obstacles_info = (__Array*)gsd->artResource->objectForKey( "Obstacles" );
     coins_info = (__Array*)gsd->artResource->objectForKey( "Coins" );
@@ -38,15 +60,18 @@ bool PZGGamefieldJumpingPlatforms::init()
     
     if (levels) {
         for (int p = 0 ; p < kNum_OFPlatforms; p++) {
+            AX_SAFE_RELEASE_NULL(levels_info[p]);
             levels_info[ p ] = __Array::create();
+            AX_SAFE_RETAIN(levels_info[p]);
             
             //filtering all levels and adding only levels that ralated to curent platfroms
             for (int i=0; i < levels->count(); i++) {
                 PZGGameInfoLevel *level = (PZGGameInfoLevel*)levels->objectAtIndex( i );
-                if (
-                    level->platformInfoKey->compare( gameplayInfo->platform1Art->key->getCString() ) == 0 &&
-                    level->platformInfoIndex == p
-                    ) {
+                if (!level || !level->platformInfoKey) {
+                    continue;
+                }
+                if (level->platformInfoKey->compare(gameplayInfo->platform1Art->key->getCString()) == 0 &&
+                    level->platformInfoIndex == p) {
                     levels_info[ p ]->addObject( level );
                 }
             }

@@ -109,7 +109,7 @@ void PZGBaseMenuScene::load(const char* keyName){
         AXLOGI("  Item {}: type='{}', subkey='{}'", i, itemType,
             infoObj->subkey ? infoObj->subkey->getCString() : "(null)");
 
-        if (infoObj->type->compare("CCMenuItemSprite") == 0) {
+        if (infoObj->type && infoObj->type->compare("CCMenuItemSprite") == 0) {
             MenuItemSprite* menuItem;
 
             Sprite *sprite = infoObj->getResource();
@@ -134,7 +134,7 @@ void PZGBaseMenuScene::load(const char* keyName){
             pMenu->addChild(menuItem);
             AXLOGI("    MenuItem added, menu now has {} children", pMenu->getChildren().size());
         }
-        else if(infoObj->type->compare("CCSprite") == 0){
+        else if (infoObj->type && infoObj->type->compare("CCSprite") == 0) {
             Sprite *sprite = infoObj->getResource();
             if (sprite == NULL) {
                 continue;

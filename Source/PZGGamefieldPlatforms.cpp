@@ -9,8 +9,33 @@
 #include "PZLegacyCompat.h"
 #include "PZGGamefieldPlatforms.h"
 #include "constants.h"
+#include <cstring>
 
 USING_NS_AX;
+
+PZGGamefieldPlatforms::PZGGamefieldPlatforms()
+    : gameplayInfo(nullptr)
+    , obstacles_info(nullptr)
+    , coins_info(nullptr)
+    , length(0.0f)
+    , isSlowMoveMode(false)
+    , speed(0.0f)
+    , distance(0.0f)
+    , world(nullptr)
+    , platfromsBetweenDistance(0.0f) {
+    std::memset(platforms, 0, sizeof(platforms));
+    std::memset(levels_info, 0, sizeof(levels_info));
+    std::memset(obstacles, 0, sizeof(obstacles));
+    std::memset(obstacles_spawn_counter, 0, sizeof(obstacles_spawn_counter));
+    std::memset(coins, 0, sizeof(coins));
+    std::memset(coins_spawn_counter, 0, sizeof(coins_spawn_counter));
+}
+
+PZGGamefieldPlatforms::~PZGGamefieldPlatforms() {
+    for (int p = 0; p < kNumOFPlatforms; ++p) {
+        AX_SAFE_RELEASE_NULL(levels_info[p]);
+    }
+}
 
 Scene* PZGGamefieldPlatforms::scene(){
     AXLOGI("PZGGamefieldPlatforms::scene: Creating scene");
@@ -95,9 +120,10 @@ bool PZGGamefieldPlatforms::init()
         AXLOGI("PZGGamefieldPlatforms::init: Processing {} levels", levels->count());
 
         for (int p = 0 ; p < kNumOFPlatforms; p++) {
-            levels_info[ p ] = __Array::create();
-            // Don't retain - __Array::create() returns autoreleased object
-            // and keeping a reference keeps it alive
+            // levels_info is stored as a member; retain so it survives autorelease pool drains between restarts.
+            AX_SAFE_RELEASE_NULL(levels_info[p]);
+            levels_info[p] = __Array::create();
+            AX_SAFE_RETAIN(levels_info[p]);
 
             //filtering all levels and adding only levels that ralated to curent platfroms
             for (int i=0; i < levels->count(); i++) {
@@ -112,9 +138,16 @@ bool PZGGamefieldPlatforms::init()
                     continue;
                 }
 
-                if (level->platformInfoKey->compare( gameplayInfo->platform1Art->key->getCString() ) == 0 &&
-                    level->platformInfoIndex == p) {
-                    levels_info[ p ]->addObject( level );
+                const char* platformKey = (gameplayInfo && gameplayInfo->platform1Art && gameplayInfo->platform1Art->key)
+                    ? gameplayInfo->platform1Art->key->getCString()
+                    : nullptr;
+                if (!platformKey) {
+                    AXLOGW("PZGGamefieldPlatforms::init: gameplayInfo platform1Art/key is null");
+                    break; // can't classify levels without the platform key
+                }
+
+                if (level->platformInfoKey->compare(platformKey) == 0 && level->platformInfoIndex == p) {
+                    levels_info[p]->addObject(level);
                 }
             }
 
@@ -638,4 +671,3 @@ void PZGGamefieldPlatforms::update(float dt){
     }
 
 }
-
