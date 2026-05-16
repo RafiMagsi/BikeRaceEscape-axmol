@@ -56,7 +56,7 @@ void PZSettingsController::save(){
     
     char buffer[256];
     
-    CCUserDefault* ud = CCUserDefault::sharedUserDefault();
+    ax::UserDefault* ud = ax::UserDefault::getInstance();
     sprintf(buffer, "%s__%s", bundleid, "PMP_Coins");
     ud->setFloatForKey(buffer, coins);
     sprintf(buffer, "%s__%s", bundleid, "PMP_RemoveAds");
@@ -75,7 +75,7 @@ void PZSettingsController::save(){
     
 #else
     
-    CCUserDefault* ud = CCUserDefault::sharedUserDefault();
+    ax::UserDefault* ud = ax::UserDefault::getInstance();
     ud->setFloatForKey("PMP_Coins", coins);
     ud->setBoolForKey("PMP_RemoveAds", removeAds);
     ud->setBoolForKey("PMP_KidMode", kidMode);
@@ -105,7 +105,7 @@ void PZSettingsController::load(){
     
     
     char buffer[256];
-    CCUserDefault* ud = CCUserDefault::sharedUserDefault();
+    ax::UserDefault* ud = ax::UserDefault::getInstance();
 
     sprintf(buffer, "%s__%s", bundleid, "PMP_Coins");
     coins = ud->getFloatForKey(buffer);
@@ -124,7 +124,7 @@ void PZSettingsController::load(){
     unlockedPlayers[ 0 ] = 1;
 #else
     
-    CCUserDefault* ud = CCUserDefault::sharedUserDefault();
+    ax::UserDefault* ud = ax::UserDefault::getInstance();
     
     coins = ud->getFloatForKey("PMP_Coins");
     removeAds =ud->getBoolForKey("PMP_RemoveAds");
