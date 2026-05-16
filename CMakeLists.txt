@@ -4,6 +4,9 @@ project(BikeRaceEscapeAxmol LANGUAGES C CXX OBJCXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# iOS bundle identifier used by Xcode generator (Info.plist uses $(PRODUCT_BUNDLE_IDENTIFIER)).
+set(PZ_BUNDLE_ID "com.nextfiction.superbikerace" CACHE STRING "Bundle identifier (iOS/macOS)")
+
 if(NOT DEFINED AX_ROOT)
     if(DEFINED ENV{AX_ROOT})
         set(AX_ROOT "$ENV{AX_ROOT}")
@@ -35,6 +38,20 @@ target_include_directories(BikeRaceEscapeAxmol PRIVATE
 )
 
 target_link_libraries(BikeRaceEscapeAxmol PRIVATE axmol)
+
+if(APPLE)
+    # Ensure the generated Info.plist gets a real CFBundleIdentifier (simctl install requires it).
+    set_target_properties(BikeRaceEscapeAxmol PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${PZ_BUNDLE_ID}"
+    )
+endif()
+
+if(IOS)
+    set_target_properties(BikeRaceEscapeAxmol PROPERTIES
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${PZ_BUNDLE_ID}"
+    )
+endif()
 
 # Axmol's iOS OpenAL build produces `soft_oal.framework` under `${CMAKE_BINARY_DIR}/build/<cfg>-<sdk>/`,
 # but the link line for some configs expects it under `${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/<cfg>-<sdk>/`.
