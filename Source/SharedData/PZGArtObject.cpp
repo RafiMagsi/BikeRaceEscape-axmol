@@ -57,9 +57,14 @@ ax::Animate*  PZGArtObject::getResourceAnimate(){
 
 ax::Sprite *  PZGArtObject::getResource(){
     Sprite *sprite;
-    
+
+    if (!key) {
+        AXLOGW("PZGArtObject::getResource: key is null");
+        return nullptr;
+    }
+
     if(no_of_sprites > 1) {
-        
+
         __String *spriteName = __String::createWithFormat("%s_%d_%d", key->getCString(), index, 0);
         
         SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spriteName->getCString());

@@ -391,122 +391,172 @@ void PZGCharacterMenu::update(float dd){
 
 
 void PZGCharacterMenu::startGameCallback(Object* pSender){
-    
+    AXLOGI("PZGCharacterMenu::startGameCallback: Starting");
+
     CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic();
 
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
     }
 
-    
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
-    
-    //Sound
-    
+    if (!gsd) {
+        AXLOGE("PZGCharacterMenu::startGameCallback: gsd is null");
+        return;
+    }
+
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
     if (sounds) {
         PZGSoundData *soundObj =  (PZGSoundData*)sounds->objectAtIndex( 8 );
-        soundObj->playAsBackgroundMusic();        
+        if (soundObj) soundObj->playAsBackgroundMusic();
     }
-    
-    
-    /////////////////////////////////////////////
-    /// loading proper gameplay
-    
+
     __Array* array = (__Array*)gsd->gameInfoResource->objectForKey("GameplaySettings");
-    PZGGameInfoObject* gameInfoObject = (PZGGameInfoObject*)array->objectAtIndex( 0 );
-    
+    if (!array || array->count() == 0) {
+        AXLOGE("PZGCharacterMenu::startGameCallback: GameplaySettings not found");
+        return;
+    }
+
+    PZGGameInfoObject* gameInfoObject = (PZGGameInfoObject*)array->objectAtIndex(0);
+    if (!gameInfoObject) {
+        AXLOGE("PZGCharacterMenu::startGameCallback: gameInfoObject is null");
+        return;
+    }
+
     Director *pDirector = Director::getInstance();
-    Scene *pScene = NULL;
-    PZGGameFieldScene* bMenu = NULL;
-    
-    printf("CURRENT GAMEPLAY ID: %d\n", gameInfoObject->gameTypeId);
-    
-    if (gameInfoObject->gameTypeId == 0){
+    Scene *pScene = nullptr;
+    PZGGameFieldScene* bMenu = nullptr;
 
-        printf("loading: BASIC AVOIDANCE GAME\n");
-        
+    AXLOGI("PZGCharacterMenu::startGameCallback: CURRENT GAMEPLAY ID: {}", gameInfoObject->gameTypeId);
+
+    if (gameInfoObject->gameTypeId == 0) {
+        AXLOGI("loading: BASIC AVOIDANCE GAME");
         pScene = PZGGamefieldBasicAvoidance::scene();
-        bMenu = (PZGGamefieldBasicAvoidance *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );            
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldBasicAvoidance*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 1){
-        printf("loading: TILT AVOIDANCE\n");
-        
+    else if (gameInfoObject->gameTypeId == 1) {
+        AXLOGI("loading: TILT AVOIDANCE");
         pScene = PZGGamefieldTiltAvoidance::scene();
-        bMenu = (PZGGamefieldTiltAvoidance *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldTiltAvoidance*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 2){
-        printf("loading: ROUND SHOOOTER\n");
-        
+    else if (gameInfoObject->gameTypeId == 2) {
+        AXLOGI("loading: ROUND SHOOTER");
         pScene = PZGGamefieldRoundShooter::scene();
-        bMenu = (PZGGamefieldRoundShooter *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldRoundShooter*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 3){
-        printf("loading: SPACE SHOOTER GAME\n");
-        
+    else if (gameInfoObject->gameTypeId == 3) {
+        AXLOGI("loading: SPACE SHOOTER GAME");
         pScene = PZGGamefieldSpaceShooter::scene();
-        bMenu = (PZGGamefieldSpaceShooter *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldSpaceShooter*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 5){
-        printf("loading: SLOW MOVE RUNNER\n");
-        
-        pScene = PZGGamefieldSlowMoveRunner::scene();
-        bMenu = (PZGGamefieldSlowMoveRunner *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
-    }
-    else if (gameInfoObject->gameTypeId == 4){
-        printf("loading: HELICOPTER GAME\n");
-        
+    else if (gameInfoObject->gameTypeId == 4) {
+        AXLOGI("loading: HELICOPTER GAME");
         pScene = PZGGamefieldHelicopterGame::scene();
-        bMenu = (PZGGamefieldHelicopterGame *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldHelicopterGame*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 6){
-        printf("loading: BASIC RUNNER GAME\n");
-        
+    else if (gameInfoObject->gameTypeId == 5) {
+        AXLOGI("loading: SLOW MOVE RUNNER");
+        pScene = PZGGamefieldSlowMoveRunner::scene();
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldSlowMoveRunner*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
+    }
+    else if (gameInfoObject->gameTypeId == 6) {
+        AXLOGI("loading: BASIC RUNNER GAME");
         pScene = PZGGamefieldBasicRunner::scene();
-        bMenu = (PZGGamefieldBasicRunner *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldBasicRunner*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 7){
-        printf("loading: SHOOTING RUNNER GAME\n");
-        
+    else if (gameInfoObject->gameTypeId == 7) {
+        AXLOGI("loading: SHOOTING RUNNER GAME");
         pScene = PZGGamefieldShootingRunner::scene();
-        bMenu = (PZGGamefieldShootingRunner *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldShootingRunner*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    else if (gameInfoObject->gameTypeId == 8){
-        printf("loading: SHOOTING HELICOPTER GAME\n");
-        
+    else if (gameInfoObject->gameTypeId == 8) {
+        AXLOGI("loading: SHOOTING HELICOPTER GAME");
         pScene = PZGGamefieldShootingHelicopter::scene();
-        bMenu = (PZGGamefieldShootingHelicopter *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
-    }else if (gameInfoObject->gameTypeId == 9){
-        printf("loading: JUMPING GAME\n");
-        
-        pScene = PZGGamefieldJumpingGame::scene();
-        bMenu = (PZGGamefieldJumpingGame *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
-    }else if (gameInfoObject->gameTypeId == 10){
-        printf("loading: MEGAJUMP GAME\n");
-        
-        pScene = PZGGamefieldMegaJumpGame::scene();
-        bMenu = (PZGGamefieldMegaJumpGame *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
-    }else if (gameInfoObject->gameTypeId == 11){
-        printf("loading: Racing GAME\n");
-        
-        pScene = PZGGamefieldRacingGame::scene();
-        bMenu = (PZGGamefieldRacingGame *)pScene->getChildren().at( 0 );
-        bMenu->load( "InterfaceGF" );
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldShootingHelicopter*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
     }
-    
-    pDirector->pushScene( pScene );
+    else if (gameInfoObject->gameTypeId == 9) {
+        AXLOGI("loading: JUMPING GAME");
+        pScene = PZGGamefieldJumpingGame::scene();
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldJumpingGame*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
+    }
+    else if (gameInfoObject->gameTypeId == 10) {
+        AXLOGI("loading: MEGAJUMP GAME");
+        pScene = PZGGamefieldMegaJumpGame::scene();
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldMegaJumpGame*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
+    }
+    else if (gameInfoObject->gameTypeId == 11) {
+        AXLOGI("loading: RACING GAME");
+        pScene = PZGGamefieldRacingGame::scene();
+        if (pScene && !pScene->getChildren().empty()) {
+            for (size_t i = 0; i < pScene->getChildren().size(); i++) {
+                auto* child = dynamic_cast<PZGGamefieldRacingGame*>(pScene->getChildren().at(i));
+                if (child) { bMenu = child; bMenu->load("InterfaceGF"); break; }
+            }
+        }
+    }
 
+    AXLOGI("PZGCharacterMenu::startGameCallback: About to push scene, pScene = {}", pScene != nullptr ? "valid" : "null");
+    if (pScene) {
+        pDirector->pushScene(pScene);
+        AXLOGI("PZGCharacterMenu::startGameCallback: Scene pushed successfully");
+    } else {
+        AXLOGE("PZGCharacterMenu::startGameCallback: pScene is null, cannot push scene");
+    }
 }
 
 void PZGCharacterMenu::unlockCallback(Object* pSender){
