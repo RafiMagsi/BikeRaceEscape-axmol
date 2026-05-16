@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplayRacingGame.h"
 
 PZGGameplayRacingGame::PZGGameplayRacingGame(){

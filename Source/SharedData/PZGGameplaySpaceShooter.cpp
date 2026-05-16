@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplaySpaceShooter.h"
 
 PZGGameplaySpaceShooter::PZGGameplaySpaceShooter(){

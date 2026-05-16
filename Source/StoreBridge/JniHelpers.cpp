@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "PZLegacyCompat.h"
 #include "JniHelpers.h"
 #include <jni.h>
 #include "platform/android/jni/JniHelper.h"

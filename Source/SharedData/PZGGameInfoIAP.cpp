@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameInfoIAP.h"
 
 PZGGameInfoIAP::PZGGameInfoIAP()

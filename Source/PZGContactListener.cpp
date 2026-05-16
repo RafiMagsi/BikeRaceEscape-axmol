@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Kayabit. All rights reserved.
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGContactListener.h"
 
 #include "PZSettingsController.h"

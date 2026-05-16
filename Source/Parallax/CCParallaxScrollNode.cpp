@@ -1,3 +1,4 @@
+#include "PZLegacyCompat.h"
 #include "CCParallaxScrollNode.h"
 #include "constants.h"
 

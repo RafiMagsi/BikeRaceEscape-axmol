@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGBaseMenuScene.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"

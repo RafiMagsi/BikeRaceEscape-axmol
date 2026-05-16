@@ -1,3 +1,4 @@
+#include "PZLegacyCompat.h"
 #include "CCParallaxScrollOffset.h"
 
 using namespace cocos2d;

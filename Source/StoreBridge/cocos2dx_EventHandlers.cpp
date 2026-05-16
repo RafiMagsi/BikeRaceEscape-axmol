@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "PZLegacyCompat.h"
 #include "cocos2dx_EventHandlers.h"
 
 cocos2dx_EventHandlers* cocos2dx_EventHandlers::instance = NULL;

@@ -1,5 +1,6 @@
 
 
+#include "PZLegacyCompat.h"
 #include "PZStoreAssetsHelperJni.h"
 #include "SharedData/PZGSharedData.h"
 

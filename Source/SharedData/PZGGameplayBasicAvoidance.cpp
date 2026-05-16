@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplayBasicAvoidance.h"
 
 PZGGameplayBasicAvoidance::PZGGameplayBasicAvoidance(){

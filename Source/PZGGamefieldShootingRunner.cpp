@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGamefieldShootingRunner.h"
 
 Scene* PZGGamefieldShootingRunner::scene(){

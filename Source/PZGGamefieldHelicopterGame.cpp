@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGamefieldHelicopterGame.h"
 #include "SharedData/PZGSharedData.h"
 

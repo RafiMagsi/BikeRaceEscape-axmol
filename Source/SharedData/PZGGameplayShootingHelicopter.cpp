@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplayShootingHelicopter.h"
 
 PZGGameplayShootingHelicopter::PZGGameplayShootingHelicopter(){

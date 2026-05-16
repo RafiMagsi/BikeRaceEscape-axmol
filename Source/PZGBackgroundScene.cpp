@@ -7,6 +7,7 @@
 //
 
 
+#include "PZLegacyCompat.h"
 #include "PZGBackgroundScene.h"
 #include "constants.h"
 

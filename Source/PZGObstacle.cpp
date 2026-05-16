@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGObstacle.h"
 #include "constants.h"
 #include "PZSettingsController.h"

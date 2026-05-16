@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include <stdio.h>
 #include "Application.h"
 #include "Director.h"

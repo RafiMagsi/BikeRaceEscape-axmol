@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGArtBackgroundPlay.h"
 
 PZGArtBackgroundPlay::PZGArtBackgroundPlay(){

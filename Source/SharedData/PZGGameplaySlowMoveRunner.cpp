@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplaySlowMoveRunner.h"
 
 PZGGameplaySlowMoveRunner::PZGGameplaySlowMoveRunner(){

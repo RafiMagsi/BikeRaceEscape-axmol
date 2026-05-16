@@ -1,3 +1,4 @@
+#include "PZLegacyCompat.h"
 #include "AppDelegate.h"
 #include "PZGGameFieldScene.h"
 #include "PZGLoadingScene.h"

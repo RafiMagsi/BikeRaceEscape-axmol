@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameInfoLevel.h"
 #include "PZGGameInfoLevelItem.h"
 

@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGArtCoins.h"
 
 PZGArtCoins::PZGArtCoins(){

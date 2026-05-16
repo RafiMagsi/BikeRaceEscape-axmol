@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGamefieldTiltAvoidance.h"
 #include "SharedData/PZGSharedData.h"
 

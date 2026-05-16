@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGLoadingScene.h"
 #include "SharedData/PZGSharedData.h"
 #include "AppDelegate.h"

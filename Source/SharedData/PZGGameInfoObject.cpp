@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#include "PZLegacyCompat.h"
 #include <iostream>
 #include "Contants_data.h"
 #include "PZGGameInfoObject.h"

@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGArtInterface.h"
 #include "constants.h"
 

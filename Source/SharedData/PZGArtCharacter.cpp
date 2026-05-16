@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGArtCharacter.h"
 
 PZGArtCharacter::PZGArtCharacter(){

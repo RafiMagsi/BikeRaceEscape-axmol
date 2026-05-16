@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplayRoundShooter.h"
 
 PZGGameplayRoundShooter::PZGGameplayRoundShooter(){

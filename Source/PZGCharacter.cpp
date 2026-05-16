@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGCharacter.h"
 #include "constants.h"
 #include "SharedData/PZGSharedData.h"

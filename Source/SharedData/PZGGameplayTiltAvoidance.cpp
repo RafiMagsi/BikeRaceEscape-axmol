@@ -6,6 +6,7 @@
 //
 //
 
+#include "PZLegacyCompat.h"
 #include "PZGGameplayTiltAvoidance.h"
 
 PZGGameplayTiltAvoidance::PZGGameplayTiltAvoidance(){

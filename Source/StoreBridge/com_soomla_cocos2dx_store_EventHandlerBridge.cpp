@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "PZLegacyCompat.h"
 #include "com_soomla_cocos2dx_store_EventHandlerBridge.h"
 
 #include "platform/android/jni/JniHelper.h"

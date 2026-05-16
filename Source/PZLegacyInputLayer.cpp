@@ -1,3 +1,4 @@
+#include "PZLegacyCompat.h"
 #include "PZLegacyInputLayer.h"
 USING_NS_AX;
 

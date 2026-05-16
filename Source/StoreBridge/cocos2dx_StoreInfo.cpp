@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "PZLegacyCompat.h"
 #include "cocos2dx_StoreInfo.h"
 #include "JniHelpers.h"
 
