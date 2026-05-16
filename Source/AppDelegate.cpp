@@ -1,0 +1,56 @@
+#include "AppDelegate.h"
+#include "PZGGameFieldScene.h"
+#include "PZGLoadingScene.h"
+#include "SharedData/PZGSharedData.h"
+
+USING_NS_AX;
+
+AppDelegate::AppDelegate() = default;
+AppDelegate::~AppDelegate() = default;
+
+void AppDelegate::initGLContextAttrs() {
+    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
+    GLView::setGLContextAttrs(glContextAttrs);
+}
+
+void AppDelegate::setDebugModeEnabled(bool enable) {
+    auto* gf = PZGGameFieldScene::shared();
+    if (gf) gf->setDebugModeEnabled(enable);
+}
+
+bool AppDelegate::applicationDidFinishLaunching() {
+    auto* director = Director::getInstance();
+    auto* glView = director->getOpenGLView();
+    if (!glView) {
+        glView = GLViewImpl::create("Bike Race Escape - Axmol 2.11.3");
+        director->setOpenGLView(glView);
+    }
+
+    director->setAnimationInterval(1.0f / 60.0f);
+    glView->setDesignResolutionSize(960, 640, ResolutionPolicy::EXACT_FIT);
+
+    auto* fileUtils = FileUtils::getInstance();
+    fileUtils->setSearchPaths({"Content/Images/HD", "Content/Images/SD", "Content/Sounds", "Content", ""});
+
+    // Keep the old loading flow as the initial runtime entry.
+    auto* scene = PZGLoadingScene::scene();
+    if (!scene) return false;
+    director->runWithScene(scene);
+    return true;
+}
+
+void AppDelegate::scheduledLoading() {
+    auto* director = Director::getInstance();
+    auto* scene = PZGLoadingScene::scene();
+    if (scene) director->replaceScene(scene);
+}
+
+void AppDelegate::applicationDidEnterBackground() {
+    Director::getInstance()->stopAnimation();
+    AudioEngine::pauseAll();
+}
+
+void AppDelegate::applicationWillEnterForeground() {
+    Director::getInstance()->startAnimation();
+    AudioEngine::resumeAll();
+}

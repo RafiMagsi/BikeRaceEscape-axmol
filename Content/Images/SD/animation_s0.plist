@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>frames</key>
+	<dict>
+		<key>BackgroundLayers_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 640}, {950, 384}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {950, 384}}</string>
+			<key>sourceSize</key>
+			<string>{950, 384}</string>
+		</dict>
+		<key>BackgroundLayers_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 42}, {950, 206}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {950, 206}}</string>
+			<key>sourceSize</key>
+			<string>{950, 206}</string>
+		</dict>
+		<key>Coins_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 754.5}, {48, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {48, 50}}</string>
+			<key>sourceSize</key>
+			<string>{48, 50}</string>
+		</dict>
+		<key>Coins_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{979, 510.5}, {38.5, 38.5}}</string>
+			<key>offset</key>
+			<string>{-0.25, 0.25}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0.5, 0.5}, {38.5, 38.5}}</string>
+			<key>sourceSize</key>
+			<string>{40, 40}</string>
+		</dict>
+		<key>Coins_1_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{979, 553}, {39.5, 39.5}}</string>
+			<key>offset</key>
+			<string>{-0.25, 0.25}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {39.5, 39.5}}</string>
+			<key>sourceSize</key>
+			<string>{40, 40}</string>
+		</dict>
+		<key>Coins_1_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{979, 596.5}, {39.5, 39.5}}</string>
+			<key>offset</key>
+			<string>{-0.25, 0.25}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {39.5, 39.5}}</string>
+			<key>sourceSize</key>
+			<string>{40, 40}</string>
+		</dict>
+		<key>InterfaceCS_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 808.5}, {56, 62}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {56, 62}}</string>
+			<key>sourceSize</key>
+			<string>{56, 62}</string>
+		</dict>
+		<key>InterfaceCS_2_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 874.5}, {56, 62}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {56, 62}}</string>
+			<key>sourceSize</key>
+			<string>{56, 62}</string>
+		</dict>
+		<key>InterfaceCS_7_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 646.5}, {48, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {48, 50}}</string>
+			<key>sourceSize</key>
+			<string>{48, 50}</string>
+		</dict>
+		<key>InterfaceCoinShop_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 252}, {685, 384}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {685, 384}}</string>
+			<key>sourceSize</key>
+			<string>{685, 384}</string>
+		</dict>
+		<key>InterfaceCoinShop_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{689, 252.5}, {300, 52}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {300, 52}}</string>
+			<key>sourceSize</key>
+			<string>{300, 52}</string>
+		</dict>
+		<key>InterfaceCoinShop_3_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{890, 340.5}, {98.5, 118.5}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {98.5, 118.5}}</string>
+			<key>sourceSize</key>
+			<string>{98.5, 118.5}</string>
+		</dict>
+		<key>InterfaceCoinShop_4_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{788, 309}, {98, 150}}</string>
+			<key>offset</key>
+			<string>{0.25, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0.5, 0}, {98, 150}}</string>
+			<key>sourceSize</key>
+			<string>{98.5, 150}</string>
+		</dict>
+		<key>InterfaceCoinShop_5_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 198}, {47.5, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {47.5, 50}}</string>
+			<key>sourceSize</key>
+			<string>{47.5, 50}</string>
+		</dict>
+		<key>InterfaceGF_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 144}, {47.5, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {47.5, 50}}</string>
+			<key>sourceSize</key>
+			<string>{47.5, 50}</string>
+		</dict>
+		<key>InterfaceGF_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 700.5}, {48, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {48, 50}}</string>
+			<key>sourceSize</key>
+			<string>{48, 50}</string>
+		</dict>
+		<key>InterfaceMM_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{689, 463}, {286, 173}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {286, 173}}</string>
+			<key>sourceSize</key>
+			<string>{286, 173}</string>
+		</dict>
+		<key>InterfacePM_3_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 90}, {47.5, 50}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {47.5, 50}}</string>
+			<key>sourceSize</key>
+			<string>{47.5, 50}</string>
+		</dict>
+		<key>Obstacles_4_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{954, 940.5}, {51, 83.5}}</string>
+			<key>offset</key>
+			<string>{-0.5, -3.75}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{24, 12}, {51, 83.5}}</string>
+			<key>sourceSize</key>
+			<string>{100, 100}</string>
+		</dict>
+		<key>Obstacles_6_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{689, 308.5}, {95, 150.5}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {95, 150.5}}</string>
+			<key>sourceSize</key>
+			<string>{95, 150.5}</string>
+		</dict>
+	</dict>
+	<key>metadata</key>
+	<dict>
+		<key>format</key>
+		<integer>2</integer>
+		<key>realTextureFileName</key>
+		<string>animation_s0.png</string>
+		<key>size</key>
+		<string>{1024, 1024}</string>
+		<key>smartupdate</key>
+		<string>$ProjectZero:Smartupdate:$</string>
+		<key>textureFileName</key>
+		<string>animation_s0.png</string>
+	</dict>
+</dict>
+</plist>

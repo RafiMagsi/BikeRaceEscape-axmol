@@ -1,0 +1,7686 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>completeInfo</key>
+	<array>
+		<dict>
+			<key>animationSpeed</key>
+			<real>1.200000047683716</real>
+			<key>bouncing</key>
+			<false/>
+			<key>bulletArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Characters_Bullet</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>className</key>
+			<string>PZArtCharacter</string>
+			<key>collision</key>
+			<array>
+				<string>{219.94999999999999, 61}</string>
+				<string>{124.45058517456056, 171.18796997070314}</string>
+				<string>{64.324414825439447, 105.37854499816893}</string>
+				<string>{45.324414825439447, 48.621441268920904}</string>
+				<string>{181.45059890747069, 41.812030029296878}</string>
+			</array>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Characters_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>enableIAP</key>
+			<false/>
+			<key>fireArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Characters_Fire</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>iconArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Character_Icon</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>index</key>
+			<integer>0</integer>
+			<key>jumpArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Characters_Jump</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>7</string>
+				<key>offsets</key>
+				<array>
+					<string>{27, 26}</string>
+					<string>{28, 27}</string>
+					<string>{28, 27}</string>
+					<string>{28, 27}</string>
+					<string>{28, 27}</string>
+					<string>{28, 27}</string>
+					<string>{28, 27}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{257, 215}</string>
+					<string>{255, 221}</string>
+					<string>{253, 223}</string>
+					<string>{253, 223}</string>
+					<string>{253, 223}</string>
+					<string>{253, 223}</string>
+					<string>{255, 221}</string>
+				</array>
+			</dict>
+			<key>key</key>
+			<string>Characters</string>
+			<key>name</key>
+			<string>Red Motorcycle Bike</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>8</string>
+			<key>offsets</key>
+			<array>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+			</array>
+			<key>price</key>
+			<integer>0</integer>
+			<key>scale</key>
+			<real>0.6499999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+			</array>
+			<key>storeDescription</key>
+			<string>Red Dirt Bike</string>
+			<key>storeId</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>animationSpeed</key>
+			<real>1.200000047683716</real>
+			<key>bouncing</key>
+			<false/>
+			<key>bulletArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Characters_Bullet</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>className</key>
+			<string>PZArtCharacter</string>
+			<key>collision</key>
+			<array>
+				<string>{221.69999999999999, 60.5}</string>
+				<string>{123.64587383270265, 170.25999755859374}</string>
+				<string>{59.004124450683591, 102.61404228210449}</string>
+				<string>{40.004131317138672, 42.385943984985346}</string>
+				<string>{143.64588756561278, 44.740009307861328}</string>
+			</array>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Characters_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>enableIAP</key>
+			<false/>
+			<key>fireArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Characters_Fire</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>iconArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Character_Icon</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>index</key>
+			<integer>1</integer>
+			<key>jumpArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Characters_Jump</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>3</string>
+				<key>offsets</key>
+				<array>
+					<string>{26, 26}</string>
+					<string>{27, 27}</string>
+					<string>{27, 27}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{257, 215}</string>
+					<string>{249, 226}</string>
+					<string>{249, 226}</string>
+				</array>
+			</dict>
+			<key>key</key>
+			<string>Characters</string>
+			<key>name</key>
+			<string>Blue Dirt Bike</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>8</string>
+			<key>offsets</key>
+			<array>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 26}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+				<string>{27, 27}</string>
+			</array>
+			<key>price</key>
+			<integer>1000</integer>
+			<key>scale</key>
+			<real>0.6499999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+				<string>{256, 234}</string>
+			</array>
+			<key>storeDescription</key>
+			<string>Blue Moto X</string>
+			<key>storeId</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>animationSpeed</key>
+			<real>1.399999976158142</real>
+			<key>bouncing</key>
+			<false/>
+			<key>bulletArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Characters_Bullet</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>className</key>
+			<string>PZArtCharacter</string>
+			<key>collision</key>
+			<array>
+				<string>{223.94999999999999, 62.5}</string>
+				<string>{142.23173637390136, 174.68379745483401}</string>
+				<string>{70.043260192871088, 121.73007087707521}</string>
+				<string>{52.043267059326169, 45.269915390014646}</string>
+				<string>{153.23175354003905, 50.316202545166007}</string>
+			</array>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Characters_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>enableIAP</key>
+			<false/>
+			<key>fireArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Characters_Fire</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>iconArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Character_Icon</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>index</key>
+			<integer>2</integer>
+			<key>jumpArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Characters_Jump</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>3</string>
+				<key>offsets</key>
+				<array>
+					<string>{22, 25}</string>
+					<string>{23, 26}</string>
+					<string>{23, 26}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{266, 218}</string>
+					<string>{263, 234}</string>
+					<string>{263, 234}</string>
+				</array>
+			</dict>
+			<key>key</key>
+			<string>Characters</string>
+			<key>name</key>
+			<string>Silver Street Bike</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>9</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 25}</string>
+				<string>{0, 25}</string>
+				<string>{0, 25}</string>
+				<string>{0, 26}</string>
+				<string>{0, 26}</string>
+				<string>{0, 26}</string>
+				<string>{1, 26}</string>
+				<string>{0, 26}</string>
+				<string>{0, 26}</string>
+			</array>
+			<key>price</key>
+			<integer>2000</integer>
+			<key>scale</key>
+			<real>0.6499999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{207, 190}</string>
+				<string>{208, 190}</string>
+				<string>{208, 190}</string>
+				<string>{207, 189}</string>
+				<string>{208, 189}</string>
+				<string>{208, 189}</string>
+				<string>{208, 189}</string>
+				<string>{208, 189}</string>
+				<string>{208, 189}</string>
+			</array>
+			<key>storeDescription</key>
+			<string>Silver Street Bike</string>
+			<key>storeId</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Background</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.5</real>
+			<key>position lock</key>
+			<true/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1370, 768}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_MainMenu_background</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Game Logo</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.3479166328907013</real>
+			<key>position Y</key>
+			<real>0.6343749761581421</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>11.17950057983398</real>
+			<key>scale_x</key>
+			<real>0.9300000071525574</real>
+			<key>scale_y</key>
+			<real>0.9300000071525574</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{572, 346}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_GameLogo-image</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Game Center Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.6370833516120911</real>
+			<key>position Y</key>
+			<real>0.7725000381469727</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_GameCenterButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Start Game Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.9104167222976685</real>
+			<key>position Y</key>
+			<real>0.3812499940395355</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_StartButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Restore Purchases</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.127083346247673</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>17</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_RestoreButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Upgrade Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 1}</string>
+			</array>
+			<key>position X</key>
+			<real>0.699999988079071</real>
+			<key>position Y</key>
+			<real>0.25</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.4000000059604645</real>
+			<key>scale_y</key>
+			<real>0.4000000059604645</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{603, 99}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_UpgradeButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Buy Coins Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.4699999988079071</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>17</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_CoinShopButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>7</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Kid Mode Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.300000011920929</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>17</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_KidMode</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>8</integer>
+			<key>key</key>
+			<string>InterfaceMM</string>
+			<key>name</key>
+			<string>Kid Mode Off Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.300000011920929</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>17</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_KidModeOff</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Background</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.5</real>
+			<key>position lock</key>
+			<true/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1370, 768}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_MainMenu_background</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Right Arrow Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.75</real>
+			<key>position Y</key>
+			<real>0.6000000238418579</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{112, 124}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_RightArrowButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Left Arrow Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.25</real>
+			<key>position Y</key>
+			<real>0.6000000238418579</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{112, 124}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_LeftArrowButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Unlock Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.4900000095367432</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.6499999761581421</real>
+			<key>scale_y</key>
+			<real>0.6499999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_UnlockButton-image</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Start Game Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5041666626930237</real>
+			<key>position Y</key>
+			<real>0.2250000089406967</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{153, 160}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_StartButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Back Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.07791666686534882</real>
+			<key>position Y</key>
+			<real>0.104374997317791</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_BackButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Character Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.6100000143051147</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CharacterLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>7</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Coin Icon</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.05775000154972076</real>
+			<key>position Y</key>
+			<real>0.9068750143051147</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{96, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_CoinIcon</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>8</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Coins Label Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.1229166686534882</real>
+			<key>position Y</key>
+			<real>0.9093749523162842</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CoinsLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>9</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Character Name Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.4958333373069763</real>
+			<key>position Y</key>
+			<real>0.8062499761581421</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CharacterNameLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>10</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Character Price Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.4099999964237213</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CharacterPriceLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>11</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Kid Mode Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.3499999940395355</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_IAP_KidMode</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>12</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Buy Coins Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.8199999928474426</real>
+			<key>position Y</key>
+			<real>0.2756249904632568</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1.200000047683716</real>
+			<key>scale_y</key>
+			<real>1.200000047683716</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_CoinShopButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>13</integer>
+			<key>key</key>
+			<string>InterfaceCS</string>
+			<key>name</key>
+			<string>Upgrade Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.6499999761581421</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_UpgradeButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Game Over label</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.699999988079071</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>6.294593811035156</real>
+			<key>scale_x</key>
+			<real>0.75</real>
+			<key>scale_y</key>
+			<real>0.75</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1083, 186}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_GameOverLabel-image</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Back Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.4000000059604645</real>
+			<key>position Y</key>
+			<real>0.328125</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1.200000047683716</real>
+			<key>scale_y</key>
+			<real>1.200000047683716</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_BackButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Restart Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.6000000238418579</real>
+			<key>position Y</key>
+			<real>0.328125</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1.200000047683716</real>
+			<key>scale_y</key>
+			<real>1.200000047683716</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_RestartButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Score Label Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.4937500059604645</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1.399999976158142</real>
+			<key>scale_y</key>
+			<real>1.399999976158142</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_DistanceLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Kid Mode Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.1729166507720947</real>
+			<key>position Y</key>
+			<real>0.197500005364418</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>17</real>
+			<key>scale_x</key>
+			<real>0.8999999761581421</real>
+			<key>scale_y</key>
+			<real>0.8999999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_KidMode</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Buy Coins Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.8299999833106995</real>
+			<key>position Y</key>
+			<real>0.2000000029802322</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>-17</real>
+			<key>scale_x</key>
+			<real>0.8999999761581421</real>
+			<key>scale_y</key>
+			<real>0.8999999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 93}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_CoinShopButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>InterfaceGO</string>
+			<key>name</key>
+			<string>Upgrade Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 1}</string>
+			</array>
+			<key>position X</key>
+			<real>0.784166693687439</real>
+			<key>position Y</key>
+			<real>0.528124988079071</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>6.289999961853027</real>
+			<key>scale_x</key>
+			<real>0.5</real>
+			<key>scale_y</key>
+			<real>0.5</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{603, 99}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_UpgradeButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Pause Menu Label</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.699999988079071</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>6.289999961853027</real>
+			<key>scale_x</key>
+			<real>0.949999988079071</real>
+			<key>scale_y</key>
+			<real>0.949999988079071</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{779, 232}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_PauseMenuLabel</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Back Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.300000011920929</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_BackButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Restart Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5020833611488342</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_RestartButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Continue Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.699999988079071</real>
+			<key>position Y</key>
+			<real>0.2800000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_ContinueButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Kid Mode Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.3499999940395355</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_IAP_KidMode</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Buy Coins Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CoinShopButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>InterfacePM</string>
+			<key>name</key>
+			<string>Upgrade Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.6499999761581421</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_UpgradeButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{207.44999999999999, 55.5}</string>
+				<string>{137.45058517456056, 98.733864212036138}</string>
+				<string>{43.824414825439447, 61.01178951263428}</string>
+				<string>{43.824414825439447, 42.488203620910639}</string>
+				<string>{156.95059890747069, 34.266139221191402}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Zombie Allegator</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>8</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{35, 27}</string>
+				<string>{34, 27}</string>
+				<string>{34, 27}</string>
+				<string>{34, 27}</string>
+				<string>{34, 27}</string>
+				<string>{34, 27}</string>
+				<string>{35, 27}</string>
+				<string>{35, 27}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{251, 136}</string>
+				<string>{255, 132}</string>
+				<string>{260, 131}</string>
+				<string>{255, 131}</string>
+				<string>{260, 131}</string>
+				<string>{255, 132}</string>
+				<string>{251, 136}</string>
+				<string>{251, 136}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{170.94999999999999, 49}</string>
+				<string>{109.45058517456056, 123.6451499938965}</string>
+				<string>{48.324414825439447, 113.68238716125488}</string>
+				<string>{45.324414825439447, 48.317602539062499}</string>
+				<string>{114.45059890747069, 37.354850006103511}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Zombie Lizard</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>8</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{22, 26}</string>
+				<string>{20, 26}</string>
+				<string>{22, 26}</string>
+				<string>{22, 26}</string>
+				<string>{22, 26}</string>
+				<string>{23, 26}</string>
+				<string>{22, 26}</string>
+				<string>{23, 26}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.699999988079071</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{242, 167}</string>
+				<string>{242, 166}</string>
+				<string>{242, 170}</string>
+				<string>{242, 170}</string>
+				<string>{242, 170}</string>
+				<string>{243, 170}</string>
+				<string>{242, 170}</string>
+				<string>{243, 170}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{166.75, 36}</string>
+				<string>{100.50681610107421, 76}</string>
+				<string>{13.868183898925778, 51.424769783020025}</string>
+				<string>{10.368183898925778, 26.575223350524901}</string>
+				<string>{111.00682983398437, 8.3339908599853487}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Zombie Sewer Rat</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>5</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+				<string>{0, 0}</string>
+				<string>{0, 0}</string>
+				<string>{0, 0}</string>
+				<string>{0, 0}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.6000000238418579</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{205, 81}</string>
+				<string>{205, 84}</string>
+				<string>{205, 79}</string>
+				<string>{205, 84}</string>
+				<string>{201, 78}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{156.09999999999999, 67}</string>
+				<string>{146.18995323181153, 167.74748001098635}</string>
+				<string>{56.760043334960926, 146.66861305236816}</string>
+				<string>{56.760046768188474, 23.33137321472168}</string>
+				<string>{118.18996353149413, 43.252526855468744}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>3</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Light Barrier</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>2</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{38, 10}</string>
+				<string>{38, 3}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.75</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 200}</string>
+				<string>{200, 200}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{135.90000000000001, 92.5}</string>
+				<string>{128.18387918472291, 159.97190093994141}</string>
+				<string>{62.866118240356442, 159.67205657958985}</string>
+				<string>{60.86612167358399, 33.327929687499996}</string>
+				<string>{132.18388605117798, 33.028105926513675}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>4</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Barrel</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{48, 24}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.75</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{200, 200}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<true/>
+			<key>collision</key>
+			<array>
+				<string>{376, 196}</string>
+				<string>{403, 234}</string>
+				<string>{143.98044891357421, 112.35788726806641}</string>
+				<string>{48.980448913574207, 42.642092132568351}</string>
+				<string>{357.46958541870117, 171.15854187011718}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>5</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<false/>
+			<key>health</key>
+			<real>200</real>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Launch Ramp</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{478, 266}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<false/>
+			<key>collision</key>
+			<array>
+				<string>{180, 150.5}</string>
+				<string>{179, 291}</string>
+				<string>{11.829048156738281, 230.11550292968752}</string>
+				<string>{6.8290481567382812, 13.884469604492182}</string>
+				<string>{105.4209638595581, 89.679397583007812}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>6</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<true/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>Fence</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.699999988079071</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{190, 301}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<true/>
+			<key>collision</key>
+			<array>
+				<string>{428.5, 68.5}</string>
+				<string>{426.68461952209475, 80}</string>
+				<string>{5.8403770446777372, 80}</string>
+				<string>{13.840383911132804, 68.189779281616211}</string>
+				<string>{210.18463668823242, 67.5}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>7</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<false/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>7</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>grind rail</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.6000000238418579</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{437, 85}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>animateRotation</key>
+			<false/>
+			<key>baseSpeed</key>
+			<real>1</real>
+			<key>bouncingAnimation</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtObstacle</string>
+			<key>collideCharacter</key>
+			<true/>
+			<key>collision</key>
+			<array>
+				<string>{300.25, 183}</string>
+				<string>{380.33352737426759, 246}</string>
+				<string>{101.29146575927734, 112.71285324096681}</string>
+				<string>{32.291479492187506, 57.287126159667963}</string>
+				<string>{211.33356170654298, 136.43829345703125}</string>
+			</array>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>deathArtObj</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>8</integer>
+				<key>key</key>
+				<string>Obstacle_Death</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>0</string>
+				<key>offsets</key>
+				<array/>
+				<key>sourcesSize</key>
+				<array/>
+			</dict>
+			<key>destroyCharacter</key>
+			<false/>
+			<key>health</key>
+			<real>1</real>
+			<key>index</key>
+			<integer>8</integer>
+			<key>key</key>
+			<string>Obstacles</string>
+			<key>name</key>
+			<string>dirt ramp</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>randomizeRotation</key>
+			<false/>
+			<key>randomizeScale</key>
+			<false/>
+			<key>scale</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{495, 256}</string>
+			</array>
+			<key>trajectory</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtObject</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>GeneralApplicationIcon</string>
+			<key>noExport</key>
+			<true/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1024, 1024}</string>
+			</array>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>PauseButton</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.9375</real>
+			<key>position Y</key>
+			<real>0.90625</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{95, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_PauseButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Coin Icon</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.05999999865889549</real>
+			<key>position Y</key>
+			<real>0.9100000262260437</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{96, 100}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_CoinIcon</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Score Label Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.4979166686534882</real>
+			<key>position Y</key>
+			<real>0.909375011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_DistanceLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Coins Label Position</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.1229166686534882</real>
+			<key>position Y</key>
+			<real>0.9093749523162842</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CoinsLabelLocation</string>
+			<key>type</key>
+			<string>CCLabelLocation</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Game Instruction #1</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.3166666626930237</real>
+			<key>position Y</key>
+			<real>0.2187500149011612</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{480, 246}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_TIP_1</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Game Instruction #2</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.800000011920929</real>
+			<key>position Y</key>
+			<real>0.300000011920929</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_TIP_2</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Kid Mode Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5625</real>
+			<key>position Y</key>
+			<real>0.5193750262260437</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_IAP_KidMode</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>7</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Buy Coins Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.6770833134651184</real>
+			<key>position Y</key>
+			<real>0.4693749845027924</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CoinShopButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>8</integer>
+			<key>key</key>
+			<string>InterfaceGF</string>
+			<key>name</key>
+			<string>Upgrade Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.6499999761581421</real>
+			<key>position Y</key>
+			<real>0.05999999865889549</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_UpgradeButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtCoins</string>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>Coins</string>
+			<key>name</key>
+			<string>Gold Wheels</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>reward</key>
+			<integer>1</integer>
+			<key>scale</key>
+			<real>0.6499999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{96, 100}</string>
+			</array>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtCoins</string>
+			<key>comingRatio</key>
+			<real>8</real>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>Coins</string>
+			<key>name</key>
+			<string>spinning rims</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>3</string>
+			<key>offset</key>
+			<string>{0, 0}</string>
+			<key>offsets</key>
+			<array>
+				<string>{1, 1}</string>
+				<string>{0, 0}</string>
+				<string>{0, 0}</string>
+			</array>
+			<key>reward</key>
+			<integer>3</integer>
+			<key>scale</key>
+			<real>0.75</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{80, 80}</string>
+				<string>{80, 80}</string>
+				<string>{80, 80}</string>
+			</array>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtObject</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>GeneralApplicationSplashScreen</string>
+			<key>noExport</key>
+			<true/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{nan, 0}</string>
+			</array>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1024, 768}</string>
+			</array>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Background</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.5</real>
+			<key>position lock</key>
+			<true/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_Background</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Coin Shop Logo</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.1899999976158142</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.800000011920929</real>
+			<key>scale_y</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_CoinShop_Logo</string>
+			<key>type</key>
+			<string>CCSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Coin Pack 1</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.2000000029802322</real>
+			<key>position Y</key>
+			<real>0.449999988079071</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.949999988079071</real>
+			<key>scale_y</key>
+			<real>0.949999988079071</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{197, 198}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_Coin1</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Coin Pack 2</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.800000011920929</real>
+			<key>position Y</key>
+			<real>0.5</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1</real>
+			<key>scale_y</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{197, 237}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_Coin2</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Coin Pack 3</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{1, 0}</string>
+			</array>
+			<key>position X</key>
+			<real>0.5</real>
+			<key>position Y</key>
+			<real>0.5799999833106995</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>1.200000047683716</real>
+			<key>scale_y</key>
+			<real>1.200000047683716</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{197, 300}</string>
+			</array>
+			<key>subkey</key>
+			<string>GUI_IAP_Coin3</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>alignment</key>
+			<integer>0</integer>
+			<key>bouncing</key>
+			<false/>
+			<key>className</key>
+			<string>PZArtInterface</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>InterfaceCoinShop</string>
+			<key>name</key>
+			<string>Back Button</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>position X</key>
+			<real>0.1208333149552345</real>
+			<key>position Y</key>
+			<real>0.1850000023841858</real>
+			<key>position lock</key>
+			<false/>
+			<key>rotation</key>
+			<real>0</real>
+			<key>scale_x</key>
+			<real>0.8999999761581421</real>
+			<key>scale_y</key>
+			<real>0.8999999761581421</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>subkey</key>
+			<string>GUI_BackButton</string>
+			<key>type</key>
+			<string>CCMenuItemSprite</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>sky</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.5740387439727783</real>
+			<key>scale</key>
+			<real>0.8999999761581421</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1900, 768}</string>
+			</array>
+			<key>speed</key>
+			<real>0.01999999955296516</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>city buildings</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.75</real>
+			<key>scale</key>
+			<real>0.8779737949371338</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1900, 412}</string>
+			</array>
+			<key>speed</key>
+			<real>0.1700000017881393</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Untitled</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.663630485534668</real>
+			<key>scale</key>
+			<real>0.8614793419837952</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1829, 494}</string>
+			</array>
+			<key>speed</key>
+			<real>0.3400000035762787</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Graffiti wall</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.4799999892711639</real>
+			<key>scale</key>
+			<real>0.800000011920929</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1900, 600}</string>
+			</array>
+			<key>speed</key>
+			<real>0.5799999833106995</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>8</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Midground Grass</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.6299999952316284</real>
+			<key>scale</key>
+			<real>0.5199999809265137</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1082, 204}</string>
+			</array>
+			<key>speed</key>
+			<real>0.5799999833106995</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Water</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.25</real>
+			<key>scale</key>
+			<real>0.8899999856948853</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1900, 380}</string>
+			</array>
+			<key>speed</key>
+			<real>0.8500000238418579</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Trash</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 14}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.5699999928474426</real>
+			<key>scale</key>
+			<real>0.4754914343357086</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1854, 532}</string>
+			</array>
+			<key>speed</key>
+			<real>0.8399999737739563</real>
+		</dict>
+		<dict>
+			<key>boundDown</key>
+			<real>0</real>
+			<key>boundLeft</key>
+			<real>0</real>
+			<key>boundRight</key>
+			<real>0</real>
+			<key>boundUp</key>
+			<real>0</real>
+			<key>className</key>
+			<string>PZArtBackgroundPlay</string>
+			<key>index</key>
+			<integer>200</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Main Character Layer</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>0</string>
+			<key>offsets</key>
+			<array/>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<true/>
+			<key>position</key>
+			<real>0.5</real>
+			<key>scale</key>
+			<real>1</real>
+			<key>sourcesSize</key>
+			<array/>
+			<key>speed</key>
+			<real>1</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>7</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Small Grass</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.1500000059604645</real>
+			<key>scale</key>
+			<real>0.6564894318580627</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1082, 204}</string>
+			</array>
+			<key>speed</key>
+			<real>1.220000028610229</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZArtBackground</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>key</key>
+			<string>BackgroundLayers</string>
+			<key>name</key>
+			<string>Big Grass Foreground</string>
+			<key>noExport</key>
+			<false/>
+			<key>no_of_sprites</key>
+			<string>1</string>
+			<key>offsets</key>
+			<array>
+				<string>{0, 0}</string>
+			</array>
+			<key>opacity</key>
+			<real>1</real>
+			<key>playGroundLayer</key>
+			<false/>
+			<key>position</key>
+			<real>0.1500000059604645</real>
+			<key>scale</key>
+			<real>1.289999961853027</real>
+			<key>sourcesSize</key>
+			<array>
+				<string>{1082, 204}</string>
+			</array>
+			<key>speed</key>
+			<real>1.25</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>0</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Game Started Sound</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>1</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Game Over Sound</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>2</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Button Pressed Sound</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>3</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Coin Pickup Sound</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>4</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Shooting Sound</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>5</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Enemy Death #3</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>6</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Enemy Death #2</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>7</integer>
+			<key>isMusic</key>
+			<false/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>Enemy Death #1</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>8</integer>
+			<key>isMusic</key>
+			<true/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>GameField Music</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZSoundObject</string>
+			<key>index</key>
+			<integer>9</integer>
+			<key>isMusic</key>
+			<true/>
+			<key>key</key>
+			<string>Sounds</string>
+			<key>name</key>
+			<string>MainMenu Music</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZFontObject</string>
+			<key>convasSize</key>
+			<string>{512, 512}</string>
+			<key>dropShadow</key>
+			<true/>
+			<key>fillColor</key>
+			<string>#e56d22</string>
+			<key>gradient</key>
+			<false/>
+			<key>gradientColor</key>
+			<string>#555555</string>
+			<key>key</key>
+			<string>MainFont</string>
+			<key>name</key>
+			<string>Britannic Bold</string>
+			<key>shadowOffset</key>
+			<string>{3, -3}</string>
+			<key>size</key>
+			<integer>60</integer>
+			<key>stroke</key>
+			<true/>
+			<key>strokeColor</key>
+			<string>#000000</string>
+		</dict>
+		<dict>
+			<key>characterJumpHeight</key>
+			<real>1.899999976158142</real>
+			<key>className</key>
+			<string>PZGameplayBasicRunner</string>
+			<key>gameSpeedIncreaser</key>
+			<real>0.1500000059604645</real>
+			<key>gameSpeedMax</key>
+			<real>12</real>
+			<key>gameSpeedMin</key>
+			<real>7</real>
+			<key>key</key>
+			<string>PZGameplayBasicRunner</string>
+			<key>name</key>
+			<string>GameplaySettings</string>
+			<key>platfrom1</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom1_cp</key>
+			<array>
+				<string>{761, 266}</string>
+				<string>{1288.3, 266}</string>
+			</array>
+			<key>platfrom2</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom2_cp</key>
+			<array>
+				<string>{748, 265}</string>
+				<string>{1269.3, 265}</string>
+			</array>
+			<key>platfrom3</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom3_cp</key>
+			<array>
+				<string>{745, 265}</string>
+				<string>{1266.3, 265}</string>
+			</array>
+			<key>platfromsBetweenDistance</key>
+			<real>0</real>
+			<key>platfromsBetweenIncreaser</key>
+			<real>0</real>
+			<key>platfromsHeightSpread</key>
+			<real>0</real>
+			<key>randomLevelGeneration</key>
+			<false/>
+			<key>supportJumpingAnimation</key>
+			<true/>
+			<key>typeId</key>
+			<real>6</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoIAP</string>
+			<key>coinShop1_value</key>
+			<integer>100</integer>
+			<key>coinShop2_value</key>
+			<integer>1000</integer>
+			<key>coinShop3_value</key>
+			<integer>10000</integer>
+			<key>coinShop_enabled</key>
+			<false/>
+			<key>key</key>
+			<string>IAPSettingsAndroid</string>
+			<key>kidMode_enabled</key>
+			<false/>
+			<key>removeAd_enabled</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>characterJumpHeight</key>
+			<real>1.899999976158142</real>
+			<key>className</key>
+			<string>PZGameplayBasicRunner</string>
+			<key>gameSpeedIncreaser</key>
+			<real>0.1500000059604645</real>
+			<key>gameSpeedMax</key>
+			<real>12</real>
+			<key>gameSpeedMin</key>
+			<real>7</real>
+			<key>key</key>
+			<string>GameplaySettings</string>
+			<key>name</key>
+			<string>GameplaySettings</string>
+			<key>platfrom1</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>0</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom1_cp</key>
+			<array>
+				<string>{761, 266}</string>
+				<string>{1288.3, 266}</string>
+			</array>
+			<key>platfrom2</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>1</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom2_cp</key>
+			<array>
+				<string>{748, 265}</string>
+				<string>{1269.3, 265}</string>
+			</array>
+			<key>platfrom3</key>
+			<dict>
+				<key>className</key>
+				<string>PZArtObject</string>
+				<key>index</key>
+				<integer>2</integer>
+				<key>key</key>
+				<string>PZGameplayBasicRunner_platforms</string>
+				<key>noExport</key>
+				<false/>
+				<key>no_of_sprites</key>
+				<string>1</string>
+				<key>offsets</key>
+				<array>
+					<string>{1, 0}</string>
+				</array>
+				<key>sourcesSize</key>
+				<array>
+					<string>{1375, 350}</string>
+				</array>
+			</dict>
+			<key>platfrom3_cp</key>
+			<array>
+				<string>{745, 265}</string>
+				<string>{1266.3, 265}</string>
+			</array>
+			<key>platfromsBetweenDistance</key>
+			<real>0</real>
+			<key>platfromsBetweenIncreaser</key>
+			<real>0</real>
+			<key>platfromsHeightSpread</key>
+			<real>0</real>
+			<key>randomLevelGeneration</key>
+			<false/>
+			<key>supportJumpingAnimation</key>
+			<true/>
+			<key>typeId</key>
+			<real>6</real>
+		</dict>
+		<dict>
+			<key>applicatioShortName</key>
+			<string></string>
+			<key>applicationName</key>
+			<string>Motorcycle Bike Race Road Escape : Speed Racing Raod Game</string>
+			<key>assetMeter</key>
+			<integer>4</integer>
+			<key>bundleid</key>
+			<string>com.salmanshahzad.bikeraceroad</string>
+			<key>className</key>
+			<string>PZGameInfoGeneral</string>
+			<key>gameCenter</key>
+			<true/>
+			<key>isAndroidBuild</key>
+			<false/>
+			<key>isDebugMode</key>
+			<false/>
+			<key>isPortraitMode</key>
+			<false/>
+			<key>itunesId</key>
+			<string></string>
+			<key>key</key>
+			<string>GeneralApplicationSettings</string>
+			<key>multiplayer</key>
+			<false/>
+			<key>neocortexURL</key>
+			<string>http://www.getridofmoldtips.com/neocortex/BikeRaceEscape/neocortex.plist</string>
+			<key>neocortexURLAndroid</key>
+			<string></string>
+			<key>pmVersion</key>
+			<string>1.2.10</string>
+			<key>previewResolution</key>
+			<integer>1</integer>
+			<key>uuid</key>
+			<string>A5CBAE2E-F2D4-4201-9E40-AD5EC1959DAA</string>
+			<key>version</key>
+			<string>1.0</string>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>5000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.000</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>5</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{604.5, 166.5}</string>
+					<key>rotation</key>
+					<real>-0.4844779968261719</real>
+					<key>scale</key>
+					<string>{0.60000002384185791, 0.69999998807907104}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{683.5, 250.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{375.5, 169.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{359.5, 144.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{373.5, 239.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{260.5, 180.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{218.5, 182.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{517.5, 243.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>75</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>1000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.001</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{310.5, 175.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{349.5, 175.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>3</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{394.5, 160.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>15</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>5000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.002</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{420.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{449.5, 230.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{383.5, 229.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>20</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.003</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>6</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{626.5, 162.5}</string>
+					<key>rotation</key>
+					<real>0.01782608032226562</real>
+					<key>scale</key>
+					<string>{0.75, 0.75}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{589.5, 138.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{323.5, 231.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{288.5, 234.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{401.5, 243.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{401.5, 209.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>50</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>1000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.004</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{612.5, 150.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{321.5, 152.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{369.5, 150.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{662.5, 198.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{295.5, 130.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{250.5, 218.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{323.5, 216.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{287.5, 217.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>40</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.005</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{344.5, 173.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{301.5, 174.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{415.5, 246.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{430.5, 221.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{400.5, 220.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{428.5, 130.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{401.5, 159.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{389.5, 143.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{506.5, 172.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{469.5, 174.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>70</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>1000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.006</string>
+			<key>objects</key>
+			<array/>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>0</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>3000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.007</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{386.5, 169.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{352.5, 170.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{518.5, 231.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>0</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>5000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.008</string>
+			<key>objects</key>
+			<array/>
+			<key>platformInfoIndex</key>
+			<integer>1</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>0</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.000</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{53.5, 45.5}</string>
+					<key>rotation</key>
+					<real>-0.105987548828125</real>
+					<key>scale</key>
+					<string>{0.75992637872695923, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{65.5, 119.5}</string>
+					<key>rotation</key>
+					<real>113.1925659179688</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{370.5, 151.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{366.5, 249.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{365.5, 211.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{291.5, 190.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{440.5, 185.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{405.5, 208.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{326.5, 210.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>50</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>5000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.001</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{376.5, 153.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{364.5, 225.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>10</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>3000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.002</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{351.5, 221.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{355.5, 150.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{380.5, 134.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{396.5, 164.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{388.5, 219.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>10</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.003</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{356.5, 246.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{370.5, 218.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{340.5, 219.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{469.5, 258.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>8</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{564.5, 165.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{387.5, 151.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{349.5, 154.5}</string>
+					<key>rotation</key>
+					<real>-33.51205444335938</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>50</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.004</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{657.5, 265.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{626.5, 254.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>8</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{559.5, 172.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1.2000000476837158}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>6</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{641.5, 160.5}</string>
+					<key>rotation</key>
+					<real>1</real>
+					<key>scale</key>
+					<string>{1.0999647378921509, 0.85000002384185791}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{482.5, 149.5}</string>
+					<key>rotation</key>
+					<real>6.196010589599609</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{274.5, 182.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{241.5, 182.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{209.5, 182.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{457.5, 230.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>25</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.005</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>5</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{247.5, 162.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{0.60000002384185791, 0.69999998807907104}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>3</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{311.5, 155.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{337.5, 233.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{447.5, 159.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{647.5, 256.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{54.5, 41.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{61.5, 111.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>50</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.006</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{379.58340454101562, 147.70259094238281}</string>
+					<key>rotation</key>
+					<real>-89.17585754394531</real>
+					<key>scale</key>
+					<string>{1.0054655075073242, 0.86000001430511475}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{339.5, 158.5}</string>
+					<key>rotation</key>
+					<real>-7.507637023925781</real>
+					<key>scale</key>
+					<string>{1, 0.89999997615814209}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>8</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{578.5, 166.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{380.5, 180.5}</string>
+					<key>rotation</key>
+					<real>-9.296287536621094</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{361.5, 250.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{638.5, 244.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{706.5, 250.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{672.5, 248.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>50</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.007</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{201.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1.5, 2.5}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{259.5, 218}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{219.5, 218}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{662.4541015625, 179.64643096923828}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1.0716947317123413, 0.97448670864105225}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{629.9498997748351, 119.11623059719065}</string>
+					<key>rotation</key>
+					<real>-117.9555435180664</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{634.5, 213.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{669.5, 226.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{176.5, 217}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{300.5, 217}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{398.5, 192.5}</string>
+					<key>rotation</key>
+					<real>18.27647399902344</real>
+					<key>scale</key>
+					<string>{1.5, 2.5}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{580.5, 222.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1.5, 2.5}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{477.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{509.5, 171.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{646.5, 166.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{571.5, 136.5}</string>
+					<key>rotation</key>
+					<real>-79.76004028320312</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{632.5, 142.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{574.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{379.5, 159.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{489.5, 200.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{234.5, 150.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{538.5, 279.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{499.5, 280.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{660.5, 278.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{624.5, 279.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>110</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.008</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>6</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{389.5865967296179, 155.83425416166099}</string>
+					<key>rotation</key>
+					<real>25.88474273681641</real>
+					<key>scale</key>
+					<string>{0.96088773012161255, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{415.5, 169.5}</string>
+					<key>rotation</key>
+					<real>-42.59576416015625</real>
+					<key>scale</key>
+					<string>{0.89999997615814209, 0.89999997615814209}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{406.5, 134.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{423.5, 248.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{368.5, 251.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{260.5, 174.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{213.5, 175.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>100</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.009</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>3</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{384.5, 160.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{350.5, 145.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{639.5, 219.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{455.5, 165.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{276.5, 170.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{386.5, 236.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>120</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.010</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>5</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{295.5, 162.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{0.60000002384185791, 0.60000002384185791}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{657.5, 244.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{316.5, 126.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{273.5, 125.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{361.58806934577279, 143.69077769406437}</string>
+					<key>rotation</key>
+					<real>-1.581031799316406</real>
+					<key>scale</key>
+					<string>{0.55188977718353271, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{189.5, 193.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{353.5, 242.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>25</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.011</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{262.5, 143.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{311.5, 138.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{370.5, 159.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{284.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{2.5, 2}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{417.5, 201.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{375.5, 201.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{329.5, 203.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{279.5, 203.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{234.5, 204.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{189.5, 206.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>75</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.012</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{477.5, 181.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{445.5, 165.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{411.5, 169.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{382.5, 190.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{356.5, 214.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{320.5, 217.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{291.5, 200.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{351.5, 159.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>25</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.013</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{305, 201.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{305, 167.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{305, 128.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{214.5, 124.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{249.5, 134.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{245.5, 170.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{217.5, 193.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{250.5, 213.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{251.5, 245.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{219.5, 257.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{185, 251.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{185, 216.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{185, 176.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{185, 139.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{305, 257.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{438.5, 248.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{440.5, 124.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{422.5, 152.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{423.5, 217.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{407.5, 181.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{373, 239.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{373, 201.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{373, 163.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{373, 125.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{562.5, 126.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{527.5, 125.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{528.5, 237.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{521.5, 178.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{492, 237.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{492, 197.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{492, 160.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{492, 124.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{564.5, 236.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>200</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.014</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>6</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{381.5, 159.5}</string>
+					<key>rotation</key>
+					<real>-1.368968963623047</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{386.5, 256.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{322.5, 221.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{464.5, 220.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>75</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.015</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{429.5, 155.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{384.5, 140.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{440.5, 132.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{422.5, 203.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{384.5, 202.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{347.5, 203.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>75</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.016</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{68.5, 112.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{669.5, 131.5}</string>
+					<key>rotation</key>
+					<real>-91.98271179199219</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{645.5, 87.5}</string>
+					<key>rotation</key>
+					<real>-88.86686706542969</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{616.50000257897136, 149.50000157361001}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{0.76000010967254639, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{655.5, 238.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{614.5, 223.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{420.5, 235.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{439.5, 260.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{455.5, 235.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>0</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>150</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>1000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.000</string>
+			<key>objects</key>
+			<array/>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>0</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>2000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.001</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{580.5, 168.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{388.5, 228.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{343.5, 192.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{296.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>40</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>2000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.002</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{397.5, 152.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{321.5, 150.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{461.5, 154.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{443.5, 129.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{0.69999998807907104, 0.69999998807907104}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>25</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.003</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{501.5, 157.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{201.5, 163.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{0.69999998807907104, 0.69999998807907104}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{293.5, 152.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{399.5, 141.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{605.5, 146.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{236.5, 129.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{343.5, 143.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{536.5, 126.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{460.5, 137.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{347.5, 126.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{360, 157}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{4, 2}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{685.5, 168.5}</string>
+					<key>rotation</key>
+					<real>10.4207649230957</real>
+					<key>scale</key>
+					<string>{1, 2}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{671.5, 122.5}</string>
+					<key>rotation</key>
+					<real>-66.39739990234375</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{627.19187800894713, 86.883039156168365}</string>
+					<key>rotation</key>
+					<real>-86.7239990234375</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{753.5, 146.5}</string>
+					<key>rotation</key>
+					<real>-60.61946868896484</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>40</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.004</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>8</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{190.5, 171.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{261.5, 136.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{272.5, 255.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{428.5, 187.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{479.5, 256.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{530.5, 254.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>3</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{647.5, 161.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1.4200007915496826, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{610.5, 130.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{196.5, 130.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>60</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoLevel</string>
+			<key>endDistance</key>
+			<real>9000</real>
+			<key>key</key>
+			<string>Levels</string>
+			<key>name</key>
+			<string>Platform.005</string>
+			<key>objects</key>
+			<array>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>4</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{313.5, 144.5}</string>
+					<key>rotation</key>
+					<real>90.58528137207031</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>7</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{221.5, 163.5}</string>
+					<key>rotation</key>
+					<real>7.987148284912109</real>
+					<key>scale</key>
+					<string>{1.7000000476837158, 1.8999999761581421}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{267.5, 154.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{215.5, 146.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{503.5, 245.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{207.5, 207.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{319.5, 223.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{283.5, 218.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{244.5, 212.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>1</integer>
+					<key>infoObjKey</key>
+					<string>Coins</string>
+					<key>position</key>
+					<string>{539.5, 244.5}</string>
+					<key>rotation</key>
+					<real>0</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>0</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{674.5, 127.5}</string>
+					<key>rotation</key>
+					<real>-75.07709503173828</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{627.5, 66.5}</string>
+					<key>rotation</key>
+					<real>-83.94540405273438</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+				<dict>
+					<key>infoObjIndex</key>
+					<integer>2</integer>
+					<key>infoObjKey</key>
+					<string>Obstacles</string>
+					<key>position</key>
+					<string>{641.5, 111.5}</string>
+					<key>rotation</key>
+					<real>-76.19200134277344</real>
+					<key>scale</key>
+					<string>{1, 1}</string>
+				</dict>
+			</array>
+			<key>platformInfoIndex</key>
+			<integer>2</integer>
+			<key>platfromInfoKey</key>
+			<string>PZGameplayBasicRunner_platforms</string>
+			<key>startDistance</key>
+			<real>35</real>
+		</dict>
+		<dict>
+			<key>className</key>
+			<string>PZGameInfoIAP</string>
+			<key>coinShop1_id</key>
+			<string>com.salmanshahzad.bikeraceroad.coin1</string>
+			<key>coinShop1_value</key>
+			<integer>1000</integer>
+			<key>coinShop2_id</key>
+			<string>com.salmanshahzad.bikeraceroad.coin2</string>
+			<key>coinShop2_value</key>
+			<integer>2000</integer>
+			<key>coinShop3_id</key>
+			<string>com.salmanshahzad.bikeraceroad.coin3</string>
+			<key>coinShop3_value</key>
+			<integer>3000</integer>
+			<key>coinShop_enabled</key>
+			<true/>
+			<key>key</key>
+			<string>IAPSettings</string>
+			<key>kidMode_enabled</key>
+			<true/>
+			<key>kidMode_id</key>
+			<string>com.salmanshahzad.bikeraceroad.kidmode</string>
+			<key>removeAd_enabled</key>
+			<true/>
+			<key>removeAd_id</key>
+			<string>com.salmanshahzad.bikeraceroad.upgrade</string>
+			<key>storeKey</key>
+			<string></string>
+		</dict>
+	</array>
+</dict>
+</plist>
