@@ -41,17 +41,37 @@ bool PZGBaseMenuScene::init(){
 
 PZGArtInterface* PZGBaseMenuScene::getItemByName( const char* name, const char* interfaceKey){
 
+    if (!name || !interfaceKey) {
+        AXLOGW("PZGBaseMenuScene::getItemByName: name or interfaceKey is null");
+        return nullptr;
+    }
+
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
+    if (!gsd || !gsd->artResource) {
+        AXLOGW("PZGBaseMenuScene::getItemByName: gsd or artResource is null");
+        return nullptr;
+    }
+
     __Array* uiItems = (__Array*)gsd->artResource->objectForKey( interfaceKey );
-    
+    if (!uiItems) {
+        AXLOGW("PZGBaseMenuScene::getItemByName: No UI items found for key: {}", interfaceKey);
+        return nullptr;
+    }
+
     for (int i=0; i < uiItems->count(); i++) {
         PZGArtInterface *infoObj = (PZGArtInterface*)uiItems->objectAtIndex( i );
+        if (!infoObj || !infoObj->subkey) {
+            AXLOGW("PZGBaseMenuScene::getItemByName: Item {} has null infoObj or subkey", i);
+            continue;
+        }
         if ( infoObj->subkey->compare( name ) == 0) {
+            AXLOGI("PZGBaseMenuScene::getItemByName: Found item '{}' in key '{}'", name, interfaceKey);
             return infoObj;
         }
     }
-    
-    return NULL;
+
+    AXLOGW("PZGBaseMenuScene::getItemByName: Item '{}' not found in key '{}'", name, interfaceKey);
+    return nullptr;
 }
 
 void PZGBaseMenuScene::load(const char* keyName){

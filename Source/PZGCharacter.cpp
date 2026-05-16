@@ -52,50 +52,79 @@ void PZGCharacter::reset(){
 }
 
 void PZGCharacter::init( PZGArtCharacter* artCharacter ){
+    if (!artCharacter) {
+        AXLOGE("PZGCharacter::init: artCharacter is null");
+        return;
+    }
+
     character_scale = artCharacter->scale;
-    
+
     Size size = Director::getInstance()->getWinSize();
 
-
-    for (int i=0; i < kPlayerMaxBullets; i++) {
-        s_bullet[ i ] = artCharacter->bulletArtObj->getResource();
-        if (s_bullet[ i ]) {
-            s_bullet[ i ]->setScale(character_scale);
-            s_bullet[ i ]->setAnchorPoint( ccp(0.5, 0.5) );
-            s_bullet[ i ]->setPosition( ccp( -100, -100 ) );
-            s_bullet[ i ]->setOpacity( 0 );
-            this->addChild(s_bullet[ i ]);
+    AXLOGI("PZGCharacter::init: Creating bullets");
+    if (artCharacter->bulletArtObj) {
+        for (int i=0; i < kPlayerMaxBullets; i++) {
+            s_bullet[ i ] = artCharacter->bulletArtObj->getResource();
+            if (s_bullet[ i ]) {
+                s_bullet[ i ]->setScale(character_scale);
+                s_bullet[ i ]->setAnchorPoint( ccp(0.5, 0.5) );
+                s_bullet[ i ]->setPosition( ccp( -100, -100 ) );
+                s_bullet[ i ]->setOpacity( 0 );
+                this->addChild(s_bullet[ i ]);
+            }
         }
+    } else {
+        AXLOGW("PZGCharacter::init: bulletArtObj is null, skipping bullets");
     }
-   
+
+    AXLOGI("PZGCharacter::init: Getting character body");
     s_body = artCharacter->getResource();
     if (s_body) {
         s_body->setAnchorPoint( ccp(0.5, 0.5) );
         s_body->setPosition( ccp( 0.0, 0.0 ) );
         s_body->setScale( character_scale );
-        
-        s_body_animation = artCharacter->getResourceAnimate();
-        s_body_animation->retain();
-        this->addChild( s_body );        
-    }
-    
 
-    s_body_death = artCharacter->deathArtObj->getResourceAnimate();
-    if (s_body_death) {
-        s_body_death->retain();
+        s_body_animation = artCharacter->getResourceAnimate();
+        if (s_body_animation) {
+            s_body_animation->retain();
+        }
+        this->addChild( s_body );
+        AXLOGI("PZGCharacter::init: Body added");
+    } else {
+        AXLOGW("PZGCharacter::init: artCharacter->getResource() returned null");
     }
-    
-    s_body_jump = artCharacter->jumpArtObj->getResourceAnimate();
-    if (s_body_jump) {
-        s_body_jump->retain();
+
+    AXLOGI("PZGCharacter::init: Setting up death animation");
+    if (artCharacter->deathArtObj) {
+        s_body_death = artCharacter->deathArtObj->getResourceAnimate();
+        if (s_body_death) {
+            s_body_death->retain();
+        }
+    } else {
+        AXLOGW("PZGCharacter::init: deathArtObj is null");
     }
-    
-    s_fire = artCharacter->fireArtObj->getResource();
-    if (s_fire) {
-        s_fire->setAnchorPoint( ccp(0.5, 0.5) );
-        s_fire->setPosition( ccp( 50, -10 ) );
-        s_fire->setScale( character_scale );
-        this->addChild(s_fire);
+
+    AXLOGI("PZGCharacter::init: Setting up jump animation");
+    if (artCharacter->jumpArtObj) {
+        s_body_jump = artCharacter->jumpArtObj->getResourceAnimate();
+        if (s_body_jump) {
+            s_body_jump->retain();
+        }
+    } else {
+        AXLOGW("PZGCharacter::init: jumpArtObj is null");
+    }
+
+    AXLOGI("PZGCharacter::init: Setting up fire animation");
+    if (artCharacter->fireArtObj) {
+        s_fire = artCharacter->fireArtObj->getResource();
+        if (s_fire) {
+            s_fire->setAnchorPoint( ccp(0.5, 0.5) );
+            s_fire->setPosition( ccp( 50, -10 ) );
+            s_fire->setScale( character_scale );
+            this->addChild(s_fire);
+        }
+    } else {
+        AXLOGW("PZGCharacter::init: fireArtObj is null");
     }
     
     
