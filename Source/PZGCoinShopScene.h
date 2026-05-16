@@ -25,11 +25,11 @@ public:
 	
     void kidModePurchased();
     
-	virtual void menuBackCallback(Ref* pSender);
+	virtual void menuBackCallback(Object* pSender);
 
-   	virtual void buyCoinPack1Callback(Ref* pSender);
-   	virtual void buyCoinPack2Callback(Ref* pSender);
-   	virtual void buyCoinPack3Callback(Ref* pSender);
+   	virtual void buyCoinPack1Callback(Object* pSender);
+   	virtual void buyCoinPack2Callback(Object* pSender);
+   	virtual void buyCoinPack3Callback(Object* pSender);
    	    
     virtual void load(const char* keyName);
     

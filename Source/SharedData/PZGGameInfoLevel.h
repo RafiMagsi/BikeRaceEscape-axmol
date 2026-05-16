@@ -14,7 +14,7 @@
 
 #define C_GAMEINFO_LEVEL_CLASS_NAME "PZGameInfoLevel"
 
-class PZGGameInfoLevel : public ax::Ref
+class PZGGameInfoLevel : public ax::Object
 {
 public:
     

@@ -40,7 +40,7 @@
 #include "PZGGameplayMegaJumpGame.h"
 #include "PZGGameplayRacingGame.h"
 
-class PZGSharedData : public ax::Ref
+class PZGSharedData : public ax::Object
 {
 private:
     bool synchronized;

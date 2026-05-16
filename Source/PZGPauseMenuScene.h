@@ -25,9 +25,9 @@ public:
     
 	static ax::Scene* scene();
 	        
-    virtual void menuBackCallback(Ref* pSender);
-	virtual void menuRestartCallback(Ref* pSender);
-	virtual void menuContinueCallback(Ref* pSender);    
+    virtual void menuBackCallback(Object* pSender);
+	virtual void menuRestartCallback(Object* pSender);
+	virtual void menuContinueCallback(Object* pSender);    
     
     virtual void load(const char* keyName);
     virtual void onEnterTransitionDidFinish();

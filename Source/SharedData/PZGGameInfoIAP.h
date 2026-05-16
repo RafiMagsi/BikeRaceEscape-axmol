@@ -14,7 +14,7 @@
 
 #define C_GAMEINFO_IAP_CLASS_NAME "PZGameInfoIAP"
 
-class PZGGameInfoIAP : public ax::Ref
+class PZGGameInfoIAP : public ax::Object
 {
 public:
     

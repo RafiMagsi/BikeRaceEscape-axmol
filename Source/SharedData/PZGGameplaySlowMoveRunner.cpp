@@ -36,7 +36,7 @@ PZGGameplaySlowMoveRunner* PZGGameplaySlowMoveRunner::createWithDictionary(ax::_
     
     ax::__Dictionary* dict;
     ax::__Array* array;
-    ax::Ref *arrayObj;
+    ax::Object *arrayObj;
     
     dict = ( ax::__Dictionary* )dictionary->valueForKey("platform1");
     if (dict) {
@@ -44,7 +44,7 @@ PZGGameplaySlowMoveRunner* PZGGameplaySlowMoveRunner::createWithDictionary(ax::_
         obj->platform1Art->retain();
     }
     
-    arrayObj = (ax::Ref*)dictionary->valueForKey("platform1_cp");
+    arrayObj = (ax::Object*)dictionary->valueForKey("platform1_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;

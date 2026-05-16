@@ -14,7 +14,7 @@
 
 #define C_SOUND_CLASS_NAME "PZSoundObject"
 
-class PZGSoundData : public ax::Ref
+class PZGSoundData : public ax::Object
 {
 public:
 

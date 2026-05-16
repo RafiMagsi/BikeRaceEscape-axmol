@@ -60,11 +60,11 @@ public:
     
     virtual void load(const char* keyName);
     
-  	virtual void startGameCallback(Ref* pSender);
-  	virtual void backCallback(Ref* pSender);
-  	virtual void leftCallback(Ref* pSender);
-  	virtual void rightCallback(Ref* pSender);
-    virtual void unlockCallback(Ref* pSender);
+  	virtual void startGameCallback(Object* pSender);
+  	virtual void backCallback(Object* pSender);
+  	virtual void leftCallback(Object* pSender);
+  	virtual void rightCallback(Object* pSender);
+    virtual void unlockCallback(Object* pSender);
     
     virtual void onEnterTransitionDidFinish();
     

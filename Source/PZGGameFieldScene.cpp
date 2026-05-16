@@ -425,7 +425,7 @@ void PZGGameFieldScene::removePauseMenu(){
 
 }
 
-void PZGGameFieldScene::pauseMenuCallback( Ref* pSender ){
+void PZGGameFieldScene::pauseMenuCallback( Object* pSender ){
     if (!gamePause) {
         pauseButton->setVisible( false );
         

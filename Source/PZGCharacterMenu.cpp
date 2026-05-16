@@ -390,7 +390,7 @@ void PZGCharacterMenu::update(float dd){
 }
 
 
-void PZGCharacterMenu::startGameCallback(Ref* pSender){
+void PZGCharacterMenu::startGameCallback(Object* pSender){
     
     CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic();
 
@@ -509,7 +509,7 @@ void PZGCharacterMenu::startGameCallback(Ref* pSender){
 
 }
 
-void PZGCharacterMenu::unlockCallback(Ref* pSender){
+void PZGCharacterMenu::unlockCallback(Object* pSender){
     
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
@@ -563,7 +563,7 @@ void PZGCharacterMenu::unlockCallback(Ref* pSender){
     }
 }
 
-void PZGCharacterMenu::backCallback(Ref* pSender){
+void PZGCharacterMenu::backCallback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
     }
@@ -572,7 +572,7 @@ void PZGCharacterMenu::backCallback(Ref* pSender){
     pDirector->popScene();
 }
 
-void PZGCharacterMenu::leftCallback(Ref* pSender){
+void PZGCharacterMenu::leftCallback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
     }
@@ -581,7 +581,7 @@ void PZGCharacterMenu::leftCallback(Ref* pSender){
     loadCharacter(player_c);
 }
 
-void PZGCharacterMenu::rightCallback(Ref* pSender){
+void PZGCharacterMenu::rightCallback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
     }

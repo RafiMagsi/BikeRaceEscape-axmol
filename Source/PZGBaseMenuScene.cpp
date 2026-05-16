@@ -145,7 +145,7 @@ void PZGBaseMenuScene::load(const char* keyName){
 
 #pragma mark IAP
 
-void PZGBaseMenuScene::menuUpgradeCallback(Ref* pSender) {
+void PZGBaseMenuScene::menuUpgradeCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }
@@ -177,7 +177,7 @@ void PZGBaseMenuScene::upgradeComplete(){
 #endif
 }
 
-void PZGBaseMenuScene::coinShopCallback(Ref* pSender) {
+void PZGBaseMenuScene::coinShopCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }
@@ -190,14 +190,14 @@ void PZGBaseMenuScene::coinShopCallback(Ref* pSender) {
     
 }
 
-void PZGBaseMenuScene::offKidModeCallback(Ref* pSender){
+void PZGBaseMenuScene::offKidModeCallback(Object* pSender){
     
     PZSettingsController *sc = PZSettingsController::shared();
     sc->kidMode = false;
     sc->save();
 }
 
-void PZGBaseMenuScene::buyKidModeCallback(Ref* pSender){
+void PZGBaseMenuScene::buyKidModeCallback(Object* pSender){
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }

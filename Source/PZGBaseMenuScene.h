@@ -33,10 +33,10 @@ public:
     PZGArtInterface* getItemByName( const char* name,  const char* interfaceKey);
     
     
-    virtual void menuUpgradeCallback(Ref* pSender);
-    virtual void coinShopCallback(Ref* pSender);
-    virtual void buyKidModeCallback(Ref* pSender);
-    virtual void offKidModeCallback(Ref* pSender);    
+    virtual void menuUpgradeCallback(Object* pSender);
+    virtual void coinShopCallback(Object* pSender);
+    virtual void buyKidModeCallback(Object* pSender);
+    virtual void offKidModeCallback(Object* pSender);    
     
     virtual void kidModePurchased();
     virtual void upgradeComplete();

@@ -32,9 +32,9 @@ PZGFontObject * PZGFontObject::initWithDictionary(ax::__Dictionary* dictionary)
 ax::__Dictionary* PZGFontObject::getDataInDictionary()
 {
     ax::__Dictionary * tempDict = ax::__Dictionary::create();
-    tempDict->setObject((ax::Ref*)fontType, FONT_TYPE);
-    tempDict->setObject((ax::Ref*)fileName, FONT_OBJECT_FILENAME);
-    tempDict->setObject((ax::Ref*)otherInfo, FONT_OTHER_INFO);
-    tempDict->setObject((ax::Ref*)className, FONT_OBJECT);
+    tempDict->setObject((ax::Object*)fontType, FONT_TYPE);
+    tempDict->setObject((ax::Object*)fileName, FONT_OBJECT_FILENAME);
+    tempDict->setObject((ax::Object*)otherInfo, FONT_OTHER_INFO);
+    tempDict->setObject((ax::Object*)className, FONT_OBJECT);
     return tempDict;
 }

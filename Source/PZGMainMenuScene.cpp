@@ -175,7 +175,7 @@ void PZGMainMenuScene::update(float dd){
 
 
 
-void PZGMainMenuScene::menuStartGameCallback(Ref* pSender) {
+void PZGMainMenuScene::menuStartGameCallback(Object* pSender) {
     
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
@@ -278,7 +278,7 @@ void PZGMainMenuScene::menuStartGameCallback(Ref* pSender) {
     
 }
 
-void PZGMainMenuScene::menuGameCenterCallback(Ref* pSender) {
+void PZGMainMenuScene::menuGameCenterCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }
@@ -293,7 +293,7 @@ void PZGMainMenuScene::menuGameCenterCallback(Ref* pSender) {
     
 }
 
-void PZGMainMenuScene::menuRestoreCallback(Ref* pSender) {
+void PZGMainMenuScene::menuRestoreCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }
@@ -322,7 +322,7 @@ void PZGMainMenuScene::upgradeComplete(){
     }
 }
 
-void PZGMainMenuScene::offKidModeCallback(Ref* pSender){
+void PZGMainMenuScene::offKidModeCallback(Object* pSender){
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }

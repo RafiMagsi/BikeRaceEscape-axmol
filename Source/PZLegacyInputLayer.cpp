@@ -6,9 +6,9 @@ bool PZLegacyLayer::init() {
     return Layer::init();
 }
 
-static __Set* buildLegacyTouchSet(const std::vector<Touch*>& touches) {
-    auto* legacy = new __Set();
-    for (auto* touch : touches) legacy->addObject(touch);
+static __Set buildLegacyTouchSet(const std::vector<Touch*>& touches) {
+    __Set legacy;
+    for (auto* touch : touches) legacy.addObject(touch);
     return legacy;
 }
 
@@ -16,19 +16,16 @@ void PZLegacyLayer::setTouchEnabled(bool enabled) {
     if (enabled && !_legacyTouchListener) {
         _legacyTouchListener = EventListenerTouchAllAtOnce::create();
         _legacyTouchListener->onTouchesBegan = [this](const std::vector<Touch*>& touches, Event* event) {
-            auto* legacy = buildLegacyTouchSet(touches);
-            this->ccTouchesBegan(legacy, event);
-            legacy->release();
+            auto legacy = buildLegacyTouchSet(touches);
+            this->ccTouchesBegan(&legacy, event);
         };
         _legacyTouchListener->onTouchesMoved = [this](const std::vector<Touch*>& touches, Event* event) {
-            auto* legacy = buildLegacyTouchSet(touches);
-            this->ccTouchesMoved(legacy, event);
-            legacy->release();
+            auto legacy = buildLegacyTouchSet(touches);
+            this->ccTouchesMoved(&legacy, event);
         };
         _legacyTouchListener->onTouchesEnded = [this](const std::vector<Touch*>& touches, Event* event) {
-            auto* legacy = buildLegacyTouchSet(touches);
-            this->ccTouchesEnded(legacy, event);
-            legacy->release();
+            auto legacy = buildLegacyTouchSet(touches);
+            this->ccTouchesEnded(&legacy, event);
         };
         _eventDispatcher->addEventListenerWithSceneGraphPriority(_legacyTouchListener, this);
     } else if (!enabled && _legacyTouchListener) {

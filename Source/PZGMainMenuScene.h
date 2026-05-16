@@ -22,11 +22,11 @@ public:
     virtual bool init();
 	
 	// a selector callback
-	virtual void menuStartGameCallback(Ref* pSender);
-    virtual void menuGameCenterCallback(Ref* pSender);
-    virtual void menuRestoreCallback(Ref* pSender);
+	virtual void menuStartGameCallback(Object* pSender);
+    virtual void menuGameCenterCallback(Object* pSender);
+    virtual void menuRestoreCallback(Object* pSender);
 
-    virtual void offKidModeCallback(Ref* pSender);
+    virtual void offKidModeCallback(Object* pSender);
     
     virtual void kidModePurchased();
     virtual void upgradeComplete();

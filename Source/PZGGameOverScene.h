@@ -31,8 +31,8 @@ public:
 
     virtual void load(const char* keyName);
     
-    virtual void menuBackCallback(Ref* pSender);
-	virtual void menuRestartCallback(Ref* pSender);
+    virtual void menuBackCallback(Object* pSender);
+	virtual void menuRestartCallback(Object* pSender);
     
     virtual void keyBackClicked();
     

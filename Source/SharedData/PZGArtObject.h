@@ -14,7 +14,7 @@
 
 #define kDefaultAnimationTag 658
 
-class PZGArtObject : public ax::Ref
+class PZGArtObject : public ax::Object
 {
 public:
     PZGArtObject();

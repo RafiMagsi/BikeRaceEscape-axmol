@@ -14,7 +14,7 @@
 
 #define C_GAMEINFO_GENERAL_CLASS_NAME "PZGameInfoGeneral"
 
-class PZGGameInfoGeneral : public ax::Ref
+class PZGGameInfoGeneral : public ax::Object
 {
 public:
     

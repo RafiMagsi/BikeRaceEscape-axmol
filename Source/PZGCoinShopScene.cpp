@@ -150,7 +150,7 @@ PZGArtInterface* PZGCoinShopScene::getItemByName( const char* name, const char* 
 }
 
 
-void PZGCoinShopScene::buyCoinPack1Callback(Ref* pSender){
+void PZGCoinShopScene::buyCoinPack1Callback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
@@ -167,7 +167,7 @@ void PZGCoinShopScene::buyCoinPack1Callback(Ref* pSender){
 #endif
 }
 
-void PZGCoinShopScene::buyCoinPack2Callback(Ref* pSender){
+void PZGCoinShopScene::buyCoinPack2Callback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
@@ -184,7 +184,7 @@ void PZGCoinShopScene::buyCoinPack2Callback(Ref* pSender){
 #endif
 }
 
-void PZGCoinShopScene::buyCoinPack3Callback(Ref* pSender){
+void PZGCoinShopScene::buyCoinPack3Callback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
@@ -202,7 +202,7 @@ void PZGCoinShopScene::buyCoinPack3Callback(Ref* pSender){
 #endif
 }
 
-void PZGCoinShopScene::menuBackCallback(Ref* pSender){
+void PZGCoinShopScene::menuBackCallback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }

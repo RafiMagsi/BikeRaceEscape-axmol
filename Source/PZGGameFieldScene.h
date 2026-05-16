@@ -147,7 +147,7 @@ public:
     void coinPickup( PZGCoin* coin );
     void gameRestart();
     
-    virtual void pauseMenuCallback( Ref* pSender );
+    virtual void pauseMenuCallback( Object* pSender );
     virtual void update(float dt);
 
     virtual void reset();

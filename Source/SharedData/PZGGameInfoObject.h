@@ -12,7 +12,7 @@
 #include <string>
 #include "PZLegacyCompat.h"
 
-class PZGGameInfoObject : public ax::Ref
+class PZGGameInfoObject : public ax::Object
 {
     public:
     

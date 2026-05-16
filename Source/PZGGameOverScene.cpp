@@ -152,7 +152,7 @@ void PZGGameOverScene::setDistance(int distance){
     
 }
 
-void PZGGameOverScene::menuBackCallback(Ref* pSender) {
+void PZGGameOverScene::menuBackCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound(false);
     }
@@ -176,7 +176,7 @@ void PZGGameOverScene::menuBackCallback(Ref* pSender) {
     
 }
 
-void PZGGameOverScene::menuRestartCallback(Ref* pSender) {
+void PZGGameOverScene::menuRestartCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound(false);
     }

@@ -12,7 +12,7 @@
 #include <iostream>
 #include "PZLegacyCompat.h"
 
-class PZGGameInfoLevelItem : public ax::Ref
+class PZGGameInfoLevelItem : public ax::Object
 {
 public:
     

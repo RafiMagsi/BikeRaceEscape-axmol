@@ -130,7 +130,7 @@ void PZGPauseMenuScene::onEnterTransitionDidFinish(){
     
 }
 
-void PZGPauseMenuScene::menuBackCallback(Ref* pSender) {
+void PZGPauseMenuScene::menuBackCallback(Object* pSender) {
     
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
@@ -151,7 +151,7 @@ void PZGPauseMenuScene::menuBackCallback(Ref* pSender) {
 
 }
 
-void PZGPauseMenuScene::menuRestartCallback(Ref* pSender) {
+void PZGPauseMenuScene::menuRestartCallback(Object* pSender) {
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
@@ -168,7 +168,7 @@ void PZGPauseMenuScene::menuRestartCallback(Ref* pSender) {
     }
 }
 
-void PZGPauseMenuScene::menuContinueCallback(Ref* pSender) {
+void PZGPauseMenuScene::menuContinueCallback(Object* pSender) {
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }

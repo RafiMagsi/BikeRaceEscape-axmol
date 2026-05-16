@@ -11,7 +11,7 @@
 #include <string>
 #include <map>
 #include "PZLegacyCompat.h"
-class PZGFontObject : public ax::Ref
+class PZGFontObject : public ax::Object
 {
 public:
    const ax::__String * fontType;

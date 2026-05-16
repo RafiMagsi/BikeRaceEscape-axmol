@@ -87,7 +87,7 @@
 #define CCRANDOM_MINUS1_1() (CCRANDOM_0_1() * 2.0f - 1.0f)
 #endif
 #ifndef CCLog
-#define CCLog(...) AXLOG(__VA_ARGS__)
+#define CCLog(...) AXLOGD(__VA_ARGS__)
 #endif
 #ifndef kResolutionExactFit
 #define kResolutionExactFit ax::ResolutionPolicy::EXACT_FIT
@@ -97,20 +97,24 @@
 // Cocos2d-x 2.x touch callbacks used CCSet/__Set. Axmol 2.11.x uses
 // std::vector<Touch*> callbacks instead, so we provide a tiny transient set
 // wrapper used only by PZLegacyInputLayer when forwarding touch events.
+//
+// Axmol 2.11.1+ renamed Object -> Object. This adapter intentionally does not
+// inherit from Object because it is a short-lived stack/local bridge, not an
+// autoreleased engine object.
 namespace ax {
-class __Set : public Ref {
+class __Set {
 public:
-    using Container = std::vector<Ref*>;
+    using Container = std::vector<Object*>;
     using iterator = Container::iterator;
     using const_iterator = Container::const_iterator;
 
-    void addObject(Ref* object) {
+    void addObject(Object* object) {
         if (object != nullptr) {
             _objects.push_back(object);
         }
     }
 
-    Ref* anyObject() const {
+    Object* anyObject() const {
         return _objects.empty() ? nullptr : _objects.front();
     }
 

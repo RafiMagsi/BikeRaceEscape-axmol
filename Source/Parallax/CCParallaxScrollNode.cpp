@@ -35,7 +35,7 @@ void CCParallaxScrollNode::updateWithVelocity(Vec2 vel, float dt)
 {
 	vel = ccpMult(vel, PTM_RATIO);
     //	CCLog("count: %i", _scrollOffsets->count());
-    Ref* object;
+    Object* object;
     CCARRAY_FOREACH(_scrollOffsets, object)
     {
         CCParallaxScrollOffset* scrollOffset = dynamic_cast<CCParallaxScrollOffset*>(object);
@@ -63,7 +63,7 @@ void CCParallaxScrollNode::updateWithVelocity(Vec2 vel, float dt)
 void CCParallaxScrollNode::updateWithYPosition(float y, float dt)
 {
     
-    Ref* object;
+    Object* object;
     CCARRAY_FOREACH(_scrollOffsets, object)
     {
         CCParallaxScrollOffset* scrollOffset = dynamic_cast<CCParallaxScrollOffset*>(object);
@@ -93,7 +93,7 @@ void CCParallaxScrollNode::removeChild(Sprite *node, bool cleanup)
     dealloc->autorelease();
     
     
-    Ref* object;
+    Object* object;
     CCARRAY_FOREACH(_scrollOffsets, object)
     {
         CCParallaxScrollOffset* scrollOffset = dynamic_cast<CCParallaxScrollOffset*>(object);
@@ -114,7 +114,7 @@ void CCParallaxScrollNode::addInfiniteScrollWithObjects(__Array *objects, int z,
 	float totalHeight = 0;
     
     
-    Ref* object;
+    Object* object;
     CCARRAY_FOREACH(objects, object)
     {
         Sprite* sprite = dynamic_cast<Sprite*>(object);
@@ -147,7 +147,7 @@ void CCParallaxScrollNode::addInfiniteScrollWithObjects(__Array *objects, int z,
 }
 
 void CCParallaxScrollNode::reset(){
-    Ref* object;
+    Object* object;
     CCARRAY_FOREACH(_scrollOffsets, object)
     {
         CCParallaxScrollOffset* scrollOffset = dynamic_cast<CCParallaxScrollOffset*>(object);

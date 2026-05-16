@@ -39,14 +39,14 @@ PZGGameplayShootingRunner* PZGGameplayShootingRunner::createWithDictionary(ax::_
     
     ax::__Dictionary* dict;
     ax::__Array* array;
-    ax::Ref *arrayObj;
+    ax::Object *arrayObj;
     
     dict = ( ax::__Dictionary* )dictionary->valueForKey("platfrom1");
     if (dict) {
         obj->platform1Art = PZGArtObject::createWithDictionary( dict );
     }
     
-    arrayObj = (ax::Ref*)dictionary->valueForKey("platfrom1_cp");
+    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom1_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
@@ -61,7 +61,7 @@ PZGGameplayShootingRunner* PZGGameplayShootingRunner::createWithDictionary(ax::_
         obj->platform2Art = PZGArtObject::createWithDictionary( dict );
     }
     
-    arrayObj = (ax::Ref*)dictionary->valueForKey("platfrom2_cp");
+    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom2_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
@@ -76,7 +76,7 @@ PZGGameplayShootingRunner* PZGGameplayShootingRunner::createWithDictionary(ax::_
         obj->platform3Art = PZGArtObject::createWithDictionary( dict );
     }
 
-    arrayObj = (ax::Ref*)dictionary->valueForKey("platfrom3_cp");
+    arrayObj = (ax::Object*)dictionary->valueForKey("platfrom3_cp");
     array = dynamic_cast<ax::__Array*>(arrayObj);
     if (array) {
         ax::__String *s;
