@@ -131,12 +131,12 @@ def main() -> int:
     parser.add_argument("--input", required=True, help="Path to a source PNG (prefer 1024x1024 or higher).")
     parser.add_argument(
         "--ios-out",
-        default="platform/ios/Assets.xcassets/AppIcon.appiconset",
+        default="proj.ios_mac/ios/targets/ios/Images.xcassets/AppIcon.appiconset",
         help="Output AppIcon.appiconset folder path.",
     )
     parser.add_argument(
         "--android-out",
-        default="platform/android/app/src/main/res",
+        default="proj.android/app/res",
         help="Output Android res/ folder path.",
     )
     args = parser.parse_args()
@@ -153,4 +153,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

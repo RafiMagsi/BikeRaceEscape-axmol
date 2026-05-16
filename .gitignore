@@ -47,6 +47,7 @@ compile_commands.json
 cmake-build-*/
 legacy_native_ios_reference/
 build-macos/
+docs/
 
 # ---- Xcode / Apple ----
 DerivedData/

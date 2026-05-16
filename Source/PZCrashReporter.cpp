@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <ctime>
 #include <string>
 
 #if defined(__APPLE__)
@@ -102,8 +103,37 @@ static void computeCrashPath() {
     if (auto* fu = FileUtils::getInstance()) {
         base = fu->getWritablePath();
     }
+#if defined(__APPLE__)
+    if (base.empty()) {
+        // Works very early in process startup on iOS/tvOS Simulator/device.
+        if (const char* home = std::getenv("HOME"); home && *home) {
+            base = std::string(home) + "/Documents/";
+        }
+    }
+#endif
     if (base.empty()) base = "/tmp/";
     g_crashPath = base + "pz_crash_report.txt";
+}
+
+static void writeSessionLine(const char* kind) {
+    FILE* f = std::fopen(g_crashPath.c_str(), "a");
+    if (!f) return;
+
+    std::time_t t = std::time(nullptr);
+    char ts[64]{0};
+    if (std::tm* tm = std::localtime(&t)) {
+        std::strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", tm);
+    }
+
+    std::string line = "==== Session ";
+    line += (kind ? kind : "event");
+    line += " (native) ====";
+    if (ts[0]) {
+        line += "  ";
+        line += ts;
+    }
+    appendLine(f, line.c_str());
+    std::fclose(f);
 }
 } // namespace
 
@@ -116,6 +146,7 @@ void install() {
 #if !defined(NDEBUG)
     AXLOGI("Crash reporter log file: {}", g_crashPath);
 #endif
+    writeSessionLine("start");
 
 #if defined(__APPLE__)
     installAppleHooks();
@@ -132,5 +163,15 @@ void install() {
     std::signal(SIGBUS, signalHandler);
     std::signal(SIGILL, signalHandler);
     std::signal(SIGFPE, signalHandler);
+
+    std::atexit([]() {
+        computeCrashPath();
+        writeSessionLine("normal-exit");
+    });
+}
+
+const char* getCrashReportPath() {
+    computeCrashPath();
+    return g_crashPath.c_str();
 }
 } // namespace PZCrashReporter

@@ -10,9 +10,10 @@ USING_NS_AX;
 AppDelegate::AppDelegate() = default;
 AppDelegate::~AppDelegate() = default;
 
-void AppDelegate::initGLContextAttrs() {
-    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
-    GLView::setGLContextAttrs(glContextAttrs);
+void AppDelegate::initGfxContextAttrs() {
+    // red, green, blue, alpha, depth, stencil, multisamplesCount
+    GfxContextAttrs gfxContextAttrs = {8, 8, 8, 8, 24, 8, 0};
+    RenderView::setGfxContextAttrs(gfxContextAttrs);
 }
 
 void AppDelegate::setDebugModeEnabled(bool enable) {
@@ -21,16 +22,18 @@ void AppDelegate::setDebugModeEnabled(bool enable) {
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+    AXLOGI("AppDelegate::applicationDidFinishLaunching begin");
     PZCrashReporter::install();
+    AXLOGI("Crash report path: {}", PZCrashReporter::getCrashReportPath());
     auto* director = Director::getInstance();
-    auto* glView = director->getGLView();
-    if (!glView) {
-        glView = GLViewImpl::create("Bike Race Escape - Axmol 2.11.3");
-        director->setGLView(glView);
+    auto* renderView = director->getRenderView();
+    if (!renderView) {
+        renderView = RenderViewImpl::create("Bike Race Escape");
+        director->setRenderView(renderView);
     }
 
     director->setAnimationInterval(1.0f / 60.0f);
-    glView->setDesignResolutionSize(960, 640, ResolutionPolicy::EXACT_FIT);
+    renderView->setDesignResolutionSize(960, 640, ResolutionPolicy::EXACT_FIT);
 
     auto* fileUtils = FileUtils::getInstance();
     fileUtils->setSearchPaths({
@@ -45,8 +48,12 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     // Keep the old loading flow as the initial runtime entry.
     auto* scene = PZGLoadingScene::scene();
-    if (!scene) return false;
+    if (!scene) {
+        AXLOGE("PZGLoadingScene::scene() returned null");
+        return false;
+    }
     director->runWithScene(scene);
+    AXLOGI("AppDelegate::applicationDidFinishLaunching end");
     return true;
 }
 
@@ -57,11 +64,17 @@ void AppDelegate::scheduledLoading() {
 }
 
 void AppDelegate::applicationDidEnterBackground() {
+    AXLOGI("AppDelegate::applicationDidEnterBackground");
     Director::getInstance()->stopAnimation();
     AudioEngine::pauseAll();
 }
 
 void AppDelegate::applicationWillEnterForeground() {
+    AXLOGI("AppDelegate::applicationWillEnterForeground");
     Director::getInstance()->startAnimation();
     AudioEngine::resumeAll();
+}
+
+void AppDelegate::applicationWillQuit() {
+    AXLOGI("AppDelegate::applicationWillQuit");
 }

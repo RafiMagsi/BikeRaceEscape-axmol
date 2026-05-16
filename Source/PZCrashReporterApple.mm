@@ -4,27 +4,66 @@
 
 #if defined(__APPLE__)
 #    import <Foundation/Foundation.h>
+#    import <TargetConditionals.h>
+#    if TARGET_OS_IPHONE
+#        import <UIKit/UIKit.h>
+#    endif
+#    include <cstdio>
 #endif
 
 namespace {
 #if defined(__APPLE__)
+static NSString* crashFilePath() {
+    // Prefer Axmol writable path when available, but work even if called very early.
+    std::string base;
+    if (auto* fu = ax::FileUtils::getInstance()) {
+        base = fu->getWritablePath();
+    }
+    if (base.empty()) {
+        NSString* home = NSHomeDirectory();
+        if (home.length > 0) base = std::string(home.UTF8String) + "/Documents/";
+    }
+    if (base.empty()) base = "/tmp/";
+    return [NSString stringWithUTF8String:(base + "pz_crash_report.txt").c_str()];
+}
+
+static NSString* runLogPath() {
+    std::string base;
+    if (auto* fu = ax::FileUtils::getInstance()) {
+        base = fu->getWritablePath();
+    }
+    if (base.empty()) {
+        NSString* home = NSHomeDirectory();
+        if (home.length > 0) base = std::string(home.UTF8String) + "/Documents/";
+    }
+    if (base.empty()) base = "/tmp/";
+    return [NSString stringWithUTF8String:(base + "pz_run_log.txt").c_str()];
+}
+
 static void writeNSStringToCrashFile(NSString* str) {
     if (!str) return;
-    auto* fu = ax::FileUtils::getInstance();
-    std::string base = fu ? fu->getWritablePath() : std::string();
-    if (base.empty()) base = "/tmp/";
-    std::string path = base + "pz_crash_report.txt";
-
     NSData* data = [[str stringByAppendingString:@"\n"] dataUsingEncoding:NSUTF8StringEncoding];
-    NSFileHandle* handle = [NSFileHandle fileHandleForWritingAtPath:[NSString stringWithUTF8String:path.c_str()]];
+    NSString* path = crashFilePath();
+    NSFileHandle* handle = [NSFileHandle fileHandleForWritingAtPath:path];
     if (!handle) {
-        [[NSFileManager defaultManager] createFileAtPath:[NSString stringWithUTF8String:path.c_str()] contents:nil attributes:nil];
-        handle = [NSFileHandle fileHandleForWritingAtPath:[NSString stringWithUTF8String:path.c_str()]];
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+        handle = [NSFileHandle fileHandleForWritingAtPath:path];
     }
     if (!handle) return;
     [handle seekToEndOfFile];
     [handle writeData:data];
     [handle closeFile];
+}
+
+static void redirectStdIOToRunLog() {
+    NSString* path = runLogPath();
+    const char* cpath = path.UTF8String;
+    if (!cpath || !*cpath) return;
+    // Append mode. This captures Axmol/printf logs so you can copy one file after a run.
+    std::freopen(cpath, "a", stdout);
+    std::freopen(cpath, "a", stderr);
+    std::setvbuf(stdout, nullptr, _IOLBF, 0);
+    std::setvbuf(stderr, nullptr, _IOLBF, 0);
 }
 
 static void uncaughtNSExceptionHandler(NSException* exception) {
@@ -45,13 +84,43 @@ namespace PZCrashReporter {
 void installAppleHooks() {
 #if defined(__APPLE__)
     @autoreleasepool {
+        redirectStdIOToRunLog();
+
+        NSDateFormatter* df = [[NSDateFormatter alloc] init];
+        df.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        df.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS Z";
+        NSString* now = [df stringFromDate:[NSDate date]];
+
         NSString* header = @"==== Session start (Apple) ====";
         NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ?: @"(null)";
         NSString* version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"";
         NSString* build = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] ?: @"";
-        NSString* info = [NSString stringWithFormat:@"BundleId: %@  Version: %@ (%@)", bundleId, version, build];
+        NSString* model = @"";
+        NSString* systemName = @"";
+        NSString* systemVersion = @"";
+#if TARGET_OS_IPHONE
+        UIDevice* device = [UIDevice currentDevice];
+        model = device.model ?: @"";
+        systemName = device.systemName ?: @"";
+        systemVersion = device.systemVersion ?: @"";
+#else
+        NSProcessInfo* pi = [NSProcessInfo processInfo];
+        systemName = pi.operatingSystemVersionString ?: @"";
+#endif
+        NSString* proc = [NSProcessInfo processInfo].processName ?: @"";
+        NSString* runlog = runLogPath();
+
+        NSString* info = [NSString stringWithFormat:@"Time: %@", now ?: @""];
+        NSString* info2 = [NSString stringWithFormat:@"Process: %@", proc];
+        NSString* info3 = [NSString stringWithFormat:@"Device: %@  OS: %@ %@", model, systemName, systemVersion];
+        NSString* info4 = [NSString stringWithFormat:@"BundleId: %@  Version: %@ (%@)", bundleId, version, build];
+        NSString* info5 = [NSString stringWithFormat:@"RunLog: %@", runlog ?: @""];
         writeNSStringToCrashFile(header);
         writeNSStringToCrashFile(info);
+        writeNSStringToCrashFile(info2);
+        writeNSStringToCrashFile(info3);
+        writeNSStringToCrashFile(info4);
+        writeNSStringToCrashFile(info5);
     }
     NSSetUncaughtExceptionHandler(&uncaughtNSExceptionHandler);
 #endif

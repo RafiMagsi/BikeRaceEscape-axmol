@@ -6,10 +6,11 @@ public:
     AppDelegate();
     ~AppDelegate() override;
 
-    void initGLContextAttrs() override;
+    void initGfxContextAttrs() override;
     bool applicationDidFinishLaunching() override;
     void applicationDidEnterBackground() override;
     void applicationWillEnterForeground() override;
+    void applicationWillQuit() override;
 
     static void scheduledLoading();
     static void setDebugModeEnabled(bool enable);
