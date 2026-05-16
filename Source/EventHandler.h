@@ -18,7 +18,7 @@
 #define __EventHandler__
 
 #include <string>
-#include "StoreBridge/cocos2dx_EventHandlers.h"
+#include "cocos2dx_EventHandlers.h"
 
 using namespace std;
 

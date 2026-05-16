@@ -32,7 +32,25 @@ bool PZGLoadingScene::init()
         splash = Sprite::create( "default.png" );    
     }
 #else
-    Sprite *splash = Sprite::create( sd->getFullPath("GeneralApplicationSplashScreen_0_0")->getCString() );
+    Sprite* splash = nullptr;
+
+    // Legacy project referenced a splash key ("GeneralApplicationSplashScreen_0_0") which isn't present in this port's
+    // Content bundle. Avoid calling Sprite::create with a missing/blank filename (it can assert/crash on iOS).
+    const char* candidates[] = {
+        "GeneralApplicationSplashScreen_0_0.png",
+        "GeneralApplicationSplashScreen.png",
+        "default.png",
+        "gameLogo.png",
+    };
+
+    auto* fileUtils = FileUtils::getInstance();
+    for (auto* name : candidates) {
+        const std::string full = fileUtils->fullPathForFilename(name);
+        if (!full.empty() && fileUtils->isFileExist(full)) {
+            splash = Sprite::create(full);
+            if (splash) break;
+        }
+    }
 #endif
     if (splash) {
         float scale = 1.0;
