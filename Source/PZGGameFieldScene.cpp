@@ -43,8 +43,21 @@ void PZGGameFieldScene::reset(){
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     
+    if (!gsd) {
+        AXLOGE("PZGGameFieldScene::reset: gsd is null");
+        return;
+    }
+
     __Array* array = (__Array*)gsd->gameInfoResource->objectForKey("GameplaySettings");
-    PZGGameInfoObject* gameInfoObject = (PZGGameInfoObject*)array->objectAtIndex(0);
+    if (!array || array->count() == 0) {
+        AXLOGE("PZGGameFieldScene::reset: GameplaySettings missing/empty");
+        return;
+    }
+    PZGGameInfoObject* gameInfoObject = dynamic_cast<PZGGameInfoObject*>(array->objectAtIndex(0));
+    if (!gameInfoObject) {
+        AXLOGE("PZGGameFieldScene::reset: GameplaySettings[0] is null/wrong type");
+        return;
+    }
         
     gf_speed_max = gameInfoObject->gameSpeedMax;
     gf_speed_increaser =  gameInfoObject->gameSpeedIncreaser;
@@ -83,8 +96,16 @@ void PZGGameFieldScene::reset(){
         if (gameStartSound) {
             gameStartSound->stopSound();
         }
-        gameStartSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDGameStart );
-        gameStartSound->playAsSound( false );
+        auto* tmp = (sounds->count() > kSoundIDGameStart)
+            ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameStart))
+            : nullptr;
+        if (tmp) {
+            gameStartSound = tmp;
+            gameStartSound->playAsSound(false);
+        } else {
+            AXLOGW("PZGGameFieldScene::reset: missing gameStartSound at index={} (sounds count={})",
+                   kSoundIDGameStart, sounds->count());
+        }
     }
     
     for (int i=0; i < parallax_n; i++) {
@@ -249,9 +270,13 @@ bool PZGGameFieldScene::init()
     
   
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {
-        coin_pickup_sound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDCoinPickUp );
-        coin_pickup_sound->preloadSound();
+    if (sounds && sounds->count() > kSoundIDCoinPickUp) {
+        coin_pickup_sound = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDCoinPickUp));
+        if (coin_pickup_sound) {
+            coin_pickup_sound->preloadSound();
+        }
+    } else {
+        coin_pickup_sound = nullptr;
     }
     
     PZSettingsController* sc = PZSettingsController::shared( );
@@ -276,8 +301,13 @@ void PZGGameFieldScene::load(const char* keyName){
     PZSettingsController* sc = PZSettingsController::shared();
     
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex( 0 );
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        __Array *array = (__Array*) sd->gameInfoResource->objectForKey("IAPSettings");
+        if (array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
     
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
     if (menu) {
@@ -289,7 +319,7 @@ void PZGGameFieldScene::load(const char* keyName){
         MenuItemSprite *item;
         item = (MenuItemSprite*)menu->getChildByTag( 8 );
         if (item) {
-            if (sc->removeAds || iapInfo->removeAd_enabled == false) {
+            if (!iapInfo || sc->removeAds || iapInfo->removeAd_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -300,7 +330,7 @@ void PZGGameFieldScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( 7 );
         if (item) {
-            if (iapInfo->coinShop_enabled == false) {
+            if (!iapInfo || iapInfo->coinShop_enabled == false) {
                 item->setVisible( false );
             }
             else{
@@ -310,7 +340,7 @@ void PZGGameFieldScene::load(const char* keyName){
         }
         item = (MenuItemSprite*)menu->getChildByTag( 6 );
         if (item) {
-            if (iapInfo->kidMode_enabled && sc->kidMode == false) {
+            if (iapInfo && iapInfo->kidMode_enabled && sc->kidMode == false) {
                 item->setVisible(true);
                 item->setCallback(AX_CALLBACK_1(PZGBaseMenuScene::buyKidModeCallback, this));
             }
@@ -333,10 +363,18 @@ void PZGGameFieldScene::load(const char* keyName){
     
     // ADDING LABELS
     __Array* uiItems = (__Array*)gsd->artResource->objectForKey( "InterfaceGF" );
-    
-    
-    PZGArtInterface* coinLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex( 3 );
-    PZGArtInterface* distamceLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex( 2 );
+    if (!uiItems || uiItems->count() <= 3) {
+        AXLOGE("PZGGameFieldScene::load: InterfaceGF missing/too small (count={})", uiItems ? uiItems->count() : 0);
+        return;
+    }
+
+    PZGArtInterface* coinLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex(3);
+    PZGArtInterface* distamceLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex(2);
+    if (!coinLabelPosition || !distamceLabelPosition) {
+        AXLOGE("PZGGameFieldScene::load: InterfaceGF label positions are null (coin={}, dist={})",
+               (void*)coinLabelPosition, (void*)distamceLabelPosition);
+        return;
+    }
     
     Size size = Director::getInstance()->getWinSize();
     
@@ -444,36 +482,27 @@ void PZGGameFieldScene::pauseMenuCallback( Object* pSender ){
         
         CocosDenshion::SimpleAudioEngine::sharedEngine()->pauseBackgroundMusic();
 
-        Scene* pauseScene = PZGPauseMenuScene::scene();
-        if (!pauseScene) {
-            AXLOGE("pauseMenuCallback: failed to create pause scene");
-            gamePause = false;
-            pauseButton->setVisible(true);
-            return;
-        }
-        pauseScene->setTag( 20 );
-
-        PZGPauseMenuScene* pauseMenuScene = nullptr;
-        if (!pauseScene->getChildren().empty()) {
-            pauseMenuScene = dynamic_cast<PZGPauseMenuScene*>(pauseScene->getChildren().at(0));
-        }
+        // Overlay pause menu as a layer (avoid nesting a Scene as a child node).
+        auto* pauseMenuScene = PZGPauseMenuScene::create();
         if (!pauseMenuScene) {
-            AXLOGE("pauseMenuCallback: pause scene has no PZGPauseMenuScene layer");
+            AXLOGE("pauseMenuCallback: failed to create PZGPauseMenuScene layer (init returned false)");
             gamePause = false;
             pauseButton->setVisible(true);
             return;
         }
-
+        pauseMenuScene->setTag(20);
         pauseMenuScene->baseScene = this;
-        pauseMenuScene->load( "InterfacePM" );
-        this->addChild( pauseScene, 200 );
+        pauseMenuScene->load("InterfacePM");
+        this->addChild(pauseMenuScene, 200);
 
         
         PZGSharedData *gsd = PZGSharedData::sharedInstanse();
         __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-        if (sounds) {
-            PZGSoundData *buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
-            buttonClickedSound->playAsSound( false );
+        if (sounds && sounds->count() > kSoundIDButtonPressed) {
+            auto* buttonClickedSound = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDButtonPressed));
+            if (buttonClickedSound) {
+                buttonClickedSound->playAsSound(false);
+            }
         }
         
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
@@ -578,26 +607,17 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
             AXLOGW("gameOverCallBack: character is null");
         }
         
-        Scene* gameOver = PZGGameOverScene::scene();
-        if (!gameOver) {
-            AXLOGE("gameOverCallBack: failed to create game over scene");
-            return;
-        }
-        gameOver->setTag( 10 );
-        this->addChild( gameOver, 200 );
-        
-        if (gameOver->getChildren().empty()) {
-            AXLOGE("gameOverCallBack: game over scene has no children");
-            return;
-        }
-        PZGGameOverScene *gameOverScene = dynamic_cast<PZGGameOverScene*>(gameOver->getChildren().at(0));
+        // Overlay game-over as a layer (avoid nesting a Scene as a child node).
+        auto* gameOverScene = PZGGameOverScene::create();
         if (!gameOverScene) {
-            AXLOGE("gameOverCallBack: first child is not PZGGameOverScene");
+            AXLOGE("gameOverCallBack: failed to create PZGGameOverScene layer (init returned false)");
             return;
         }
+        gameOverScene->setTag(10);
+        this->addChild(gameOverScene, 200);
         gameOverScene->baseScene = this;
-        gameOverScene->load( "InterfaceGO" );
-        gameOverScene->setDistance( gf_distance );
+        gameOverScene->load("InterfaceGO");
+        gameOverScene->setDistance(gf_distance);
         
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
         if (menu) {

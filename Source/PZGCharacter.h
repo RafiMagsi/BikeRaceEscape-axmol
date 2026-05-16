@@ -45,6 +45,7 @@ private:
     float counter;
         
 public:
+    PZGCharacter();
     PZGSoundData* shootingSound;
     
     b2Body*     p_body;
@@ -88,6 +89,8 @@ public:
     void removeBullet(b2Body* body);
     void dead();
     void reset();
+
+    ~PZGCharacter() override;
     
 };
 

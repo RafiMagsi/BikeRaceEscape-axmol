@@ -41,7 +41,13 @@ bool PZGPauseMenuScene::init()
 #endif
     
     auto* bg = LayerColor::create(ccc4(0, 0, 0, 200));
-    this->addChild( bg );
+    this->addChild(bg);
+
+    // Swallow background touches so taps don't leak to the gameplay layer (but let menu items receive touches).
+    auto* swallower = EventListenerTouchOneByOne::create();
+    swallower->setSwallowTouches(true);
+    swallower->onTouchBegan = [](Touch*, Event*) { return true; };
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(swallower, bg);
         
     
     
@@ -120,8 +126,10 @@ void PZGPauseMenuScene::load(const char* keyName){
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {      
-        buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
+    if (sounds && sounds->count() > kSoundIDButtonPressed) {
+        buttonClickedSound = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDButtonPressed));
+    } else {
+        buttonClickedSound = nullptr;
     }
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
@@ -141,8 +149,10 @@ void PZGPauseMenuScene::menuBackCallback(Object* pSender) {
         buttonClickedSound->playAsSound(false);
     }
     
-    Director *pDirector = Director::getInstance();
-    pDirector->popScene();
+    // Pause menu is an overlay layer (not a pushed Scene).
+    if (baseScene) {
+        ((PZGGameFieldScene*)baseScene)->removePauseMenu();
+    }
     
     //Sound
     
@@ -150,9 +160,11 @@ void PZGPauseMenuScene::menuBackCallback(Object* pSender) {
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    
-    PZGSoundData *soundObj =  (PZGSoundData*)sounds->objectAtIndex( kSoundIDMainMenuMusic );
-    soundObj->playAsBackgroundMusic();
+
+    auto* soundObj = (sounds && sounds->count() > kSoundIDMainMenuMusic)
+        ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDMainMenuMusic))
+        : nullptr;
+    if (soundObj) soundObj->playAsBackgroundMusic();
 
 }
 
@@ -161,16 +173,20 @@ void PZGPauseMenuScene::menuRestartCallback(Object* pSender) {
         buttonClickedSound->playAsSound(false);
     }
     
-    ((PZGGameFieldScene*)baseScene)->gameRestart();
-    ((PZGGameFieldScene*)baseScene)->removePauseMenu();
+    if (baseScene) {
+        ((PZGGameFieldScene*)baseScene)->gameRestart();
+        ((PZGGameFieldScene*)baseScene)->removePauseMenu();
+    } else {
+        AXLOGW("PZGPauseMenuScene::menuRestartCallback: baseScene is null");
+    }
     
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {
-        PZGSoundData *soundObj =  (PZGSoundData*)sounds->objectAtIndex( kSoundIDGameFieldMusic );
-        soundObj->playAsBackgroundMusic();
-    }
+    auto* soundObj = (sounds && sounds->count() > kSoundIDGameFieldMusic)
+        ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameFieldMusic))
+        : nullptr;
+    if (soundObj) soundObj->playAsBackgroundMusic();
 }
 
 void PZGPauseMenuScene::menuContinueCallback(Object* pSender) {

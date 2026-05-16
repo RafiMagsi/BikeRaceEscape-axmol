@@ -7,12 +7,54 @@
 //
 
 #include "PZLegacyCompat.h"
+#include <cstring>
 #include "PZGCharacter.h"
 #include "constants.h"
 #include "SharedData/PZGSharedData.h"
 #include "SharedData/PZGArtCharacter.h"
 
 #include "PZSettingsController.h"
+
+PZGCharacter::PZGCharacter()
+    : character_scale(1.0f)
+    , playerId(0)
+    , player_n(0)
+    , bouncing(false)
+    , bouncing_counter(0.0f)
+    , s_fire(nullptr)
+    , s_body_jump(nullptr)
+    , s_body_death(nullptr)
+    , s_body_animation(nullptr)
+    , bullet_out(false)
+    , counter(0.0f) {
+    std::memset(s_bullet, 0, sizeof(s_bullet));
+    std::memset(p_bullet, 0, sizeof(p_bullet));
+    std::memset(bullet_velocity, 0, sizeof(bullet_velocity));
+
+    shootingSound = nullptr;
+    p_body = nullptr;
+    s_body = nullptr;
+    rotating = false;
+    coinPicked = false;
+    angle = 0.0f;
+    shooting_angle = 0.0f;
+    shooting = false;
+    jump_height = 0.0f;
+    jump_permanently = false;
+    fire_speed = 0.0f;
+    bullet_speed = 0.0f;
+    jump_timer = 0.0f;
+    jump_enabled = false;
+    jump_nongrounded = false;
+    jump_nongrounded_timer = 0.0f;
+    jump_counter = 0;
+}
+
+PZGCharacter::~PZGCharacter() {
+    AX_SAFE_RELEASE_NULL(s_body_jump);
+    AX_SAFE_RELEASE_NULL(s_body_death);
+    AX_SAFE_RELEASE_NULL(s_body_animation);
+}
 
 PZGCharacter* PZGCharacter::create(int playerId, b2World* world, bool gravityAffected ){
     PZGCharacter* player = new PZGCharacter();
@@ -43,9 +85,17 @@ PZGCharacter* PZGCharacter::create(int playerId, b2World* world, bool gravityAff
 }
 
 void PZGCharacter::reset(){
-    if (s_body_animation) {
+    if (s_body_animation && s_body) {
         s_body->stopAllActions();
-        s_body->runAction( CCRepeatForever::create( s_body_animation ) );
+        // Actions are stateful; clone before running to avoid reusing an already-run action.
+        auto* anim = dynamic_cast<ActionInterval*>(s_body_animation->clone());
+        if (anim) {
+            s_body->runAction(CCRepeatForever::create(anim));
+        } else {
+            AXLOGW("PZGCharacter::reset: failed to clone s_body_animation");
+        }
+    } else {
+        AXLOGW("PZGCharacter::reset: missing s_body_animation or s_body");
     }
     
     jump_nongrounded_timer = 0;
@@ -85,6 +135,7 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
         s_body->setScale( character_scale );
 
         s_body_animation = artCharacter->getResourceAnimate();
+        AX_SAFE_RETAIN(s_body_animation);
         this->addChild( s_body );
         AXLOGI("PZGCharacter::init: Body added");
     } else {
@@ -94,6 +145,7 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
     AXLOGI("PZGCharacter::init: Setting up death animation");
     if (artCharacter->deathArtObj) {
         s_body_death = artCharacter->deathArtObj->getResourceAnimate();
+        AX_SAFE_RETAIN(s_body_death);
     } else {
         AXLOGW("PZGCharacter::init: deathArtObj is null");
     }
@@ -101,6 +153,7 @@ void PZGCharacter::init( PZGArtCharacter* artCharacter ){
     AXLOGI("PZGCharacter::init: Setting up jump animation");
     if (artCharacter->jumpArtObj) {
         s_body_jump = artCharacter->jumpArtObj->getResourceAnimate();
+        AX_SAFE_RETAIN(s_body_jump);
     } else {
         AXLOGW("PZGCharacter::init: jumpArtObj is null");
     }
@@ -232,10 +285,13 @@ void PZGCharacter::setShootingAngle(float _shooting_angle){
 }
 
 void PZGCharacter::dead(){
-    if (s_body_death) {
+    if (s_body_death && s_body) {
         s_body->stopAllActions();
-        s_body_death->setTag( 99 );
-        s_body->runAction( s_body_death );
+        auto* action = dynamic_cast<Animate*>(s_body_death->clone());
+        if (action) {
+            action->setTag(99);
+            s_body->runAction(action);
+        }
     }
 }
 
@@ -249,9 +305,12 @@ void PZGCharacter::jump_grounded(){
         jump();
     }
     else{
-        if (s_body_jump && s_body_animation) {
+        if (s_body_jump && s_body_animation && s_body) {
             s_body->stopAllActions();
-            s_body->runAction( CCRepeatForever::create( s_body_animation ) );
+            auto* anim = dynamic_cast<ActionInterval*>(s_body_animation->clone());
+            if (anim) {
+                s_body->runAction(CCRepeatForever::create(anim));
+            }
         }
     }
 }
@@ -264,10 +323,13 @@ void PZGCharacter::jump(){
         jump_timer = 0.0;
         jump_enabled = true;
         
-        if (s_body_jump) {
+        if (s_body_jump && s_body) {
             s_body->stopAllActions();
-            s_body_jump->setTag( 98 );
-            s_body->runAction( s_body_jump );
+            auto* action = dynamic_cast<Animate*>(s_body_jump->clone());
+            if (action) {
+                action->setTag(98);
+                s_body->runAction(action);
+            }
         }
     }
 }
@@ -419,4 +481,3 @@ void PZGCharacter::removeBullet(b2Body *body){
         }
     }
 }
-

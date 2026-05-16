@@ -87,8 +87,14 @@ void PZGGamefieldBasicRunner::reset(){
         if (gameStartSound) {
             gameStartSound->stopSound();
         }
-        gameStartSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDGameStart );
-        gameStartSound->playAsSound( false );
+        auto* tmp = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameStart));
+        if (tmp) {
+            gameStartSound = tmp;
+            gameStartSound->playAsSound(false);
+        } else {
+            AXLOGW("PZGGamefieldBasicRunner::reset: missing gameStartSound at index={} (sounds count={})",
+                   kSoundIDGameStart, sounds->count());
+        }
     }
 }
 

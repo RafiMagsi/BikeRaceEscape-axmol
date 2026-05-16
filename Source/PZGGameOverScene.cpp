@@ -44,7 +44,13 @@ bool PZGGameOverScene::init() {
 #endif
     
     auto* bg = LayerColor::create(ccc4(0, 0, 0, 200));
-    this->addChild( bg );
+    this->addChild(bg);
+
+    // Swallow background touches so taps don't leak to the gameplay layer (but let menu items receive touches).
+    auto* swallower = EventListenerTouchOneByOne::create();
+    swallower->setSwallowTouches(true);
+    swallower->onTouchBegan = [](Touch*, Event*) { return true; };
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(swallower, bg);
     
 	return true;
 }
@@ -126,10 +132,19 @@ void PZGGameOverScene::load(const char* keyName){
     
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
     if (sounds) {
-        gameOverSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDGameOver );
-        gameOverSound->playAsSound( false );
-        
-        buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
+        gameOverSound = (sounds->count() > kSoundIDGameOver)
+            ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameOver))
+            : nullptr;
+        if (gameOverSound) {
+            gameOverSound->playAsSound(false);
+        }
+
+        buttonClickedSound = (sounds->count() > kSoundIDButtonPressed)
+            ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDButtonPressed))
+            : nullptr;
+    } else {
+        gameOverSound = nullptr;
+        buttonClickedSound = nullptr;
     }
     
     CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic();
@@ -166,18 +181,22 @@ void PZGGameOverScene::menuBackCallback(Object* pSender) {
         gameOverSound->stopSound();
     }
     
-    Director *pDirector = Director::getInstance();
-    pDirector->popScene();
+    // Game-over UI is an overlay layer. "Back" should leave gameplay (return to previous scene),
+    // not resume the game underneath (which looks like flicker).
+    if (baseScene) {
+        Director::getInstance()->popScene();
+        return;
+    }
 
     //Sound
     CocosDenshion::SimpleAudioEngine::sharedEngine()->stopBackgroundMusic();
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {
-        PZGSoundData *soundObj =  (PZGSoundData*)sounds->objectAtIndex( kSoundIDMainMenuMusic );
-        soundObj->playAsBackgroundMusic();
-    }
+    auto* soundObj = (sounds && sounds->count() > kSoundIDMainMenuMusic)
+        ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDMainMenuMusic))
+        : nullptr;
+    if (soundObj) soundObj->playAsBackgroundMusic();
     
 }
 
@@ -191,14 +210,16 @@ void PZGGameOverScene::menuRestartCallback(Object* pSender) {
     }
 
     
-    ((PZGGameFieldScene*)baseScene)->gameRestart();
+    if (baseScene) {
+        ((PZGGameFieldScene*)baseScene)->gameRestart();
+    }
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {
-        PZGSoundData *soundObj =  (PZGSoundData*)sounds->objectAtIndex( kSoundIDGameFieldMusic );
-        soundObj->playAsBackgroundMusic();
-    }
+    auto* soundObj = (sounds && sounds->count() > kSoundIDGameFieldMusic)
+        ? dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDGameFieldMusic))
+        : nullptr;
+    if (soundObj) soundObj->playAsBackgroundMusic();
 }
 
 #pragma mark IAP

@@ -58,7 +58,17 @@ void PZGCoinShopScene::load(const char* keyName){
     for (int i=0; i < uiItems->count(); i++) {
         PZGArtInterface *infoObj = (PZGArtInterface*)uiItems->objectAtIndex( i );
         
-        if (infoObj->type->compare("MenuItemSprite") == 0) {
+        const char* typeStr = infoObj->type ? infoObj->type->getCString() : "";
+        const bool isMenuItemSpriteType =
+            (std::strcmp(typeStr, "MenuItemSprite") == 0) ||
+            (std::strcmp(typeStr, "CCMenuItemSprite") == 0) ||
+            (std::strcmp(typeStr, "CCMenuItemImage") == 0);
+
+        const bool isSpriteType =
+            (std::strcmp(typeStr, "Sprite") == 0) ||
+            (std::strcmp(typeStr, "CCSprite") == 0);
+
+        if (isMenuItemSpriteType) {
             MenuItemSprite* menuItem;
             
             Sprite *sprite = infoObj->getResource();
@@ -81,7 +91,7 @@ void PZGCoinShopScene::load(const char* keyName){
             
             pMenu->addChild(menuItem);
         }
-        else if(infoObj->type->compare("Sprite") == 0){
+        else if (isSpriteType) {
             Sprite *sprite = infoObj->getResource();
             if (sprite == NULL) {
                 continue;
@@ -103,8 +113,10 @@ void PZGCoinShopScene::load(const char* keyName){
     }
     
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
-    if (sounds) {
-        buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
+    if (sounds && sounds->count() > kSoundIDButtonPressed) {
+        buttonClickedSound = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDButtonPressed));
+    } else {
+        buttonClickedSound = nullptr;
     }
     
    
@@ -112,7 +124,7 @@ void PZGCoinShopScene::load(const char* keyName){
     if (menu) {
         
         PZGArtInterface *backButtonInfo = (PZGArtInterface*)getItemByName( "GUI_BackButton", keyName );
-        MenuItemSprite *item = (MenuItemSprite*)menu->getChildByTag( backButtonInfo->index );
+        MenuItemSprite *item = backButtonInfo ? (MenuItemSprite*)menu->getChildByTag( backButtonInfo->index ) : nullptr;
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGCoinShopScene::menuBackCallback, this));
         }
@@ -139,9 +151,10 @@ PZGArtInterface* PZGCoinShopScene::getItemByName( const char* name, const char* 
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* uiItems = (__Array*)gsd->artResource->objectForKey( interfaceKey );
     
+    if (!uiItems) return NULL;
     for (int i=0; i < uiItems->count(); i++) {
         PZGArtInterface *infoObj = (PZGArtInterface*)uiItems->objectAtIndex( i );
-        if ( infoObj->subkey->compare( name ) == 0) {
+        if (infoObj && infoObj->subkey && infoObj->subkey->compare( name ) == 0) {
             return infoObj;
         }
     }
@@ -157,10 +170,14 @@ void PZGCoinShopScene::buyCoinPack1Callback(Object* pSender){
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
 
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    ax::__Array* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
     
-    if (iapInfo->coinShop1_id) {
+    if (iapInfo && iapInfo->coinShop1_id) {
         cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop1_id->getCString());
     }
 
@@ -174,10 +191,14 @@ void PZGCoinShopScene::buyCoinPack2Callback(Object* pSender){
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    ax::__Array* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
 
-    if (iapInfo->coinShop2_id) {
+    if (iapInfo && iapInfo->coinShop2_id) {
         cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop2_id->getCString());
     }
     
@@ -192,10 +213,14 @@ void PZGCoinShopScene::buyCoinPack3Callback(Object* pSender){
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    ax::__Array* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+    PZGGameInfoIAP *iapInfo = nullptr;
+    if (sd) {
+        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+            iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+        }
+    }
     
-    if (iapInfo->coinShop3_id) {
+    if (iapInfo && iapInfo->coinShop3_id) {
         cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop3_id->getCString());
     }
     

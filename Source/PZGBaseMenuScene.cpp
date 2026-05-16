@@ -178,9 +178,15 @@ void PZGBaseMenuScene::load(const char* keyName){
 
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
     if (sounds) {
-        buttonClickedSound = (PZGSoundData*)sounds->objectAtIndex( kSoundIDButtonPressed );
-        buttonClickedSound->preloadSound();
-        AXLOGI("PZGBaseMenuScene::load - Sound loaded");
+        auto* obj = sounds->objectAtIndex(kSoundIDButtonPressed);
+        buttonClickedSound = dynamic_cast<PZGSoundData*>(obj);
+        if (buttonClickedSound) {
+            buttonClickedSound->preloadSound();
+            AXLOGI("PZGBaseMenuScene::load - Sound loaded (index={})", kSoundIDButtonPressed);
+        } else {
+            AXLOGW("PZGBaseMenuScene::load - Button sound missing at index={} (sounds count={})",
+                   kSoundIDButtonPressed, sounds->count());
+        }
     }
     AXLOGI("PZGBaseMenuScene::load completed");
 }
@@ -226,10 +232,17 @@ void PZGBaseMenuScene::coinShopCallback(Object* pSender) {
         buttonClickedSound->playAsSound( false );
     }
     
-    Director *pDirector = Director::getInstance();
-    Scene *pScene = PZGCoinShopScene::scene();
-    PZGCoinShopScene *bMenu = (PZGCoinShopScene *)pScene->getChildren().at( 0 );
-    bMenu->load( "InterfaceCoinShop" );
+    auto* pDirector = Director::getInstance();
+
+    // Avoid assuming scene()->children[0] exists. Build explicitly so failures are handled.
+    auto* pScene = Scene::create();
+    auto* layer = PZGCoinShopScene::create();
+    if (!pScene || !layer) {
+        AXLOGE("coinShopCallback: failed to create coin shop (scene={}, layer={})", (void*)pScene, (void*)layer);
+        return;
+    }
+    pScene->addChild(layer);
+    layer->load("InterfaceCoinShop");
     pDirector->pushScene(pScene);
     
 }

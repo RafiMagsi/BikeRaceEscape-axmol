@@ -43,7 +43,15 @@ ax::Animate*  PZGArtObject::getResourceAnimate(){
         for (int i=0; i < no_of_sprites; i++) {
             __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);
             SpriteFrame* f = SpriteFrameCache::getInstance()->getSpriteFrameByName(s->m_sString.c_str());
-            anim->addSpriteFrame( f );
+            if (f) {
+                anim->addSpriteFrame(f);
+            } else {
+                AXLOGW("PZGArtObject::getResourceAnimate: missing frame '{}'", s->m_sString);
+            }
+        }
+        if (anim->getFrames().empty()) {
+            AXLOGW("PZGArtObject::getResourceAnimate: no frames for key='{}' index={}", key ? key->getCString() : "(null)", index);
+            return nullptr;
         }
         anim->setDelayPerUnit(1/ (15.0 * animationSpeed));
         Animate *a = Animate::create(anim);
@@ -78,14 +86,23 @@ ax::Sprite *  PZGArtObject::getResource(){
         for (int i=0; i < no_of_sprites; i++) {
             __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);
             SpriteFrame* f = SpriteFrameCache::getInstance()->getSpriteFrameByName(s->m_sString.c_str());
-            anim->addSpriteFrame( f );
+            if (f) {
+                anim->addSpriteFrame(f);
+            } else {
+                AXLOGW("PZGArtObject::getResource: missing frame '{}'", s->m_sString);
+            }
         }
-        anim->setDelayPerUnit(1/(15.0 * animationSpeed));
-        Animate *a = Animate::create(anim);
-        CCAction *action =  CCRepeatForever::create( a );
-        action->setTag( 10 );
-        
-        sprite->runAction( action );
+        if (!anim->getFrames().empty()) {
+            anim->setDelayPerUnit(1/(15.0 * animationSpeed));
+            Animate *a = Animate::create(anim);
+            if (a) {
+                CCAction *action = CCRepeatForever::create(a);
+                if (action) {
+                    action->setTag(10);
+                    sprite->runAction(action);
+                }
+            }
+        }
     }
     else{
         

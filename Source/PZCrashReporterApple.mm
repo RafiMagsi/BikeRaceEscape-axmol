@@ -59,7 +59,10 @@ static void redirectStdIOToRunLog() {
     NSString* path = runLogPath();
     const char* cpath = path.UTF8String;
     if (!cpath || !*cpath) return;
-    // Append mode. This captures Axmol/printf logs so you can copy one file after a run.
+    // Truncate per app launch to avoid mixing multiple runs (which causes confusing greps).
+    // This still gives you a single file to copy for the latest run.
+    FILE* f = std::fopen(cpath, "w");
+    if (f) std::fclose(f);
     std::freopen(cpath, "a", stdout);
     std::freopen(cpath, "a", stderr);
     std::setvbuf(stdout, nullptr, _IOLBF, 0);
