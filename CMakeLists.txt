@@ -24,14 +24,14 @@ file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
 list(FILTER GAME_SOURCES EXCLUDE REGEX ".*/StoreBridge/.*")
 
 file(GLOB_RECURSE LEGACY_BOX2D_SOURCES CONFIGURE_DEPENDS
-    thirdparty/legacy-box2d/*.cpp
+    thirdparty/Box2D/*.cpp
 )
 
 add_executable(BikeRaceEscapeAxmol ${GAME_SOURCES} ${LEGACY_BOX2D_SOURCES})
 
 target_include_directories(BikeRaceEscapeAxmol PRIVATE
     Source
-    thirdparty/legacy-box2d
+    thirdparty
 )
 
 target_link_libraries(BikeRaceEscapeAxmol PRIVATE axmol)
