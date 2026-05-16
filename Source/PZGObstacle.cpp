@@ -66,7 +66,7 @@ void PZGObstacle::init(PZGArtObstacle* obstInfo){
     sprite_flash = obstInfo->getResource();
     if (sprite_flash) {
         sprite_flash->setAnchorPoint( ccp(0.5, 0.5) );
-        sprite_flash->setBlendFunc((BlendFunc){GL_SRC_ALPHA, GL_ONE});
+        sprite_flash->setBlendFunc(BlendFunc::ADDITIVE);
         sprite_flash->setScale( obstacle_scale );
         
         

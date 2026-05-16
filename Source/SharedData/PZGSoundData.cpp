@@ -64,21 +64,19 @@ void PZGSoundData::playAsBackgroundMusic(){
 const char * PZGSoundData::getSoundResourcePath(){
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
-    char *filename = (char*) malloc(sizeof(char) * 64);
-    sprintf(filename, "%s_%d.mp3", key->getCString(), index);
+    char* filename = (char*)malloc(sizeof(char) * 64);
+    snprintf(filename, 64, "%s_%d.mp3", key->getCString(), index);
     
 #if   CC_TARGET_PLATFORM == CC_PLATFORM_MAC
     return gsd->getFullPath( filename )->getCString();
     
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-    char *out = (char*) malloc(sizeof(char) * 256);
-    const char *resDir = ax::FileUtils::getInstance()->getResourceDirectory();
-    sprintf(out, "%s../../Sounds/%s", resDir, filename);
-    return  gsd->getFullPath( out )->getCString();
+    // AppDelegate sets search paths to include `Content/Sounds`, so the bare filename resolves correctly.
+    return gsd->getFullPath(filename)->getCString();
     
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    char *out = (char*) malloc(sizeof(char) * 256);
-    sprintf(out, "Sounds/%s", filename);
+    char* out = (char*)malloc(sizeof(char) * 256);
+    snprintf(out, 256, "Sounds/%s", filename);
     return out;
     
 #endif

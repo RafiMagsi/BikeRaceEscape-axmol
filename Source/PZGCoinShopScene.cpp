@@ -13,7 +13,7 @@
 #include "constants.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-    #include "StoreBridge/cocos2dx_StoreController.h"
+    #include "cocos2dx_StoreController.h"
 #endif
 
 USING_NS_AX;
@@ -98,7 +98,7 @@ void PZGCoinShopScene::load(const char* keyName){
         }
     }
     
-    if (pMenu->!getChildren().empty()) {
+    if (!pMenu->getChildren().empty()) {
         this->addChild(pMenu, 300);
     }
     

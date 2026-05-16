@@ -42,7 +42,7 @@ ax::Animate*  PZGArtObject::getResourceAnimate(){
         Animation* anim = Animation::create();
         for (int i=0; i < no_of_sprites; i++) {
             __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);
-            SpriteFrame *f = SpriteFrameCache::getInstance()->spriteFrameByName( s->m_sString.c_str() );
+            SpriteFrame* f = SpriteFrameCache::getInstance()->getSpriteFrameByName(s->m_sString.c_str());
             anim->addSpriteFrame( f );
         }
         anim->setDelayPerUnit(1/ (15.0 * animationSpeed));
@@ -62,7 +62,7 @@ ax::Sprite *  PZGArtObject::getResource(){
         
         __String *spriteName = __String::createWithFormat("%s_%d_%d", key->getCString(), index, 0);
         
-        SpriteFrame *pFrame = SpriteFrameCache::getInstance()->spriteFrameByName( spriteName->getCString() );
+        SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spriteName->getCString());
         if (pFrame == NULL) {
             return NULL;
         }
@@ -72,7 +72,7 @@ ax::Sprite *  PZGArtObject::getResource(){
         Animation* anim = Animation::create();
         for (int i=0; i < no_of_sprites; i++) {
             __String* s = __String::createWithFormat("%s_%d_%d", key->getCString(), index, i);
-            SpriteFrame *f = SpriteFrameCache::getInstance()->spriteFrameByName( s->m_sString.c_str() );
+            SpriteFrame* f = SpriteFrameCache::getInstance()->getSpriteFrameByName(s->m_sString.c_str());
             anim->addSpriteFrame( f );
         }
         anim->setDelayPerUnit(1/(15.0 * animationSpeed));
@@ -86,7 +86,7 @@ ax::Sprite *  PZGArtObject::getResource(){
         
         __String *spriteName = __String::createWithFormat("%s_%d_%d", key->getCString(), index, 0);
         
-        SpriteFrame *pFrame = SpriteFrameCache::getInstance()->spriteFrameByName( spriteName->getCString() );
+        SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spriteName->getCString());
         if ( pFrame == NULL ) {
             return NULL;
         }

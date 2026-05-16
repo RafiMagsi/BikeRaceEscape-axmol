@@ -64,7 +64,8 @@ ax::__String* PZGSharedData::getFullPath(const char* name){
     s = ax::__String::createWithFormat("%s/%s", workingURL->getCString(), name);
     
 #else
-    s = __String::createWithFormat( "%s", ax::FileUtils::getInstance()->fullPathFromRelativePath( name ) );
+    const auto fullPath = ax::FileUtils::getInstance()->fullPathForFilename(name);
+    s = __String::createWithFormat("%s", fullPath.c_str());
 #endif
     
     return s;
@@ -386,5 +387,4 @@ void PZGSharedData::readDataFromFile()
     
     synchronized = true;
 }
-
 

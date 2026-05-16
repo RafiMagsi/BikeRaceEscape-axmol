@@ -53,7 +53,7 @@ void PZGGamefieldJumpingGame::reset(){
     platform->platfromsBetweenDistance = gameInfoObject->platfromsBetweenDistance;
     
     if (character) {
-        character->s_body->setFlipX(false);
+        character->s_body->setFlippedX(false);
         character->reset();
         Size size = Director::getInstance()->getWinSize();
         //character->setLoc( ccp(size.width/5.0, size.height+60) );
@@ -172,7 +172,7 @@ void PZGGamefieldJumpingGame::update(float dt){
         }
         
         //will comment this out for now
-        if (!player_target_offset.equals(Vec2Zero)) {
+        if (!player_target_offset.equals(Vec2::ZERO)) {
             
             ax::Vec2   player_old_position = character->loc;
             
@@ -182,9 +182,9 @@ void PZGGamefieldJumpingGame::update(float dt){
             player_target.y+=player_target_offset.y;
             
             if (player_target.x < player_old_position.x) {
-                character->s_body->setFlipX(true);
+                character->s_body->setFlippedX(true);
             }else{
-                character->s_body->setFlipX(false);
+                character->s_body->setFlippedX(false);
             }
             
             player_target_offset.setPoint(0, 0);

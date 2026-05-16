@@ -71,7 +71,7 @@ void PZGGamefieldJumpingPlatforms::reset(){
 void PZGGamefieldJumpingPlatforms::addPlatforms(float dt) {
     
     if (platforms [0] == NULL) {
-        ax::Rect rect=RectZero;
+        ax::Rect rect = ax::Rect::ZERO;
 
         for (int pIndex = kMax_Platfroms-1; pIndex >= 0; pIndex--){
             rect = addPlatform(pIndex,dt, rect);
@@ -199,13 +199,13 @@ ax::Rect PZGGamefieldJumpingPlatforms::addPlatform(int pIndex,float dt, ax::Rect
     }
     
     if(platform == NULL){
-        return RectZero;
+        return ax::Rect::ZERO;
     }
     
     sprite = platform->sprite;
     
     if (sprite == NULL) {
-        return RectZero;
+        return ax::Rect::ZERO;
     }
     
     ax::Size s = kDeviceWinSize();

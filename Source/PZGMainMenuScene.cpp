@@ -129,7 +129,8 @@ void PZGMainMenuScene::load(const char* keyName){
     Sprite *more_button = Sprite::create("free_game.png" );
     Sprite *moreSpriteClick = Sprite::create( "free_game.png" );
     moreSpriteClick->setColor( ccc3(128, 128, 128) );
-    MenuItemSprite *more_button1 = MenuItemSprite::create(more_button, moreSpriteClick, NULL, this, AX_CALLBACK_1(PZGMainMenuScene::moreGames, this));
+    MenuItemSprite* more_button1 =
+        MenuItemSprite::create(more_button, moreSpriteClick, AX_CALLBACK_1(PZGMainMenuScene::moreGames, this));
     more_button1->setPosition(ccp(screenSize.width*0, screenSize.height));
     more_button1->setAnchorPoint(ccp(0, 1));
     
@@ -137,7 +138,7 @@ void PZGMainMenuScene::load(const char* keyName){
     pMenu = Menu::create(more_button1, NULL);
     pMenu->setPosition( ccp(screenSize.width *0.9, screenSize.height*0.066) );
     //    pMenu = Menu::create(startGameItem, backItem, NULL);
-    pMenu->setPosition( Vec2Zero );
+    pMenu->setPosition(Vec2::ZERO);
     pMenu->setTag(400);
     
     this->addChild(pMenu,400);
@@ -145,7 +146,7 @@ void PZGMainMenuScene::load(const char* keyName){
     
 }
 
-void PZGMainMenuScene::moreGames(){
+void PZGMainMenuScene::moreGames(Object*){
 //    PZ::Neocortex::shared()->showMoreFreeGames();
     ShowPlayHeaven_C();
 }
@@ -381,4 +382,3 @@ void PZGMainMenuScene::kidModePurchased(){
 void PZGMainMenuScene::keyBackClicked(){
     Director::getInstance()->end();
 }
-

@@ -61,7 +61,7 @@ bool PZGGamefieldRacingGame::init()
         
         s_body_boostUp->setAnchorPoint( ccp(0.5,0.5) );
         s_body_boostUp->setVisible(isTouched);
-        int z= character->getZOrder();
+        int z = character->getLocalZOrder();
         
         this->addChild(s_body_boostUp, z+1);
     }

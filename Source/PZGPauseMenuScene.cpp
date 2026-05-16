@@ -40,7 +40,7 @@ bool PZGPauseMenuScene::init()
     this->setKeypadEnabled(true);
 #endif
     
-    Layer *bg = LayerColor::create( ccc4(0, 0, 0, 200));
+    auto* bg = LayerColor::create(ccc4(0, 0, 0, 200));
     this->addChild( bg );
         
     

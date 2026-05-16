@@ -36,6 +36,32 @@ target_include_directories(BikeRaceEscapeAxmol PRIVATE
 
 target_link_libraries(BikeRaceEscapeAxmol PRIVATE axmol)
 
+# Axmol's iOS OpenAL build produces `soft_oal.framework` under `${CMAKE_BINARY_DIR}/build/<cfg>-<sdk>/`,
+# but the link line for some configs expects it under `${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/<cfg>-<sdk>/`.
+# Ensure the expected path exists by copying the framework before linking the app.
+if(IOS)
+    if(CMAKE_OSX_SYSROOT MATCHES ".*simulator.*")
+        set(_PZ_IOS_SDK_SUFFIX "iphonesimulator")
+    else()
+        set(_PZ_IOS_SDK_SUFFIX "iphoneos")
+    endif()
+
+    set(_PZ_SOFT_OAL_SRC "${CMAKE_BINARY_DIR}/build/$<CONFIG>-${_PZ_IOS_SDK_SUFFIX}/soft_oal.framework")
+    set(_PZ_SOFT_OAL_DST "${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/$<CONFIG>-${_PZ_IOS_SDK_SUFFIX}/soft_oal.framework")
+
+    add_custom_target(pz_fix_soft_oal_framework
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/$<CONFIG>-${_PZ_IOS_SDK_SUFFIX}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "${_PZ_SOFT_OAL_DST}"
+        VERBATIM
+    )
+
+    # Ensure OpenAL is built before attempting to copy its framework output.
+    if(TARGET OpenAL)
+        add_dependencies(pz_fix_soft_oal_framework OpenAL)
+    endif()
+    add_dependencies(BikeRaceEscapeAxmol pz_fix_soft_oal_framework)
+endif()
+
 set_target_properties(BikeRaceEscapeAxmol PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

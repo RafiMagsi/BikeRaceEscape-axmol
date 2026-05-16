@@ -17,7 +17,7 @@
 #include "SharedData/PZGSharedData.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-    #include "StoreBridge/cocos2dx_StoreController.h"
+    #include "cocos2dx_StoreController.h"
     #include "Neocortex.h"
 #endif
 
@@ -135,7 +135,7 @@ void PZGCharacterMenu::load(const char* keyName){
     
     PZGArtInterface *coinLabelPosition = getItemByName("GUI_CoinsLabelLocation", keyName);
     if (coinLabelPosition) {
-        coins_label = Label::create("0", gsd->getFullPath("MainFont.fnt")->getCString() );
+        coins_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
         coins_label->setScaleX( coinLabelPosition->scale_x);
         coins_label->setScaleY( coinLabelPosition->scale_y);
         coins_label->setPosition( coinLabelPosition->getPosition() );
@@ -149,7 +149,7 @@ void PZGCharacterMenu::load(const char* keyName){
     PZGArtInterface *playerNameLabelPosition = getItemByName("GUI_CharacterNameLabelLocation", keyName);
 
     if (playerNameLabelPosition) {
-        player_name = Label::create("0", gsd->getFullPath("MainFont.fnt")->getCString() );
+        player_name = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
         player_name->setScaleX( playerNameLabelPosition->scale_x);
         player_name->setScaleY( playerNameLabelPosition->scale_y);
         player_name->setPosition( playerNameLabelPosition->getPosition() );
@@ -161,7 +161,7 @@ void PZGCharacterMenu::load(const char* keyName){
     PZGArtInterface *playerPriceLabelPosition = getItemByName("GUI_CharacterPriceLabelLocation", keyName);
     
     if (playerPriceLabelPosition) {
-        player_price = Label::create("0", gsd->getFullPath("MainFont.fnt")->getCString() );
+        player_price = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
         player_price->setScaleX( playerPriceLabelPosition->scale_x);
         player_price->setScaleY( playerPriceLabelPosition->scale_y);
         player_price->setPosition( playerPriceLabelPosition->getPosition() );
@@ -631,4 +631,3 @@ void PZGCharacterMenu::kidModePurchased(){
 void PZGCharacterMenu::keyBackClicked(){
     backCallback( NULL );
 }
-

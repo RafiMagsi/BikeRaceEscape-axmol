@@ -35,7 +35,7 @@ public:
     
     virtual void update(float dt);
     virtual void load(const char* keyName);
-    virtual void moreGames();
+    virtual void moreGames(Object* pSender);
     
 	// implement the "static node()" method manually
 	LAYER_CREATE_FUNC( PZGMainMenuScene )

@@ -21,10 +21,10 @@ void AppDelegate::setDebugModeEnabled(bool enable) {
 
 bool AppDelegate::applicationDidFinishLaunching() {
     auto* director = Director::getInstance();
-    auto* glView = director->getOpenGLView();
+    auto* glView = director->getGLView();
     if (!glView) {
         glView = GLViewImpl::create("Bike Race Escape - Axmol 2.11.3");
-        director->setOpenGLView(glView);
+        director->setGLView(glView);
     }
 
     director->setAnimationInterval(1.0f / 60.0f);

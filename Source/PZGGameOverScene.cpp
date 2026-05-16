@@ -43,7 +43,7 @@ bool PZGGameOverScene::init() {
     this->setKeypadEnabled(true);
 #endif
     
-    Layer *bg = LayerColor::create( ccc4(0, 0, 0, 200));
+    auto* bg = LayerColor::create(ccc4(0, 0, 0, 200));
     this->addChild( bg );
     
 	return true;
@@ -108,7 +108,7 @@ void PZGGameOverScene::load(const char* keyName){
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     PZGArtInterface *scorePositionInfo = (PZGArtInterface*)getItemByName( "GUI_DistanceLabelLocation", keyName );
     if (scorePositionInfo) {
-        font = Label::create("", gsd->getFullPath("MainFont.fnt")->getCString() );
+        font = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "");
         
         font->setPosition( scorePositionInfo->getPosition() );
         font->setRotation( -scorePositionInfo->rotation );

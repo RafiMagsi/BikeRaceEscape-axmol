@@ -329,7 +329,7 @@ void PZGGameFieldScene::load(const char* keyName){
     
     Size size = Director::getInstance()->getWinSize();
     
-    distance_label = Label::create("0",  gsd->getFullPath("MainFont.fnt")->getCString() );
+    distance_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
     distance_label->setScaleX( distamceLabelPosition->scale_x);
     distance_label->setScaleY( distamceLabelPosition->scale_y);
     distance_label->setPosition( distamceLabelPosition->getPosition() );
@@ -338,7 +338,7 @@ void PZGGameFieldScene::load(const char* keyName){
     distance_label->setAnchorPoint( ccp(0, 0.5) );    
     this->addChild( distance_label, 300 );
 
-    coins_label = Label::create("0", gsd->getFullPath("MainFont.fnt")->getCString() );
+    coins_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
     coins_label->setScaleX( coinLabelPosition->scale_x);
     coins_label->setScaleY( coinLabelPosition->scale_y);
     coins_label->setAlignment( TextHAlignment::RIGHT );
@@ -347,7 +347,7 @@ void PZGGameFieldScene::load(const char* keyName){
     coins_label->setRotation( -coinLabelPosition->rotation );
     this->addChild( coins_label, 300 );
         
-    coins_add_label = Label::create("0", gsd->getFullPath("MainFont.fnt")->getCString());
+    coins_add_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
     coins_add_label->setPosition( ccp(-20,-20) );
     coins_add_label->setScale(0.8);
     coins_add_label->setOpacity( 0 );
@@ -372,7 +372,7 @@ void PZGGameFieldScene::initPhysics( Vec2 gravity ){
     PZGContactListener *contactListener = new PZGContactListener();
     world->SetContactListener(contactListener);
     
-    GLESDebugDraw *debugdraw = new GLESDebugDraw();
+    GLESDebugDraw* debugdraw = new GLESDebugDraw(1.0f);
     Settings *settings = new Settings();
     uint32 flags = 0;
     flags += settings->drawShapes			* b2Draw::e_shapeBit;

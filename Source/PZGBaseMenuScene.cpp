@@ -130,7 +130,7 @@ void PZGBaseMenuScene::load(const char* keyName){
         }
     }
     
-    if (pMenu->!getChildren().empty()) {
+    if (!pMenu->getChildren().empty()) {
         this->addChild(pMenu, 302);
     }
     
