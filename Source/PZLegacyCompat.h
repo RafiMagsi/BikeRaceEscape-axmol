@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <utility>
+#include <vector>
 
 #ifndef LAYER_CREATE_FUNC
 #define LAYER_CREATE_FUNC(__TYPE__) CREATE_FUNC(__TYPE__)
@@ -92,10 +93,44 @@
 #define kResolutionExactFit ax::ResolutionPolicy::EXACT_FIT
 #endif
 
-// Legacy aliases retained during migration.
-// Axmol keeps deprecated __Set, but no longer exposes cocos2d-x 3.x __SetIterator.
-// Derive the iterator type from __Set::begin() so old 2.x touch-loop code still compiles.
-using __SetIterator = decltype(std::declval<ax::__Set&>().begin());
+// Legacy touch-set adapter retained during migration.
+// Cocos2d-x 2.x touch callbacks used CCSet/__Set. Axmol 2.11.x uses
+// std::vector<Touch*> callbacks instead, so we provide a tiny transient set
+// wrapper used only by PZLegacyInputLayer when forwarding touch events.
+namespace ax {
+class __Set : public Ref {
+public:
+    using Container = std::vector<Ref*>;
+    using iterator = Container::iterator;
+    using const_iterator = Container::const_iterator;
+
+    void addObject(Ref* object) {
+        if (object != nullptr) {
+            _objects.push_back(object);
+        }
+    }
+
+    Ref* anyObject() const {
+        return _objects.empty() ? nullptr : _objects.front();
+    }
+
+    ssize_t count() const {
+        return static_cast<ssize_t>(_objects.size());
+    }
+
+    iterator begin() { return _objects.begin(); }
+    iterator end() { return _objects.end(); }
+    const_iterator begin() const { return _objects.begin(); }
+    const_iterator end() const { return _objects.end(); }
+
+private:
+    Container _objects;
+};
+} // namespace ax
+
+using __Set = ax::__Set;
+using CCSet = ax::__Set;
+using __SetIterator = ax::__Set::iterator;
 using CCSetIterator = __SetIterator;
 using CCAnimate = ax::Animate;
 using CCLayerColor = ax::LayerColor;
