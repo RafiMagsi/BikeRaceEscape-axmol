@@ -27,12 +27,30 @@
 
 #import "GameViewController.h"
 
+#import <UIKit/UIKit.h>
+
 @implementation GameViewController
 
 // Override to allow custom control the app behavior.
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+}
+
+// Ensure the game launches in landscape (prevents rotated LaunchScreen / initial black frame on some iOS versions).
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return UIInterfaceOrientationLandscapeRight;
 }
 
 @end

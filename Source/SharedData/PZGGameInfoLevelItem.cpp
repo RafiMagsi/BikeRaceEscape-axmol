@@ -22,15 +22,44 @@ PZGGameInfoLevelItem*  PZGGameInfoLevelItem::createWithDictionary(ax::__Dictiona
     
     PZGGameInfoLevelItem *obj = new PZGGameInfoLevelItem();
     
-    obj->name = dictionary-> valueForKey("name");
+    if (!dictionary) {
+        AXLOGE("PZGGameInfoLevelItem::createWithDictionary got null dictionary");
+        return obj;
+    }
+
+    obj->name = dictionary->valueForKey("name");
+    if (!obj->name) obj->name = ax::__String::create("");
+
     obj->className = dictionary->valueForKey("className");
+    if (!obj->className) obj->className = ax::__String::create("");
+
     obj->key = dictionary->valueForKey("key");
-    
-    obj->position = dictionary->valueForKey("position")->pointValue();
-    obj->rotation = dictionary->valueForKey("rotation")->floatValue();
-    obj->scale = dictionary->valueForKey("scale")->pointValue();
-    
-    obj->infoObjIndex = dictionary->valueForKey("infoObjIndex")->intValue();
+    if (!obj->key) obj->key = ax::__String::create("");
+
+    if (auto* vPos = dictionary->valueForKey("position")) {
+        obj->position = vPos->pointValue();
+    } else {
+        obj->position = ax::Vec2::ZERO;
+    }
+
+    if (auto* vRot = dictionary->valueForKey("rotation")) {
+        obj->rotation = vRot->floatValue();
+    } else {
+        obj->rotation = 0.0f;
+    }
+
+    if (auto* vScale = dictionary->valueForKey("scale")) {
+        obj->scale = vScale->pointValue();
+    } else {
+        obj->scale = ax::Vec2(1.0f, 1.0f);
+    }
+
+    if (auto* vInfoIdx = dictionary->valueForKey("infoObjIndex")) {
+        obj->infoObjIndex = vInfoIdx->intValue();
+    } else {
+        obj->infoObjIndex = 0;
+    }
+
     obj->infoObjKey = (ax::__String*)dictionary->valueForKey("infoObjKey");
     if (obj->infoObjKey) {
         obj->infoObjKey->retain();

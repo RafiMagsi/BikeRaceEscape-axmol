@@ -311,7 +311,21 @@ public:
     }
 
     __String* valueForKey(const std::string& key) const {
-        return dynamic_cast<__String*>(objectForKey(key));
+        auto* raw = objectForKey(key);
+        if (!raw) {
+            // Legacy code frequently chains `valueForKey(...)->intValue()` without null checks.
+            // Provide a stable empty string object so missing keys degrade to 0/"" instead of crashing.
+            static __String* empty = []() {
+                auto* e = __String::create("");
+                e->retain();
+                return e;
+            }();
+            return empty;
+        }
+        if (auto* s = dynamic_cast<__String*>(raw)) {
+            return s;
+        }
+        return nullptr;
     }
 
     __String* valueForKey(const char* key) const {
@@ -359,7 +373,12 @@ inline Object* __legacyObjectFromValue(const Value& value) {
 
 inline __Dictionary* __Dictionary::createWithContentsOfFile(const char* path) {
     const auto map = FileUtils::getInstance()->getValueMapFromFile(path ? path : "");
-    return __legacyDictionaryFromValueMap(map);
+    // NOTE: Legacy game code stores raw pointers to values (e.g. `obj->key = dictionary->valueForKey("key")`)
+    // without retaining them. If we return an autoreleased root dictionary, those pointers can dangle after the
+    // autorelease pool drains. Retain the returned dictionary to keep parsed values alive for the app lifetime.
+    auto* dict = __legacyDictionaryFromValueMap(map);
+    if (dict) dict->retain();
+    return dict;
 }
 
 } // namespace ax

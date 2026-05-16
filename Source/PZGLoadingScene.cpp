@@ -25,6 +25,7 @@ bool PZGLoadingScene::init()
 		return false;
 	}
 
+    AXLOGI("PZGLoadingScene::init");
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
 #if  (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     Sprite *splash;
@@ -79,6 +80,7 @@ bool PZGLoadingScene::init()
 }
 
 void PZGLoadingScene::continueLoadingSelector( float dt){
-    Application *app = Application::getInstance();
-    ((AppDelegate*)app)->scheduledLoading();
+    (void)dt;
+    AXLOGI("PZGLoadingScene::continueLoadingSelector");
+    AppDelegate::scheduledLoading();
 }
