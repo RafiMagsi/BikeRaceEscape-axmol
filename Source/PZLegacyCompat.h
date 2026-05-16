@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include <utility>
 
 #ifndef LAYER_CREATE_FUNC
 #define LAYER_CREATE_FUNC(__TYPE__) CREATE_FUNC(__TYPE__)
@@ -92,7 +93,10 @@
 #endif
 
 // Legacy aliases retained during migration.
-using CCSetIterator = ax::__SetIterator;
+// Axmol keeps deprecated __Set, but no longer exposes cocos2d-x 3.x __SetIterator.
+// Derive the iterator type from __Set::begin() so old 2.x touch-loop code still compiles.
+using __SetIterator = decltype(std::declval<ax::__Set&>().begin());
+using CCSetIterator = __SetIterator;
 using CCAnimate = ax::Animate;
 using CCLayerColor = ax::LayerColor;
 using ccBlendFunc = ax::BlendFunc;

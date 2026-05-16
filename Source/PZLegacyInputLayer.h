@@ -1,8 +1,7 @@
 #pragma once
 #include "PZLegacyCompat.h"
-#include "PZLegacyInputLayer.h"
 
-class PZLegacyLayer : public PZLegacyLayer {
+class PZLegacyLayer : public ax::Layer {
 public:
     bool init() override;
     void setTouchEnabled(bool enabled);
