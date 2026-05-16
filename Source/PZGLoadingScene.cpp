@@ -61,6 +61,6 @@ bool PZGLoadingScene::init()
 }
 
 void PZGLoadingScene::continueLoadingSelector( float dt){
-    Application *app = Application::sharedApplication();
+    Application *app = Application::getInstance();
     ((AppDelegate*)app)->scheduledLoading();
 }

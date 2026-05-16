@@ -137,6 +137,8 @@ using CCSet = ax::__Set;
 using __SetIterator = ax::__Set::iterator;
 using CCSetIterator = __SetIterator;
 using CCAnimate = ax::Animate;
+using CCAction = ax::Action;
+using CCRepeatForever = ax::RepeatForever;
 using CCLayerColor = ax::LayerColor;
 using ccBlendFunc = ax::BlendFunc;
 
