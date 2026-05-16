@@ -62,35 +62,43 @@ void PZGBaseMenuScene::load(const char* keyName){
 
     if (uiItems == NULL) {
         AXLOGE("PZGBaseMenuScene::load - No UI items found for key: {}", keyName ? keyName : "(null)");
-        AXLOGI("Available artResource keys:");
-        // Log available keys for debugging
-        auto* dict = gsd->artResource;
-        if (dict) {
-            // Try to iterate through available keys
-            AXLOGI("  (debug: checking artResource for available UI items)");
-        }
+        AXLOGI("Available artResource: {} entries in resource dictionary", gsd->artResource ? 1 : 0);
+        AXLOGI("  This usually means the key name doesn't match plist category or items weren't parsed correctly");
+        AXLOGI("  Expected key: '{}'", keyName ? keyName : "(null)");
+        AXLOGI("  Check: CompleteGameInfo.plist structure, interface key values, and PZGSharedData parsing");
         return;
     }
     AXLOGI("PZGBaseMenuScene::load - Found {} UI items for key: {}", uiItems->count(), keyName);
-    
+
     Size size = Director::getInstance()->getWinSize();
-    
+
     Menu* pMenu = Menu::create();
     pMenu->setAnchorPoint( ccp(0,0) );
     pMenu->setPosition( ccp(0,0) );
     pMenu->setTag( kBaseMenuItemTag );
-    
+
     for (int i=0; i < uiItems->count(); i++) {
         PZGArtInterface *infoObj = (PZGArtInterface*)uiItems->objectAtIndex( i );
 
-        if (infoObj->type->compare("MenuItemSprite") == 0) {
+        if (!infoObj) {
+            AXLOGW("  Item {} is null", i);
+            continue;
+        }
+
+        const char* itemType = infoObj->type ? infoObj->type->getCString() : "(null)";
+        AXLOGI("  Item {}: type='{}', subkey='{}'", i, itemType,
+            infoObj->subkey ? infoObj->subkey->getCString() : "(null)");
+
+        if (infoObj->type->compare("CCMenuItemSprite") == 0) {
             MenuItemSprite* menuItem;
 
             Sprite *sprite = infoObj->getResource();
             if (sprite == NULL) {
+                AXLOGW("    MenuItemSprite skipped: getResource() returned NULL");
                 continue;
             }
-            
+
+            AXLOGI("    Creating MenuItemSprite for subkey: {}", infoObj->subkey->getCString());
             Sprite *spriteClick = infoObj->getResource();
             spriteClick->setColor( ccc3(128, 128, 128) );
 
@@ -102,10 +110,11 @@ void PZGBaseMenuScene::load(const char* keyName){
             menuItem->setScaleX( infoObj->scale_x );
             menuItem->setScaleY( infoObj->scale_y );
             menuItem->setTag( infoObj->index );
-            
+
             pMenu->addChild(menuItem);
+            AXLOGI("    MenuItem added, menu now has {} children", pMenu->getChildren().size());
         }
-        else if(infoObj->type->compare("Sprite") == 0){
+        else if(infoObj->type->compare("CCSprite") == 0){
             Sprite *sprite = infoObj->getResource();
             if (sprite == NULL) {
                 continue;

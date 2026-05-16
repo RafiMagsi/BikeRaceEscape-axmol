@@ -100,11 +100,35 @@ void PZGSharedData::readDataFromFile()
         return;
     }
 
+    // Preload sprite sheet plists into SpriteFrameCache
+    AXLOGI("Preloading sprite sheets...");
+    auto* spriteFrameCache = ax::SpriteFrameCache::getInstance();
+    auto* fileUtils = ax::FileUtils::getInstance();
+
+    // Load sprite sheets for different resolutions
+    std::vector<std::string> spriteSheets = {
+        "Images/HD/animation_s0.plist",
+        "Images/HD/animation_s1.plist",
+        "Images/HD/animation_s2.plist",
+        "Images/HD/animation_s3.plist",
+        "Images/SD/animation_s0.plist",
+        "Images/SD/animation_s1.plist",
+        "Images/SD/animation_s2.plist",
+        "Images/SD/animation_s3.plist",
+    };
+
+    for (const auto& sheet : spriteSheets) {
+        const auto fullPath = fileUtils->fullPathForFilename(sheet);
+        if (fileUtils->isFileExist(fullPath)) {
+            spriteFrameCache->addSpriteFramesWithFile(sheet);
+            AXLOGI("  Loaded: {}", sheet);
+        }
+    }
+
     // Use just the filename and let FileUtils resolve it via search paths.
     // Don't use getFullPath() as it returns an absolute path which FileUtils::getValueMapFromFile()
     // doesn't handle correctly - it expects relative paths to resolve via search paths.
     const char* filename = "CompleteGameInfo.plist";
-    auto* fileUtils = ax::FileUtils::getInstance();
 
     // Check if file exists using search paths
     const auto fullPath = fileUtils->fullPathForFilename(filename);
@@ -224,15 +248,22 @@ void PZGSharedData::readDataFromFile()
         if ( className->isEqual( __String::create( C_ART_INTERFACE_CLASS_NAME ) ) ){
             PZGArtInterface *artObject = PZGArtInterface::createWithDictionary(dict);
             if (artObject && artObject->key) {
-                __Array* arr = ( __Array* )artResource->objectForKey( artObject->key->getCString() );
+                const char* keyStr = artObject->key->getCString();
+                AXLOGI("  Interface object: key='{}', subkey='{}'", keyStr,
+                    artObject->subkey ? artObject->subkey->getCString() : "(null)");
+                __Array* arr = ( __Array* )artResource->objectForKey( keyStr );
                 if ( arr ){
-                    ((__Array*)artResource->objectForKey( artObject->key->getCString() ))->addObject( artObject );
+                    arr->addObject( artObject );
+                    AXLOGI("    Added to existing array, count now: {}", arr->count());
                 }
                 else{
                     arr = __Array::create( );
                     arr->addObject( artObject );
-                    artResource->setObject(arr, artObject->key->getCString());
+                    artResource->setObject(arr, keyStr);
+                    AXLOGI("    Created new array for key '{}'", keyStr);
                 }
+            } else {
+                AXLOGW("  Interface object creation/parsing failed");
             }
         }else
         // PZSoundObject

@@ -90,7 +90,7 @@ void AppDelegate::scheduledLoading() {
             for (auto child : scene->getChildren()) {
                 if (auto* layer = dynamic_cast<PZGMainMenuScene*>(child)) {
                     AXLOGI("Found PZGMainMenuScene layer, calling load()");
-                    layer->load("InterfaceMainMenu");
+                    layer->load("InterfaceMM");
                     menuLoaded = true;
                     break;
                 }
