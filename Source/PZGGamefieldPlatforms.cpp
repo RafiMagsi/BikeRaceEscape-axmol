@@ -219,24 +219,28 @@ void PZGGamefieldPlatforms::addPlatform(){
     length += sprite->getContentSize().width - 4 * CC_CONTENT_SCALE_FACTOR();
     length += (10 + 10*CCRANDOM_0_1()) * gameplayInfo->platfromsBetweenDistance * kDeviceScale();
     
-    Vec2 collisionPosition;
-    float width = 0.0f;
+    Vec2 cp0;
+    Vec2 cp1;
     
     if( platform_type_id == 0 ){
-        collisionPosition = gameplayInfo->platform1Cp[ 0 ];
-        width = gameplayInfo->platform1Cp[ 1 ].x - collisionPosition.x ;
+        cp0 = gameplayInfo->platform1Cp[0];
+        cp1 = gameplayInfo->platform1Cp[1];
     }
     else if(platform_type_id == 1){
-        collisionPosition = gameplayInfo->platform2Cp[ 0 ];
-        width = gameplayInfo->platform2Cp[ 1 ].x - collisionPosition.x ;
+        cp0 = gameplayInfo->platform2Cp[0];
+        cp1 = gameplayInfo->platform2Cp[1];
     }
     else if(platform_type_id == 2){
-        collisionPosition = gameplayInfo->platform3Cp[ 0 ];
-        width = gameplayInfo->platform3Cp[ 1 ].x - collisionPosition.x ;
+        cp0 = gameplayInfo->platform3Cp[0];
+        cp1 = gameplayInfo->platform3Cp[1];
     }
     
-    platform->collisionPosition = collisionPosition;
-    platform->width = width;
+    // Box2D SetAsBox expects half-extents. The plist cp points define the segment endpoints in sprite-local pixels.
+    const Vec2 center = (cp0 + cp1) * 0.5f;
+    const float halfWidth = std::fabs(cp1.x - cp0.x) * 0.5f;
+
+    platform->collisionPosition = center;
+    platform->width = halfWidth;
     
     platform->initPhysics(world);
     

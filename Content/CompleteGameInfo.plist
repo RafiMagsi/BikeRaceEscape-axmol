@@ -3852,8 +3852,8 @@
 			</dict>
 			<key>platfrom1_cp</key>
 			<array>
-				<string>{761, 266}</string>
-				<string>{1288.3, 266}</string>
+				<string>{220, 266}</string>
+				<string>{1320, 266}</string>
 			</array>
 			<key>platfrom2</key>
 			<dict>
@@ -3878,8 +3878,8 @@
 			</dict>
 			<key>platfrom2_cp</key>
 			<array>
-				<string>{748, 265}</string>
-				<string>{1269.3, 265}</string>
+				<string>{220, 265}</string>
+				<string>{1320, 265}</string>
 			</array>
 			<key>platfrom3</key>
 			<dict>
@@ -3904,8 +3904,8 @@
 			</dict>
 			<key>platfrom3_cp</key>
 			<array>
-				<string>{745, 265}</string>
-				<string>{1266.3, 265}</string>
+				<string>{220, 265}</string>
+				<string>{1320, 265}</string>
 			</array>
 			<key>platfromsBetweenDistance</key>
 			<real>0</real>
@@ -3976,8 +3976,8 @@
 			</dict>
 			<key>platfrom1_cp</key>
 			<array>
-				<string>{761, 266}</string>
-				<string>{1288.3, 266}</string>
+				<string>{220, 266}</string>
+				<string>{1320, 266}</string>
 			</array>
 			<key>platfrom2</key>
 			<dict>
@@ -4002,8 +4002,8 @@
 			</dict>
 			<key>platfrom2_cp</key>
 			<array>
-				<string>{748, 265}</string>
-				<string>{1269.3, 265}</string>
+				<string>{220, 265}</string>
+				<string>{1320, 265}</string>
 			</array>
 			<key>platfrom3</key>
 			<dict>
@@ -4028,8 +4028,8 @@
 			</dict>
 			<key>platfrom3_cp</key>
 			<array>
-				<string>{745, 265}</string>
-				<string>{1266.3, 265}</string>
+				<string>{220, 265}</string>
+				<string>{1320, 265}</string>
 			</array>
 			<key>platfromsBetweenDistance</key>
 			<real>0</real>

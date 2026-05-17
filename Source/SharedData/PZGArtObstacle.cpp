@@ -21,7 +21,12 @@ PZGArtObstacle::~PZGArtObstacle(){
 PZGArtObstacle* PZGArtObstacle::createWithDictionary(ax::__Dictionary * dictionary){
     
     PZGArtObstacle *obj = new PZGArtObstacle();
-    
+
+    if (!dictionary) {
+        AXLOGE("PZGArtObstacle::createWithDictionary: dictionary is null");
+        return obj;
+    }
+
     obj->className = dictionary->valueForKey("className");
     obj->key = (ax::__String*)dictionary->valueForKey("key");
     obj->no_of_sprites = dictionary->valueForKey("no_of_sprites")->intValue();
@@ -44,20 +49,21 @@ PZGArtObstacle* PZGArtObstacle::createWithDictionary(ax::__Dictionary * dictiona
 
     obj->trajectory = dictionary-> valueForKey("trajectory")->intValue();
     
-    ax::__Array* array = ( ax::__Array* )dictionary->valueForKey("collision");
-    if (array) {
-        for (int i=0; i < array->count(); i++) {
-            ax::__String* s = (ax::__String*)array->objectAtIndex( i );
-            obj->collision[ i ] = s->pointValue();
+    // collision is an array; must use objectForKey (valueForKey returns __String only)
+    if (auto* array = dynamic_cast<ax::__Array*>(dictionary->objectForKey("collision"))) {
+        const int max = std::min<int>(array->count(), (int)(sizeof(obj->collision) / sizeof(obj->collision[0])));
+        for (int i = 0; i < max; i++) {
+            if (auto* s = dynamic_cast<ax::__String*>(array->objectAtIndex(i))) {
+                obj->collision[i] = s->pointValue();
+            }
         }
     }
     
     obj->offset = dictionary->valueForKey("offset")->pointValue();
     
-    ax::__Dictionary* dict;
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("deathArtObj");
-    if (dict) {
-        obj->deathArtObj = PZGArtObject::createWithDictionary( dict );
+    // deathArtObj is a dictionary; must use objectForKey
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("deathArtObj"))) {
+        obj->deathArtObj = PZGArtObject::createWithDictionary(dict);
     }
     
     return obj;

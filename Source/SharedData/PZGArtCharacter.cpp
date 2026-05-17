@@ -21,6 +21,11 @@ PZGArtCharacter::~PZGArtCharacter(){
 PZGArtCharacter* PZGArtCharacter::createWithDictionary(ax::__Dictionary * dictionary){
     
     PZGArtCharacter *artObj = new PZGArtCharacter();
+
+    if (!dictionary) {
+        AXLOGE("PZGArtCharacter::createWithDictionary: dictionary is null");
+        return artObj;
+    }
     
     artObj->name = (ax::__String*)dictionary-> valueForKey(ART_OBJECT_NAME);
     
@@ -46,39 +51,31 @@ PZGArtCharacter* PZGArtCharacter::createWithDictionary(ax::__Dictionary * dictio
 
     artObj->enableIAP = ((ax::__String*)dictionary->valueForKey( "enableIAP" ))->boolValue();
     
-    ax::__Array* array = ( ax::__Array* )dictionary->valueForKey("collision");
-    if (array) {
-        for (int i=0; i < array->count(); i++) {
-            ax::__String* s = (ax::__String*)array->objectAtIndex( i );
-            artObj->collision[ i ] = s->pointValue();
+    // collision is an array; must use objectForKey (valueForKey returns __String only)
+    if (auto* array = dynamic_cast<ax::__Array*>(dictionary->objectForKey("collision"))) {
+        const int max = std::min<int>(array->count(), (int)(sizeof(artObj->collision) / sizeof(artObj->collision[0])));
+        for (int i = 0; i < max; i++) {
+            if (auto* s = dynamic_cast<ax::__String*>(array->objectAtIndex(i))) {
+                artObj->collision[i] = s->pointValue();
+            }
         }
     }
     
-    ax::__Dictionary* dict;
-    
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("deathArtObj");
-    if (dict) {
-        artObj->deathArtObj = PZGArtObject::createWithDictionary( dict );
+    // nested objects are dictionaries; must use objectForKey
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("deathArtObj"))) {
+        artObj->deathArtObj = PZGArtObject::createWithDictionary(dict);
     }
-
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("fireArtObj");
-    if (dict) {
-        artObj->fireArtObj = PZGArtObject::createWithDictionary( dict );
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("fireArtObj"))) {
+        artObj->fireArtObj = PZGArtObject::createWithDictionary(dict);
     }
-
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("bulletArtObj");
-    if (dict) {
-        artObj->bulletArtObj = PZGArtObject::createWithDictionary( dict );
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("bulletArtObj"))) {
+        artObj->bulletArtObj = PZGArtObject::createWithDictionary(dict);
     }
-
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("iconArtObj");
-    if (dict) {
-        artObj->iconArtObj = PZGArtObject::createWithDictionary( dict );
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("iconArtObj"))) {
+        artObj->iconArtObj = PZGArtObject::createWithDictionary(dict);
     }
-    
-    dict = ( ax::__Dictionary* )dictionary->valueForKey("jumpArtObj");
-    if (dict) {
-        artObj->jumpArtObj = PZGArtObject::createWithDictionary( dict );
+    if (auto* dict = dynamic_cast<ax::__Dictionary*>(dictionary->objectForKey("jumpArtObj"))) {
+        artObj->jumpArtObj = PZGArtObject::createWithDictionary(dict);
     }
     
     
