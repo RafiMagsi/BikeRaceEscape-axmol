@@ -442,7 +442,10 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
 
 void PZGGamefieldPlatforms::addCoins( int typeId ){
 
-    if (length < 1200*kDeviceScale()){
+    // Don't spawn too close to the visible area. The old constant (1200) assumed a ~960-wide world.
+    // With `ResolutionPolicy::FIXED_HEIGHT`, the visible width varies by aspect ratio, so scale it.
+    const Size screen = Director::getInstance()->getWinSize();
+    if (length < screen.width * 1.25f){
         return;
     }
 
@@ -456,7 +459,7 @@ void PZGGamefieldPlatforms::addCoins( int typeId ){
         return;
     }
 
-    Size screen = Director::getInstance()->getWinSize();
+    // (screen already computed above)
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
     Vec2 collisionPosition = platforms[ 0 ]->collisionPosition;// platfroms_collision[ 0 ];
     float collisionWidth = platforms[ 0 ]->width;// platforms_width[ 0 ];
@@ -508,7 +511,9 @@ void PZGGamefieldPlatforms::addCoins( int typeId ){
 }
 void PZGGamefieldPlatforms::addObstacle( int typeId ){
 
-    if (length < 1200*kDeviceScale()){
+    // Don't spawn too close to the visible area. The old constant (1200) assumed a ~960-wide world.
+    const Size screen = Director::getInstance()->getWinSize();
+    if (length < screen.width * 1.25f){
         return;
     }
 
@@ -521,8 +526,6 @@ void PZGGamefieldPlatforms::addObstacle( int typeId ){
         AXLOGW("PZGGamefieldPlatforms::addObstacle: typeId {} out of range [0, {})", typeId, obstacles_info->count());
         return;
     }
-
-    Size screen = Director::getInstance()->getWinSize();
 
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
     Vec2 collisionPosition = platforms[ 0 ]->collisionPosition;// platfroms_collision[ 0 ];
