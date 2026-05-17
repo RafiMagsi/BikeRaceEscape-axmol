@@ -76,6 +76,38 @@ include(AXGamePlatformSetup)
 
 # ---- Project-specific iOS runtime fixes ----
 
+if(IOS AND XCODE)
+  # Optional: set your Apple Developer Team ID (e.g. "ABCDE12345") to enable device code signing
+  # for the generated Xcode project.
+  set(PZ_DEVELOPMENT_TEAM "" CACHE STRING "Apple Developer Team ID for iOS code signing (Xcode DEVELOPMENT_TEAM)")
+
+  # Ensure Xcode compiles the asset catalog (AppIcon) into the bundle.
+  set(_PZ_IOS_ASSETS_XCASSETS "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Images.xcassets")
+  if(EXISTS "${_PZ_IOS_ASSETS_XCASSETS}")
+    target_sources(${APP_NAME} PRIVATE "${_PZ_IOS_ASSETS_XCASSETS}")
+    set_source_files_properties("${_PZ_IOS_ASSETS_XCASSETS}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_target_properties(${APP_NAME} PROPERTIES
+      XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+    )
+  endif()
+
+  # Xcode 15+ may sandbox user scripts; our generated build phases write into the build tree.
+  set_target_properties(${APP_NAME} PROPERTIES
+    XCODE_ATTRIBUTE_ENABLE_USER_SCRIPT_SANDBOXING "NO"
+  )
+
+  if(PZ_DEVELOPMENT_TEAM)
+    set_target_properties(${APP_NAME} PROPERTIES
+      XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${PZ_DEVELOPMENT_TEAM}"
+    )
+  endif()
+
+  # Use the template Info.plist which already declares CFBundleIconName=AppIcon.
+  set_target_properties(${APP_NAME} PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Info.plist"
+  )
+endif()
+
 # Axmol's iOS OpenAL build outputs `soft_oal.framework` under `${CMAKE_BINARY_DIR}/build/<cfg>-<sdk>/`,
 # but the app link line may expect it under `${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/<cfg>-<sdk>/`.
 if(IOS)
@@ -99,12 +131,27 @@ if(IOS)
   endif()
   add_dependencies(${APP_NAME} pz_fix_soft_oal_framework)
 
-  # Ensure dyld can load it at launch
-  add_custom_command(TARGET ${APP_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework"
-    VERBATIM
-  )
+  # Simulator runtime fix: ensure dyld can load OpenAL at launch.
+  # IMPORTANT: do NOT copy the framework into the device .app here, because it would overwrite
+  # Xcode's signed embedded framework and cause install errors (0xe800801c: No code signature found).
+  if(CMAKE_OSX_SYSROOT MATCHES ".*simulator.*")
+    add_custom_command(TARGET ${APP_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework"
+      VERBATIM
+    )
+  else()
+    # Device: the CMake-generated Xcode project stages the .app via its own scripts, which won't
+    # automatically embed/sign this framework. Copy it in, then codesign it with the same identity
+    # Xcode uses for the app to avoid install failures.
+    add_custom_command(TARGET ${APP_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework"
+      # Use Xcode-provided signing identity at build time (not configure time).
+      COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\"; else echo \"warning: EXPANDED_CODE_SIGN_IDENTITY is empty; soft_oal.framework left unsigned\"; fi"
+      VERBATIM
+    )
+  endif()
 endif()
 
 # Ship Axmol-generated runtime assets (compiled shaders) into the app bundle.
