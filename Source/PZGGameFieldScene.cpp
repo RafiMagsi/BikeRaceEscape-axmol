@@ -290,6 +290,9 @@ bool PZGGameFieldScene::init()
 //    }
     
     AXLOGI("PZGGameFieldScene::init end");
+
+    setDebugModeEnabled(true);
+
     return true;
 }
 
@@ -436,12 +439,16 @@ void PZGGameFieldScene::initPhysics( Vec2 gravity ){
 void PZGGameFieldScene::setDebugModeEnabled(bool enabled){
 
     if (enabled) {
-        Scene *scene = GLESDEbugDrawLayer::scene();
-        scene->setTag( kDebugSceneTag );
-        this->addChild(scene, 100);
-        GLESDEbugDrawLayer* debugLayer = (GLESDEbugDrawLayer*)scene->getChildren().at(0);
+        // Add the debug-draw *layer* directly (avoid nesting a Scene as a child node).
+        auto* debugLayer = GLESDEbugDrawLayer::create();
+        if (!debugLayer) {
+            AXLOGE("setDebugModeEnabled: failed to create GLESDEbugDrawLayer");
+            return;
+        }
+        debugLayer->setTag(kDebugSceneTag);
         debugLayer->world = world;
         debugLayer->playArea = playArea;
+        this->addChild(debugLayer, 500);
     }
     else{
         this->removeChildByTag(kDebugSceneTag, true);
