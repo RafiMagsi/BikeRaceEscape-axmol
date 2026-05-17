@@ -13,7 +13,8 @@
       "Bash(xcodebuild -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'generic/platform=iOS Simulator' build)"
     ],
     "additionalDirectories": [
-      "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents"
+      "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents",
+      "/Users/rafi/developer/games/remake/GameGen/src/gamegen"
     ]
   }
 }

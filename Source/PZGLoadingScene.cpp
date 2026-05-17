@@ -60,13 +60,26 @@ bool PZGLoadingScene::init()
         
         splash->setPosition( ccp( size.width/2.0, size.height/2.0 ) );
         Size splashSize = splash->getContentSize();
-        float splashAr = splashSize.width/splashSize.height;
+
+        // If the app runs in landscape but the splash asset is portrait, rotate it to match.
+        // This avoids "wrong orientation" appearance when legacy assets were authored for portrait.
+        const bool isLandscape = size.width > size.height;
+        const bool isSplashPortrait = splashSize.height > splashSize.width;
+        bool rotated = false;
+        if (isLandscape && isSplashPortrait) {
+            splash->setRotation(-90.0f);
+            rotated = true;
+        }
+
+        const float effectiveW = rotated ? splashSize.height : splashSize.width;
+        const float effectiveH = rotated ? splashSize.width : splashSize.height;
+        float splashAr = effectiveW / effectiveH;
         
         if (winAr > splashAr) {
-            scale = size.width/splashSize.width;
+            scale = size.width / effectiveW;
         }
         else{
-            scale = size.height/splashSize.height;
+            scale = size.height / effectiveH;
         }
         splash->setScale( scale );
         
