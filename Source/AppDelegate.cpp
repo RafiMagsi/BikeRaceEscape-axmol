@@ -35,7 +35,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     director->setAnimationInterval(1.0f / 60.0f);
-    renderView->setDesignResolutionSize(960, 640, ResolutionPolicy::EXACT_FIT);
+    // Responsive resolution policy:
+    // - `EXACT_FIT` stretches (non-uniform) -> bad for pixel art/UI
+    // - `SHOW_ALL` letterboxes
+    // - `NO_BORDER` crops
+    // - `FIXED_HEIGHT` keeps vertical size stable and expands/shrinks horizontal view based on device AR.
+    //   This avoids stretch while also avoiding letterbox/crop in most landscape iOS cases.
+    renderView->setDesignResolutionSize(960, 640, ResolutionPolicy::FIXED_HEIGHT);
 
     auto* fileUtils = FileUtils::getInstance();
     std::vector<std::string> searchPaths = {

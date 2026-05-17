@@ -198,23 +198,28 @@ bool PZGGameFieldScene::init()
                 parallax[ i ] = CCParallaxScrollNode::create();
                 parallax[ i ]->setAnchorPoint( ccp(0.5, 0.5) );
                 if (isPortraitMode) {
+                    const float firstHeight = bgSprite->getContentSize().height * bgLayer->scale;
                     parallax[ i ]->addInfiniteScrollWithObjects(bgSpriteArray,
                                                                 0,
                                                                 ccp(0.0, bgLayer->speed),
-                                                                ccp(bgLayer->position*screen.width - bgSprite->getContentSize().width*0.5, 0),
+                                                                // Keep legacy placement math: `position` was authored against unscaled sprite sizes.
+                                                                ccp(bgLayer->position*screen.width - bgSprite->getContentSize().width*0.5f, -firstHeight),
                                                                 ccp(0,1)
                                                                 );
                 }
                 else{
+                    // Start slightly off-screen so fast scroll layers never "pop in" late on wide aspect ratios.
+                    // (With FIXED_HEIGHT, `screen.width` can be > 960 design units.)
+                    const float firstWidth = bgSprite->getContentSize().width * bgLayer->scale;
                     parallax[ i ]->addInfiniteScrollWithObjects(bgSpriteArray,
                                                                 0,
                                                                 ccp(bgLayer->speed, 0.0),
-                                                                ccp(0, bgLayer->position*screen.height - bgSprite->getContentSize().height*0.5),
+                                                                // Keep legacy placement math: `position` was authored against unscaled sprite sizes.
+                                                                ccp(-firstWidth, bgLayer->position*screen.height - bgSprite->getContentSize().height*0.5f),
                                                                 ccp(1,0)
                                                                 );
-                    float ratio = Director::getInstance()->getWinSize().height / (640*kDeviceScale());
-//                    printf("%f / %f", Director::getInstance()->getWinSize().height, 640*kDeviceScale());
-                    parallax[ i ]->setScale( ratio );
+                    // With `ResolutionPolicy::FIXED_HEIGHT` the world is already uniformly scaled.
+                    // Extra per-layer scaling here would reintroduce stretching/misalignment.
                 }
 
                 this->addChild( parallax[ i ], i*10);
@@ -291,7 +296,7 @@ bool PZGGameFieldScene::init()
     
     AXLOGI("PZGGameFieldScene::init end");
 
-    setDebugModeEnabled(true);
+    setDebugModeEnabled(false);
 
     return true;
 }

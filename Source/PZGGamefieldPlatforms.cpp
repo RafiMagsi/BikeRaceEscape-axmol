@@ -22,7 +22,8 @@ PZGGamefieldPlatforms::PZGGamefieldPlatforms()
     , speed(0.0f)
     , distance(0.0f)
     , world(nullptr)
-    , platfromsBetweenDistance(0.0f) {
+    , platfromsBetweenDistance(0.0f)
+    , prefillPending(true) {
     std::memset(platforms, 0, sizeof(platforms));
     std::memset(levels_info, 0, sizeof(levels_info));
     std::memset(obstacles, 0, sizeof(obstacles));
@@ -164,6 +165,7 @@ bool PZGGamefieldPlatforms::init()
 
 void PZGGamefieldPlatforms::reset(){
     length = 0;
+    prefillPending = true;
 }
 
 void PZGGamefieldPlatforms::addPlatform(){
@@ -597,6 +599,20 @@ void PZGGamefieldPlatforms::addObstacle( int typeId ){
 }
 
 void PZGGamefieldPlatforms::update(float dt){
+    // Initial fill must happen only after `world` is assigned by the owning gamefield layer.
+    // Never create bodies while Box2D is locked (during Step / contact callbacks).
+    if (prefillPending) {
+        if (world && !world->IsLocked()) {
+            const Size screen = Director::getInstance()->getWinSize();
+            const float minAhead = screen.width * 2.2f;
+            while (length < minAhead) {
+                addPlatform();
+            }
+            prefillPending = false;
+        }
+        // If world isn't ready yet, skip work this frame.
+    }
+
     float s =  dt*speed*32*kDeviceScale()*2;
 
     for (int i = 0; i < kMaxPlatfroms; i++){
@@ -669,9 +685,15 @@ void PZGGamefieldPlatforms::update(float dt){
     }
 
     length -= s;
-    
-    if (length < 1200*kDeviceScale()) {
-        addPlatform();
+
+    // Keep enough platforms ahead so the next one is already spawned before it enters view.
+    // With `ResolutionPolicy::FIXED_HEIGHT`, `screen.width` can exceed the old hardcoded 1200 threshold.
+    const Size screen = Director::getInstance()->getWinSize();
+    const float minAhead = screen.width * 2.2f;
+    if (world && !world->IsLocked()) {
+        while (length < minAhead) {
+            addPlatform();
+        }
     }
 
 }

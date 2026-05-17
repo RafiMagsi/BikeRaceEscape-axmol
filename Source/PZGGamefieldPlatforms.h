@@ -47,6 +47,7 @@ class PZGGamefieldPlatforms : public ax::Layer {
     float               coins_spawn_counter[ kMaxBasicRunnerCoins ];
     
     float length;
+    bool prefillPending;
 
     
     int getCoinIndex( PZGGameInfoLevelItem *item );
