@@ -170,7 +170,10 @@ if(IOS)
 
   add_custom_target(pz_fix_soft_oal_framework
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/axmol/engine/3rdparty/openal/$<CONFIG>-${_PZ_IOS_SDK_SUFFIX}"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "${_PZ_SOFT_OAL_DST}"
+    # During Archive (and sometimes normal Xcode builds), OpenAL's `soft_oal.framework` is produced
+    # in Xcode's DerivedData (BUILT_PRODUCTS_DIR), not under `${CMAKE_BINARY_DIR}/build/<cfg>-<sdk>/`.
+    # Prefer DerivedData if present; fall back to the legacy location for local builds.
+    COMMAND /bin/sh -c "set -e; src=\"$BUILT_PRODUCTS_DIR/soft_oal.framework\"; if [ -n \"$BUILT_PRODUCTS_DIR\" ] && [ -d \"$src\" ]; then :; elif [ -d \"${_PZ_SOFT_OAL_SRC}\" ]; then src=\"${_PZ_SOFT_OAL_SRC}\"; else echo \"warning: soft_oal.framework not found (DerivedData or ${_PZ_SOFT_OAL_SRC}); skipping pz_fix_soft_oal_framework\"; exit 0; fi; \"${CMAKE_COMMAND}\" -E copy_directory \"$src\" \"${_PZ_SOFT_OAL_DST}\""
     VERBATIM
   )
 
@@ -185,7 +188,7 @@ if(IOS)
   if(CMAKE_OSX_SYSROOT MATCHES ".*simulator.*")
     add_custom_command(TARGET ${APP_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
-      COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework"
+      COMMAND /bin/sh -c "set -e; src=\"$BUILT_PRODUCTS_DIR/soft_oal.framework\"; if [ -n \"$BUILT_PRODUCTS_DIR\" ] && [ -d \"$src\" ]; then :; elif [ -d \"${_PZ_SOFT_OAL_SRC}\" ]; then src=\"${_PZ_SOFT_OAL_SRC}\"; else echo \"warning: soft_oal.framework not found; skipping embed copy\"; exit 0; fi; \"${CMAKE_COMMAND}\" -E copy_directory \"$src\" \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\""
       VERBATIM
     )
   else()
@@ -194,7 +197,7 @@ if(IOS)
     # Xcode uses for the app to avoid install failures.
     add_custom_command(TARGET ${APP_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
-      COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_SOFT_OAL_SRC}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework"
+      COMMAND /bin/sh -c "set -e; src=\"$BUILT_PRODUCTS_DIR/soft_oal.framework\"; if [ -n \"$BUILT_PRODUCTS_DIR\" ] && [ -d \"$src\" ]; then :; elif [ -d \"${_PZ_SOFT_OAL_SRC}\" ]; then src=\"${_PZ_SOFT_OAL_SRC}\"; else echo \"warning: soft_oal.framework not found; skipping embed copy\"; exit 0; fi; \"${CMAKE_COMMAND}\" -E copy_directory \"$src\" \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\""
       # Use Xcode-provided signing identity at build time (not configure time).
       COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\"; else echo \"warning: EXPANDED_CODE_SIGN_IDENTITY is empty; soft_oal.framework left unsigned\"; fi"
       VERBATIM
