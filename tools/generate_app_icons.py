@@ -12,17 +12,24 @@ from PIL import Image
 
 @dataclass(frozen=True)
 class IOSIconSpec:
-    size: int
+    # Point size (can be fractional; e.g. 83.5 for iPad Pro).
+    size: float
     scale: int
     idiom: str
 
     @property
     def px(self) -> int:
-        return self.size * self.scale
+        # Apple requires exact pixels for some sizes (e.g. 83.5pt@2x -> 167px).
+        return int(round(self.size * self.scale))
 
     @property
     def size_str(self) -> str:
-        return f"{self.size}x{self.size}"
+        # Keep Xcode-friendly formatting (e.g. "83.5x83.5").
+        if float(self.size).is_integer():
+            s = str(int(self.size))
+        else:
+            s = str(self.size).rstrip("0").rstrip(".")
+        return f"{s}x{s}"
 
     @property
     def scale_str(self) -> str:
@@ -31,9 +38,10 @@ class IOSIconSpec:
     @property
     def filename(self) -> str:
         # Keep filenames deterministic and human-readable.
+        size_token = self.size_str.replace("x", "x")  # explicit, keep dot if present
         if self.scale == 1:
-            return f"AppIcon-{self.size}x{self.size}.png"
-        return f"AppIcon-{self.size}x{self.size}@{self.scale}x.png"
+            return f"AppIcon-{size_token}.png"
+        return f"AppIcon-{size_token}@{self.scale}x.png"
 
 
 IOS_SPECS: list[IOSIconSpec] = [
@@ -55,7 +63,7 @@ IOS_SPECS: list[IOSIconSpec] = [
     IOSIconSpec(40, 2, "ipad"),
     IOSIconSpec(76, 1, "ipad"),
     IOSIconSpec(76, 2, "ipad"),
-    IOSIconSpec(83, 2, "ipad"),  # 83.5 rounded to 83 for legacy compatibility
+    IOSIconSpec(83.5, 2, "ipad"),  # iPad Pro (167x167)
     # App Store
     IOSIconSpec(1024, 1, "ios-marketing"),
 ]

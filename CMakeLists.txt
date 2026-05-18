@@ -154,6 +154,12 @@ if(IOS AND XCODE)
   set_target_properties(${APP_NAME} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Info.plist"
   )
+
+  # Ensure dSYM is generated for archives (required for symbol upload / crash symbolication).
+  set_target_properties(${APP_NAME} PROPERTIES
+    XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+    XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS "YES"
+  )
 endif()
 
 # Axmol's iOS OpenAL build outputs `soft_oal.framework` under `${CMAKE_BINARY_DIR}/build/<cfg>-<sdk>/`,
