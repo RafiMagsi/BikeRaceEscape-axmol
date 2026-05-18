@@ -155,6 +155,10 @@ if(IOS AND XCODE)
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Info.plist"
   )
 
+  # Game Center (GameKit)
+  # Note: AXGameTargetSetup.cmake uses the plain `target_link_libraries` signature, so keep it consistent.
+  target_link_libraries(${APP_NAME} "-framework GameKit")
+
   # Ensure dSYM is generated for archives (required for symbol upload / crash symbolication).
   set_target_properties(${APP_NAME} PROPERTIES
     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"

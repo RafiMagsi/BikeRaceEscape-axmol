@@ -11,6 +11,7 @@
 #include "PZGSharedData.h"
 #include "Contants_data.h"
 #include "constants.h"
+#include "PZGGameInfoAds.h"
 #include <string>
 
 USING_NS_AX;
@@ -389,6 +390,11 @@ void PZGSharedData::readDataFromFile()
         // PZGameInfoIAP
         if ( className->isEqual( __String::create( C_GAMEINFO_IAP_CLASS_NAME ) ) ){
             PZGGameInfoIAP *obj = PZGGameInfoIAP::createWithDictionary(dict);
+            pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
+        }else
+        // PZGameInfoAds
+        if ( className->isEqual( __String::create( C_GAMEINFO_ADS_CLASS_NAME ) ) ){
+            PZGGameInfoAds *obj = PZGGameInfoAds::createWithDictionary(dict);
             pz_addToBucket(gameInfoResource, obj, (obj && obj->key) ? obj->key->getCString() : nullptr);
         }else
         // PZGameInfoLevel

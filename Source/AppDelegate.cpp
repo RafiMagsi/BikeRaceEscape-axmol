@@ -6,6 +6,9 @@
 #include "PZGMainMenuScene.h"
 #include "SharedData/PZGSharedData.h"
 #include "PZCrashReporter.h"
+#include "Ads/AdsController.h"
+#include "Ads/AdsConfig.h"
+#include "Ads/Providers/AdsProviderAdMob.h"
 
 USING_NS_AX;
 
@@ -95,6 +98,30 @@ void AppDelegate::scheduledLoading() {
     // Do the minimum bootstrap then go to the first real UI.
     auto* sd = PZGSharedData::sharedInstanse();
     if (sd) sd->readDataFromFile();
+
+    // ---- Ads bootstrap (Content/ads.plist) ----
+    {
+        auto* ads = PZ::AdsController::shared();
+        ads->loadConfigFromPlist();
+
+        // Respect "Remove Ads" purchase flag.
+        if (auto* sc = PZSettingsController::shared()) {
+            ads->setAdsEnabled(!sc->removeAds);
+        }
+
+        // For now we support AdMob provider selection only (provider itself is still a stub unless SDKs are added).
+        const auto& cfg = ads->config();
+        if (cfg.admobEnabled) {
+            ads->setProvider(std::make_unique<PZ::AdsProviderAdMob>());
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+            ads->initialize(cfg.admob.appIdIOS);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+            ads->initialize(cfg.admob.appIdAndroid);
+#else
+            ads->initialize("");
+#endif
+        }
+    }
 
     // Start at legacy main menu (it knows how to bootstrap its own UI via load()).
     if (auto* scene = PZGMainMenuScene::scene()) {

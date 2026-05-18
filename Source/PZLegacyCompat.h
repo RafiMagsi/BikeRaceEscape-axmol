@@ -283,6 +283,14 @@ public:
         _objects.clear();
     }
 
+    __Array* allKeys() const {
+        auto* keys = __Array::create();
+        for (const auto& it : _objects) {
+            keys->addObject(__String::create(it.first));
+        }
+        return keys;
+    }
+
     void setObject(Object* object, const std::string& key) {
         if (!object) {
             return;

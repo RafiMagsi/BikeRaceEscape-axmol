@@ -11,6 +11,7 @@
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
 #include "constants.h"
+#include "Ads/AdsController.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     #include "cocos2dx_StoreController.h"
@@ -219,6 +220,11 @@ void PZGBaseMenuScene::upgradeComplete(){
     PZSettingsController* sc = PZSettingsController::shared();
     sc->removeAds = true;
     sc->save();
+
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+    // Keep AdsController in sync with the "Remove Ads" purchase.
+    PZ::AdsController::shared()->setAdsEnabled(false);
+#endif
     
     
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)

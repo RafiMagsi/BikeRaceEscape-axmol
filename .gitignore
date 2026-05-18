@@ -48,6 +48,9 @@ cmake-build-*/
 legacy_native_ios_reference/
 build-macos/
 docs/
+SoomlaiOSStore/
+Neocortex/
+CocosDenshion/
 
 # ---- Xcode / Apple ----
 DerivedData/
