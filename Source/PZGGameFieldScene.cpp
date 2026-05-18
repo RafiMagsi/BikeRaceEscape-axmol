@@ -16,6 +16,7 @@
 
 #include "PZLegacyCompat.h"
 #include "constants.h"
+#include <cmath>
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     #include "Neocortex.h"
@@ -370,45 +371,199 @@ void PZGGameFieldScene::load(const char* keyName){
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     
     // ADDING LABELS
-    __Array* uiItems = (__Array*)gsd->artResource->objectForKey( "InterfaceGF" );
-    if (!uiItems || uiItems->count() <= 3) {
-        AXLOGE("PZGGameFieldScene::load: InterfaceGF missing/too small (count={})", uiItems ? uiItems->count() : 0);
-        return;
+    // Don't rely on plist ordering here (it changes easily during migration). Use subkey lookup.
+    auto* distamceLabelPosition =
+        dynamic_cast<PZGArtInterface*>(getItemByName("GUI_DistanceLabelLocation", "InterfaceGF"));
+    auto* coinLabelPosition =
+        dynamic_cast<PZGArtInterface*>(getItemByName("GUI_CoinsLabelLocation", "InterfaceGF"));
+
+    if (!distamceLabelPosition) {
+        // Back-compat: some plist versions used the same subkey for both labels.
+        distamceLabelPosition =
+            dynamic_cast<PZGArtInterface*>(getItemByName("GUI_DistanceLabelLocation", "InterfaceGF"));
     }
 
-    PZGArtInterface* coinLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex(3);
-    PZGArtInterface* distamceLabelPosition = (PZGArtInterface*)uiItems->objectAtIndex(2);
+    if (!coinLabelPosition) {
+        // Back-compat: older exports sometimes mislabeled this as a "location" item.
+        coinLabelPosition =
+            dynamic_cast<PZGArtInterface*>(getItemByName("GUI_CoinsLabelLocation", "InterfaceGF"));
+    }
+
     if (!coinLabelPosition || !distamceLabelPosition) {
-        AXLOGE("PZGGameFieldScene::load: InterfaceGF label positions are null (coin={}, dist={})",
+        AXLOGE("PZGGameFieldScene::load: missing InterfaceGF label anchors (coin={}, dist={})",
                (void*)coinLabelPosition, (void*)distamceLabelPosition);
         return;
     }
     
-    Size size = Director::getInstance()->getWinSize();
-    
-    distance_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
+    // Preload MainFont.png texture before creating BMFont label
+    AXLOGI("PZGGameFieldScene::load: Preloading MainFont.png texture");
+    auto textureFilePath = FileUtils::getInstance()->fullPathForFilename("MainFont.png");
+    if (!textureFilePath.empty()) {
+        AXLOGI("PZGGameFieldScene::load: MainFont.png found at: {}", textureFilePath);
+        // Load texture by creating a temporary sprite (this caches the texture)
+        auto tempSprite = Sprite::create(textureFilePath);
+        if (tempSprite) {
+            AXLOGI("PZGGameFieldScene::load: MainFont.png texture loaded successfully");
+        } else {
+            AXLOGW("PZGGameFieldScene::load: Failed to load MainFont.png texture");
+        }
+    } else {
+        AXLOGW("PZGGameFieldScene::load: MainFont.png not found in search paths");
+    }
+
+    // Try BMFont first, with TTF fallback
+    AXLOGI("PZGGameFieldScene::load: Creating distance_label with BMFont");
+    auto fntFilePath = FileUtils::getInstance()->fullPathForFilename("MainFont.fnt");
+    AXLOGI("PZGGameFieldScene::load: BMFont .fnt path: {}", fntFilePath);
+    distance_label = Label::createWithBMFont(fntFilePath, "0");
+
+    // Check if BMFont loaded correctly
+    if (distance_label) {
+        auto contentSize = distance_label->getContentSize();
+        AXLOGI("PZGGameFieldScene::load: BMFont distance_label contentSize=({}, {})",
+               contentSize.width, contentSize.height);
+
+        // If content size is 0 or NaN, BMFont failed - use TTF fallback
+        if (contentSize.width == 0 || contentSize.height == 0 ||
+            std::isnan(contentSize.width) || std::isnan(contentSize.height)) {
+            AXLOGW("PZGGameFieldScene::load: BMFont failed (size 0 or NaN), using SystemFont fallback");
+            this->removeChild(distance_label, true);
+            distance_label = nullptr;
+        }
+    }
+
+    // Fallback to system font (Courier monospace for retro arcade look)
+    if (!distance_label) {
+        AXLOGI("PZGGameFieldScene::load: [distance] Using Courier monospace font (retro/arcade aesthetic)");
+        try {
+            distance_label = Label::createWithSystemFont("0", "Courier", 32);
+            if (distance_label && distance_label->getContentSize().width > 0) {
+                AXLOGI("PZGGameFieldScene::load: [distance] ✓ Courier font loaded successfully");
+            } else {
+                AXLOGE("PZGGameFieldScene::load: [distance] Courier font failed");
+                if (distance_label) {
+                    this->removeChild(distance_label, true);
+                    distance_label = nullptr;
+                }
+            }
+        } catch (const std::exception& e) {
+            AXLOGE("PZGGameFieldScene::load: [distance] Exception: {}", e.what());
+        }
+
+        if (!distance_label) {
+            AXLOGE("PZGGameFieldScene::load: ✗ CRITICAL: failed to create distance_label");
+            return;
+        }
+    }
+
     distance_label->setScaleX( distamceLabelPosition->scale_x);
     distance_label->setScaleY( distamceLabelPosition->scale_y);
     distance_label->setPosition( distamceLabelPosition->getPosition() );
     distance_label->setRotation( -distamceLabelPosition->rotation );
     distance_label->setAlignment( TextHAlignment::RIGHT );
-    distance_label->setAnchorPoint( ccp(0, 0.5) );    
-    this->addChild( distance_label, 300 );
+    distance_label->setAnchorPoint( ccp(0, 0.5) );
+    distance_label->setOpacity(255);
+    distance_label->setVisible(true);
+    distance_label->setColor(Color3B(255, 220, 64));
 
-    coins_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
+    auto contentSize = distance_label->getContentSize();
+    AXLOGI("PZGGameFieldScene::load: distance_label FINAL contentSize=({}, {}), visible={}, opacity={}, pos=({}, {})",
+           contentSize.width, contentSize.height, distance_label->isVisible(), distance_label->getOpacity(),
+           distance_label->getPosition().x, distance_label->getPosition().y);
+
+    this->addChild( distance_label, 1000 );
+
+    // Try BMFont first, with SystemFont fallback
+    AXLOGI("PZGGameFieldScene::load: Creating coins_label with BMFont");
+    coins_label = Label::createWithBMFont(fntFilePath, "0");
+
+    // Check if BMFont loaded correctly
+    if (coins_label) {
+        auto coinsContentSize = coins_label->getContentSize();
+        AXLOGI("PZGGameFieldScene::load: BMFont coins_label contentSize=({}, {})",
+               coinsContentSize.width, coinsContentSize.height);
+
+        // If content size is 0 or NaN, BMFont failed - use SystemFont fallback
+        if (coinsContentSize.width == 0 || coinsContentSize.height == 0 ||
+            std::isnan(coinsContentSize.width) || std::isnan(coinsContentSize.height)) {
+            AXLOGW("PZGGameFieldScene::load: BMFont coins failed (size 0 or NaN), using SystemFont fallback");
+            this->removeChild(coins_label, true);
+            coins_label = nullptr;
+        }
+    }
+
+    // Fallback to system font (Courier monospace for retro arcade look)
+    if (!coins_label) {
+        AXLOGI("PZGGameFieldScene::load: [coins] Using Courier monospace font (retro/arcade aesthetic)");
+        try {
+            coins_label = Label::createWithSystemFont("0", "Courier", 32);
+            if (coins_label && coins_label->getContentSize().width > 0) {
+                AXLOGI("PZGGameFieldScene::load: [coins] ✓ Courier font loaded successfully");
+            } else {
+                AXLOGE("PZGGameFieldScene::load: [coins] Courier font failed");
+                if (coins_label) {
+                    this->removeChild(coins_label, true);
+                    coins_label = nullptr;
+                }
+            }
+        } catch (const std::exception& e) {
+            AXLOGE("PZGGameFieldScene::load: [coins] Exception: {}", e.what());
+        }
+
+        if (!coins_label) {
+            AXLOGE("PZGGameFieldScene::load: ✗ CRITICAL: failed to create coins_label");
+            return;
+        }
+    }
+
     coins_label->setScaleX( coinLabelPosition->scale_x);
     coins_label->setScaleY( coinLabelPosition->scale_y);
     coins_label->setAlignment( TextHAlignment::RIGHT );
     coins_label->setAnchorPoint( ccp(0, 0.5) );
     coins_label->setPosition( coinLabelPosition->getPosition() );
     coins_label->setRotation( -coinLabelPosition->rotation );
-    this->addChild( coins_label, 300 );
+    coins_label->setOpacity(255);
+    coins_label->setVisible(true);
+    coins_label->setColor(Color3B(255, 220, 64));
+
+    auto coinsContentSize = coins_label->getContentSize();
+    AXLOGI("PZGGameFieldScene::load: coins_label FINAL contentSize=({}, {}), visible={}, opacity={}, pos=({}, {})",
+           coinsContentSize.width, coinsContentSize.height, coins_label->isVisible(), coins_label->getOpacity(),
+           coins_label->getPosition().x, coins_label->getPosition().y);
+
+    this->addChild( coins_label, 1000 );
         
-    coins_add_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
-    coins_add_label->setPosition( ccp(-20,-20) );
-    coins_add_label->setScale(0.8);
-    coins_add_label->setOpacity( 0 );
-    this->addChild( coins_add_label, 200 );
+    coins_add_label = Label::createWithBMFont("MainFont.fnt", "0");
+    if (!coins_add_label || coins_add_label->getContentSize().width == 0) {
+        AXLOGW("PZGGameFieldScene::load: [coins_add] BMFont failed, using Courier system font");
+        if (coins_add_label) {
+            this->removeChild(coins_add_label, true);
+            coins_add_label = nullptr;
+        }
+
+        try {
+            coins_add_label = Label::createWithSystemFont("0", "Courier", 24);
+            if (coins_add_label && coins_add_label->getContentSize().width > 0) {
+                AXLOGI("PZGGameFieldScene::load: [coins_add] ✓ Courier font loaded successfully");
+            } else {
+                AXLOGE("PZGGameFieldScene::load: [coins_add] Courier font failed");
+                if (coins_add_label) {
+                    this->removeChild(coins_add_label, true);
+                    coins_add_label = nullptr;
+                }
+            }
+        } catch (const std::exception& e) {
+            AXLOGE("PZGGameFieldScene::load: [coins_add] Exception: {}", e.what());
+        }
+    }
+
+    if (coins_add_label) {
+        coins_add_label->setPosition( ccp(-20,-20) );
+        coins_add_label->setScale(0.8);
+        coins_add_label->setOpacity( 0 );
+        coins_add_label->setColor(Color3B(255, 220, 64));
+        this->addChild( coins_add_label, 200 );
+    }
     
     char c[ 16 ];
     sprintf( c, "%d", (int)gf_coins);
@@ -573,14 +728,17 @@ void PZGGameFieldScene::coinPickup( PZGCoin* _coin ){
     sc->coins += _coin->reward;
     
     char c[16];
-    
+
     sprintf( c, "%d", (int)gf_coins);
-    coins_label->setString( c );
+    if (coins_label) {
+        coins_label->setString( c );
+    }
 
-
-    coins_add_label->setPosition( _coin->getPosition() );
-    sprintf( c, "%d", (int)_coin->reward );
-    coins_add_label->setString( c );
+    if (coins_add_label) {
+        coins_add_label->setPosition( _coin->getPosition() );
+        sprintf( c, "%d", (int)_coin->reward );
+        coins_add_label->setString( c );
+    }
     coins_add_label->setOpacity(255);
     
     coins_add_counter = 1;
@@ -906,7 +1064,9 @@ void PZGGameFieldScene::update(float dd){
 
         char c[16];
         sprintf( c, "%d", (int)gf_distance);
-        distance_label->setString( c );
+        if (distance_label) {
+            distance_label->setString( c );
+        }
         
         if (character) {
             character->update( dd );
@@ -952,10 +1112,10 @@ void PZGGameFieldScene::update(float dd){
     }
 
     
-    if (coins_add_counter > 0) {
+    if (coins_add_counter > 0 && coins_add_label) {
         coins_add_counter -= dd;
         coins_add_velocity -= dd*3;
-        
+
         Vec2 p = coins_add_label->getPosition();
         coins_add_label->setPosition( ccp( p.x + dd*10 , p.y + dd*coins_add_velocity*100 ) );
         coins_add_label->setOpacity( clampf(coins_add_counter * 255, 0, 255)  );

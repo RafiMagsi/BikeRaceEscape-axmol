@@ -116,6 +116,8 @@
 		00EAD1018E66428B8A2784DA /* btDbvtBroadphase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40CA304770B74374879430D7 /* btDbvtBroadphase.cpp */; };
 		00F52939A8A642818CC43F8A /* animation_s1.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = CAA93D1A88F346E3B5A8B8EC /* animation_s1.plist */; };
 		0177C1093F104C88B5316260 /* mixer_c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B46AC9A88BC4B1289E3EF50 /* mixer_c.cpp */; };
+		018B057A2FBB0FF000296BA8 /* PressStart2P-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 018B05792FBB0FF000296BA8 /* PressStart2P-Regular.ttf */; };
+		018B057C2FBB118900296BA8 /* RETROTECH.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 018B057B2FBB118900296BA8 /* RETROTECH.ttf */; };
 		01C540D4976F431692D6EC62 /* ParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8337AB5230D4C6691AEE890 /* ParticleSystem.cpp */; };
 		01DE9ABFAFD6411B92D3376A /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C5A7D63499D4ADA9BAED3E7 /* ioapi.c */; };
 		0205B268BDE64ED392AE4372 /* GImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41F31C99DB7A4D428C7E1085 /* GImage.cpp */; };
@@ -4607,6 +4609,8 @@
 		0135B25F4C5C49FCB894597B /* devformat.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devformat.cpp; path = /Users/rafi/development/axmol/3rdparty/openal/core/devformat.cpp; sourceTree = "<absolute>"; };
 		014947B7951D4BA59BF28BEB /* btConeShape.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = btConeShape.h; path = /Users/rafi/development/axmol/3rdparty/bullet/BulletCollision/CollisionShapes/btConeShape.h; sourceTree = "<absolute>"; };
 		017D5D8719184A9FA10FB683 /* libcocostudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libcocostudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		018B05792FBB0FF000296BA8 /* PressStart2P-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "PressStart2P-Regular.ttf"; path = "Content/Fonts/PressStart2P-Regular.ttf"; sourceTree = "<group>"; };
+		018B057B2FBB118900296BA8 /* RETROTECH.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = RETROTECH.ttf; path = Content/Fonts/RETROTECH.ttf; sourceTree = "<group>"; };
 		0196B6AD580E4A77976EEDFB /* pvr.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = pvr.h; path = /Users/rafi/development/axmol/core/base/pvr.h; sourceTree = "<absolute>"; };
 		019969CEA55E495487478DAD /* PZLegacyCompat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = PZLegacyCompat.h; path = Source/PZLegacyCompat.h; sourceTree = SOURCE_ROOT; };
 		01A98AA9BD2A444FA221045F /* BlockAllocator.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = BlockAllocator.h; path = /Users/rafi/development/axmol/extensions/spine/runtime/include/spine/BlockAllocator.h; sourceTree = "<absolute>"; };
@@ -12302,6 +12306,8 @@
 		BED2E9F3682F4639A51215D9 = {
 			isa = PBXGroup;
 			children = (
+				018B057B2FBB118900296BA8 /* RETROTECH.ttf */,
+				018B05792FBB0FF000296BA8 /* PressStart2P-Regular.ttf */,
 				62158D317C5E42199A7021FF /* 3rdparty */,
 				CD68FB918E334ACFA8C48CB1 /* ALL_BUILD */,
 				99F51C981DDB4844BA1C5A47 /* BikeRaceEscapeAxmol */,
@@ -15126,6 +15132,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				018B057C2FBB118900296BA8 /* RETROTECH.ttf in Resources */,
+				018B057A2FBB0FF000296BA8 /* PressStart2P-Regular.ttf in Resources */,
 				EADB36DED93C4009ADB29B16 /* Images.xcassets in Resources */,
 				A55F1ADCB6C8406FB2B20FE6 /* LaunchScreen.storyboard in Resources */,
 				8744AD98B59D4B609B56B397 /* LaunchScreenBackground.png in Resources */,

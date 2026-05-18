@@ -10,7 +10,13 @@
       "Bash(xcodebuild -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' build)",
       "Bash(open -a Simulator)",
       "Bash(xcrun simctl *)",
-      "Bash(xcodebuild -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'generic/platform=iOS Simulator' build)"
+      "Bash(xcodebuild -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(xcodebuild -scheme BikeRaceEscape -configuration Debug)",
+      "Bash(xcodebuild -project build-ios-game/BikeRaceEscape.xcodeproj -scheme BikeRaceEscape -configuration Debug)",
+      "Bash(xcodebuild -project /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug)",
+      "Bash(xcodebuild -project /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'generic/platform=iOS Simulator' install)",
+      "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug)",
+      "Bash(otool -L /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/Content/Fonts/PressStart2P-Regular.ttf)"
     ],
     "additionalDirectories": [
       "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents",

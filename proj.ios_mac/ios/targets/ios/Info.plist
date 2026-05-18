@@ -27,7 +27,9 @@
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIAppFonts</key>
-    <array/>
+    <array>
+        <string>PressStart2P-Regular.ttf</string>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
     <key>UIStatusBarHidden</key>

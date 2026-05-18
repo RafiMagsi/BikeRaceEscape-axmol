@@ -52,9 +52,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
         "Images/HD",
         "Images/SD",
         "Sounds",
+        "Fonts",
         "Content/Images/HD",
         "Content/Images/SD",
         "Content/Sounds",
+        "Content/Fonts",
         "Content",
         "",
     };
@@ -65,6 +67,14 @@ bool AppDelegate::applicationDidFinishLaunching() {
     AXLOGI("Resource search paths:");
     for (const auto& path : allSearchPaths) {
         AXLOGI("  - {}", path);
+    }
+
+    // Log font path for debugging - fonts are loaded on-demand by Label::createWithBMFont
+    auto fontFullPath = fileUtils->fullPathForFilename("MainFont.fnt");
+    if (!fontFullPath.empty()) {
+        AXLOGI("MainFont.fnt found at: {}", fontFullPath);
+    } else {
+        AXLOGW("MainFont.fnt not found in search paths - labels may not render");
     }
 
     // Keep the old loading flow as the initial runtime entry.
