@@ -16,7 +16,9 @@
       "Bash(xcodebuild -project /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug)",
       "Bash(xcodebuild -project /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug -destination 'generic/platform=iOS Simulator' install)",
       "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug)",
-      "Bash(otool -L /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/Content/Fonts/PressStart2P-Regular.ttf)"
+      "Bash(otool -L /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/Content/Fonts/PressStart2P-Regular.ttf)",
+      "Bash(grep -E \"\\\\.\\(storyboard|xib|png|plist\\)$\")",
+      "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug clean)"
     ],
     "additionalDirectories": [
       "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents",

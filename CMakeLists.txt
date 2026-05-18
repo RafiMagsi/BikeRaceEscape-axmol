@@ -76,6 +76,54 @@ include(AXGamePlatformSetup)
 
 # ---- Project-specific iOS runtime fixes ----
 
+# ---- App icons (iOS + Android) ----
+option(PZ_GENERATE_APP_ICONS "Generate iOS/Android app icons from art/icon-source.png during build" ON)
+set(PZ_APP_ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/art/icon-source.png" CACHE FILEPATH "Source PNG for app icons")
+
+if(PZ_GENERATE_APP_ICONS AND EXISTS "${PZ_APP_ICON_SOURCE}")
+  find_package(Python3 COMPONENTS Interpreter)
+  if(NOT Python3_Interpreter_FOUND)
+    message(WARNING "PZ_GENERATE_APP_ICONS is ON but Python3 interpreter wasn't found; skipping icon generation")
+    set(PZ_GENERATE_APP_ICONS OFF)
+  else()
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" -c "import PIL"
+      RESULT_VARIABLE _pz_pil_ok
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+    if(NOT _pz_pil_ok EQUAL 0)
+      message(WARNING "PZ_GENERATE_APP_ICONS is ON but Python 'Pillow' (PIL) is missing. Install with: python3 -m pip install pillow. Skipping icon generation.")
+      set(PZ_GENERATE_APP_ICONS OFF)
+    endif()
+  endif()
+endif()
+
+if(PZ_GENERATE_APP_ICONS)
+  set(_PZ_ICON_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tools/generate_app_icons.py")
+  set(_PZ_IOS_APPICONSET "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Images.xcassets/AppIcon.appiconset")
+  set(_PZ_ANDROID_RES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proj.android/app/src/main/res")
+  set(_PZ_ICON_STAMP "${CMAKE_BINARY_DIR}/pz_generated_icons.stamp")
+
+  if(EXISTS "${_PZ_ICON_GEN_SCRIPT}")
+    add_custom_command(
+      OUTPUT "${_PZ_ICON_STAMP}"
+      COMMAND "${Python3_EXECUTABLE}" "${_PZ_ICON_GEN_SCRIPT}"
+              --input "${PZ_APP_ICON_SOURCE}"
+              --ios-out "${_PZ_IOS_APPICONSET}"
+              --android-out "${_PZ_ANDROID_RES_DIR}"
+      COMMAND "${CMAKE_COMMAND}" -E touch "${_PZ_ICON_STAMP}"
+      DEPENDS "${PZ_APP_ICON_SOURCE}" "${_PZ_ICON_GEN_SCRIPT}"
+      COMMENT "Generating iOS/Android app icons from ${PZ_APP_ICON_SOURCE}"
+      VERBATIM
+    )
+    add_custom_target(pz_generate_app_icons DEPENDS "${_PZ_ICON_STAMP}")
+    add_dependencies(${APP_NAME} pz_generate_app_icons)
+  else()
+    message(WARNING "PZ_GENERATE_APP_ICONS is ON but tools/generate_app_icons.py not found; skipping icon generation")
+  endif()
+endif()
+
 if(IOS AND XCODE)
   # Optional: set your Apple Developer Team ID (e.g. "ABCDE12345") to enable device code signing
   # for the generated Xcode project.
