@@ -4052,7 +4052,7 @@
 			<key>assetMeter</key>
 			<integer>4</integer>
 			<key>bundleid</key>
-			<string>com.salmanshahzad.bikeraceroad</string>
+			<string>com.nextfiction.dinobikeescape</string>
 			<key>className</key>
 			<string>PZGameInfoGeneral</string>
 			<key>gameCenter</key>
@@ -7655,15 +7655,15 @@
 			<key>className</key>
 			<string>PZGameInfoIAP</string>
 			<key>coinShop1_id</key>
-			<string>com.salmanshahzad.bikeraceroad.coin1</string>
+			<string>com.nextfiction.dinobikeescape.coin1</string>
 			<key>coinShop1_value</key>
 			<integer>1000</integer>
 			<key>coinShop2_id</key>
-			<string>com.salmanshahzad.bikeraceroad.coin2</string>
+			<string>com.nextfiction.dinobikeescape.coin2</string>
 			<key>coinShop2_value</key>
 			<integer>2000</integer>
 			<key>coinShop3_id</key>
-			<string>com.salmanshahzad.bikeraceroad.coin3</string>
+			<string>com.nextfiction.dinobikeescape.coin3</string>
 			<key>coinShop3_value</key>
 			<integer>3000</integer>
 			<key>coinShop_enabled</key>
@@ -7673,11 +7673,11 @@
 			<key>kidMode_enabled</key>
 			<true/>
 			<key>kidMode_id</key>
-			<string>com.salmanshahzad.bikeraceroad.kidmode</string>
+			<string>com.nextfiction.dinobikeescape.kidmode</string>
 			<key>removeAd_enabled</key>
 			<true/>
 			<key>removeAd_id</key>
-			<string>com.salmanshahzad.bikeraceroad.upgrade</string>
+			<string>com.nextfiction.dinobikeescape.upgrade</string>
 			<key>storeKey</key>
 			<string></string>
 		</dict>

@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Project-specific iOS bundle id (used by Xcode generator / Info.plist).
-set(PZ_BUNDLE_ID "com.nextfiction.superbikerace" CACHE STRING "Bundle identifier (iOS/macOS)")
+set(PZ_BUNDLE_ID "com.nextfiction.dinobikeescape" CACHE STRING "Bundle identifier (iOS/macOS)")
 
 if(XCODE)
   set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY TRUE)
