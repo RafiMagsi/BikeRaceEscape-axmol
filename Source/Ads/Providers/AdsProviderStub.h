@@ -11,6 +11,7 @@ public:
 
     bool initialize(const std::string&) override { return true; }
 
+    void loadBanner(const AdRequest&) override {}
     void showBanner() override {}
     void hideBanner() override {}
 
@@ -24,4 +25,3 @@ public:
 };
 
 } // namespace PZ
-

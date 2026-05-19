@@ -159,6 +159,37 @@ if(IOS AND XCODE)
   # Note: AXGameTargetSetup.cmake uses the plain `target_link_libraries` signature, so keep it consistent.
   target_link_libraries(${APP_NAME} "-framework GameKit")
 
+  # ---- iOS AdMob (Google Mobile Ads) optional integration ----
+  # To enable real AdMob ads on iOS, download GoogleMobileAds.xcframework and place it at:
+  #   thirdparty/GoogleMobileAds/GoogleMobileAds.xcframework
+  # This keeps the repo buildable without the SDK.
+  if(IOS)
+    set(_PZ_GMA_XCFW "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GoogleMobileAds/GoogleMobileAds.xcframework")
+    if(CMAKE_OSX_SYSROOT MATCHES ".*simulator.*")
+      set(_PZ_GMA_SLICE "ios-arm64_x86_64-simulator")
+    else()
+      set(_PZ_GMA_SLICE "ios-arm64")
+    endif()
+    set(_PZ_GMA_SLICE_DIR "${_PZ_GMA_XCFW}/${_PZ_GMA_SLICE}")
+    set(_PZ_GMA_FRAMEWORK "${_PZ_GMA_SLICE_DIR}/GoogleMobileAds.framework")
+    if(EXISTS "${_PZ_GMA_FRAMEWORK}")
+      set_target_properties(${APP_NAME} PROPERTIES
+        XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${_PZ_GMA_SLICE_DIR} $(inherited)"
+      )
+      target_link_libraries(${APP_NAME} "-framework GoogleMobileAds")
+
+      # Embed (and re-sign on device) so the app can run outside Xcode too.
+      add_custom_command(TARGET ${APP_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_GMA_FRAMEWORK}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework"
+        COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ] && [ -d \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework\"; else :; fi"
+        VERBATIM
+      )
+    else()
+      message(STATUS "GoogleMobileAds.xcframework not found at ${_PZ_GMA_XCFW}; AdMob provider will run in stub mode.")
+    endif()
+  endif()
+
   # Ensure dSYM is generated for archives (required for symbol upload / crash symbolication).
   set_target_properties(${APP_NAME} PROPERTIES
     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"

@@ -55,6 +55,11 @@ void AdsController::showBanner() {
     provider_->showBanner();
 }
 
+void AdsController::loadBanner(const AdRequest& request) {
+    if (!adsEnabled_ || !provider_) return;
+    provider_->loadBanner(request);
+}
+
 void AdsController::hideBanner() {
     if (!provider_) return;
     provider_->hideBanner();
@@ -91,13 +96,16 @@ void AdsController::handleContext(AdsContext ctx) {
         if (bannerCounters_[i] >= s.bannerShowAfterCount) {
             // Only show if we have a configured banner id.
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            const bool hasId = !config_.admob.bannerIdIOS.empty();
+            const std::string id = config_.admob.bannerIdIOS;
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-            const bool hasId = !config_.admob.bannerIdAndroid.empty();
+            const std::string id = config_.admob.bannerIdAndroid;
 #else
-            const bool hasId = false;
+            const std::string id{};
 #endif
-            if (hasId) showBanner();
+            if (!id.empty()) {
+                loadBanner({id});
+                showBanner();
+            }
             bannerCounters_[i] = 0;
         }
     } else {

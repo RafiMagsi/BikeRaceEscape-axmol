@@ -13,6 +13,7 @@ public:
 
     bool initialize(const std::string& appIdOrKey) override;
 
+    void loadBanner(const AdRequest& request) override;
     void showBanner() override;
     void hideBanner() override;
 
@@ -28,6 +29,7 @@ private:
     bool initialized_{false};
     bool interstitialReady_{false};
     bool rewardedReady_{false};
+    std::string lastBannerPlacement_;
     std::string lastInterstitialPlacement_;
     std::string lastRewardedPlacement_;
 };

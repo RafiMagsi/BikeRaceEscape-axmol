@@ -11,13 +11,20 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     initialized_ = true;
     interstitialReady_ = false;
     rewardedReady_ = false;
+    lastBannerPlacement_.clear();
     AXLOGW("AdsProviderAdMob: SDK not integrated yet; this is a stub (no ads will be shown).");
     return true;
 }
 
+void AdsProviderAdMob::loadBanner(const AdRequest& request) {
+    if (!initialized_) return;
+    lastBannerPlacement_ = request.placementId;
+    AXLOGI("AdsProviderAdMob::loadBanner (stub) placementId='{}'", lastBannerPlacement_);
+}
+
 void AdsProviderAdMob::showBanner() {
     if (!initialized_) return;
-    AXLOGI("AdsProviderAdMob::showBanner (stub)");
+    AXLOGI("AdsProviderAdMob::showBanner (stub) placementId='{}'", lastBannerPlacement_);
 }
 
 void AdsProviderAdMob::hideBanner() {

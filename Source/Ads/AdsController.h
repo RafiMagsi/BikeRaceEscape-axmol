@@ -35,6 +35,7 @@ public:
     void onGameOver();
 
     // Banner
+    void loadBanner(const AdRequest& request);
     void showBanner();
     void hideBanner();
 

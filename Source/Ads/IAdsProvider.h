@@ -17,6 +17,9 @@ public:
     virtual bool initialize(const std::string& appIdOrKey) = 0;
 
     // Banner
+    // NOTE: For banner, many providers need an ad unit id. Call `loadBanner` before `showBanner`.
+    // Providers may keep the last loaded banner placement id.
+    virtual void loadBanner(const AdRequest& request) = 0;
     virtual void showBanner() = 0;
     virtual void hideBanner() = 0;
 
@@ -32,4 +35,3 @@ public:
 };
 
 } // namespace PZ
-
