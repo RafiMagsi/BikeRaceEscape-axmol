@@ -18,7 +18,16 @@
       "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug)",
       "Bash(otool -L /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/Content/Fonts/PressStart2P-Regular.ttf)",
       "Bash(grep -E \"\\\\.\\(storyboard|xib|png|plist\\)$\")",
-      "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug clean)"
+      "Bash(xcodebuild -project build-ios-game/BikeRaceEscapeAxmol.xcodeproj -scheme BikeRaceEscapeAxmol -configuration Debug clean)",
+      "Bash(xcodebuild build *)",
+      "Bash(ls -la /Users/rafi/development/axmol/1k/ios.cmake 2>/dev/null && echo \"Toolchain found\" || echo \"Toolchain NOT found\")",
+      "Read(//Users/rafi/development/axmol/1k/**)",
+      "Bash(FORCE_CLEAN=1 bash tools/ios_device.sh)",
+      "Bash(pod install *)",
+      "Bash(bash ../tools/ios_device.sh)",
+      "Bash(bash tools/ios_device.sh)",
+      "Bash(python3 /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/tools/inject_pods_build_phase.py)",
+      "Bash(grep -B 5 -A 30 \"^[A-Z0-9]* /\\\\* BikeRaceEscapeAxmol \\\\*/ = {$\" /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-device/BikeRaceEscapeAxmol.xcodeproj/project.pbxproj)"
     ],
     "additionalDirectories": [
       "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents",

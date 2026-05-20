@@ -10,6 +10,13 @@
 #include "Ads/AdsConfig.h"
 #include "Ads/Providers/AdsProviderAdMob.h"
 
+#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
+    #include <Foundation/Foundation.h>
+    #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
+        #import <GoogleMobileAds/GoogleMobileAds.h>
+    #endif
+#endif
+
 USING_NS_AX;
 
 AppDelegate::AppDelegate() = default;
@@ -27,6 +34,36 @@ void AppDelegate::setDebugModeEnabled(bool enable) {
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+
+    ax::setLogLevel(ax::LogLevel::Debug);
+
+#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
+    NSLog(@"\n\n========== APP LAUNCH TEST (NSLog) ==========");
+#endif
+
+    AXLOGD("AXMOL DEBUG LOG TEST");
+    fprintf(stderr, "\n========== AXMOL DEBUG LOG TEST (fprintf) ==========\n");
+    fflush(stderr);
+
+    AXLOGI("AXMOL INFO LOG TEST");
+    fprintf(stderr, "========== AXMOL INFO LOG TEST (fprintf) ==========\n");
+    fflush(stderr);
+
+    AXLOGW("AXMOL WARNING LOG TEST");
+    fprintf(stderr, "========== AXMOL WARNING LOG TEST (fprintf) ==========\n");
+    fflush(stderr);
+
+    AXLOGE("AXMOL ERROR LOG TEST");
+    fprintf(stderr, "========== AXMOL ERROR LOG TEST (fprintf) ==========\n");
+    fflush(stderr);
+
+    AXLOGI("===== APPLICATION DID FINISH LAUNCHING =====");
+    fprintf(stderr, "\n===== APPLICATION DID FINISH LAUNCHING ===== (fprintf)\n");
+#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
+    NSLog(@"===== APPLICATION DID FINISH LAUNCHING ===== (NSLog)\n");
+#endif
+    fflush(stderr);
+
     AXLOGI("AppDelegate::applicationDidFinishLaunching begin");
     PZCrashReporter::install();
     AXLOGI("Crash report path: {}", PZCrashReporter::getCrashReportPath());
@@ -101,25 +138,62 @@ void AppDelegate::scheduledLoading() {
 
     // ---- Ads bootstrap (Content/ads.plist) ----
     {
+        fprintf(stderr, "\n[ADS-BOOTSTRAP-START] Initializing ads system\n");
+        fflush(stderr);
+        AXLOGI("[ADS-INIT] Starting ads initialization");
+
         auto* ads = PZ::AdsController::shared();
-        ads->loadConfigFromPlist();
+        fprintf(stderr, "[ADS-BOOTSTRAP] AdsController::shared() = %p\n", ads);
 
-        // Respect "Remove Ads" purchase flag.
-        if (auto* sc = PZSettingsController::shared()) {
-            ads->setAdsEnabled(!sc->removeAds);
-        }
+        if (!ads) {
+            AXLOGE("[ADS-INIT] CRITICAL: AdsController::shared() returned null!");
+            fprintf(stderr, "[ADS-BOOTSTRAP-ERROR] AdsController is null!\n");
+            fflush(stderr);
+        } else {
+            AXLOGI("[ADS-INIT] AdsController obtained successfully");
+            fprintf(stderr, "[ADS-BOOTSTRAP] Calling loadConfigFromPlist()\n");
 
-        // For now we support AdMob provider selection only (provider itself is still a stub unless SDKs are added).
-        const auto& cfg = ads->config();
-        if (cfg.admobEnabled) {
-            ads->setProvider(std::make_unique<PZ::AdsProviderAdMob>());
+            ads->loadConfigFromPlist();
+            AXLOGI("[ADS-INIT] Config loaded from plist");
+            fprintf(stderr, "[ADS-BOOTSTRAP] Config loaded\n");
+
+            // Respect "Remove Ads" purchase flag.
+            if (auto* sc = PZSettingsController::shared()) {
+                bool removeAds = sc->removeAds;
+                ads->setAdsEnabled(!removeAds);
+                AXLOGI("[ADS-INIT] Remove ads setting: {}, ads enabled: {}", removeAds, !removeAds);
+                fprintf(stderr, "[ADS-BOOTSTRAP] Remove ads: %s\n", removeAds ? "YES" : "NO");
+            }
+
+            // For now we support AdMob provider selection only (provider itself is still a stub unless SDKs are added).
+            const auto& cfg = ads->config();
+            AXLOGI("[ADS-INIT] Config admobEnabled: {}", cfg.admobEnabled);
+            fprintf(stderr, "[ADS-BOOTSTRAP] AdMob enabled in config: %s\n", cfg.admobEnabled ? "YES" : "NO");
+
+            if (cfg.admobEnabled) {
+                fprintf(stderr, "[ADS-BOOTSTRAP] Creating AdsProviderAdMob instance\n");
+                ads->setProvider(std::make_unique<PZ::AdsProviderAdMob>());
+                AXLOGI("[ADS-INIT] AdsProviderAdMob set");
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            ads->initialize(cfg.admob.appIdIOS);
+                fprintf(stderr, "[ADS-BOOTSTRAP] Calling ads->initialize() with iOS app ID\n");
+                ads->initialize(cfg.admob.appIdIOS);
+                AXLOGI("[ADS-INIT] Initialized with iOS app ID: {}", cfg.admob.appIdIOS);
+
+                // Test device ID setup is done in AdsProviderAdMobApple.mm
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-            ads->initialize(cfg.admob.appIdAndroid);
+                ads->initialize(cfg.admob.appIdAndroid);
+                AXLOGI("[ADS-INIT] Initialized with Android app ID: {}", cfg.admob.appIdAndroid);
 #else
-            ads->initialize("");
+                ads->initialize("");
+                AXLOGI("[ADS-INIT] Initialized with empty app ID (non-mobile platform)");
 #endif
+                fprintf(stderr, "[ADS-BOOTSTRAP-SUCCESS] Ads initialized successfully!\n");
+                fflush(stderr);
+            } else {
+                AXLOGW("[ADS-INIT] AdMob not enabled in config - ads will not show");
+                fprintf(stderr, "[ADS-BOOTSTRAP] AdMob disabled - skipping provider setup\n");
+            }
         }
     }
 

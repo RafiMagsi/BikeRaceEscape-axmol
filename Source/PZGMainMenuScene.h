@@ -39,9 +39,9 @@ public:
     
 	// implement the "static node()" method manually
 	LAYER_CREATE_FUNC( PZGMainMenuScene )
-    
-    virtual void onEnterTransitionDidFinish();
-    
+
+    virtual void onEnter() override;
+
 };
 
 #endif // __MAINMENU_SCENE_H__

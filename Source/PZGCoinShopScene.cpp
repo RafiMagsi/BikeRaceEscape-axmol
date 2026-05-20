@@ -164,66 +164,117 @@ PZGArtInterface* PZGCoinShopScene::getItemByName( const char* name, const char* 
 
 
 void PZGCoinShopScene::buyCoinPack1Callback(Object* pSender){
+    AXLOGI("[IAP] buyCoinPack1Callback clicked");
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
 
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
+    AXLOGI("[IAP] SharedData: {}", (sd ? "loaded" : "NULL"));
+
     PZGGameInfoIAP *iapInfo = nullptr;
     if (sd) {
-        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+        auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
+        AXLOGI("[IAP] IAPSettings array: {}", (array ? "found" : "NOT FOUND"));
+        if (array) {
+            AXLOGI("[IAP] IAPSettings array count: {}", array->count());
+        }
+
+        if (array && array->count() > 0) {
             iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+            AXLOGI("[IAP] IAPInfo loaded: {}", (iapInfo ? "YES" : "NO"));
         }
     }
-    
+
     if (iapInfo && iapInfo->coinShop1_id) {
-        cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop1_id->getCString());
+        const char* productId = iapInfo->coinShop1_id->getCString();
+        AXLOGI("[IAP] Calling buyMarketItem with productId: {}", productId);
+        cocos2dx_StoreController::buyMarketItem(productId);
+        AXLOGI("[IAP] buyMarketItem() called successfully");
+    } else {
+        AXLOGE("[IAP] Failed to purchase: iapInfo={}, coinShop1_id={}",
+               (iapInfo ? "YES" : "NULL"),
+               (iapInfo && iapInfo->coinShop1_id ? "YES" : "NULL"));
     }
 
 #endif
 }
 
 void PZGCoinShopScene::buyCoinPack2Callback(Object* pSender){
+    AXLOGI("[IAP] buyCoinPack2Callback clicked");
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-    
+
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
+    AXLOGI("[IAP] SharedData: {}", (sd ? "loaded" : "NULL"));
+
     PZGGameInfoIAP *iapInfo = nullptr;
     if (sd) {
-        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+        auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
+        AXLOGI("[IAP] IAPSettings array: {}", (array ? "found" : "NOT FOUND"));
+        if (array) {
+            AXLOGI("[IAP] IAPSettings array count: {}", array->count());
+        }
+
+        if (array && array->count() > 0) {
             iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+            AXLOGI("[IAP] IAPInfo loaded: {}", (iapInfo ? "YES" : "NO"));
         }
     }
 
     if (iapInfo && iapInfo->coinShop2_id) {
-        cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop2_id->getCString());
+        const char* productId = iapInfo->coinShop2_id->getCString();
+        AXLOGI("[IAP] Calling buyMarketItem with productId: {}", productId);
+        cocos2dx_StoreController::buyMarketItem(productId);
+        AXLOGI("[IAP] buyMarketItem() called successfully");
+    } else {
+        AXLOGE("[IAP] Failed to purchase: iapInfo={}, coinShop2_id={}",
+               (iapInfo ? "YES" : "NULL"),
+               (iapInfo && iapInfo->coinShop2_id ? "YES" : "NULL"));
     }
-    
+
 #endif
 }
 
 void PZGCoinShopScene::buyCoinPack3Callback(Object* pSender){
+    AXLOGI("[IAP] buyCoinPack3Callback clicked");
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound(false);
     }
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-    
+
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
+    AXLOGI("[IAP] SharedData: {}", (sd ? "loaded" : "NULL"));
+
     PZGGameInfoIAP *iapInfo = nullptr;
     if (sd) {
-        if (auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings"); array && array->count() > 0) {
+        auto* array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
+        AXLOGI("[IAP] IAPSettings array: {}", (array ? "found" : "NOT FOUND"));
+        if (array) {
+            AXLOGI("[IAP] IAPSettings array count: {}", array->count());
+        }
+
+        if (array && array->count() > 0) {
             iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
+            AXLOGI("[IAP] IAPInfo loaded: {}", (iapInfo ? "YES" : "NO"));
         }
     }
-    
+
     if (iapInfo && iapInfo->coinShop3_id) {
-        cocos2dx_StoreController::buyMarketItem(iapInfo->coinShop3_id->getCString());
+        const char* productId = iapInfo->coinShop3_id->getCString();
+        AXLOGI("[IAP] Calling buyMarketItem with productId: {}", productId);
+        cocos2dx_StoreController::buyMarketItem(productId);
+        AXLOGI("[IAP] buyMarketItem() called successfully");
+    } else {
+        AXLOGE("[IAP] Failed to purchase: iapInfo={}, coinShop3_id={}",
+               (iapInfo ? "YES" : "NULL"),
+               (iapInfo && iapInfo->coinShop3_id ? "YES" : "NULL"));
     }
-    
+
 #endif
 }
 

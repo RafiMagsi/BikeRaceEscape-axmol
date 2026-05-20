@@ -70,6 +70,12 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     // We keep `appIdOrKey` for compatibility with other providers / configs.
     [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
     AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
+
+    // Set test device ID so we get test ads (not real ads)
+    NSArray *testDeviceIDs = @[ @"be650e90ca1cb0f5e1cde5dbcf188455" ];
+    [GADMobileAds sharedInstance].requestConfiguration.testDeviceIdentifiers = testDeviceIDs;
+    AXLOGI("AdsProviderAdMob(iOS): Test device ID configured");
+
     return true;
 #else
     AXLOGW("AdsProviderAdMob(iOS): Google Mobile Ads SDK not found; provider runs in stub mode (no ads will be shown).");

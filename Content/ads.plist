@@ -9,21 +9,21 @@
 			<key>enabled</key>
 			<true/>
 			<key>appIdIOS</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY</string>
+			<string>ca-app-pub-7140303866105182~6958190975</string>
 			<key>appIdAndroid</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY</string>
+			<string>ca-app-pub-7140303866105182~8023860631</string>
 			<key>bannerIdIOS</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/BBBBBBBBBB</string>
+			<string>ca-app-pub-7140303866105182/1234567890</string>
 			<key>interstitialIdIOS</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/IIIIIIIIII</string>
+			<string>ca-app-pub-7140303866105182/0987654321</string>
 			<key>rewardedIdIOS</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/RRRRRRRRRR</string>
+			<string>ca-app-pub-7140303866105182/1111111111</string>
 			<key>bannerIdAndroid</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/BBBBBBBBBB</string>
+			<string>ca-app-pub-7140303866105182/2222222222</string>
 			<key>interstitialIdAndroid</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/IIIIIIIIII</string>
+			<string>ca-app-pub-7140303866105182/3333333333</string>
 			<key>rewardedIdAndroid</key>
-			<string>ca-app-pub-XXXXXXXXXXXXXXXX/RRRRRRRRRR</string>
+			<string>ca-app-pub-7140303866105182/4444444444</string>
 		</dict>
 	</dict>
 	<key>Setup</key>

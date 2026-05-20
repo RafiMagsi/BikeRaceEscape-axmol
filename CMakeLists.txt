@@ -43,6 +43,11 @@ file(GLOB_RECURSE LEGACY_BOX2D_SOURCES CONFIGURE_DEPENDS
 
 list(APPEND GAME_SOURCE ${LEGACY_BOX2D_SOURCES})
 
+# Ensure Box2D sources compile with correct include paths
+set_source_files_properties(${LEGACY_BOX2D_SOURCES} PROPERTIES
+  COMPILE_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/thirdparty"
+)
+
 set(GAME_INC_DIRS
   "${CMAKE_CURRENT_SOURCE_DIR}/Source"
   "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty"
@@ -75,6 +80,28 @@ ax_setup_app_config(${APP_NAME})
 include(AXGamePlatformSetup)
 
 # ---- Project-specific iOS runtime fixes ----
+
+# iOS/Simulator: FreeType's `builds/unix/ftsystem.c` gates `<unistd.h>`/`<fcntl.h>`
+# behind `HAVE_UNISTD_H` / `HAVE_FCNTL_H`. Our sandboxed CMake configure can fail
+# header probes, leaving these undefined and breaking the build.
+#
+# On Apple platforms these headers are always available, so define them explicitly.
+if(IOS AND TARGET freetype)
+  target_compile_definitions(freetype PRIVATE
+    HAVE_UNISTD_H
+    HAVE_FCNTL_H
+  )
+endif()
+
+# iOS Simulator: some toolchain/probing paths end up compiling 3rdparty code
+# without our top-level C++ standard. Clipper2 requires C++17 for `std::optional`
+# and type traits helpers.
+if(IOS AND TARGET clipper2)
+  set_target_properties(clipper2 PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED YES
+  )
+endif()
 
 # ---- App icons (iOS + Android) ----
 option(PZ_GENERATE_APP_ICONS "Generate iOS/Android app icons from art/icon-source.png during build" ON)
@@ -128,6 +155,7 @@ if(IOS AND XCODE)
   # Optional: set your Apple Developer Team ID (e.g. "ABCDE12345") to enable device code signing
   # for the generated Xcode project.
   set(PZ_DEVELOPMENT_TEAM "" CACHE STRING "Apple Developer Team ID for iOS code signing (Xcode DEVELOPMENT_TEAM)")
+  option(PZ_USE_COCOAPODS "Enable CocoaPods integration (iOS)" ON)
 
   # Ensure Xcode compiles the asset catalog (AppIcon) into the bundle.
   set(_PZ_IOS_ASSETS_XCASSETS "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Images.xcassets")
@@ -153,42 +181,87 @@ if(IOS AND XCODE)
   # Use the template Info.plist which already declares CFBundleIconName=AppIcon.
   set_target_properties(${APP_NAME} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Info.plist"
+    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/BikeRaceEscapeAxmol.entitlements"
   )
 
   # Game Center (GameKit)
   # Note: AXGameTargetSetup.cmake uses the plain `target_link_libraries` signature, so keep it consistent.
   target_link_libraries(${APP_NAME} "-framework GameKit")
 
-  # ---- iOS AdMob (Google Mobile Ads) optional integration ----
-  # To enable real AdMob ads on iOS, download GoogleMobileAds.xcframework and place it at:
-  #   thirdparty/GoogleMobileAds/GoogleMobileAds.xcframework
-  # This keeps the repo buildable without the SDK.
-  if(IOS)
-    set(_PZ_GMA_XCFW "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GoogleMobileAds/GoogleMobileAds.xcframework")
-    if(CMAKE_OSX_SYSROOT MATCHES ".*simulator.*")
-      set(_PZ_GMA_SLICE "ios-arm64_x86_64-simulator")
-    else()
-      set(_PZ_GMA_SLICE "ios-arm64")
-    endif()
-    set(_PZ_GMA_SLICE_DIR "${_PZ_GMA_XCFW}/${_PZ_GMA_SLICE}")
-    set(_PZ_GMA_FRAMEWORK "${_PZ_GMA_SLICE_DIR}/GoogleMobileAds.framework")
-    if(EXISTS "${_PZ_GMA_FRAMEWORK}")
-      set_target_properties(${APP_NAME} PROPERTIES
-        XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${_PZ_GMA_SLICE_DIR} $(inherited)"
-      )
-      target_link_libraries(${APP_NAME} "-framework GoogleMobileAds")
+  # ---- CocoaPods Setup for iOS ----
+  # Create Podfile for CocoaPods dependency management (pods installed via build script)
+  if(IOS AND PZ_USE_COCOAPODS)
+    set(_PODFILE_PATH "${CMAKE_BINARY_DIR}/Podfile")
+    set(_PODS_DIR "${CMAKE_BINARY_DIR}/Pods")
 
-      # Embed (and re-sign on device) so the app can run outside Xcode too.
-      add_custom_command(TARGET ${APP_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${_PZ_GMA_FRAMEWORK}" "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework"
-        COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ] && [ -d \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/GoogleMobileAds.framework\"; else :; fi"
-        VERBATIM
-      )
+    # Create Podfile if it doesn't exist
+    if(NOT EXISTS "${_PODFILE_PATH}")
+      file(WRITE "${_PODFILE_PATH}" "platform :ios, '12.0'\n\ntarget '${APP_NAME}' do\n  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'\nend\n")
+      message(STATUS "[CocoaPods] Created Podfile at ${_PODFILE_PATH}")
+      message(STATUS "[CocoaPods] Run 'pod install' in ${CMAKE_BINARY_DIR} to install dependencies")
     else()
-      message(STATUS "GoogleMobileAds.xcframework not found at ${_PZ_GMA_XCFW}; AdMob provider will run in stub mode.")
+      message(STATUS "[CocoaPods] Using existing Podfile at ${_PODFILE_PATH}")
     endif()
+
+    # Pods framework configuration
+    #
+    # Do NOT touch Xcode search paths here.
+    # - CocoaPods wires everything via the generated `.xcworkspace` + `Pods-*.xcconfig`.
+    # - Setting `XCODE_ATTRIBUTE_HEADER_SEARCH_PATHS` / `FRAMEWORK_SEARCH_PATHS` from CMake
+    #   can overwrite Axmol's include paths, leading to errors like `"axmol.h" file not found`.
+    # CocoaPods builds its aggregate library (`libPods-<Target>.a`) into Xcode's default
+    # BUILT_PRODUCTS_DIR: `$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)`.
+    #
+    # Axmol/CMake templates often override CONFIGURATION_BUILD_DIR to a custom `bin/...` location,
+    # which makes the linker look for `libPods-${APP_NAME}.a` in the wrong directory.
+    #
+    # Fix: always use the default Xcode build products dir when CocoaPods are enabled.
+    set_target_properties(${APP_NAME} PROPERTIES
+      XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)"
+    )
+
+    if(EXISTS "${_PODS_DIR}")
+      message(STATUS "[CocoaPods] Pods directory detected")
+    endif()
+    message(STATUS "[CocoaPods] Build from workspace: ${CMAKE_BINARY_DIR}/${APP_NAME}.xcworkspace")
   endif()
+
+  # ---- Swift runtime (CocoaPods) ----
+  # If we integrate Swift-based frameworks (e.g. Google Mobile Ads via CocoaPods),
+  # do not override CocoaPods' Swift-related build settings. Use `$(inherited)` so
+  # the Pods xcconfig can control whether Swift stdlibs are embedded.
+  foreach(_CONFIG Debug Release MinSizeRel RelWithDebInfo)
+    string(TOUPPER ${_CONFIG} _CONFIG_UPPER)
+    set_property(TARGET ${APP_NAME} PROPERTY
+      XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES_${_CONFIG_UPPER} "$(inherited)"
+    )
+    set_property(TARGET ${APP_NAME} PROPERTY
+      XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT_${_CONFIG_UPPER} "$(inherited)"
+    )
+  endforeach()
+  set_target_properties(${APP_NAME} PROPERTIES
+    XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES "$(inherited)"
+    XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT "$(inherited)"
+  )
+
+  # CocoaPods/Xcode handle Swift compatibility libs and embedding; avoid forcing link flags here.
+
+  # NOTE: Avoid manually copying Swift dylibs post-build. It frequently breaks code signing on-device.
+
+  # ---- iOS AdMob: inject `GADApplicationIdentifier` at build time ----
+  # Google Mobile Ads expects `GADApplicationIdentifier` in the *built* app's Info.plist.
+  # We keep it out of the repo template plist and pull it from `Content/ads.plist` instead.
+  if(IOS)
+    add_custom_command(TARGET ${APP_NAME} POST_BUILD
+      COMMAND /bin/sh -c "set -e; ads_plist=\"${CMAKE_CURRENT_SOURCE_DIR}/Content/ads.plist\"; if [ ! -f \"$ads_plist\" ]; then exit 0; fi; app_id=\"$(/usr/libexec/PlistBuddy -c 'Print :Constants:AdMob:appIdIOS' \"$ads_plist\" 2>/dev/null || true)\"; if [ -z \"$app_id\" ] || echo \"$app_id\" | grep -q 'XXXXXXXXXXXXXXXX'; then exit 0; fi; info_plist=\"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"; if [ ! -f \"$info_plist\" ]; then exit 0; fi; /usr/libexec/PlistBuddy -c \"Set :GADApplicationIdentifier $app_id\" \"$info_plist\" 2>/dev/null || /usr/libexec/PlistBuddy -c \"Add :GADApplicationIdentifier string $app_id\" \"$info_plist\""
+      VERBATIM
+    )
+  endif()
+
+  # ---- iOS AdMob (Google Mobile Ads) integration ----
+  # Now handled via CocoaPods (see Podfile in build-ios-game/)
+  # CocoaPods manages all linking, signing, and dependencies automatically.
+  # Previous manual xcframework integration disabled to avoid conflicts with CocoaPods.
 
   # Ensure dSYM is generated for archives (required for symbol upload / crash symbolication).
   set_target_properties(${APP_NAME} PROPERTIES
@@ -240,7 +313,7 @@ if(IOS)
       COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks"
       COMMAND /bin/sh -c "set -e; src=\"$BUILT_PRODUCTS_DIR/soft_oal.framework\"; if [ -n \"$BUILT_PRODUCTS_DIR\" ] && [ -d \"$src\" ]; then :; elif [ -d \"${_PZ_SOFT_OAL_SRC}\" ]; then src=\"${_PZ_SOFT_OAL_SRC}\"; else echo \"warning: soft_oal.framework not found; skipping embed copy\"; exit 0; fi; \"${CMAKE_COMMAND}\" -E copy_directory \"$src\" \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\""
       # Use Xcode-provided signing identity at build time (not configure time).
-      COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\"; else echo \"warning: EXPANDED_CODE_SIGN_IDENTITY is empty; soft_oal.framework left unsigned\"; fi"
+      COMMAND /bin/sh -c "if [ -n \"$EXPANDED_CODE_SIGN_IDENTITY\" ]; then /usr/bin/codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --preserve-metadata=identifier,entitlements \"$<TARGET_FILE_DIR:${APP_NAME}>/Frameworks/soft_oal.framework\"; else echo \"warning: EXPANDED_CODE_SIGN_IDENTITY is empty; soft_oal.framework left unsigned\"; fi"
       VERBATIM
     )
   endif()

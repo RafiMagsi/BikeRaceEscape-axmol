@@ -117,3 +117,5 @@ ARM64/
 *.dll
 *.pdb
 *.dSYM/
+# Local axmol checkout mirror (kept out of git; required for sandboxed builds)
+/thirdparty/axmol/

@@ -56,6 +56,9 @@ static void writeNSStringToCrashFile(NSString* str) {
 }
 
 static void redirectStdIOToRunLog() {
+#if defined(NDEBUG)
+    // Only redirect output to file in Release builds.
+    // In Debug builds, keep output going to Xcode console for live debugging.
     NSString* path = runLogPath();
     const char* cpath = path.UTF8String;
     if (!cpath || !*cpath) return;
@@ -67,6 +70,7 @@ static void redirectStdIOToRunLog() {
     std::freopen(cpath, "a", stderr);
     std::setvbuf(stdout, nullptr, _IOLBF, 0);
     std::setvbuf(stderr, nullptr, _IOLBF, 0);
+#endif
 }
 
 static void uncaughtNSExceptionHandler(NSException* exception) {
