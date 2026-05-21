@@ -72,7 +72,7 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
 
     // Set test device ID so we get test ads (not real ads)
-    NSArray *testDeviceIDs = @[ @"be650e90ca1cb0f5e1cde5dbcf188455" ];
+    NSArray *testDeviceIDs = @[ @"be650e90ca1cb0f5e1cde5dbcf188455", @"19b2994fff154d01ff1a3869eaad7f63" ];
     [GADMobileAds sharedInstance].requestConfiguration.testDeviceIdentifiers = testDeviceIDs;
     AXLOGI("AdsProviderAdMob(iOS): Test device ID configured");
 

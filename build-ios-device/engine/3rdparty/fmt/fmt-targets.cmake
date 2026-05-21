@@ -50,8 +50,7 @@ unset(_cmake_expected_targets)
 add_library(fmt::fmt STATIC IMPORTED)
 
 set_target_properties(fmt::fmt PROPERTIES
-  INTERFACE_COMPILE_FEATURES "cxx_std_11"
-  INTERFACE_INCLUDE_DIRECTORIES "/Users/rafi/development/axmol/3rdparty/fmt/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/Users/rafi/developer/games/remake/BikeRaceEscape-axmol/thirdparty/axmol/3rdparty/fmt/include"
 )
 
 # Create imported target fmt::fmt-header-only
@@ -60,7 +59,7 @@ add_library(fmt::fmt-header-only INTERFACE IMPORTED)
 set_target_properties(fmt::fmt-header-only PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "FMT_HEADER_ONLY=1"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
-  INTERFACE_INCLUDE_DIRECTORIES "/Users/rafi/development/axmol/3rdparty/fmt/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/Users/rafi/developer/games/remake/BikeRaceEscape-axmol/thirdparty/axmol/3rdparty/fmt/include"
 )
 
 # Import target "fmt::fmt" for configuration "Debug"

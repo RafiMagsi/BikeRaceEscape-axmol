@@ -7,6 +7,15 @@ project(${APP_NAME} LANGUAGES C CXX OBJCXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# In our iOS Xcode-generator builds the compiler ID is often "unknown" during CMake configure,
+# which can prevent CMake from emitting the correct per-target `CLANG_CXX_LANGUAGE_STANDARD`
+# settings into the generated `.xcodeproj`. Hard-force the standard via compile flags on Apple.
+if(APPLE)
+  add_compile_options(
+    "$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++20>"
+  )
+endif()
+
 # Project-specific iOS bundle id (used by Xcode generator / Info.plist).
 set(PZ_BUNDLE_ID "com.nextfiction.dinobikeescape" CACHE STRING "Bundle identifier (iOS/macOS)")
 
@@ -96,11 +105,19 @@ endif()
 # iOS Simulator: some toolchain/probing paths end up compiling 3rdparty code
 # without our top-level C++ standard. Clipper2 requires C++17 for `std::optional`
 # and type traits helpers.
-if(IOS AND TARGET clipper2)
-  set_target_properties(clipper2 PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-  )
+if(IOS)
+  foreach(_PZ_CXX17_TARGET clipper2 alcommon OpenAL)
+    if(TARGET ${_PZ_CXX17_TARGET})
+      set_target_properties(${_PZ_CXX17_TARGET} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+      )
+      # In our sandboxed/toolchain-driven iOS builds CMake often can't detect the compiler ID,
+      # so Xcode projects may not get `CLANG_CXX_LANGUAGE_STANDARD` set. Force the standard
+      # explicitly via flags for these targets.
+      target_compile_options(${_PZ_CXX17_TARGET} PRIVATE "-std=gnu++17")
+    endif()
+  endforeach()
 endif()
 
 # ---- App icons (iOS + Android) ----
@@ -172,6 +189,15 @@ if(IOS AND XCODE)
     XCODE_ATTRIBUTE_ENABLE_USER_SCRIPT_SANDBOXING "NO"
   )
 
+  # Ensure this target is treated as iOS-only.
+  # If Xcode thinks the app can run "Designed for iPhone/iPad" on Mac, it may show "My Mac"
+  # as a run destination and try to sign for macOS, which is not what we want here.
+  set_target_properties(${APP_NAME} PROPERTIES
+    XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "iphoneos iphonesimulator"
+    XCODE_ATTRIBUTE_SUPPORTS_MACCATALYST "NO"
+    XCODE_ATTRIBUTE_SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD "NO"
+  )
+
   if(PZ_DEVELOPMENT_TEAM)
     set_target_properties(${APP_NAME} PROPERTIES
       XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${PZ_DEVELOPMENT_TEAM}"
@@ -227,22 +253,43 @@ if(IOS AND XCODE)
   endif()
 
   # ---- Swift runtime (CocoaPods) ----
-  # If we integrate Swift-based frameworks (e.g. Google Mobile Ads via CocoaPods),
-  # do not override CocoaPods' Swift-related build settings. Use `$(inherited)` so
-  # the Pods xcconfig can control whether Swift stdlibs are embedded.
+  #
+  # We do NOT force `ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=YES` here.
+  # CocoaPods + Xcode decide whether embedding is required based on the linked pods
+  # and deployment target. For modern iOS versions, Swift is in the OS and forcing
+  # embedding can cause duplicate-class warnings at runtime.
+  #
+  # Keep `EMBEDDED_CONTENT_CONTAINS_SWIFT=YES` so Xcode runs Swift stdlib tooling
+  # when needed (and to satisfy Swift-based pods).
+  set_target_properties(${APP_NAME} PROPERTIES
+    XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT "YES"
+    # Prefer using Swift stdlibs shipped with iOS (via /usr/lib/swift runpath),
+    # to avoid embedding duplicate Swift dylibs into the app bundle.
+    XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES "NO"
+  )
   foreach(_CONFIG Debug Release MinSizeRel RelWithDebInfo)
     string(TOUPPER ${_CONFIG} _CONFIG_UPPER)
     set_property(TARGET ${APP_NAME} PROPERTY
-      XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES_${_CONFIG_UPPER} "$(inherited)"
+      XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT_${_CONFIG_UPPER} "YES"
     )
     set_property(TARGET ${APP_NAME} PROPERTY
-      XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT_${_CONFIG_UPPER} "$(inherited)"
+      XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES_${_CONFIG_UPPER} "NO"
     )
   endforeach()
+
+  # Ensure Swift runtime can be resolved from the OS when present.
+  # This avoids depending solely on `@executable_path/Frameworks` for `@rpath/libswift*.dylib`
+  # and helps prevent "duplicate class" warnings when the OS already provides Swift stdlibs.
+  #
+  # Keep `@executable_path/Frameworks` as well (needed if Xcode decides to embed Swift libs).
   set_target_properties(${APP_NAME} PROPERTIES
-    XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES "$(inherited)"
-    XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT "$(inherited)"
+    XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "$(inherited) @executable_path/Frameworks /usr/lib/swift"
   )
+
+  # NOTE: We intentionally do not force-copy Swift stdlibs here.
+  # With modern iOS versions, Swift stdlibs are in the OS (`/usr/lib/swift`).
+  # We add `/usr/lib/swift` to runpaths (above) so `@rpath/libswift*.dylib` resolves
+  # without embedding, avoiding duplicate-class warnings.
 
   # CocoaPods/Xcode handle Swift compatibility libs and embedding; avoid forcing link flags here.
 
