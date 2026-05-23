@@ -29,6 +29,7 @@ private:
     bool initialized_{false};
     bool interstitialReady_{false};
     bool rewardedReady_{false};
+    bool interstitialAutoShow_{false};
     std::string lastBannerPlacement_;
     std::string lastInterstitialPlacement_;
     std::string lastRewardedPlacement_;

@@ -11,6 +11,7 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     initialized_ = true;
     interstitialReady_ = false;
     rewardedReady_ = false;
+    interstitialAutoShow_ = false;
     lastBannerPlacement_.clear();
     AXLOGW("AdsProviderAdMob: SDK not integrated yet; this is a stub (no ads will be shown).");
     return true;
@@ -40,16 +41,21 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
     lastInterstitialPlacement_ = request.placementId;
     interstitialReady_ = !lastInterstitialPlacement_.empty();
     AXLOGI("AdsProviderAdMob::loadInterstitial (stub) placementId='{}'", lastInterstitialPlacement_);
+    if (interstitialReady_ && interstitialAutoShow_) {
+        showInterstitial();
+    }
 }
 
 void AdsProviderAdMob::showInterstitial() {
     if (!initialized_) return;
     if (!interstitialReady_) {
-        AXLOGI("AdsProviderAdMob::showInterstitial (stub) not ready");
+        interstitialAutoShow_ = true;
+        AXLOGI("AdsProviderAdMob::showInterstitial (stub) not ready; will auto-show after load");
         return;
     }
     AXLOGI("AdsProviderAdMob::showInterstitial (stub) placementId='{}'", lastInterstitialPlacement_);
     interstitialReady_ = false;
+    interstitialAutoShow_ = false;
 }
 
 bool AdsProviderAdMob::isRewardedReady() const {

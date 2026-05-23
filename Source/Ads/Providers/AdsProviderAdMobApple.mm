@@ -64,6 +64,7 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     initialized_ = true;
     interstitialReady_ = false;
     rewardedReady_ = false;
+    interstitialAutoShow_ = false;
 
 #if PZ_HAS_GMA
     // Note: Modern GMA reads the App ID from Info.plist (GADApplicationIdentifier).
@@ -158,11 +159,26 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
                               if (error) {
                                   AXLOGW("AdsProviderAdMob(iOS): interstitial load failed: {}", [[error localizedDescription] UTF8String]);
                                   interstitialReady_ = false;
+                                  interstitialAutoShow_ = false;
                                   return;
                               }
                               g_interstitial = ad;
                               interstitialReady_ = (g_interstitial != nil);
                               AXLOGI("AdsProviderAdMob(iOS): interstitial loaded");
+
+                              if (interstitialReady_ && interstitialAutoShow_) {
+                                  UIViewController* vc = _topMostViewController();
+                                  if (!vc) {
+                                      AXLOGW("AdsProviderAdMob(iOS): cannot present interstitial (no view controller)");
+                                      interstitialAutoShow_ = false;
+                                      return;
+                                  }
+                                  [g_interstitial presentFromRootViewController:vc];
+                                  g_interstitial = nil;
+                                  interstitialReady_ = false;
+                                  interstitialAutoShow_ = false;
+                                  AXLOGI("AdsProviderAdMob(iOS): interstitial presented (auto-show)");
+                              }
                           }];
     });
 #else
@@ -174,7 +190,8 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
 void AdsProviderAdMob::showInterstitial() {
     if (!initialized_) return;
     if (!interstitialReady_) {
-        AXLOGI("AdsProviderAdMob(iOS)::showInterstitial (stub) not ready");
+        interstitialAutoShow_ = true;
+        AXLOGI("AdsProviderAdMob(iOS): showInterstitial called but not ready; will auto-show after load");
         return;
     }
 #if PZ_HAS_GMA
@@ -192,6 +209,7 @@ void AdsProviderAdMob::showInterstitial() {
     AXLOGI("AdsProviderAdMob(iOS)::showInterstitial (stub) placementId='{}'", lastInterstitialPlacement_);
 #endif
     interstitialReady_ = false;
+    interstitialAutoShow_ = false;
 }
 
 bool AdsProviderAdMob::isRewardedReady() const {

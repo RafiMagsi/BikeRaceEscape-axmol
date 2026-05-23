@@ -8,7 +8,7 @@
 #define ALSOFT_EMBED_HRTF_DATA
 
 /* Define if we have the posix_memalign function */
-#define HAVE_POSIX_MEMALIGN
+/* #undef HAVE_POSIX_MEMALIGN */
 
 /* Define if we have the _aligned_malloc function */
 /* #undef HAVE__ALIGNED_MALLOC */
@@ -17,7 +17,7 @@
 /* #undef HAVE_PROC_PIDPATH */
 
 /* Define if we have the getopt function */
-#define HAVE_GETOPT
+/* #undef HAVE_GETOPT */
 
 /* Define if we have DBus/RTKit */
 /* #undef HAVE_RTKIT */
@@ -29,7 +29,7 @@
 /* #undef HAVE_SSE4_1 */
 
 /* Define if we have ARM Neon CPU extensions */
-#define HAVE_NEON
+/* #undef HAVE_NEON */
 
 /* Define if we have the ALSA backend */
 /* #undef HAVE_ALSA */
@@ -110,10 +110,10 @@
 /* #undef HAVE_SSE_INTRINSICS */
 
 /* Define if we have pthread_setschedparam() */
-#define HAVE_PTHREAD_SETSCHEDPARAM
+/* #undef HAVE_PTHREAD_SETSCHEDPARAM */
 
 /* Define if we have pthread_setname_np() */
-#define HAVE_PTHREAD_SETNAME_NP
+/* #undef HAVE_PTHREAD_SETNAME_NP */
 
 /* Define if we have pthread_set_name_np() */
 /* #undef HAVE_PTHREAD_SET_NAME_NP */

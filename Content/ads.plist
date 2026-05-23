@@ -9,13 +9,13 @@
 			<key>enabled</key>
 			<true/>
 			<key>appIdIOS</key>
-			<string>ca-app-pub-7140303866105182~6958190975</string>
+			<string>ca-app-pub-8966545526103390~4717282854</string>
 			<key>appIdAndroid</key>
 			<string>ca-app-pub-7140303866105182~8023860631</string>
 			<key>bannerIdIOS</key>
-			<string>ca-app-pub-7140303866105182/1234567890</string>
+			<string>ca-app-pub-8966545526103390/6076493765</string>
 			<key>interstitialIdIOS</key>
-			<string>ca-app-pub-7140303866105182/0987654321</string>
+			<string>ca-app-pub-8966545526103390/3450330423</string>
 			<key>rewardedIdIOS</key>
 			<string>ca-app-pub-7140303866105182/1111111111</string>
 			<key>bannerIdAndroid</key>
