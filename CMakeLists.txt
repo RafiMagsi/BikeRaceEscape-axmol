@@ -222,7 +222,7 @@ if(IOS AND XCODE)
 
     # Create Podfile if it doesn't exist
     if(NOT EXISTS "${_PODFILE_PATH}")
-      file(WRITE "${_PODFILE_PATH}" "platform :ios, '12.0'\n\ntarget '${APP_NAME}' do\n  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'\nend\n")
+      file(WRITE "${_PODFILE_PATH}" "platform :ios, '12.0'\n\ntarget '${APP_NAME}' do\n  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'\n  pod 'ChartboostSDK'\nend\n")
       message(STATUS "[CocoaPods] Created Podfile at ${_PODFILE_PATH}")
       message(STATUS "[CocoaPods] Run 'pod install' in ${CMAKE_BINARY_DIR} to install dependencies")
     else()
@@ -253,29 +253,9 @@ if(IOS AND XCODE)
   endif()
 
   # ---- Swift runtime (CocoaPods) ----
-  #
-  # We do NOT force `ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=YES` here.
-  # CocoaPods + Xcode decide whether embedding is required based on the linked pods
-  # and deployment target. For modern iOS versions, Swift is in the OS and forcing
-  # embedding can cause duplicate-class warnings at runtime.
-  #
-  # Keep `EMBEDDED_CONTENT_CONTAINS_SWIFT=YES` so Xcode runs Swift stdlib tooling
-  # when needed (and to satisfy Swift-based pods).
-  set_target_properties(${APP_NAME} PROPERTIES
-    XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT "YES"
-    # Prefer using Swift stdlibs shipped with iOS (via /usr/lib/swift runpath),
-    # to avoid embedding duplicate Swift dylibs into the app bundle.
-    XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES "NO"
-  )
-  foreach(_CONFIG Debug Release MinSizeRel RelWithDebInfo)
-    string(TOUPPER ${_CONFIG} _CONFIG_UPPER)
-    set_property(TARGET ${APP_NAME} PROPERTY
-      XCODE_ATTRIBUTE_EMBEDDED_CONTENT_CONTAINS_SWIFT_${_CONFIG_UPPER} "YES"
-    )
-    set_property(TARGET ${APP_NAME} PROPERTY
-      XCODE_ATTRIBUTE_ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES_${_CONFIG_UPPER} "NO"
-    )
-  endforeach()
+  # Let CocoaPods' generated xcconfig control Swift embedding flags.
+  # Overriding `EMBEDDED_CONTENT_CONTAINS_SWIFT` here causes CocoaPods warnings and
+  # can lead to inconsistent Swift stdlib embedding behavior.
 
   # Ensure Swift runtime can be resolved from the OS when present.
   # This avoids depending solely on `@executable_path/Frameworks` for `@rpath/libswift*.dylib`
@@ -301,6 +281,16 @@ if(IOS AND XCODE)
   if(IOS)
     add_custom_command(TARGET ${APP_NAME} POST_BUILD
       COMMAND /bin/sh -c "set -e; ads_plist=\"${CMAKE_CURRENT_SOURCE_DIR}/Content/ads.plist\"; if [ ! -f \"$ads_plist\" ]; then exit 0; fi; app_id=\"$(/usr/libexec/PlistBuddy -c 'Print :Constants:AdMob:appIdIOS' \"$ads_plist\" 2>/dev/null || true)\"; if [ -z \"$app_id\" ] || echo \"$app_id\" | grep -q 'XXXXXXXXXXXXXXXX'; then exit 0; fi; info_plist=\"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"; if [ ! -f \"$info_plist\" ]; then exit 0; fi; /usr/libexec/PlistBuddy -c \"Set :GADApplicationIdentifier $app_id\" \"$info_plist\" 2>/dev/null || /usr/libexec/PlistBuddy -c \"Add :GADApplicationIdentifier string $app_id\" \"$info_plist\""
+      VERBATIM
+    )
+  endif()
+
+  # ---- SKAdNetwork IDs (Chartboost/AdMob mediation) ----
+  # Some SDKs log warnings if required SKAdNetwork identifiers are not present in the built Info.plist.
+  # Keep the canonical list in repo and merge into the *built* Info.plist at build time.
+  if(IOS)
+    add_custom_command(TARGET ${APP_NAME} POST_BUILD
+      COMMAND /bin/sh -c "set -e; info_plist=\"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"; ids_file=\"${CMAKE_CURRENT_SOURCE_DIR}/tools/skadnetwork_chartboost_required.txt\"; script=\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ensure_skadnetwork_ids.py\"; if [ ! -f \"$info_plist\" ] || [ ! -f \"$ids_file\" ] || [ ! -f \"$script\" ]; then exit 0; fi; python3 \"$script\" --info-plist \"$info_plist\" --ids-file \"$ids_file\""
       VERBATIM
     )
   endif()

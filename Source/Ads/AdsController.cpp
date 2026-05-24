@@ -42,6 +42,9 @@ void AdsController::loadConfigFromPlist() {
         // Provider must be set by the app bootstrap (keeps SDK optional).
         AXLOGI("AdsController: ads.plist enables AdMob (provider must be set by bootstrap)");
     }
+    if (config_.chartboost.enabled) {
+        AXLOGI("AdsController: ads.plist enables Chartboost (provider must be set by bootstrap)");
+    }
 }
 
 void AdsController::onMainMenu() { handleContext(AdsContext::MainMenu); }
@@ -114,13 +117,19 @@ void AdsController::handleContext(AdsContext ctx) {
     }
 
     // Interstitial schedule (best-effort; provider decides readiness)
-    if (s.interstitialAdMobWeight > 0 && s.interstitialShowAfterCount > 0) {
+    if ((s.interstitialAdMobWeight > 0 || s.interstitialChartboostWeight > 0) && s.interstitialShowAfterCount > 0) {
         interstitialCounters_[i] += 1;
         if (interstitialCounters_[i] >= s.interstitialShowAfterCount) {
             AdRequest req;
+            bool wantChartboost = (config_.chartboost.enabled && s.interstitialChartboostWeight > 0);
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            req.placementId = config_.admob.interstitialIdIOS;
+            if (wantChartboost) {
+                req.placementId = config_.chartboost.interstitialLocationIOS;
+            } else {
+                req.placementId = config_.admob.interstitialIdIOS;
+            }
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+            // Chartboost Android not wired in this repo yet.
             req.placementId = config_.admob.interstitialIdAndroid;
 #endif
             if (!req.placementId.empty()) {

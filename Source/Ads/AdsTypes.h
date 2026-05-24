@@ -7,6 +7,8 @@ namespace PZ {
 enum class AdProviderKind {
     None = 0,
     AdMob = 1,
+    Chartboost = 2,
+    Mux = 10,
     Stub = 999,
 };
 
@@ -21,4 +23,3 @@ struct AdRequest {
 };
 
 } // namespace PZ
-

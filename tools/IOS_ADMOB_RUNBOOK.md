@@ -1,4 +1,4 @@
-# iOS Device Runbook (Axmol + CocoaPods AdMob)
+# iOS Device Runbook (Axmol + CocoaPods Ads)
 
 This is the fastest “from zero to running on device” path for this repo.
 
@@ -7,7 +7,9 @@ This is the fastest “from zero to running on device” path for this repo.
 - Xcode installed and selected: `xcode-select -p` should point to Xcode.
 - CocoaPods installed: `pod --version`
 - You have an Apple Development Team ID (e.g. `XF5237ER2B`).
-- `Content/ads.plist` contains your real AdMob `appIdIOS` and ad unit ids.
+- `Content/ads.plist` contains:
+  - AdMob `appIdIOS` + banner ids
+  - Chartboost `appIdIOS` + `appSignatureIOS` (if enabled)
 
 ## 1) Generate a clean device build folder
 
@@ -80,7 +82,7 @@ If you build via CLI, prefer the script which uses an isolated DerivedData folde
 TEAM_ID=XF5237ER2B tools/ios_device.sh
 ```
 
-## 7) AdMob test checklist
+## 7) Ads test checklist
 
 Use **test ad unit ids first** to validate integration, then swap to real ones:
 
@@ -89,3 +91,10 @@ Use **test ad unit ids first** to validate integration, then swap to real ones:
   - Banner/Interstitial/Rewarded unit ids for the contexts you use.
 - Launch the app, reach a screen where AdsController should show a banner.
 - Watch the Xcode console for AdMob logs (load/show).
+
+Chartboost:
+- If `Constants:Chartboost:enabled = true`, `pod install` must include `ChartboostSDK`.
+- GameOver interstitial uses Chartboost via `Setup:Interstitial:OnGameOver:chartboostInterstitial = 1`.
+- Watch Xcode console for:
+  - `AdsProviderChartboost(iOS): start requested`
+  - `AdsProviderChartboost(iOS): caching interstitial`

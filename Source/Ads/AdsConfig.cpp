@@ -73,6 +73,18 @@ AdsConfig AdsConfig::loadFromAdsPlist() {
         cfg.admob.rewardedIdAndroid = readStr(admob, "rewardedIdAndroid");
     }
 
+    auto* chartboost = constants ? dictFor(constants, "Chartboost") : nullptr;
+    if (chartboost) {
+        cfg.chartboost.enabled = readBool(chartboost, "enabled", false);
+        cfg.chartboost.appIdIOS = readStr(chartboost, "appIdIOS");
+        cfg.chartboost.appSignatureIOS = readStr(chartboost, "appSignatureIOS");
+        cfg.chartboost.interstitialLocationIOS = readStr(chartboost, "interstitialLocationIOS");
+        if (cfg.chartboost.interstitialLocationIOS.empty()) {
+            // Chartboost's default location is typically "Default".
+            cfg.chartboost.interstitialLocationIOS = "Default";
+        }
+    }
+
     auto* setup = dictFor(root, "Setup");
     auto* banner = setup ? dictFor(setup, "Banner") : nullptr;
     auto* interstitial = setup ? dictFor(setup, "Interstitial") : nullptr;
@@ -100,6 +112,7 @@ AdsConfig AdsConfig::loadFromAdsPlist() {
             const int idx = ctxIndex(ctxFromKey(ks->getCString()));
             cfg.setups[idx].interstitialShowAfterCount = readInt(d, "showAfterCount", 0);
             cfg.setups[idx].interstitialAdMobWeight = readInt(d, "admobInterstitial", 0);
+            cfg.setups[idx].interstitialChartboostWeight = readInt(d, "chartboostInterstitial", 0);
         }
     }
     if (rewarded) {
@@ -115,7 +128,8 @@ AdsConfig AdsConfig::loadFromAdsPlist() {
         }
     }
 
-    AXLOGI("AdsConfig: loaded ads.plist (admobEnabled={})", cfg.admobEnabled);
+    AXLOGI("AdsConfig: loaded ads.plist (admobEnabled={}, chartboostEnabled={})",
+           cfg.admobEnabled, cfg.chartboost.enabled);
     return cfg;
 }
 

@@ -26,9 +26,18 @@ struct ProviderIds {
     std::string rewardedIdAndroid;
 };
 
+struct ChartboostIds {
+    bool enabled{false};
+    std::string appIdIOS;
+    std::string appSignatureIOS;
+    // Chartboost interstitials use "locations". Keep it configurable.
+    std::string interstitialLocationIOS;
+};
+
 struct AdsConfig {
     bool admobEnabled{false};
     ProviderIds admob;
+    ChartboostIds chartboost;
 
     // per-context settings
     struct ContextSetup {
@@ -36,6 +45,7 @@ struct AdsConfig {
         int bannerAdMobWeight{0};
         int interstitialShowAfterCount{0};
         int interstitialAdMobWeight{0};
+        int interstitialChartboostWeight{0};
         int rewardedShowAfterCount{0};
         int rewardedAdMobWeight{0};
     };

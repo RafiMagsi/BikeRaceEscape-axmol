@@ -25,6 +25,17 @@
 			<key>rewardedIdAndroid</key>
 			<string>ca-app-pub-7140303866105182/4444444444</string>
 		</dict>
+		<key>Chartboost</key>
+		<dict>
+			<key>enabled</key>
+			<true/>
+			<key>appIdIOS</key>
+			<string>6a0be77830dd7a51f0e7f484</string>
+			<key>appSignatureIOS</key>
+			<string>39ea0c727272faa51fcda511af63f68d0f84b491</string>
+			<key>interstitialLocationIOS</key>
+			<string>Default</string>
+		</dict>
 	</dict>
 	<key>Setup</key>
 	<dict>
@@ -71,6 +82,8 @@
 			<key>OnGameOver</key>
 			<dict>
 				<key>admobInterstitial</key>
+				<integer>0</integer>
+				<key>chartboostInterstitial</key>
 				<integer>1</integer>
 				<key>showAfterCount</key>
 				<integer>1</integer>

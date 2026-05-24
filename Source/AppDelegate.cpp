@@ -9,6 +9,8 @@
 #include "Ads/AdsController.h"
 #include "Ads/AdsConfig.h"
 #include "Ads/Providers/AdsProviderAdMob.h"
+#include "Ads/Providers/AdsProviderChartboost.h"
+#include "Ads/Providers/AdsProviderMux.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
     #include <Foundation/Foundation.h>
@@ -165,20 +167,42 @@ void AppDelegate::scheduledLoading() {
                 fprintf(stderr, "[ADS-BOOTSTRAP] Remove ads: %s\n", removeAds ? "YES" : "NO");
             }
 
-            // For now we support AdMob provider selection only (provider itself is still a stub unless SDKs are added).
+            // Provider selection (AdMob banner + optional Chartboost interstitial).
             const auto& cfg = ads->config();
             AXLOGI("[ADS-INIT] Config admobEnabled: {}", cfg.admobEnabled);
             fprintf(stderr, "[ADS-BOOTSTRAP] AdMob enabled in config: %s\n", cfg.admobEnabled ? "YES" : "NO");
 
-            if (cfg.admobEnabled) {
-                fprintf(stderr, "[ADS-BOOTSTRAP] Creating AdsProviderAdMob instance\n");
-                ads->setProvider(std::make_unique<PZ::AdsProviderAdMob>());
-                AXLOGI("[ADS-INIT] AdsProviderAdMob set");
+            if (cfg.admobEnabled || cfg.chartboost.enabled) {
+                if (cfg.admobEnabled && cfg.chartboost.enabled) {
+                    fprintf(stderr, "[ADS-BOOTSTRAP] Creating AdsProviderMux (AdMob banner + Chartboost interstitial)\n");
+                    auto mux = std::make_unique<PZ::AdsProviderMux>(
+                        std::make_unique<PZ::AdsProviderAdMob>(),
+                        std::make_unique<PZ::AdsProviderChartboost>());
+
+                    mux->setBannerInitKey(cfg.admob.appIdIOS);
+                    mux->setInterstitialInitKey(cfg.chartboost.appIdIOS + std::string("|") + cfg.chartboost.appSignatureIOS);
+                    ads->setProvider(std::move(mux));
+                    AXLOGI("[ADS-INIT] AdsProviderMux set");
+                } else if (cfg.chartboost.enabled) {
+                    fprintf(stderr, "[ADS-BOOTSTRAP] Creating AdsProviderChartboost instance\n");
+                    ads->setProvider(std::make_unique<PZ::AdsProviderChartboost>());
+                    AXLOGI("[ADS-INIT] AdsProviderChartboost set");
+                } else {
+                    fprintf(stderr, "[ADS-BOOTSTRAP] Creating AdsProviderAdMob instance\n");
+                    ads->setProvider(std::make_unique<PZ::AdsProviderAdMob>());
+                    AXLOGI("[ADS-INIT] AdsProviderAdMob set");
+                }
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-                fprintf(stderr, "[ADS-BOOTSTRAP] Calling ads->initialize() with iOS app ID\n");
-                ads->initialize(cfg.admob.appIdIOS);
-                AXLOGI("[ADS-INIT] Initialized with iOS app ID: {}", cfg.admob.appIdIOS);
+                fprintf(stderr, "[ADS-BOOTSTRAP] Calling ads->initialize() (provider-specific keys)\n");
+                if (cfg.admobEnabled && cfg.chartboost.enabled) {
+                    ads->initialize(""); // mux initializes sub-providers using per-provider init keys.
+                } else if (cfg.chartboost.enabled) {
+                    ads->initialize(cfg.chartboost.appIdIOS + std::string("|") + cfg.chartboost.appSignatureIOS);
+                } else {
+                    ads->initialize(cfg.admob.appIdIOS);
+                }
+                AXLOGI("[ADS-INIT] Initialized provider");
 
                 // Test device ID setup is done in AdsProviderAdMobApple.mm
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -191,8 +215,8 @@ void AppDelegate::scheduledLoading() {
                 fprintf(stderr, "[ADS-BOOTSTRAP-SUCCESS] Ads initialized successfully!\n");
                 fflush(stderr);
             } else {
-                AXLOGW("[ADS-INIT] AdMob not enabled in config - ads will not show");
-                fprintf(stderr, "[ADS-BOOTSTRAP] AdMob disabled - skipping provider setup\n");
+                AXLOGW("[ADS-INIT] No ads providers enabled in config - ads will not show");
+                fprintf(stderr, "[ADS-BOOTSTRAP] Ads disabled - skipping provider setup\n");
             }
         }
     }
