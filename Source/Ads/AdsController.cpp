@@ -133,11 +133,34 @@ void AdsController::handleContext(AdsContext ctx) {
             req.placementId = config_.admob.interstitialIdAndroid;
 #endif
             if (!req.placementId.empty()) {
-                loadInterstitial(req);
-                showInterstitial();
+                // Chartboost: avoid showing before cached (otherwise you get a white loading screen).
+                // So we only show if already ready; otherwise we just trigger a cache for next time.
+                if (wantChartboost) {
+                    if (provider_->isInterstitialReady()) {
+                        showInterstitial();
+                        // Start caching the next interstitial right away.
+                        loadInterstitial(req);
+                    } else {
+                        loadInterstitial(req);
+                    }
+                } else {
+                    // AdMob: provider supports auto-show behavior when show called before ready.
+                    loadInterstitial(req);
+                    showInterstitial();
+                }
             }
             interstitialCounters_[i] = 0;
         }
+    }
+
+    // Proactive Chartboost caching on Main Menu:
+    // Start caching early so GameOver can show instantly without a loading screen.
+    if (ctx == AdsContext::MainMenu && config_.chartboost.enabled) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+        if (!config_.chartboost.interstitialLocationIOS.empty()) {
+            loadInterstitial({config_.chartboost.interstitialLocationIOS});
+        }
+#endif
     }
 
     // Rewarded schedule is supported by config, but should generally be triggered by explicit UI events.

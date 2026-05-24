@@ -48,7 +48,6 @@ static UIViewController* PZTopMostViewController() {
 #if PZ_HAS_CHARTBOOST
 static CHBInterstitial* g_interstitial = nil;
 static std::atomic<bool> g_interstitialCached{false};
-static std::atomic<bool> g_interstitialAutoShow{false};
 
 @interface PZChartboostInterstitialDelegateProxy : NSObject <CHBInterstitialDelegate>
 @end
@@ -60,26 +59,10 @@ static std::atomic<bool> g_interstitialAutoShow{false};
     if (error) {
         AXLOGW("AdsProviderChartboost(iOS): interstitial cache failed: {}", [[error localizedDescription] UTF8String]);
         g_interstitialCached.store(false);
-        g_interstitialAutoShow.store(false);
         return;
     }
     g_interstitialCached.store(true);
     AXLOGI("AdsProviderChartboost(iOS): interstitial cached");
-
-    // If `showInterstitial()` was called before caching completed, present immediately.
-    if (g_interstitialAutoShow.exchange(false)) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (!g_interstitial) return;
-            UIViewController* vc = PZTopMostViewController();
-            if (!vc) {
-                AXLOGW("AdsProviderChartboost(iOS): auto-show skipped (no view controller)");
-                return;
-            }
-            g_interstitialCached.store(false);
-            [g_interstitial showFromViewController:vc];
-            AXLOGI("AdsProviderChartboost(iOS): interstitial presented (auto-show)");
-        });
-    }
 }
 
 - (void)didShowAd:(CHBShowEvent*)event error:(CHBShowError*)error {
@@ -89,13 +72,11 @@ static std::atomic<bool> g_interstitialAutoShow{false};
         return;
     }
     g_interstitialCached.store(false);
-    g_interstitialAutoShow.store(false);
     AXLOGI("AdsProviderChartboost(iOS): interstitial shown");
 }
 
 - (void)didDismissAd:(CHBDismissEvent*)event {
     (void)event;
-    g_interstitialAutoShow.store(false);
     AXLOGI("AdsProviderChartboost(iOS): interstitial dismissed");
 }
 
@@ -220,15 +201,13 @@ void AdsProviderChartboost::showInterstitial() {
         // `isCached` is deprecated but still available; Chartboost recommends calling show which performs checks.
         // We'll use `isCached` as a fast readiness check and auto-cache+retry behavior.
         if ([g_interstitial respondsToSelector:@selector(isCached)] && !g_interstitial.isCached) {
-            // Cache is async; auto-show when didCacheAd fires.
-            g_interstitialAutoShow.store(true);
-            AXLOGI("AdsProviderChartboost(iOS): interstitial not cached yet; caching (auto-show armed)");
+            // Do NOT present until cached; presenting early causes a white loading screen.
+            AXLOGI("AdsProviderChartboost(iOS): interstitial not cached yet; caching");
             [g_interstitial cache];
             return;
         }
 
         g_interstitialCached.store(false);
-        g_interstitialAutoShow.store(false);
         [g_interstitial showFromViewController:vc];
     });
 #endif
