@@ -34,7 +34,7 @@
 			<key>appSignatureIOS</key>
 			<string>39ea0c727272faa51fcda511af63f68d0f84b491</string>
 			<key>interstitialLocationIOS</key>
-			<string>Default</string>
+			<string>interstitial_video</string>
 		</dict>
 	</dict>
 	<key>Setup</key>

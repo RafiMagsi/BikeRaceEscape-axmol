@@ -134,14 +134,24 @@ void AdsController::handleContext(AdsContext ctx) {
 #endif
             if (!req.placementId.empty()) {
                 // Chartboost: avoid showing before cached (otherwise you get a white loading screen).
-                // So we only show if already ready; otherwise we just trigger a cache for next time.
+                // Important: if a Chartboost interstitial is already cached, do NOT call `loadInterstitial()`
+                // before showing, because `loadInterstitial()` recreates the underlying CHBInterstitial and
+                // resets the cached state. Show first, then kick off the next cache.
                 if (wantChartboost) {
-                    if (provider_->isInterstitialReady()) {
+                    const bool ready = provider_->isInterstitialReady();
+                    AXLOGI("AdsController: Chartboost interstitial tick (ctx={}, ready={}, location='{}')",
+                           i,
+                           ready,
+                           req.placementId);
+                    if (ready) {
                         showInterstitial();
-                        // Start caching the next interstitial right away.
+                        // Cache the next one for a future GameOver.
                         loadInterstitial(req);
                     } else {
+                        // Not cached yet: start caching, but DO NOT try to show immediately.
+                        // Showing before ready is what causes the white loading screen.
                         loadInterstitial(req);
+                        AXLOGI("AdsController: Chartboost interstitial not ready; caching only (skip show this tick)");
                     }
                 } else {
                     // AdMob: provider supports auto-show behavior when show called before ready.

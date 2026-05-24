@@ -48,6 +48,9 @@ static UIViewController* PZTopMostViewController() {
 #if PZ_HAS_CHARTBOOST
 static CHBInterstitial* g_interstitial = nil;
 static std::atomic<bool> g_interstitialCached{false};
+static std::atomic<bool> g_chartboostStarted{false};
+static std::atomic<bool> g_pendingCacheAfterStart{false};
+static std::string g_pendingLocationAfterStart;
 
 @interface PZChartboostInterstitialDelegateProxy : NSObject <CHBInterstitialDelegate>
 @end
@@ -55,20 +58,22 @@ static std::atomic<bool> g_interstitialCached{false};
 @implementation PZChartboostInterstitialDelegateProxy
 
 - (void)didCacheAd:(CHBCacheEvent*)event error:(CHBCacheError*)error {
-    (void)event;
     if (error) {
-        AXLOGW("AdsProviderChartboost(iOS): interstitial cache failed: {}", [[error localizedDescription] UTF8String]);
+        AXLOGW("AdsProviderChartboost(iOS): interstitial cache failed: {}",
+               [[error localizedDescription] UTF8String]);
         g_interstitialCached.store(false);
         return;
     }
     g_interstitialCached.store(true);
-    AXLOGI("AdsProviderChartboost(iOS): interstitial cached");
+    const std::string loc = g_pendingLocationAfterStart.empty() ? "Default" : g_pendingLocationAfterStart;
+    AXLOGI("AdsProviderChartboost(iOS): interstitial cached (location='{}')", loc.c_str());
 }
 
 - (void)didShowAd:(CHBShowEvent*)event error:(CHBShowError*)error {
     (void)event;
     if (error) {
-        AXLOGW("AdsProviderChartboost(iOS): interstitial show failed: {}", [[error localizedDescription] UTF8String]);
+        AXLOGW("AdsProviderChartboost(iOS): interstitial show failed: {}",
+               [[error localizedDescription] UTF8String]);
         return;
     }
     g_interstitialCached.store(false);
@@ -135,6 +140,19 @@ bool AdsProviderChartboost::initialize(const std::string& appIdOrKey) {
                                 AXLOGW("AdsProviderChartboost(iOS): start failed: {}", [[error localizedDescription] UTF8String]);
                             } else {
                                 AXLOGI("AdsProviderChartboost(iOS): started");
+                                g_chartboostStarted.store(true);
+
+                                // If a cache was requested before start completed, perform it now.
+                                if (g_pendingCacheAfterStart.exchange(false)) {
+                                    const std::string loc = g_pendingLocationAfterStart.empty() ? "Default" : g_pendingLocationAfterStart;
+                                    AXLOGI("AdsProviderChartboost(iOS): start completed; running pending cache (location='{}')", loc);
+
+                                    if (!g_delegate) g_delegate = [PZChartboostInterstitialDelegateProxy new];
+                                    g_interstitialCached.store(false);
+                                    g_interstitial = [[CHBInterstitial alloc] initWithLocation:[NSString stringWithUTF8String:loc.c_str()]
+                                                                                     delegate:g_delegate];
+                                    [g_interstitial cache];
+                                }
                             }
                         }];
     });
@@ -168,10 +186,27 @@ void AdsProviderChartboost::loadInterstitial(const AdRequest& request) {
     return;
 #else
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (!g_chartboostStarted.load()) {
+            // Start is async; remember request and run it right after start completes.
+            g_pendingLocationAfterStart = lastInterstitialLocation_;
+            g_pendingCacheAfterStart.store(true);
+            AXLOGI("AdsProviderChartboost(iOS): cache requested before Chartboost started; queued (location='{}')",
+                   lastInterstitialLocation_);
+            return;
+        }
+
+        // If we already have a cached interstitial for this location, don't blow it away by recreating.
+        // We'll show it first, then the caller can request another cache after presenting.
+        if (g_interstitial && g_interstitialCached.load()) {
+            AXLOGI("AdsProviderChartboost(iOS): loadInterstitial ignored (already cached)");
+            return;
+        }
+
         g_interstitialCached.store(false);
         if (!g_delegate) g_delegate = [PZChartboostInterstitialDelegateProxy new];
 
         // Recreate per-location; Chartboost interstitial objects are location-specific.
+        g_pendingLocationAfterStart = lastInterstitialLocation_;
         g_interstitial = [[CHBInterstitial alloc] initWithLocation:[NSString stringWithUTF8String:lastInterstitialLocation_.c_str()]
                                                          delegate:g_delegate];
         [g_interstitial cache];
@@ -202,7 +237,8 @@ void AdsProviderChartboost::showInterstitial() {
         // We'll use `isCached` as a fast readiness check and auto-cache+retry behavior.
         if ([g_interstitial respondsToSelector:@selector(isCached)] && !g_interstitial.isCached) {
             // Do NOT present until cached; presenting early causes a white loading screen.
-            AXLOGI("AdsProviderChartboost(iOS): interstitial not cached yet; caching");
+            // Cache and return; the caller (AdsController) should try `showInterstitial()` later once ready.
+            AXLOGI("AdsProviderChartboost(iOS): show requested but not cached; caching only (no auto-show)");
             [g_interstitial cache];
             return;
         }
