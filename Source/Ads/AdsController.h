@@ -33,6 +33,8 @@ public:
     void onPauseMenu();
     void onPlaying();
     void onGameOver();
+    // Explicit ad request (UI button)
+    void onMoreGames();
 
     // Banner
     void loadBanner(const AdRequest& request);

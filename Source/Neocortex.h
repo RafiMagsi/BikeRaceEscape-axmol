@@ -32,6 +32,7 @@ public:
     inline void onGameover() { detail::logNeocortexStubOnce(); AdsController::shared()->onGameOver(); }
     inline void onLevelsMenu() { detail::logNeocortexStubOnce(); AdsController::shared()->onLevelsMenu(); }
     inline void onPlaying() { detail::logNeocortexStubOnce(); AdsController::shared()->onPlaying(); }
+    inline void onMoreGames() { detail::logNeocortexStubOnce(); AdsController::shared()->onMoreGames(); }
     inline void removeBanner() { detail::logNeocortexStubOnce(); AdsController::shared()->hideBanner(); }
 };
 } // namespace PZ

@@ -24,6 +24,8 @@
  ****************************************************************************/
 
 #include <memory>
+#include <chrono>
+#include <thread>
 
 #include <android/log.h>
 #include <jni.h>
@@ -41,5 +43,11 @@ std::unique_ptr<AppDelegate> appDelegate;
 void axmol_android_app_init(JNIEnv* env)
 {
     LOGD("axmol_android_app_init");
+
+    // Keep the Android launch window/splash visible for a minimum duration so users can see the logo.
+    // This delays native initialization and therefore first frame presentation.
+    constexpr auto kMinLaunchScreenMs = 2000;
+    std::this_thread::sleep_for(std::chrono::milliseconds(kMinLaunchScreenMs));
+
     appDelegate.reset(new AppDelegate());
 }

@@ -96,11 +96,17 @@ void PZGCharacterMenu::load(const char* keyName){
             AXLOGW("PZGCharacterMenu::load: StartGame button (tag=4) not found");
         }
         
-        item = (MenuItemSprite*)menu->getChildByTag( 5 ); //INDEX 5 is for BACK BUTTON
-        if (item) {
-            item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::backCallback, this));
+        // Back button: do NOT assume fixed tag indexes; use plist item index.
+        if (auto* backInfo = getItemByName("GUI_BackButton", keyName)) {
+            item = (MenuItemSprite*)menu->getChildByTag(backInfo->index);
+            if (item) {
+                item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::backCallback, this));
+                item->setEnabled(true);
+            } else {
+                AXLOGW("PZGCharacterMenu::load: Back button not found in menu (tag={})", backInfo->index);
+            }
         } else {
-            AXLOGW("PZGCharacterMenu::load: Back button (tag=5) not found");
+            AXLOGW("PZGCharacterMenu::load: Back button info 'GUI_BackButton' not found in plist key {}", keyName ? keyName : "(null)");
         }
         
         item = (MenuItemSprite*)menu->getChildByTag( kUIIDCharacterMenuLeftButton ); //INDEX 1 is for LEFT BUTTON

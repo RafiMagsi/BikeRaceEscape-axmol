@@ -52,6 +52,43 @@ void AdsController::onLevelsMenu() { handleContext(AdsContext::LevelsMenu); }
 void AdsController::onPauseMenu() { handleContext(AdsContext::PauseMenu); }
 void AdsController::onPlaying() { handleContext(AdsContext::Playing); }
 void AdsController::onGameOver() { handleContext(AdsContext::GameOver); }
+void AdsController::onMoreGames() {
+    if (!adsEnabled_ || !provider_) return;
+
+    // Prefer Chartboost interstitial for the "more games/free game" button (fast full-screen).
+    // If Chartboost is disabled, fall back to rewarded (if configured) or interstitial.
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    if (config_.chartboost.enabled && !config_.chartboost.interstitialLocationIOS.empty()) {
+        const std::string loc = config_.chartboost.interstitialLocationIOS;
+        const bool ready = provider_->isInterstitialReady();
+        AXLOGI("AdsController: onMoreGames (Chartboost) ready={} location='{}'", ready, loc);
+        if (ready) {
+            showInterstitial();
+            loadInterstitial({loc}); // warm next one
+        } else {
+            loadInterstitial({loc});
+            AXLOGI("AdsController: onMoreGames Chartboost not ready; caching only");
+        }
+        return;
+    }
+#endif
+
+    // Fallbacks (kept for compatibility)
+    if (config_.admobEnabled) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+        if (!config_.admob.rewardedIdIOS.empty()) {
+            loadRewarded({config_.admob.rewardedIdIOS});
+            showRewarded();
+            return;
+        }
+        if (!config_.admob.interstitialIdIOS.empty()) {
+            loadInterstitial({config_.admob.interstitialIdIOS});
+            showInterstitial();
+            return;
+        }
+#endif
+    }
+}
 
 void AdsController::showBanner() {
     if (!adsEnabled_ || !provider_) return;
@@ -92,29 +129,13 @@ void AdsController::handleContext(AdsContext ctx) {
     const int i = static_cast<int>(ctx);
     if (!adsEnabled_ || !provider_) return;
 
-    // Banner schedule
     const auto& s = config_.setups[i];
-    if (s.bannerAdMobWeight > 0 && s.bannerShowAfterCount > 0) {
-        bannerCounters_[i] += 1;
-        if (bannerCounters_[i] >= s.bannerShowAfterCount) {
-            // Only show if we have a configured banner id.
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            const std::string id = config_.admob.bannerIdIOS;
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-            const std::string id = config_.admob.bannerIdAndroid;
-#else
-            const std::string id{};
-#endif
-            if (!id.empty()) {
-                loadBanner({id});
-                showBanner();
-            }
-            bannerCounters_[i] = 0;
-        }
-    } else {
-        // Default: hide banner for contexts not configured.
-        hideBanner();
-    }
+
+    // 1) Never show AdMob banners (project requirement). Keep this centralized here so
+    // no scene can accidentally show a banner via config or direct calls.
+    //
+    // If you later add a non-AdMob banner provider, implement it explicitly and gate it by config.
+    hideBanner();
 
     // Interstitial schedule (best-effort; provider decides readiness)
     if ((s.interstitialAdMobWeight > 0 || s.interstitialChartboostWeight > 0) && s.interstitialShowAfterCount > 0) {

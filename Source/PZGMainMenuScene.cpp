@@ -6,7 +6,6 @@
 #include "PZLegacyCompat.h"
 #include "PZGGameFieldScene.h"
 #include "MyObject-C-Interface.h"
-#include "Ads/AdsController.h"
 #include "2d/Label.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
@@ -51,69 +50,6 @@ void PZGMainMenuScene::load(const char* keyName){
     AXLOGI("[MainMenu] Loading main menu scene with key: {}", keyName ? keyName : "(null)");
     PZGBaseMenuScene::load( keyName );
     AXLOGI("[DEBUG] PZGBaseMenuScene::load completed");
-
-    // Schedule ads initialization with ad unit ID from config
-    this->scheduleOnce([this](float dt) {
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-        NSLog(@"\n\n===== [TIMER-FIRED] Timer callback executed! =====\n");
-#endif
-        AXLOGI("[TIMER-FIRED] Timer callback executed!");
-
-        auto* ads = PZ::AdsController::shared();
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-        NSLog(@"[TIMER] AdsController = %p", ads);
-#endif
-        if (!ads) {
-            AXLOGE("[TIMER-ERROR] AdsController is NULL!");
-            return;
-        }
-
-        bool adsEnabled = ads->isAdsEnabled();
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-        NSLog(@"[TIMER] adsEnabled = %s", adsEnabled ? "YES" : "NO");
-#endif
-        if (!adsEnabled) {
-            AXLOGI("[TIMER] Ads are disabled");
-            return;
-        }
-
-        auto* provider = ads->provider();
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-        NSLog(@"[TIMER] provider = %p", provider);
-#endif
-        if (!provider) {
-            AXLOGE("[TIMER-ERROR] Provider is NULL!");
-            return;
-        }
-
-        // Get banner ad unit ID from config
-        const auto& cfg = ads->config();
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-        NSLog(@"[TIMER] bannerIdIOS = %s", cfg.admob.bannerIdIOS.c_str());
-#endif
-        if (cfg.admob.bannerIdIOS.empty()) {
-            AXLOGE("[TIMER-ERROR] Banner ad unit ID is empty!");
-            return;
-        }
-
-        AXLOGI("[TIMER] Loading banner with ad unit ID: {}", cfg.admob.bannerIdIOS);
-
-        try {
-            PZ::AdRequest bannerReq;
-            bannerReq.placementId = cfg.admob.bannerIdIOS;
-            ads->loadBanner(bannerReq);
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-            NSLog(@"[TIMER] loadBanner() called");
-#endif
-            ads->showBanner();
-#if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
-            NSLog(@"[TIMER-SUCCESS] showBanner() called!\n\n");
-#endif
-            AXLOGI("[TIMER-SUCCESS] showBanner() called!");
-        } catch (const std::exception& e) {
-            AXLOGE("[TIMER-EXCEPTION] Exception: {}", e.what());
-        }
-    }, 0.5f, "showBannerAd");
 
     PZSettingsController* sc = PZSettingsController::shared();
 
@@ -227,64 +163,17 @@ void PZGMainMenuScene::load(const char* keyName){
 }
 
 void PZGMainMenuScene::moreGames(Object*){
-    fprintf(stderr, "\n====================================\n");
-    fprintf(stderr, "[MOREGAMES-BUTTON] Button CLICKED!\n");
-    fprintf(stderr, "====================================\n");
-    fflush(stderr);
-    AXLOGI("[MOREGAMES-BUTTON] Free game button clicked");
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    fprintf(stderr, "[MOREGAMES-BUTTON] iOS platform detected\n");
-    AXLOGI("[MOREGAMES-BUTTON] Attempting to show rewarded ad");
-
-    auto* ads = PZ::AdsController::shared();
-    fprintf(stderr, "[MOREGAMES-BUTTON] AdsController::shared() = %p\n", ads);
-
-    if (!ads) {
-        fprintf(stderr, "[MOREGAMES-BUTTON-ERROR] AdsController is NULL!\n");
-        AXLOGE("[MOREGAMES-BUTTON] AdsController is null, using fallback");
-    } else {
-        bool adsEnabled = ads->isAdsEnabled();
-        auto* provider = ads->provider();
-        fprintf(stderr, "[MOREGAMES-BUTTON] adsEnabled=%s, provider=%p\n", adsEnabled ? "YES" : "NO", provider);
-
-        if (adsEnabled && provider) {
-            fprintf(stderr, "[MOREGAMES-BUTTON] Conditions met, showing rewarded ad\n");
-            AXLOGI("[MOREGAMES-BUTTON] AdsController ready, loading rewarded ad");
-
-            try {
-                PZ::AdRequest rewardReq;
-                ads->loadRewarded(rewardReq);
-                fprintf(stderr, "[MOREGAMES-BUTTON] Rewarded ad loaded\n");
-                AXLOGI("[MOREGAMES-BUTTON] Rewarded ad loaded, calling showRewarded()");
-
-                ads->showRewarded();
-                fprintf(stderr, "[MOREGAMES-BUTTON-SUCCESS] showRewarded() called - user should see ad!\n");
-                fflush(stderr);
-                AXLOGI("[MOREGAMES-BUTTON] showRewarded() called - user should see ad");
-            } catch (const std::exception& e) {
-                fprintf(stderr, "[MOREGAMES-BUTTON-EXCEPTION] Exception: %s\n", e.what());
-                fflush(stderr);
-                AXLOGE("[MOREGAMES-BUTTON] Exception during ad display: {}", e.what());
-                ShowPlayHeaven_C();
-            }
-        } else {
-            fprintf(stderr, "[MOREGAMES-BUTTON] Cannot show ad: adsEnabled=%s, provider=%s\n",
-                    adsEnabled ? "YES" : "NO", provider ? "YES" : "NULL");
-            AXLOGW("[MOREGAMES-BUTTON] Cannot show ad: adsEnabled={}, provider={}",
-                    adsEnabled, (provider ? "YES" : "NULL"));
-            ShowPlayHeaven_C();
-        }
+    AXLOGI("[MOREGAMES] button clicked");
+    if (buttonClickedSound) {
+        buttonClickedSound->playAsSound(false);
     }
 
-    fprintf(stderr, "[MOREGAMES-BUTTON-FALLBACK] Using fallback behavior\n");
-    fflush(stderr);
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+    // Keep ads logic centralized: forward to Neocortex stub -> AdsController.
+    PZ::Neocortex::shared()->onMoreGames();
 #else
-    fprintf(stderr, "[MOREGAMES-BUTTON] Non-iOS platform, using fallback\n");
     ShowPlayHeaven_C();
 #endif
-
-    AXLOGI("[MOREGAMES-BUTTON] moreGames() completed");
 }
 
 void PZGMainMenuScene::onEnter(){

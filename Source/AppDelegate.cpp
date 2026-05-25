@@ -12,6 +12,9 @@
 #include "Ads/Providers/AdsProviderChartboost.h"
 #include "Ads/Providers/AdsProviderMux.h"
 
+#include <chrono>
+#include <thread>
+
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
     #include <Foundation/Foundation.h>
     #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
@@ -67,6 +70,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
     fflush(stderr);
 
     AXLOGI("AppDelegate::applicationDidFinishLaunching begin");
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    // Keep the iOS LaunchScreen visible for a minimum duration so users can see the company logo.
+    // Note: this intentionally delays first frame presentation (Apple discourages long delays).
+    constexpr auto kMinLaunchScreenMs = 2000;
+    AXLOGI("iOS: delaying first frame {}ms to keep LaunchScreen visible", kMinLaunchScreenMs);
+    std::this_thread::sleep_for(std::chrono::milliseconds(kMinLaunchScreenMs));
+#endif
+
     PZCrashReporter::install();
     AXLOGI("Crash report path: {}", PZCrashReporter::getCrashReportPath());
     auto* director = Director::getInstance();
