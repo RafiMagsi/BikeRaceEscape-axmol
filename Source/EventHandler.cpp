@@ -20,6 +20,7 @@
 #include "cocos2dx_StoreInventory.h"
 #include "PZGCharacterMenu.h"
 #include "PZGMainMenuScene.h"
+#include "Ads/AdsController.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include "PZGameCenter.h"
@@ -35,54 +36,137 @@ void EventHandler::marketPurchase(string& productId) {
     
   //  check for character IAP
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    ax::__Array* array = (ax::__Array*)sd->artResource->objectForKey( "Characters" );
+    if (!sd || !sd->artResource) {
+        AXLOGE("[IAP] marketPurchase: SharedData/artResource missing");
+        return;
+    }
+
+    ax::__Array* array = (ax::__Array*)sd->artResource->objectForKey("Characters");
+    if (!array) {
+        AXLOGW("[IAP] marketPurchase: Characters array missing");
+        return;
+    }
     
-    for (int i=0; i < array->count(); i++){
+    for (int i = 0; i < array->count(); i++) {
         PZGArtCharacter *character = (PZGArtCharacter*) array->objectAtIndex( i );
+        if (!character || !character->storeId) continue;
         if (strcmp(character->storeId->getCString(), productId.c_str()) == 0) {
             
             ax::Director* director = ax::Director::getInstance();
             ax::Scene* scene = director->getRunningScene();
-            PZGCharacterMenu *menu = (PZGCharacterMenu*)scene->getChildren().at( 0 );
-            
-            menu->purchaseComplete( i );
+            if (!scene) {
+                AXLOGW("[IAP] marketPurchase: no running scene for character purchase");
+                return;
+            }
+
+            // Never assume child[0] is the menu; search safely.
+            PZGCharacterMenu* menu = nullptr;
+            const auto& children = scene->getChildren();
+            for (auto* c : children) {
+                if (auto* m = dynamic_cast<PZGCharacterMenu*>(c)) {
+                    menu = m;
+                    break;
+                }
+            }
+            if (!menu) {
+                AXLOGW("[IAP] marketPurchase: PZGCharacterMenu not found in running scene");
+                return;
+            }
+
+            menu->purchaseComplete(i);
             return;
         }
     }
     
     //check for RemoveAd IAP
+    if (!sd->gameInfoResource) {
+        AXLOGW("[IAP] marketPurchase: gameInfoResource missing");
+        return;
+    }
     array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
-    if ( strcmp(iapInfo->removeAd_id->getCString(), productId.c_str())==0 ) {
+    PZGGameInfoIAP *iapInfo = (array && array->count() > 0) ? (PZGGameInfoIAP*)array->objectAtIndex(0) : nullptr;
+    if (!iapInfo) {
+        AXLOGW("[IAP] marketPurchase: IAPSettings missing/empty");
+        return;
+    }
+
+    const char* removeAdId = (iapInfo->removeAd_id ? iapInfo->removeAd_id->getCString() : "");
+    if (removeAdId[0] != '\0' && strcmp(removeAdId, productId.c_str()) == 0) {
         ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director->getRunningScene();
-        PZGBaseMenuScene *menu = (PZGBaseMenuScene*)scene->getChildren().at( 0 );
-        menu->upgradeComplete();
+        ax::Scene* scene = director ? director->getRunningScene() : nullptr;
+        PZGBaseMenuScene* menu = nullptr;
+        if (scene) {
+            const auto& children = scene->getChildren();
+            for (auto* c : children) {
+                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) {
+                    menu = m;
+                    break;
+                }
+            }
+        }
+
+        if (menu) {
+            menu->upgradeComplete();
+        } else {
+            // Fallback: apply effect without UI layer (prevents crashes when running scene is gameplay).
+            AXLOGW("[IAP] marketPurchase: PZGBaseMenuScene not found; applying RemoveAds via settings only");
+            PZSettingsController* sc = PZSettingsController::shared();
+            if (sc) {
+                sc->removeAds = true;
+                sc->save();
+            }
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+            PZ::AdsController::shared()->setAdsEnabled(false);
+#endif
+        }
         return;
     }
     
     //check for KidMode
-    if ( strcmp( iapInfo->kidMode_id->getCString(), productId.c_str() )==0 ) {
+    const char* kidModeId = (iapInfo->kidMode_id ? iapInfo->kidMode_id->getCString() : "");
+    if (kidModeId[0] != '\0' && strcmp(kidModeId, productId.c_str()) == 0) {
         ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director->getRunningScene();
-        PZGBaseMenuScene *menu = (PZGBaseMenuScene*)scene->getChildren().at( 0 );
-        menu->kidModePurchased();
+        ax::Scene* scene = director ? director->getRunningScene() : nullptr;
+        PZGBaseMenuScene* menu = nullptr;
+        if (scene) {
+            const auto& children = scene->getChildren();
+            for (auto* c : children) {
+                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) {
+                    menu = m;
+                    break;
+                }
+            }
+        }
+        if (menu) {
+            menu->kidModePurchased();
+        } else {
+            AXLOGW("[IAP] marketPurchase: PZGBaseMenuScene not found; applying KidMode via settings only");
+            PZSettingsController* sc = PZSettingsController::shared();
+            if (sc) {
+                sc->kidMode = true;
+                sc->kidModePurchased = true;
+                sc->save();
+            }
+        }
         return;
     }
 
     //check for CoinPacks
     PZSettingsController *sc = PZSettingsController::shared();
-    if ( strcmp(iapInfo->coinShop1_id->getCString(), productId.c_str()) == 0 ) {
+    const char* coin1 = (iapInfo->coinShop1_id ? iapInfo->coinShop1_id->getCString() : "");
+    const char* coin2 = (iapInfo->coinShop2_id ? iapInfo->coinShop2_id->getCString() : "");
+    const char* coin3 = (iapInfo->coinShop3_id ? iapInfo->coinShop3_id->getCString() : "");
+    if (coin1[0] != '\0' && strcmp(coin1, productId.c_str()) == 0) {
         sc->coins += iapInfo->coinShop1_value;
         sc->save();
     }
     else
-    if (strcmp(iapInfo->coinShop2_id->getCString(), productId.c_str()) == 0){
+    if (coin2[0] != '\0' && strcmp(coin2, productId.c_str()) == 0) {
         sc->coins += iapInfo->coinShop2_value;
         sc->save();
     }
     else
-    if (strcmp(iapInfo->coinShop3_id->getCString(), productId.c_str()) == 0){
+    if (coin3[0] != '\0' && strcmp(coin3, productId.c_str()) == 0) {
         sc->coins += iapInfo->coinShop3_value;
         sc->save();
     }
@@ -107,9 +191,15 @@ void EventHandler::transactionRestored(string& productId){
     
     //CHARACETRS
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-    ax::__Array* array = (ax::__Array*)sd->artResource->objectForKey( "Characters" );
+    if (!sd || !sd->artResource || !sd->gameInfoResource) {
+        AXLOGE("[IAP] transactionRestored: SharedData resources missing");
+        return;
+    }
+    ax::__Array* array = (ax::__Array*)sd->artResource->objectForKey("Characters");
+    if (!array) return;
     for (int i=0; i < array->count(); i++){
         PZGArtCharacter *character = (PZGArtCharacter*) array->objectAtIndex( i );
+        if (!character || !character->storeId) continue;
         if (strcmp(character->storeId->getCString(), productId.c_str()) == 0) {
             
             PZSettingsController *sc = PZSettingsController::shared();
@@ -120,24 +210,35 @@ void EventHandler::transactionRestored(string& productId){
     
     //check for RemoveAd IAP
     array = (ax::__Array*)sd->gameInfoResource->objectForKey("IAPSettings");
-    PZGGameInfoIAP *iapInfo = (PZGGameInfoIAP*)array->objectAtIndex(0);
-    if ( strcmp(iapInfo->removeAd_id->getCString(), productId.c_str())==0 ) {
+    PZGGameInfoIAP *iapInfo = (array && array->count() > 0) ? (PZGGameInfoIAP*)array->objectAtIndex(0) : nullptr;
+    if (!iapInfo) return;
+    const char* removeAdId = (iapInfo->removeAd_id ? iapInfo->removeAd_id->getCString() : "");
+    if ( removeAdId[0] != '\0' && strcmp(removeAdId, productId.c_str())==0 ) {
         ax::Director* director = ax::Director::getInstance();
         ax::Scene* scene = director->getRunningScene();
         if (scene) {
-            PZGBaseMenuScene *menu = (PZGBaseMenuScene*)scene->getChildren().at( 0 );
-            menu->upgradeComplete();
+            PZGBaseMenuScene* menu = nullptr;
+            const auto& children = scene->getChildren();
+            for (auto* c : children) {
+                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) { menu = m; break; }
+            }
+            if (menu) menu->upgradeComplete();
             return;
         }
     }
     
     //check for KidMode
-    if ( strcmp( iapInfo->kidMode_id->getCString(), productId.c_str() )==0 ) {
+    const char* kidModeId = (iapInfo->kidMode_id ? iapInfo->kidMode_id->getCString() : "");
+    if ( kidModeId[0] != '\0' && strcmp( kidModeId, productId.c_str() )==0 ) {
         ax::Director* director = ax::Director::getInstance();
         ax::Scene* scene = director->getRunningScene();
         if (scene) {
-            PZGBaseMenuScene *menu = (PZGBaseMenuScene*)scene->getChildren().at( 0 );
-            menu->kidModePurchased();
+            PZGBaseMenuScene* menu = nullptr;
+            const auto& children = scene->getChildren();
+            for (auto* c : children) {
+                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) { menu = m; break; }
+            }
+            if (menu) menu->kidModePurchased();
             return;
         }
     }
@@ -209,4 +310,3 @@ void EventHandler::currencyBalanceChanged(string &itemId, int balance) {
 void EventHandler::goodBalanceChanged(string &itemId, int balance) {
 
 }
-

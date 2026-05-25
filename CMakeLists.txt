@@ -213,6 +213,8 @@ if(IOS AND XCODE)
   # Game Center (GameKit)
   # Note: AXGameTargetSetup.cmake uses the plain `target_link_libraries` signature, so keep it consistent.
   target_link_libraries(${APP_NAME} "-framework GameKit")
+  # In-App Purchases (StoreKit)
+  target_link_libraries(${APP_NAME} "-framework StoreKit")
 
   # ---- CocoaPods Setup for iOS ----
   # Create Podfile for CocoaPods dependency management (pods installed via build script)

@@ -5,6 +5,7 @@
 #import <GameKit/GameKit.h>
 
 #include "PZGameCenter.h"
+#include "cocos2dx_StoreController.h"
 
 @interface PZGameCenterDelegateProxy : NSObject <GKGameCenterControllerDelegate>
 @end
@@ -177,7 +178,8 @@ void GameCenter::showLeaderboard() {
 }
 
 void GameCenter::restorePurchases() {
-    // Legacy hook. Real restore lives in the StoreBridge layer.
+    // Legacy hook: route to our StoreKit bridge.
+    cocos2dx_StoreController::restorePurchases();
 }
 
 void GameCenter::submitScore(int score) {

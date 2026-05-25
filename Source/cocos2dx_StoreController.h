@@ -1,11 +1,23 @@
 #pragma once
 
-// Legacy IAP/store bridge stub.
-// The original project used a commercial store bridge (see `Source/StoreBridge/`), which is excluded from the core port.
-// This header keeps call sites compiling; implementation is intentionally a no-op.
+// Minimal in-app purchase bridge for this Axmol port.
+//
+// The legacy project used Soomla's Cocos2d-x store bridge. In this repo we keep
+// the existing call sites but implement iOS purchases via StoreKit.
 
 class cocos2dx_StoreController {
 public:
-    static inline void buyMarketItem(const char*) {}
+    // Start/stop hooks (safe to call multiple times).
+    static void storeOpening();
+    static void storeClosing();
+
+    // Legacy init hook (Android used a custom secret). No-op on iOS.
+    static void initialize(const char* customSecret);
+
+    // Purchase a product by its StoreKit product identifier.
+    static void buyMarketItem(const char* productId);
+
+    // Restore non-consumable purchases.
+    static void restorePurchases();
 };
 
