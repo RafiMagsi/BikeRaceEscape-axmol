@@ -16,6 +16,8 @@
 
 #include "SharedData/PZGSharedData.h"
 
+#include <cmath>
+
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     #include "cocos2dx_StoreController.h"
     #include "Neocortex.h"
@@ -23,6 +25,42 @@
 
 
 USING_NS_AX;
+
+namespace {
+static bool isBadSize(const Size& s) {
+    return !(std::isfinite(s.width) && std::isfinite(s.height)) || s.width <= 0.0f || s.height <= 0.0f;
+}
+
+static Label* createLabelBMFontWithFallback(PZGSharedData* gsd,
+                                           const char* fnt,
+                                           const char* initialText,
+                                           const char* debugName) {
+    if (!gsd) return nullptr;
+    auto* label = Label::createWithBMFont(gsd->getFullPath(fnt)->getCString(), initialText ? initialText : "");
+    if (label && !isBadSize(label->getContentSize())) {
+        // Match in-game HUD label color.
+        label->setColor(Color3B(255, 220, 64));
+        return label;
+    }
+
+    if (label) {
+        const auto sz = label->getContentSize();
+        AXLOGW("PZGCharacterMenu: {} BMFont failed (size={},{}), using SystemFont fallback",
+               debugName ? debugName : "label",
+               sz.width,
+               sz.height);
+    } else {
+        AXLOGW("PZGCharacterMenu: {} BMFont create failed, using SystemFont fallback",
+               debugName ? debugName : "label");
+    }
+    auto* sys = Label::createWithSystemFont(initialText ? initialText : "", "Courier", 32);
+    if (sys) {
+        // Match in-game HUD label color.
+        sys->setColor(Color3B(255, 220, 64));
+    }
+    return sys;
+}
+} // namespace
 
 Scene* PZGCharacterMenu::scene()
 {
@@ -119,9 +157,20 @@ void PZGCharacterMenu::load(const char* keyName){
             item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::rightCallback, this));
         }
         
-        item = (MenuItemSprite*)menu->getChildByTag( 3 ); //INDEX 3 is for UNLOCK BUTTON
+        // Unlock button: bind by plist name (tags can shift if resources are missing/skipped).
+        unlockButtonTag_ = -1;
+        if (auto* unlockInfo = getItemByName("GUI_UnlockButton-image", keyName)) {
+            unlockButtonTag_ = unlockInfo->index;
+        } else if (auto* unlockInfo2 = getItemByName("GUI_UnlockButton", keyName)) {
+            unlockButtonTag_ = unlockInfo2->index;
+        }
+        item = (MenuItemSprite*)menu->getChildByTag(unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3);
         if (item) {
             item->setCallback(AX_CALLBACK_1(PZGCharacterMenu::unlockCallback, this));
+        } else {
+            AXLOGW("PZGCharacterMenu::load: Unlock button not found (tag={}, keyName={})",
+                   (unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3),
+                   keyName ? keyName : "(null)");
         }
         
         ///////////////////////
@@ -175,7 +224,7 @@ void PZGCharacterMenu::load(const char* keyName){
     PZGArtInterface *coinLabelPosition = getItemByName("GUI_CoinsLabelLocation", keyName);
     if (coinLabelPosition) {
         AXLOGI("PZGCharacterMenu::load: Creating coins label");
-        coins_label = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
+        coins_label = createLabelBMFontWithFallback(gsd, "MainFont.fnt", "0", "coins_label");
         if (coins_label) {
             coins_label->setScaleX( coinLabelPosition->scale_x);
             coins_label->setScaleY( coinLabelPosition->scale_y);
@@ -195,7 +244,7 @@ void PZGCharacterMenu::load(const char* keyName){
     PZGArtInterface *playerNameLabelPosition = getItemByName("GUI_CharacterNameLabelLocation", keyName);
     if (playerNameLabelPosition) {
         AXLOGI("PZGCharacterMenu::load: Creating player name label");
-        player_name = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
+        player_name = createLabelBMFontWithFallback(gsd, "MainFont.fnt", "0", "player_name");
         if (player_name) {
             player_name->setScaleX( playerNameLabelPosition->scale_x);
             player_name->setScaleY( playerNameLabelPosition->scale_y);
@@ -214,7 +263,8 @@ void PZGCharacterMenu::load(const char* keyName){
     PZGArtInterface *playerPriceLabelPosition = getItemByName("GUI_CharacterPriceLabelLocation", keyName);
     if (playerPriceLabelPosition) {
         AXLOGI("PZGCharacterMenu::load: Creating player price label");
-        player_price = Label::createWithBMFont(gsd->getFullPath("MainFont.fnt")->getCString(), "0");
+        // Start empty; loadCharacter() will populate with either coin price or storeDescription.
+        player_price = createLabelBMFontWithFallback(gsd, "MainFont.fnt", "", "player_price");
         if (player_price) {
             player_price->setScaleX( playerPriceLabelPosition->scale_x);
             player_price->setScaleY( playerPriceLabelPosition->scale_y);
@@ -339,6 +389,7 @@ void PZGCharacterMenu::loadCharacter(int characterId){
                     char c [32];
                     sprintf(c, "%d", characterInfo->price);
                     player_price->setString( c );
+                    player_price->setVisible(true);
                 }
             }
         }
@@ -439,7 +490,7 @@ void PZGCharacterMenu::loadCharacter(int characterId){
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
         if (menu){
             MenuItemSprite *item;
-            item = (MenuItemSprite*)menu->getChildByTag( 3 );
+            item = (MenuItemSprite*)menu->getChildByTag( unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3 );
             if (item) {
                 item->setOpacity( 0 );
                 item->setEnabled( false );
@@ -460,7 +511,7 @@ void PZGCharacterMenu::loadCharacter(int characterId){
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
         if (menu){
             MenuItemSprite *item;
-            item = (MenuItemSprite*)menu->getChildByTag( 3 );
+            item = (MenuItemSprite*)menu->getChildByTag( unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3 );
             if (item) {
                 item->setOpacity( 255 );
                 item->setEnabled( true );                
@@ -491,9 +542,11 @@ void PZGCharacterMenu::purchaseComplete(int characterId ){
     Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
     if (menu){
         MenuItemSprite *item;
-        item = (MenuItemSprite*)menu->getChildByTag( 3 );
-        item->setOpacity( 0 );
-        item->setEnabled( false );
+        item = (MenuItemSprite*)menu->getChildByTag( unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3 );
+        if (item) {
+            item->setOpacity( 0 );
+            item->setEnabled( false );
+        }
     }
 }
 
@@ -685,8 +738,16 @@ void PZGCharacterMenu::unlockCallback(Object* pSender){
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     PZSettingsController *sc = PZSettingsController::shared();
+    if (!gsd || !gsd->artResource || !sc) {
+        AXLOGE("PZGCharacterMenu::unlockCallback: missing gsd/sc");
+        return;
+    }
     
     __Array* charactersInfoArray= (__Array*)gsd->artResource->objectForKey( "Characters" );
+    if (!charactersInfoArray || player_c < 0 || player_c >= charactersInfoArray->count()) {
+        AXLOGE("PZGCharacterMenu::unlockCallback: Characters missing or index out of range (player_c={})", player_c);
+        return;
+    }
     PZGArtCharacter* characterInfo = ( PZGArtCharacter* )charactersInfoArray->objectAtIndex( player_c );
     
     if (characterInfo) {
@@ -707,13 +768,14 @@ void PZGCharacterMenu::unlockCallback(Object* pSender){
 
                 if (player_price) {
                     player_price->setString("");
+                    player_price->setVisible(false);
                 }
 
                 
                 Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
                 if (menu){
                     MenuItemSprite *item;
-                    item = (MenuItemSprite*)menu->getChildByTag( 3 );
+                    item = (MenuItemSprite*)menu->getChildByTag( unlockButtonTag_ >= 0 ? unlockButtonTag_ : 3 );
                     if (item) {
                         item->setOpacity( 0 );
                         item->setEnabled( false );
@@ -725,6 +787,13 @@ void PZGCharacterMenu::unlockCallback(Object* pSender){
                     }
 
                 }
+            }
+            else {
+                AXLOGI("PZGCharacterMenu::unlockCallback: not enough coins (have={}, need={})",
+                       sc->coins,
+                       characterInfo->price);
+                // Best-effort UX: send player to coin shop.
+                coinShopCallback(nullptr);
             }
         }
     }

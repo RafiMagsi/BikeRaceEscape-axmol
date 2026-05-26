@@ -34,6 +34,7 @@ class PZGCharacterMenu : public PZGBaseMenuScene
 private:
     int         player_c;
     int         player_n;
+    int         unlockButtonTag_{-1};
     
     PZGCharacter*     player;
     Sprite*         player_sprite;
