@@ -27,6 +27,12 @@
 USING_NS_AX;
 
 namespace {
+// Arcade label: bundled Press Start 2P TTF, falling back to the system monospace font.
+static ax::Label* retroLabel(const char* text, float size) {
+    auto* l = ax::Label::createWithTTF(text, "Fonts/PressStart2P-Regular.ttf", size);
+    if (l && l->getContentSize().width > 0) return l;
+    return ax::Label::createWithSystemFont(text, "Courier", size * 1.6f);
+}
 static bool isBadSize(const Size& s) {
     return !(std::isfinite(s.width) && std::isfinite(s.height)) || s.width <= 0.0f || s.height <= 0.0f;
 }
@@ -53,7 +59,7 @@ static Label* createLabelBMFontWithFallback(PZGSharedData* gsd,
         AXLOGW("PZGCharacterMenu: {} BMFont create failed, using SystemFont fallback",
                debugName ? debugName : "label");
     }
-    auto* sys = Label::createWithSystemFont(initialText ? initialText : "", "Courier", 32);
+    auto* sys = retroLabel(initialText ? initialText : "", 20);
     if (sys) {
         // Match in-game HUD label color.
         sys->setColor(Color3B(255, 220, 64));

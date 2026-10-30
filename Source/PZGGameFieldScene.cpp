@@ -24,6 +24,15 @@
 
 USING_NS_AX;
 
+namespace {
+// Arcade label: bundled Press Start 2P TTF, falling back to the system monospace font.
+Label* retroLabel(const char* text, float size) {
+    auto* l = Label::createWithTTF(text, "Fonts/PressStart2P-Regular.ttf", size);
+    if (l && l->getContentSize().width > 0) return l;
+    return Label::createWithSystemFont(text, "Courier", size * 1.6f);
+}
+} // namespace
+
 static PZGGameFieldScene *gfScene;
 
 Scene* PZGGameFieldScene::scene(){
@@ -436,7 +445,7 @@ void PZGGameFieldScene::load(const char* keyName){
     if (!distance_label) {
         AXLOGI("PZGGameFieldScene::load: [distance] Using Courier monospace font (retro/arcade aesthetic)");
         try {
-            distance_label = Label::createWithSystemFont("0", "Courier", 32);
+            distance_label = retroLabel("0", 20);
             if (distance_label && distance_label->getContentSize().width > 0) {
                 AXLOGI("PZGGameFieldScene::load: [distance] ✓ Courier font loaded successfully");
             } else {
@@ -496,7 +505,7 @@ void PZGGameFieldScene::load(const char* keyName){
     if (!coins_label) {
         AXLOGI("PZGGameFieldScene::load: [coins] Using Courier monospace font (retro/arcade aesthetic)");
         try {
-            coins_label = Label::createWithSystemFont("0", "Courier", 32);
+            coins_label = retroLabel("0", 20);
             if (coins_label && coins_label->getContentSize().width > 0) {
                 AXLOGI("PZGGameFieldScene::load: [coins] ✓ Courier font loaded successfully");
             } else {
@@ -542,7 +551,7 @@ void PZGGameFieldScene::load(const char* keyName){
         }
 
         try {
-            coins_add_label = Label::createWithSystemFont("0", "Courier", 24);
+            coins_add_label = retroLabel("0", 16);
             if (coins_add_label && coins_add_label->getContentSize().width > 0) {
                 AXLOGI("PZGGameFieldScene::load: [coins_add] ✓ Courier font loaded successfully");
             } else {

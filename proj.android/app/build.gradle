@@ -23,8 +23,8 @@ android {
         applicationId packageName
         minSdkVersion minSdk
         targetSdkVersion targetSdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
 
         externalNativeBuild {
             cmake {
@@ -116,6 +116,7 @@ android.applicationVariants.configureEach { variant ->
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':libaxmol')
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
 }
 
 project.afterEvaluate {

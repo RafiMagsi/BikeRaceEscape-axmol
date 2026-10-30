@@ -39,6 +39,10 @@ public:
     IAdsProvider* interstitialProvider() const { return interstitial_.get(); }
     IAdsProvider* rewardedProvider() const { return rewarded_.get(); }
 
+    // Route interstitial calls to the banner provider (AdMob) instead of `interstitial_` (Chartboost).
+    // AdsController picks the target before each ready/load/show so both networks keep independent caches.
+    void useBannerProviderForInterstitial(bool v) { bannerForInterstitial_ = v; }
+
     // Allow bootstrap to configure per-provider init strings.
     void setBannerInitKey(std::string k) { bannerInitKey_ = std::move(k); }
     void setInterstitialInitKey(std::string k) { interstitialInitKey_ = std::move(k); }
@@ -48,6 +52,7 @@ private:
     std::unique_ptr<IAdsProvider> banner_;
     std::unique_ptr<IAdsProvider> interstitial_;
     std::unique_ptr<IAdsProvider> rewarded_;
+    bool bannerForInterstitial_{false};
     std::string bannerInitKey_;
     std::string interstitialInitKey_;
     std::string rewardedInitKey_;

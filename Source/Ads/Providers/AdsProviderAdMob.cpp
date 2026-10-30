@@ -2,9 +2,62 @@
 
 #include "PZLegacyCompat.h"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "platform/android/jni/JniHelper.h"
+namespace {
+constexpr const char* kBridge = "dev/axmol/app/AdsBridge";
+}
+#endif
+
 namespace PZ {
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+// Android: the Java AdsBridge (play-services-ads) does the real work.
+bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
+    (void)appIdOrKey; // App ID comes from the manifest meta-data.
+    initialized_ = true;
+    interstitialReady_ = false;
+    AXLOGI("AdsProviderAdMob(Android): initialized");
+    return true;
+}
+
+void AdsProviderAdMob::loadBanner(const AdRequest& request) {
+    if (!initialized_) return;
+    lastBannerPlacement_ = request.placementId;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "setBannerId", lastBannerPlacement_);
+}
+
+void AdsProviderAdMob::showBanner() {
+    if (!initialized_) return;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "showBanner");
+}
+
+void AdsProviderAdMob::hideBanner() {
+    if (!initialized_) return;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "hideBanner");
+}
+
+bool AdsProviderAdMob::isInterstitialReady() const {
+    return initialized_ && ax::JniHelper::callStaticBooleanMethod(kBridge, "isInterstitialReady");
+}
+
+void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
+    if (!initialized_) return;
+    lastInterstitialPlacement_ = request.placementId;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "loadInterstitial", lastInterstitialPlacement_);
+}
+
+void AdsProviderAdMob::showInterstitial() {
+    if (!initialized_) return;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "showInterstitial");
+}
+
+bool AdsProviderAdMob::isRewardedReady() const { return false; }
+void AdsProviderAdMob::loadRewarded(const AdRequest& request) { (void)request; }
+void AdsProviderAdMob::showRewarded() {}
+
+#elif (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 
 bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     (void)appIdOrKey;

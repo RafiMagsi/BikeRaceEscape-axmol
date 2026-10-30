@@ -43,13 +43,16 @@ void AdsProviderMux::hideBanner() {
 }
 
 bool AdsProviderMux::isInterstitialReady() const {
-    return interstitial_ ? interstitial_->isInterstitialReady() : false;
+    auto* p = bannerForInterstitial_ ? banner_.get() : interstitial_.get();
+    return p ? p->isInterstitialReady() : false;
 }
 void AdsProviderMux::loadInterstitial(const AdRequest& request) {
-    if (interstitial_) interstitial_->loadInterstitial(request);
+    auto* p = bannerForInterstitial_ ? banner_.get() : interstitial_.get();
+    if (p) p->loadInterstitial(request);
 }
 void AdsProviderMux::showInterstitial() {
-    if (interstitial_) interstitial_->showInterstitial();
+    auto* p = bannerForInterstitial_ ? banner_.get() : interstitial_.get();
+    if (p) p->showInterstitial();
 }
 
 bool AdsProviderMux::isRewardedReady() const {

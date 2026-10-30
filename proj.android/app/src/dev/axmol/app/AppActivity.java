@@ -58,6 +58,7 @@ public class AppActivity extends AxmolActivity {
             getWindow().setAttributes(lp);
         }
         // DO OTHER INITIALIZATION BELOW
+        AdsBridge.init(this);
         
     }
 

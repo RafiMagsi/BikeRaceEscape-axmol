@@ -61,8 +61,10 @@ private:
     int bannerCounters_[6]{};
     int interstitialCounters_[6]{};
     int rewardedCounters_[6]{};
+    bool nextInterstitialAdMob_{true};
 
     void handleContext(AdsContext ctx);
+    void selectAdMobInterstitial(bool admob);
 };
 
 } // namespace PZ

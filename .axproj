@@ -1,4 +1,7 @@
 engine_version=2.11.3
-package_name=com.nextfiction.superbikerace
+package_name=com.nextfiction.dinobikeescape
 project_type=cpp
 
+min_sdk=23
+ndk=r28c
+cmake=3.22.1

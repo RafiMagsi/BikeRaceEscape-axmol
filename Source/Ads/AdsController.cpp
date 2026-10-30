@@ -1,5 +1,6 @@
 #include "Ads/AdsController.h"
 
+#include "Ads/Providers/AdsProviderMux.h"
 #include "PZLegacyCompat.h"
 
 namespace PZ {
@@ -125,73 +126,101 @@ void AdsController::showRewarded() {
     provider_->showRewarded();
 }
 
+void AdsController::selectAdMobInterstitial(bool admob) {
+    if (auto* mux = dynamic_cast<AdsProviderMux*>(provider_.get())) {
+        mux->useBannerProviderForInterstitial(admob);
+    }
+}
+
 void AdsController::handleContext(AdsContext ctx) {
     const int i = static_cast<int>(ctx);
     if (!adsEnabled_ || !provider_) return;
 
     const auto& s = config_.setups[i];
 
-    // 1) Never show AdMob banners (project requirement). Keep this centralized here so
-    // no scene can accidentally show a banner via config or direct calls.
-    //
-    // If you later add a non-AdMob banner provider, implement it explicitly and gate it by config.
-    hideBanner();
-
-    // Interstitial schedule (best-effort; provider decides readiness)
-    if ((s.interstitialAdMobWeight > 0 || s.interstitialChartboostWeight > 0) && s.interstitialShowAfterCount > 0) {
-        interstitialCounters_[i] += 1;
-        if (interstitialCounters_[i] >= s.interstitialShowAfterCount) {
-            AdRequest req;
-            bool wantChartboost = (config_.chartboost.enabled && s.interstitialChartboostWeight > 0);
+    // Banner (AdMob): shown on menu contexts, hidden while playing.
+    {
+        std::string bannerId;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-            if (wantChartboost) {
-                req.placementId = config_.chartboost.interstitialLocationIOS;
-            } else {
-                req.placementId = config_.admob.interstitialIdIOS;
-            }
+        bannerId = config_.admob.bannerIdIOS;
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-            // Chartboost Android not wired in this repo yet.
-            req.placementId = config_.admob.interstitialIdAndroid;
+        bannerId = config_.admob.bannerIdAndroid;
 #endif
-            if (!req.placementId.empty()) {
-                // Chartboost: avoid showing before cached (otherwise you get a white loading screen).
-                // Important: if a Chartboost interstitial is already cached, do NOT call `loadInterstitial()`
-                // before showing, because `loadInterstitial()` recreates the underlying CHBInterstitial and
-                // resets the cached state. Show first, then kick off the next cache.
-                if (wantChartboost) {
-                    const bool ready = provider_->isInterstitialReady();
-                    AXLOGI("AdsController: Chartboost interstitial tick (ctx={}, ready={}, location='{}')",
-                           i,
-                           ready,
-                           req.placementId);
-                    if (ready) {
-                        showInterstitial();
-                        // Cache the next one for a future GameOver.
-                        loadInterstitial(req);
-                    } else {
-                        // Not cached yet: start caching, but DO NOT try to show immediately.
-                        // Showing before ready is what causes the white loading screen.
-                        loadInterstitial(req);
-                        AXLOGI("AdsController: Chartboost interstitial not ready; caching only (skip show this tick)");
-                    }
-                } else {
-                    // AdMob: provider supports auto-show behavior when show called before ready.
-                    loadInterstitial(req);
-                    showInterstitial();
-                }
+        if (config_.admobEnabled && s.bannerAdMobWeight > 0 && !bannerId.empty()) {
+            bannerCounters_[i] += 1;
+            if (bannerCounters_[i] >= s.bannerShowAfterCount) {
+                loadBanner({bannerId});
+                showBanner();
             }
-            interstitialCounters_[i] = 0;
+        } else {
+            hideBanner();
         }
     }
 
-    // Proactive Chartboost caching on Main Menu:
-    // Start caching early so GameOver can show instantly without a loading screen.
-    if (ctx == AdsContext::MainMenu && config_.chartboost.enabled) {
+    // Interstitial schedule: alternates AdMob / Chartboost when both are weighted.
+    // Show only when cached (showing before ready causes a white loading screen on Chartboost),
+    // then cache the next one.
+    const bool admobInterstitialOn = config_.admobEnabled && s.interstitialAdMobWeight > 0;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        if (!config_.chartboost.interstitialLocationIOS.empty()) {
-            loadInterstitial({config_.chartboost.interstitialLocationIOS});
-        }
+    const bool chartboostInterstitialOn = config_.chartboost.enabled && s.interstitialChartboostWeight > 0;
+#else
+    const bool chartboostInterstitialOn = false; // Chartboost is only wired on iOS.
 #endif
+    if ((admobInterstitialOn || chartboostInterstitialOn) && s.interstitialShowAfterCount > 0) {
+        interstitialCounters_[i] += 1;
+        if (interstitialCounters_[i] >= s.interstitialShowAfterCount) {
+            interstitialCounters_[i] = 0;
+
+            bool useAdMob = admobInterstitialOn && (!chartboostInterstitialOn || nextInterstitialAdMob_);
+            auto requestFor = [&](bool admob) {
+                AdRequest r;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+                r.placementId = admob ? config_.admob.interstitialIdIOS : config_.chartboost.interstitialLocationIOS;
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+                r.placementId = admob ? config_.admob.interstitialIdAndroid : std::string();
+#endif
+                return r;
+            };
+
+            // Prefer the scheduled network; fall back to the other one if it is not cached.
+            selectAdMobInterstitial(useAdMob);
+            bool ready = provider_->isInterstitialReady();
+            if (!ready && admobInterstitialOn && chartboostInterstitialOn) {
+                selectAdMobInterstitial(!useAdMob);
+                if (provider_->isInterstitialReady()) {
+                    useAdMob = !useAdMob;
+                    ready = true;
+                } else {
+                    selectAdMobInterstitial(useAdMob);
+                }
+            }
+            const AdRequest req = requestFor(useAdMob);
+            AXLOGI("AdsController: interstitial tick (ctx={}, network={}, ready={})", i, useAdMob ? "AdMob" : "Chartboost", ready);
+            if (ready) {
+                showInterstitial();
+                nextInterstitialAdMob_ = !useAdMob;
+            }
+            if (!req.placementId.empty()) loadInterstitial(req); // cache the next one
+        }
+    }
+
+    // Proactive caching on Main Menu so GameOver can show instantly.
+    if (ctx == AdsContext::MainMenu) {
+        for (const bool admob : {true, false}) {
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
+            if (!admob) continue;
+#endif
+            if (admob ? !config_.admobEnabled : !config_.chartboost.enabled) continue;
+            AdRequest r;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+            r.placementId = admob ? config_.admob.interstitialIdIOS : config_.chartboost.interstitialLocationIOS;
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+            r.placementId = admob ? config_.admob.interstitialIdAndroid : std::string();
+#endif
+            if (r.placementId.empty()) continue;
+            selectAdMobInterstitial(admob);
+            if (!provider_->isInterstitialReady()) loadInterstitial(r);
+        }
     }
 
     // Rewarded schedule is supported by config, but should generally be triggered by explicit UI events.

@@ -27,7 +27,12 @@
       "Bash(bash ../tools/ios_device.sh)",
       "Bash(bash tools/ios_device.sh)",
       "Bash(python3 /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/tools/inject_pods_build_phase.py)",
-      "Bash(grep -B 5 -A 30 \"^[A-Z0-9]* /\\\\* BikeRaceEscapeAxmol \\\\*/ = {$\" /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-device/BikeRaceEscapeAxmol.xcodeproj/project.pbxproj)"
+      "Bash(grep -B 5 -A 30 \"^[A-Z0-9]* /\\\\* BikeRaceEscapeAxmol \\\\*/ = {$\" /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/build-ios-device/BikeRaceEscapeAxmol.xcodeproj/project.pbxproj)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "ClaudeInChromeDomain(admob.google.com)",
+      "ClaudeInChromeDomain(apps.admob.com)",
+      "ClaudeInChromeDomain(appstoreconnect.apple.com)",
+      "ClaudeInChromeDomain(play.google.com)"
     ],
     "additionalDirectories": [
       "/Users/rafi/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Documents",

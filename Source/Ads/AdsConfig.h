@@ -36,6 +36,8 @@ struct ChartboostIds {
 
 struct AdsConfig {
     bool admobEnabled{false};
+    // When true, banner/interstitial ids are replaced with Google's public sample units (safe to tap).
+    bool admobTestMode{false};
     ProviderIds admob;
     ChartboostIds chartboost;
 

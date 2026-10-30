@@ -9,6 +9,10 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher">
 
+        <!-- AdMob app id (Dino Bike Escape Sewer Run, Android) -->
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
+                   android:value="ca-app-pub-8966545526103390~3276839875"/>
+
         <!-- Tell AxmolActivity the name of our .so -->
         <meta-data android:name="android.app.lib_name"
                    android:value="BikeRaceEscapeAxmol" />
@@ -31,5 +35,6 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
 </manifest>
