@@ -83,7 +83,7 @@ bool PZGCharacterMenu::init()
 	}
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    this->setKeypadEnabled(true);
+    pzEnableBackKey(this);
 #endif
     
     player_c = 0;

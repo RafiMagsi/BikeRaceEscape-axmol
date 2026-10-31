@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.22...4.1)
 
 set(APP_NAME BikeRaceEscapeAxmol)
 
-project(${APP_NAME} LANGUAGES C CXX OBJCXX)
+# Objective-C++ only exists on Apple toolchains (the Android NDK has no OBJCXX compiler).
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+  project(${APP_NAME} LANGUAGES C CXX)
+else()
+  project(${APP_NAME} LANGUAGES C CXX OBJCXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,6 +47,11 @@ file(GLOB_RECURSE GAME_HEADER CONFIGURE_DEPENDS
 file(GLOB_RECURSE GAME_SOURCE CONFIGURE_DEPENDS
   Source/*.cpp Source/*.c Source/*.cc Source/*.mm Source/*.m
 )
+
+# Objective-C sources are Apple-only.
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+  list(FILTER GAME_SOURCE EXCLUDE REGEX ".*\\.(mm|m)$")
+endif()
 
 # Exclude legacy commercial/native bridge from core build
 list(FILTER GAME_SOURCE EXCLUDE REGEX ".*/StoreBridge/.*")
@@ -359,11 +369,13 @@ if(IOS)
 endif()
 
 # Ship Axmol-generated runtime assets (compiled shaders) into the app bundle.
-add_custom_command(TARGET ${APP_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          ${CMAKE_BINARY_DIR}/runtime
-          $<TARGET_FILE_DIR:${APP_NAME}>/runtime
-)
+if(APPLE)
+  add_custom_command(TARGET ${APP_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_BINARY_DIR}/runtime
+            $<TARGET_FILE_DIR:${APP_NAME}>/runtime
+  )
+endif()
 
 # Make sure the AXGameFinalSetup is included at the end of this file
 include(AXGameFinalSetup)

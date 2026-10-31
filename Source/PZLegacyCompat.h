@@ -467,3 +467,14 @@ private:
     int _bgmId = -1;
 };
 }
+
+// Android back-key support. Axmol 2.x removed Layer::setKeypadEnabled(); route KEY_BACK to keyBackClicked().
+template <class T>
+inline void pzEnableBackKey(T* node)
+{
+    auto* listener = ax::EventListenerKeyboard::create();
+    listener->onKeyReleased = [node](ax::EventKeyboard::KeyCode code, ax::Event*) {
+        if (code == ax::EventKeyboard::KeyCode::KEY_BACK) node->keyBackClicked();
+    };
+    node->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, node);
+}

@@ -37,7 +37,7 @@ bool PZGPauseMenuScene::init()
 	}
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    this->setKeypadEnabled(true);
+    pzEnableBackKey(this);
 #endif
     
     auto* bg = LayerColor::create(ccc4(0, 0, 0, 200));

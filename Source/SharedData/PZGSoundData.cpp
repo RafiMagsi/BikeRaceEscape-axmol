@@ -15,9 +15,6 @@
 
 #include "PZLegacyCompat.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    #include "jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
-#endif
 
 PZGSoundData::PZGSoundData(){
     
@@ -91,13 +88,8 @@ void PZGSoundData::preloadSound(){
         PZLog( "preloading sound" );
         const char *path = getSoundResourcePath();
 
-#if   CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID        
-        std::string fullPath( path );
-        fullPath.insert(0, "assets/");
-        std::string apkPath( getApkPath() );
-        bool exist = ax::FileUtils::getInstance()->isFileExistInZip( apkPath.c_str(), fullPath.c_str());
-        
-        if (exist == false){
+#if   CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+        if (!ax::FileUtils::getInstance()->isFileExist(path)){
             PZLog( "Warning Sound NOT FOUND" );
             return;
         }

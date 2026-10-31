@@ -135,7 +135,7 @@ bool PZGGameFieldScene::init()
     AXLOGI("PZGGameFieldScene::init begin");
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    this->setKeypadEnabled(true);
+    pzEnableBackKey(this);
 #endif
     
     restrictObstacles = false;
