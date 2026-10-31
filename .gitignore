@@ -119,3 +119,8 @@ ARM64/
 *.dSYM/
 # Local axmol checkout mirror (kept out of git; required for sandboxed builds)
 /thirdparty/axmol/
+
+# Android release signing (secrets)
+proj.android/keystore.properties
+proj.android/*.keystore
+proj.android/*.jks

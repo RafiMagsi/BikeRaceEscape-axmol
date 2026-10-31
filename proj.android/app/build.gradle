@@ -54,13 +54,21 @@ android {
         }
     }
 
+    // Release signing: proj.android/keystore.properties (git-ignored), or -PKEY_STORE_FILE=... on the command line
+    def keystoreProps = new Properties()
+    def keystorePropsFile = rootProject.file("keystore.properties")
+    if (keystorePropsFile.exists()) {
+        keystorePropsFile.withInputStream { keystoreProps.load(it) }
+    }
+    def signingProp = { String name -> keystoreProps.getProperty(name) ?: (project.hasProperty(name) ? project.property(name) : null) }
+
     signingConfigs {
        release {
-            if (project.hasProperty("KEY_STORE_FILE")) {
-                storeFile file(KEY_STORE_FILE)
-                storePassword KEY_STORE_PASSWORD
-                keyAlias KEY_ALIAS
-                keyPassword KEY_PASSWORD
+            if (signingProp("KEY_STORE_FILE")) {
+                storeFile rootProject.file(signingProp("KEY_STORE_FILE"))
+                storePassword signingProp("KEY_STORE_PASSWORD")
+                keyAlias signingProp("KEY_ALIAS")
+                keyPassword signingProp("KEY_PASSWORD")
             }
         }
     }
@@ -73,7 +81,7 @@ android {
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFile file(project(':libaxmol').projectDir.toString() + '/proguard-rules.pro')
-            if (project.hasProperty("KEY_STORE_FILE")) {
+            if (signingProp("KEY_STORE_FILE")) {
                 signingConfig signingConfigs.release
             }
         }

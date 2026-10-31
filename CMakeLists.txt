@@ -156,7 +156,7 @@ endif()
 if(PZ_GENERATE_APP_ICONS)
   set(_PZ_ICON_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tools/generate_app_icons.py")
   set(_PZ_IOS_APPICONSET "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Images.xcassets/AppIcon.appiconset")
-  set(_PZ_ANDROID_RES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proj.android/app/src/main/res")
+  set(_PZ_ANDROID_RES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/proj.android/app/res")
   set(_PZ_ICON_STAMP "${CMAKE_BINARY_DIR}/pz_generated_icons.stamp")
 
   if(EXISTS "${_PZ_ICON_GEN_SCRIPT}")
