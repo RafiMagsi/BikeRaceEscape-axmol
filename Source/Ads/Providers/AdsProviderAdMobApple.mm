@@ -47,6 +47,21 @@ static std::atomic<bool> g_rewardedReady{false};
 
 static PZAdMobFullScreenDelegate* g_fullScreenDelegate = nil;
 
+// Logs banner results; GADBannerView keeps its delegate weakly, so g_bannerDelegate owns it.
+@interface PZAdMobBannerDelegate : NSObject <GADBannerViewDelegate>
+@end
+
+@implementation PZAdMobBannerDelegate
+- (void)bannerViewDidReceiveAd:(GADBannerView*)bannerView {
+    AXLOGI("AdsProviderAdMob(iOS): banner loaded ({}x{})", (int)bannerView.bounds.size.width, (int)bannerView.bounds.size.height);
+}
+- (void)bannerView:(GADBannerView*)bannerView didFailToReceiveAdWithError:(NSError*)error {
+    AXLOGW("AdsProviderAdMob(iOS): banner load failed: {}", error.localizedDescription.UTF8String ?: "");
+}
+@end
+
+static PZAdMobBannerDelegate* g_bannerDelegate = nil;
+
 @implementation PZAdMobFullScreenDelegate
 
 - (void)adWillPresentFullScreenContent:(id<GADFullScreenPresentingAd>)ad {
@@ -177,6 +192,8 @@ void AdsProviderAdMob::showBanner() {
             const GADAdSize adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(width);
             g_banner = [[GADBannerView alloc] initWithAdSize:adSize];
             g_banner.rootViewController = vc;
+            if (!g_bannerDelegate) g_bannerDelegate = [[PZAdMobBannerDelegate alloc] init];
+            g_banner.delegate = g_bannerDelegate;
             g_banner.translatesAutoresizingMaskIntoConstraints = NO;
             [vc.view addSubview:g_banner];
             [NSLayoutConstraint activateConstraints:@[

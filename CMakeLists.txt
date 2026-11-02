@@ -142,17 +142,35 @@ if(IOS)
 endif()
 
 # ---- App icons (iOS + Android) ----
-option(PZ_GENERATE_APP_ICONS "Generate iOS/Android app icons from art/icon-source.png during build" ON)
-set(PZ_APP_ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/art/icon-source.png" CACHE FILEPATH "Source PNG for app icons")
+option(PZ_GENERATE_APP_ICONS "Generate iOS/Android app icons during build" ON)
+set(_PZ_LEGACY_ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/art/icon-source.png")
+set(_PZ_DEFAULT_ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/store/rebrand-v3/icon-1024.png")
 
-if(PZ_GENERATE_APP_ICONS AND EXISTS "${PZ_APP_ICON_SOURCE}")
-  find_package(Python3 COMPONENTS Interpreter)
-  if(NOT Python3_Interpreter_FOUND)
-    message(WARNING "PZ_GENERATE_APP_ICONS is ON but Python3 interpreter wasn't found; skipping icon generation")
+# Migrate existing build caches that still point at the retired pre-rebrand icon.
+# Explicit user overrides remain untouched.
+if(NOT DEFINED PZ_APP_ICON_SOURCE OR PZ_APP_ICON_SOURCE STREQUAL "${_PZ_LEGACY_ICON_SOURCE}")
+  set(PZ_APP_ICON_SOURCE "${_PZ_DEFAULT_ICON_SOURCE}" CACHE FILEPATH "Source PNG for app icons" FORCE)
+else()
+  set(PZ_APP_ICON_SOURCE "${PZ_APP_ICON_SOURCE}" CACHE FILEPATH "Source PNG for app icons")
+endif()
+
+if(PZ_GENERATE_APP_ICONS)
+  if(NOT EXISTS "${PZ_APP_ICON_SOURCE}")
+    message(WARNING "PZ_GENERATE_APP_ICONS is ON but the source icon doesn't exist: ${PZ_APP_ICON_SOURCE}")
     set(PZ_GENERATE_APP_ICONS OFF)
   else()
+    # Use the active PATH instead of a stale FindPython cache entry. This keeps
+    # icon generation on the same Pillow-capable Python used by the tool itself.
+    find_program(_PZ_ICON_PYTHON_EXECUTABLE NAMES python3 python)
+    if(NOT _PZ_ICON_PYTHON_EXECUTABLE)
+      message(WARNING "PZ_GENERATE_APP_ICONS is ON but Python wasn't found; skipping icon generation")
+      set(PZ_GENERATE_APP_ICONS OFF)
+    endif()
+  endif()
+
+  if(PZ_GENERATE_APP_ICONS)
     execute_process(
-      COMMAND "${Python3_EXECUTABLE}" -c "import PIL"
+      COMMAND "${_PZ_ICON_PYTHON_EXECUTABLE}" -c "import PIL"
       RESULT_VARIABLE _pz_pil_ok
       OUTPUT_QUIET
       ERROR_QUIET
@@ -173,7 +191,7 @@ if(PZ_GENERATE_APP_ICONS)
   if(EXISTS "${_PZ_ICON_GEN_SCRIPT}")
     add_custom_command(
       OUTPUT "${_PZ_ICON_STAMP}"
-      COMMAND "${Python3_EXECUTABLE}" "${_PZ_ICON_GEN_SCRIPT}"
+      COMMAND "${_PZ_ICON_PYTHON_EXECUTABLE}" "${_PZ_ICON_GEN_SCRIPT}"
               --input "${PZ_APP_ICON_SOURCE}"
               --ios-out "${_PZ_IOS_APPICONSET}"
               --android-out "${_PZ_ANDROID_RES_DIR}"

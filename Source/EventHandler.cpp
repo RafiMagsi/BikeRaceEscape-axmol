@@ -26,6 +26,52 @@
 #include "PZGameCenter.h"
 #endif
 
+namespace {
+
+// The running scene's menu layer (it owns the UI refresh for a purchase), or null when the running scene has none.
+PZGBaseMenuScene* findRunningMenuScene() {
+    ax::Director* director = ax::Director::getInstance();
+    ax::Scene* scene = director ? director->getRunningScene() : nullptr;
+    if (!scene) return nullptr;
+    for (auto* c : scene->getChildren()) {
+        if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) return m;
+    }
+    return nullptr;
+}
+
+// "Remove Ads" bought or restored. PMP_RemoveAds is only ever set here, and it must be saved even when no menu
+// layer is running (e.g. a restore that completes during gameplay), otherwise the purchase is lost.
+void applyRemoveAdsPurchased() {
+    if (auto* menu = findRunningMenuScene()) {
+        menu->upgradeComplete(); // sets removeAds, saves, disables ads and removes the banner
+        return;
+    }
+    AXLOGW("[IAP] PZGBaseMenuScene not found; applying RemoveAds via settings only");
+    if (PZSettingsController* sc = PZSettingsController::shared()) {
+        sc->removeAds = true;
+        sc->save();
+    }
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+    PZ::AdsController::shared()->setAdsEnabled(false);
+#endif
+}
+
+// "Kid Mode" bought or restored. PMP_KidMode / PMP_KidModePurchased are only set to true here (or by re-enabling an
+// already purchased Kid Mode), and are saved even when no menu layer is running.
+void applyKidModePurchased() {
+    if (auto* menu = findRunningMenuScene()) {
+        menu->kidModePurchased(); // sets kidMode + kidModePurchased, saves, refreshes the buttons
+        return;
+    }
+    AXLOGW("[IAP] PZGBaseMenuScene not found; applying KidMode via settings only");
+    if (PZSettingsController* sc = PZSettingsController::shared()) {
+        sc->kidMode = true;
+        sc->kidModePurchased = true;
+        sc->save();
+    }
+}
+
+} // namespace
 
 void EventHandler::marketPurchase(string& productId) {
 	printf("Market Purcahse %s\n", productId.c_str());
@@ -92,62 +138,14 @@ void EventHandler::marketPurchase(string& productId) {
 
     const char* removeAdId = (iapInfo->removeAd_id ? iapInfo->removeAd_id->getCString() : "");
     if (removeAdId[0] != '\0' && strcmp(removeAdId, productId.c_str()) == 0) {
-        ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director ? director->getRunningScene() : nullptr;
-        PZGBaseMenuScene* menu = nullptr;
-        if (scene) {
-            const auto& children = scene->getChildren();
-            for (auto* c : children) {
-                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) {
-                    menu = m;
-                    break;
-                }
-            }
-        }
-
-        if (menu) {
-            menu->upgradeComplete();
-        } else {
-            // Fallback: apply effect without UI layer (prevents crashes when running scene is gameplay).
-            AXLOGW("[IAP] marketPurchase: PZGBaseMenuScene not found; applying RemoveAds via settings only");
-            PZSettingsController* sc = PZSettingsController::shared();
-            if (sc) {
-                sc->removeAds = true;
-                sc->save();
-            }
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-            PZ::AdsController::shared()->setAdsEnabled(false);
-#endif
-        }
+        applyRemoveAdsPurchased();
         return;
     }
     
     //check for KidMode
     const char* kidModeId = (iapInfo->kidMode_id ? iapInfo->kidMode_id->getCString() : "");
     if (kidModeId[0] != '\0' && strcmp(kidModeId, productId.c_str()) == 0) {
-        ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director ? director->getRunningScene() : nullptr;
-        PZGBaseMenuScene* menu = nullptr;
-        if (scene) {
-            const auto& children = scene->getChildren();
-            for (auto* c : children) {
-                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) {
-                    menu = m;
-                    break;
-                }
-            }
-        }
-        if (menu) {
-            menu->kidModePurchased();
-        } else {
-            AXLOGW("[IAP] marketPurchase: PZGBaseMenuScene not found; applying KidMode via settings only");
-            PZSettingsController* sc = PZSettingsController::shared();
-            if (sc) {
-                sc->kidMode = true;
-                sc->kidModePurchased = true;
-                sc->save();
-            }
-        }
+        applyKidModePurchased();
         return;
     }
 
@@ -214,33 +212,15 @@ void EventHandler::transactionRestored(string& productId){
     if (!iapInfo) return;
     const char* removeAdId = (iapInfo->removeAd_id ? iapInfo->removeAd_id->getCString() : "");
     if ( removeAdId[0] != '\0' && strcmp(removeAdId, productId.c_str())==0 ) {
-        ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director->getRunningScene();
-        if (scene) {
-            PZGBaseMenuScene* menu = nullptr;
-            const auto& children = scene->getChildren();
-            for (auto* c : children) {
-                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) { menu = m; break; }
-            }
-            if (menu) menu->upgradeComplete();
-            return;
-        }
+        applyRemoveAdsPurchased();
+        return;
     }
     
     //check for KidMode
     const char* kidModeId = (iapInfo->kidMode_id ? iapInfo->kidMode_id->getCString() : "");
     if ( kidModeId[0] != '\0' && strcmp( kidModeId, productId.c_str() )==0 ) {
-        ax::Director* director = ax::Director::getInstance();
-        ax::Scene* scene = director->getRunningScene();
-        if (scene) {
-            PZGBaseMenuScene* menu = nullptr;
-            const auto& children = scene->getChildren();
-            for (auto* c : children) {
-                if (auto* m = dynamic_cast<PZGBaseMenuScene*>(c)) { menu = m; break; }
-            }
-            if (menu) menu->kidModePurchased();
-            return;
-        }
+        applyKidModePurchased();
+        return;
     }
 }
 void EventHandler::marketRefund(string& productId) {

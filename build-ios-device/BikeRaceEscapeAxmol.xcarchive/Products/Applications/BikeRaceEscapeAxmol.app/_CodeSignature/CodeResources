@@ -38,15 +38,15 @@
 		</data>
 		<key>Frameworks/soft_oal.framework/Info.plist</key>
 		<data>
-		D4bkodlWAC+qLNZaBoZRp1CNWaQ=
+		ZezP7B1ovvrD7Ow/hgUEHRKhdU8=
 		</data>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<data>
-		H3N3i0HgoPIqd18M2xs27fDPM+Y=
+		mftYr9SqvFEtKTAYfdgnUuXvG9A=
 		</data>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<data>
-		lsOIGfvPGRnrci6ek2Hz0mWmPH4=
+		/hD624wR2v+COQ7j7z28EdQ4dec=
 		</data>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
 		<data>
@@ -532,21 +532,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			slhih7HN4HuI97UgDxii/rvEWuf8rgqaGoOe/9nIqic=
+			I8CUQN0FUBUJN+m4eAcNCbnLr9Pwo82W3Ozv/Q3gIoM=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Zi+Q+aQdo43cXql5qhtUHr/e277I0YhRGDscEzeTS/I=
+			9ZhLBqoJh9SZnwmp4vXLpDJ0/bD8lwxSSkPyK4ckBFs=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lWEzqRVfbgv7OHFkQBFsuvIH1D036rDJ6W7oAX7pPTc=
+			Lygh2YxGfBGSZhxy/QN+EPw6DZ7tfdbJ4AedidfPIEw=
 			</data>
 		</dict>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>

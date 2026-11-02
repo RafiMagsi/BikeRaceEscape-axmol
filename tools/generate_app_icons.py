@@ -3,11 +3,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageOps
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_SOURCE = REPO_ROOT / "store/rebrand-v3/icon-1024.png"
+DEFAULT_IOS_OUT = REPO_ROOT / "proj.ios_mac/ios/targets/ios/Images.xcassets/AppIcon.appiconset"
+DEFAULT_ANDROID_OUT = REPO_ROOT / "proj.android/app/res"
 
 
 @dataclass(frozen=True)
@@ -38,7 +43,7 @@ class IOSIconSpec:
     @property
     def filename(self) -> str:
         # Keep filenames deterministic and human-readable.
-        size_token = self.size_str.replace("x", "x")  # explicit, keep dot if present
+        size_token = self.size_str
         if self.scale == 1:
             return f"AppIcon-{size_token}.png"
         return f"AppIcon-{size_token}@{self.scale}x.png"
@@ -79,22 +84,35 @@ ANDROID_DENSITIES: dict[str, int] = {
 
 
 def _load_and_square(img_path: Path) -> Image.Image:
-    img = Image.open(img_path).convert("RGBA")
-    w, h = img.size
-    if w == h:
-        return img
+    with Image.open(img_path) as source:
+        img = ImageOps.exif_transpose(source).convert("RGBA")
 
-    # Center-crop to square (keeps subject centered).
-    side = min(w, h)
-    left = (w - side) // 2
-    top = (h - side) // 2
-    return img.crop((left, top, left + side, top + side))
+    alpha = img.getchannel("A")
+    if alpha.getextrema() != (255, 255):
+        raise ValueError(
+            f"Source icon must be fully opaque; transparent pixels found in {img_path}"
+        )
+
+    w, h = img.size
+    if w != h:
+        # Center-crop to square while keeping the subject centered.
+        side = min(w, h)
+        left = (w - side) // 2
+        top = (h - side) // 2
+        img = img.crop((left, top, left + side, top + side))
+
+    if min(img.size) < 1024:
+        raise ValueError(f"Source icon must be at least 1024x1024; got {img.size[0]}x{img.size[1]}")
+
+    # Apple rejects app icons that contain an alpha channel, even if every pixel
+    # is opaque. RGB also keeps the Android launcher files deterministic.
+    return img.convert("RGB")
 
 
 def _save_png(img: Image.Image, out_path: Path, px: int) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     resized = img.resize((px, px), Image.Resampling.LANCZOS)
-    resized.save(out_path, format="PNG", optimize=True)
+    resized.convert("RGB").save(out_path, format="PNG", optimize=True)
 
 
 def generate_ios_appicon(src: Image.Image, out_appiconset: Path) -> None:
@@ -103,8 +121,6 @@ def generate_ios_appicon(src: Image.Image, out_appiconset: Path) -> None:
     images: list[dict[str, str]] = []
     seen: set[tuple[str, str, str]] = set()
     for spec in IOS_SPECS:
-        # iPad 83.5x83.5 is a special case; we approximate via 83 with 2x = 166px to keep file naming simple.
-        # If you want exact 167px icon, add a dedicated spec and adjust here.
         _save_png(src, out_appiconset / spec.filename, spec.px)
         key = (spec.idiom, spec.size_str, spec.scale_str)
         if key in seen:
@@ -134,28 +150,89 @@ def generate_android_icons(src: Image.Image, out_res_dir: Path) -> None:
     _save_png(src, out_res_dir / "play-store" / "ic_launcher_512.png", 512)
 
 
+def _assert_png(path: Path, expected_px: int) -> None:
+    if not path.is_file():
+        raise ValueError(f"Missing generated icon: {path}")
+    with Image.open(path) as image:
+        image.load()
+        if image.size != (expected_px, expected_px):
+            raise ValueError(
+                f"Wrong icon size for {path}: expected {expected_px}x{expected_px}, got {image.size}"
+            )
+        if "A" in image.getbands():
+            raise ValueError(f"Generated icon must not contain an alpha channel: {path}")
+
+
+def verify_outputs(source: Image.Image, ios_out: Path, android_out: Path) -> None:
+    for spec in IOS_SPECS:
+        _assert_png(ios_out / spec.filename, spec.px)
+
+    contents_path = ios_out / "Contents.json"
+    contents = json.loads(contents_path.read_text(encoding="utf-8"))
+    catalog_entries = {
+        (entry["idiom"], entry["size"], entry["scale"], entry["filename"])
+        for entry in contents["images"]
+    }
+    expected_entries = {
+        (spec.idiom, spec.size_str, spec.scale_str, spec.filename) for spec in IOS_SPECS
+    }
+    if catalog_entries != expected_entries:
+        raise ValueError(f"iOS AppIcon metadata does not match the generated files: {contents_path}")
+
+    for folder, px in ANDROID_DENSITIES.items():
+        _assert_png(android_out / folder / "ic_launcher.png", px)
+    _assert_png(android_out / "play-store" / "ic_launcher_512.png", 512)
+
+    # The full-size iOS icon must be an exact RGB copy of the source.
+    with Image.open(ios_out / "AppIcon-1024x1024.png") as generated:
+        if ImageChops.difference(source, generated.convert("RGB")).getbbox() is not None:
+            raise ValueError("Generated 1024px iOS icon differs from the source icon")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate iOS/Android app icon PNGs from a single square source PNG.")
-    parser.add_argument("--input", required=True, help="Path to a source PNG (prefer 1024x1024 or higher).")
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DEFAULT_SOURCE,
+        help=f"Source PNG (default: {DEFAULT_SOURCE.relative_to(REPO_ROOT)}).",
+    )
     parser.add_argument(
         "--ios-out",
-        default="proj.ios_mac/ios/targets/ios/Images.xcassets/AppIcon.appiconset",
+        type=Path,
+        default=DEFAULT_IOS_OUT,
         help="Output AppIcon.appiconset folder path.",
     )
     parser.add_argument(
         "--android-out",
-        default="proj.android/app/res",
+        type=Path,
+        default=DEFAULT_ANDROID_OUT,
         help="Output Android res/ folder path.",
+    )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Validate existing generated icons without replacing them.",
     )
     args = parser.parse_args()
 
-    img_path = Path(args.input)
+    img_path = args.input.resolve()
     if not img_path.is_file():
         raise SystemExit(f"Input file not found: {img_path}")
 
-    src = _load_and_square(img_path)
-    generate_ios_appicon(src, Path(args.ios_out))
-    generate_android_icons(src, Path(args.android_out))
+    try:
+        src = _load_and_square(img_path)
+        ios_out = args.ios_out.resolve()
+        android_out = args.android_out.resolve()
+        if not args.verify_only:
+            generate_ios_appicon(src, ios_out)
+            generate_android_icons(src, android_out)
+        verify_outputs(src, ios_out, android_out)
+    except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+        raise SystemExit(f"App icon generation failed: {error}") from error
+
+    action = "Verified" if args.verify_only else "Generated and verified"
+    print(f"{action} iOS and Android app icons from {img_path}")
     return 0
 
 
