@@ -77,6 +77,7 @@ public class AppActivity extends AxmolActivity {
         }
         // DO OTHER INITIALIZATION BELOW
         AdsBridge.init(this);
+        BillingBridge.init(this);
         
     }
 
@@ -157,6 +158,7 @@ public class AppActivity extends AxmolActivity {
             sInstance = new WeakReference<>(null);
         }
         hideSplashOverlay();
+        BillingBridge.shutdown();
         super.onDestroy();
     }
 }

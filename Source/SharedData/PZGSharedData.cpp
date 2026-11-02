@@ -116,10 +116,6 @@ void PZGSharedData::readDataFromFile()
         "Images/HD/animation_s1.plist",
         "Images/HD/animation_s2.plist",
         "Images/HD/animation_s3.plist",
-        "Images/SD/animation_s0.plist",
-        "Images/SD/animation_s1.plist",
-        "Images/SD/animation_s2.plist",
-        "Images/SD/animation_s3.plist",
     };
 
     for (const auto& sheet : spriteSheets) {

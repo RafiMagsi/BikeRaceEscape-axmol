@@ -13,6 +13,7 @@
 #include "Ads/Providers/AdsProviderAdMob.h"
 #include "Ads/Providers/AdsProviderChartboost.h"
 #include "Ads/Providers/AdsProviderMux.h"
+#include "cocos2dx_StoreController.h"
 
 #include <chrono>
 #include <thread>
@@ -110,11 +111,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
         // On Apple we package Content/* into the app bundle root (Images/..., Sounds/...) via ax_mark_multi_resources(RES_TO "Resources").
         // Keep both layouts in search paths to avoid platform-specific resource bugs.
         "Images/HD",
-        "Images/SD",
         "Sounds",
         "Fonts",
         "Content/Images/HD",
-        "Content/Images/SD",
         "Content/Sounds",
         "Content/Fonts",
         "Content",
@@ -279,6 +278,12 @@ void AppDelegate::scheduledLoading() {
         }
 
         director->replaceScene(scene);
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+        // Restore non-consumable entitlements now that game data and the menu exist.
+        cocos2dx_StoreController::restorePurchases();
+#endif
+
         AXLOGI("AppDelegate::scheduledLoading -> PZGMainMenuScene");
         return;
     }
