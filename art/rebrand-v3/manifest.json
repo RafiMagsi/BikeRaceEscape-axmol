@@ -1,0 +1,3778 @@
+[
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Obstacles_4_0",
+    "x": 1904,
+    "y": 1498,
+    "w": 102,
+    "h": 167,
+    "meta": {
+      "frame": "{{1904, 1498}, {102, 167}}",
+      "offset": "{-1, -7.5}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{48, 24}, {102, 167}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "BackgroundLayers_3_0",
+    "x": 0,
+    "y": 10,
+    "w": 1829,
+    "h": 494,
+    "meta": {
+      "frame": "{{0, 10}, {1829, 494}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1829, 494}",
+      "sourceColorRect": "{{0, 0}, {1829, 494}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCS_7_0",
+    "x": 1781,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1781, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Coins_1_1",
+    "x": 1950,
+    "y": 1197,
+    "w": 79,
+    "h": 79,
+    "meta": {
+      "frame": "{{1950, 1197}, {79, 79}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{0, 0}, {79, 79}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_0_0",
+    "x": 0,
+    "y": 508,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 508}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceGF_1_0",
+    "x": 1681,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1681, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Characters_1_0",
+    "x": 1833,
+    "y": 121,
+    "w": 202,
+    "h": 181,
+    "meta": {
+      "frame": "{{1833, 121}, {202, 181}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 181}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "BackgroundLayers_0_0",
+    "x": 0,
+    "y": 1280,
+    "w": 1900,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 1280}, {1900, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 768}",
+      "sourceColorRect": "{{0, 0}, {1900, 768}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_5_0",
+    "x": 1881,
+    "y": 521,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1881, 521}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Obstacles_3_1",
+    "x": 1904,
+    "y": 1857,
+    "w": 138,
+    "h": 191,
+    "meta": {
+      "frame": "{{1904, 1857}, {138, 191}}",
+      "offset": "{7, 1.5}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{38, 3}, {138, 191}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceMM_1_0",
+    "x": 1374,
+    "y": 930,
+    "w": 572,
+    "h": 346,
+    "meta": {
+      "frame": "{{1374, 930}, {572, 346}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{572, 346}",
+      "sourceColorRect": "{{0, 0}, {572, 346}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_4_0",
+    "x": 1568,
+    "y": 626,
+    "w": 196,
+    "h": 300,
+    "meta": {
+      "frame": "{{1568, 626}, {196, 300}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 300}",
+      "sourceColorRect": "{{1, 0}, {196, 300}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Obstacles_3_0",
+    "x": 1904,
+    "y": 1669,
+    "w": 138,
+    "h": 184,
+    "meta": {
+      "frame": "{{1904, 1669}, {138, 184}}",
+      "offset": "{7, -2}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{38, 10}, {138, 184}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCS_2_0",
+    "x": 1904,
+    "y": 1370,
+    "w": 112,
+    "h": 124,
+    "meta": {
+      "frame": "{{1904, 1370}, {112, 124}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{112, 124}",
+      "sourceColorRect": "{{0, 0}, {112, 124}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Coins_1_0",
+    "x": 1950,
+    "y": 1116,
+    "w": 77,
+    "h": 77,
+    "meta": {
+      "frame": "{{1950, 1116}, {77, 77}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{1, 1}, {77, 77}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Coins_0_0",
+    "x": 1581,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1581, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Coins_1_2",
+    "x": 1904,
+    "y": 1287,
+    "w": 79,
+    "h": 79,
+    "meta": {
+      "frame": "{{1904, 1287}, {79, 79}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{0, 0}, {79, 79}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_3_0",
+    "x": 1768,
+    "y": 689,
+    "w": 197,
+    "h": 237,
+    "meta": {
+      "frame": "{{1768, 689}, {197, 237}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 237}",
+      "sourceColorRect": "{{0, 0}, {197, 237}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Obstacles_1_1",
+    "x": 1374,
+    "y": 508,
+    "w": 203,
+    "h": 113,
+    "meta": {
+      "frame": "{{1374, 508}, {203, 113}}",
+      "offset": "{0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 166}",
+      "sourceColorRect": "{{20, 26}, {203, 113}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfacePM_3_0",
+    "x": 1932,
+    "y": 17,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1932, 17}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "Obstacles_6_0",
+    "x": 1374,
+    "y": 625,
+    "w": 190,
+    "h": 301,
+    "meta": {
+      "frame": "{{1374, 625}, {190, 301}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{190, 301}",
+      "sourceColorRect": "{{0, 0}, {190, 301}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceGF_0_0",
+    "x": 1833,
+    "y": 17,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1833, 17}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_2_0",
+    "x": 1833,
+    "y": 306,
+    "w": 197,
+    "h": 198,
+    "meta": {
+      "frame": "{{1833, 306}, {197, 198}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 198}",
+      "sourceColorRect": "{{0, 0}, {197, 198}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_1_6",
+    "x": 1579,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1579, 541}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_1_1",
+    "x": 1786,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1786, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceMM_0_0",
+    "x": 0,
+    "y": 508,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 508}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_1_5",
+    "x": 1784,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1784, 541}, {201, 117}}",
+      "offset": "{2, 0.5}",
+      "rotated": false,
+      "sourceSize": "{243, 170}",
+      "sourceColorRect": "{{23, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceCS_1_0",
+    "x": 1858,
+    "y": 1152,
+    "w": 112,
+    "h": 124,
+    "meta": {
+      "frame": "{{1858, 1152}, {112, 124}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{112, 124}",
+      "sourceColorRect": "{{0, 0}, {112, 124}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_Jump_2_1",
+    "x": 1595,
+    "y": 1333,
+    "w": 217,
+    "h": 185,
+    "meta": {
+      "frame": "{{1595, 1333}, {217, 185}}",
+      "offset": "{-0, -1.5}",
+      "rotated": false,
+      "sourceSize": "{263, 234}",
+      "sourceColorRect": "{{23, 26}, {217, 185}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_1_6",
+    "x": 1834,
+    "y": 142,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1834, 142}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_1_4",
+    "x": 1834,
+    "y": 21,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1834, 21}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_0_1",
+    "x": 1786,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1786, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_1_3",
+    "x": 1374,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1374, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfacePM_2_0",
+    "x": 1856,
+    "y": 1784,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1856, 1784}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_5_0",
+    "x": 1374,
+    "y": 1782,
+    "w": 478,
+    "h": 266,
+    "meta": {
+      "frame": "{{1374, 1782}, {478, 266}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{478, 266}",
+      "sourceColorRect": "{{0, 0}, {478, 266}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_8_0",
+    "x": 1374,
+    "y": 1522,
+    "w": 495,
+    "h": 256,
+    "meta": {
+      "frame": "{{1374, 1522}, {495, 256}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{495, 256}",
+      "sourceColorRect": "{{0, 0}, {495, 256}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_0_3",
+    "x": 1374,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1374, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceCS_0_0",
+    "x": 0,
+    "y": 1280,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 1280}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceMM_3_0",
+    "x": 1873,
+    "y": 1618,
+    "w": 153,
+    "h": 160,
+    "meta": {
+      "frame": "{{1873, 1618}, {153, 160}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{153, 160}",
+      "sourceColorRect": "{{0, 0}, {153, 160}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_0_0",
+    "x": 1816,
+    "y": 1337,
+    "w": 202,
+    "h": 181,
+    "meta": {
+      "frame": "{{1816, 1337}, {202, 181}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 181}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_Jump_2_2",
+    "x": 1374,
+    "y": 1333,
+    "w": 217,
+    "h": 185,
+    "meta": {
+      "frame": "{{1374, 1333}, {217, 185}}",
+      "offset": "{-0, -1.5}",
+      "rotated": false,
+      "sourceSize": "{263, 234}",
+      "sourceColorRect": "{{23, 26}, {217, 185}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_1_2",
+    "x": 1580,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1580, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceCS_4_0",
+    "x": 1856,
+    "y": 1888,
+    "w": 153,
+    "h": 160,
+    "meta": {
+      "frame": "{{1856, 1888}, {153, 160}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{153, 160}",
+      "sourceColorRect": "{{0, 0}, {153, 160}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Obstacles_1_7",
+    "x": 1374,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1374, 541}, {201, 117}}",
+      "offset": "{2, 0.5}",
+      "rotated": false,
+      "sourceSize": "{243, 170}",
+      "sourceColorRect": "{{23, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfacePM_1_0",
+    "x": 1858,
+    "y": 1048,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1858, 1048}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_1_7",
+    "x": 1834,
+    "y": 325,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1834, 325}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "BackgroundLayers_6_0",
+    "x": 0,
+    "y": 13,
+    "w": 1830,
+    "h": 491,
+    "meta": {
+      "frame": "{{0, 13}, {1830, 491}}",
+      "offset": "{-12, 6.5}",
+      "rotated": false,
+      "sourceSize": "{1854, 532}",
+      "sourceColorRect": "{{0, 14}, {1830, 491}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "InterfaceGF_4_0",
+    "x": 1374,
+    "y": 1030,
+    "w": 480,
+    "h": 246,
+    "meta": {
+      "frame": "{{1374, 1030}, {480, 246}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{480, 246}",
+      "sourceColorRect": "{{0, 0}, {480, 246}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 1,
+    "name": "Characters_0_2",
+    "x": 1580,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1580, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_1_4",
+    "x": 1584,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1584, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "PZGameplayBasicRunner_platforms_2_0",
+    "x": 0,
+    "y": 294,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 294}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_Jump_0_0",
+    "x": 1378,
+    "y": 297,
+    "w": 202,
+    "h": 164,
+    "meta": {
+      "frame": "{{1378, 297}, {202, 164}}",
+      "offset": "{-0.5, -0.5}",
+      "rotated": false,
+      "sourceSize": "{257, 215}",
+      "sourceColorRect": "{{27, 26}, {202, 164}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfacePM_0_0",
+    "x": 0,
+    "y": 58,
+    "w": 779,
+    "h": 232,
+    "meta": {
+      "frame": "{{0, 58}, {779, 232}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{779, 232}",
+      "sourceColorRect": "{{0, 0}, {779, 232}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_1_5",
+    "x": 1378,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1378, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfaceMM_2_0",
+    "x": 1904,
+    "y": 1532,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1532}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_2_2",
+    "x": 1794,
+    "y": 304,
+    "w": 202,
+    "h": 157,
+    "meta": {
+      "frame": "{{1794, 304}, {202, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{208, 190}",
+      "sourceColorRect": "{{0, 25}, {202, 157}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfaceCS_5_0",
+    "x": 1904,
+    "y": 1740,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1740}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "BackgroundLayers_5_0",
+    "x": 0,
+    "y": 648,
+    "w": 1900,
+    "h": 380,
+    "meta": {
+      "frame": "{{0, 648}, {1900, 380}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 380}",
+      "sourceColorRect": "{{0, 0}, {1900, 380}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "BackgroundLayers_4_0",
+    "x": 783,
+    "y": 86,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{783, 86}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfaceGO_2_0",
+    "x": 1904,
+    "y": 1948,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1948}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfaceGO_1_0",
+    "x": 1904,
+    "y": 1844,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1844}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "InterfaceCS_3_0",
+    "x": 1904,
+    "y": 1636,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1636}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "BackgroundLayers_2_0",
+    "x": 0,
+    "y": 1448,
+    "w": 1900,
+    "h": 600,
+    "meta": {
+      "frame": "{{0, 1448}, {1900, 600}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 600}",
+      "sourceColorRect": "{{0, 0}, {1900, 600}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_0_7",
+    "x": 1790,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1790, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "Characters_Jump_1_0",
+    "x": 1584,
+    "y": 298,
+    "w": 206,
+    "h": 163,
+    "meta": {
+      "frame": "{{1584, 298}, {206, 163}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{257, 215}",
+      "sourceColorRect": "{{26, 26}, {206, 163}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 2,
+    "name": "BackgroundLayers_1_0",
+    "x": 0,
+    "y": 1032,
+    "w": 1900,
+    "h": 412,
+    "meta": {
+      "frame": "{{0, 1032}, {1900, 412}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 412}",
+      "sourceColorRect": "{{0, 0}, {1900, 412}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_1_2",
+    "x": 1292,
+    "y": 807,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1292, 807}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_7",
+    "x": 1786,
+    "y": 1359,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1786, 1359}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_0_5",
+    "x": 1584,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1584, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_6",
+    "x": 1071,
+    "y": 444,
+    "w": 201,
+    "h": 85,
+    "meta": {
+      "frame": "{{1071, 444}, {201, 85}}",
+      "offset": "{10, -1.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 85}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_2_1",
+    "x": 1485,
+    "y": 445,
+    "w": 205,
+    "h": 84,
+    "meta": {
+      "frame": "{{1485, 445}, {205, 84}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 84}",
+      "sourceColorRect": "{{0, 0}, {205, 84}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceGO_5_0",
+    "x": 1702,
+    "y": 831,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{1702, 831}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_1",
+    "x": 1445,
+    "y": 539,
+    "w": 206,
+    "h": 87,
+    "meta": {
+      "frame": "{{1445, 539}, {206, 87}}",
+      "offset": "{9.5, -4.5}",
+      "rotated": false,
+      "sourceSize": "{255, 132}",
+      "sourceColorRect": "{{34, 27}, {206, 87}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "PZGameplayBasicRunner_platforms_0_0",
+    "x": 0,
+    "y": 1344,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 1344}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_7_0",
+    "x": 205,
+    "y": 444,
+    "w": 437,
+    "h": 85,
+    "meta": {
+      "frame": "{{205, 444}, {437, 85}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{437, 85}",
+      "sourceColorRect": "{{0, 0}, {437, 85}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_1_0",
+    "x": 1497,
+    "y": 808,
+    "w": 201,
+    "h": 116,
+    "meta": {
+      "frame": "{{1497, 808}, {201, 116}}",
+      "offset": "{1.5, -0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 167}",
+      "sourceColorRect": "{{22, 26}, {201, 116}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_1_1",
+    "x": 1578,
+    "y": 1518,
+    "w": 196,
+    "h": 176,
+    "meta": {
+      "frame": "{{1578, 1518}, {196, 176}}",
+      "offset": "{0.5, -2}",
+      "rotated": false,
+      "sourceSize": "{249, 226}",
+      "sourceColorRect": "{{27, 27}, {196, 176}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_3",
+    "x": 1288,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1288, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceCS_12_0",
+    "x": 0,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{0, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceGO_0_0",
+    "x": 0,
+    "y": 738,
+    "w": 1083,
+    "h": 186,
+    "meta": {
+      "frame": "{{0, 738}, {1083, 186}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1083, 186}",
+      "sourceColorRect": "{{0, 0}, {1083, 186}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceGO_6_0",
+    "x": 604,
+    "y": 637,
+    "w": 603,
+    "h": 97,
+    "meta": {
+      "frame": "{{604, 637}, {603, 97}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{603, 99}",
+      "sourceColorRect": "{{0, 1}, {603, 97}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_6",
+    "x": 1378,
+    "y": 1345,
+    "w": 200,
+    "h": 169,
+    "meta": {
+      "frame": "{{1378, 1345}, {200, 169}}",
+      "offset": "{0.5, -1}",
+      "rotated": false,
+      "sourceSize": "{255, 221}",
+      "sourceColorRect": "{{28, 27}, {200, 169}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceMM_4_0",
+    "x": 816,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{816, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_0_4",
+    "x": 1790,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1790, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_6",
+    "x": 1498,
+    "y": 977,
+    "w": 201,
+    "h": 155,
+    "meta": {
+      "frame": "{{1498, 977}, {201, 155}}",
+      "offset": "{-2.5, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{1, 26}, {201, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_4",
+    "x": 1020,
+    "y": 539,
+    "w": 211,
+    "h": 87,
+    "meta": {
+      "frame": "{{1020, 539}, {211, 87}}",
+      "offset": "{9.5, -5}",
+      "rotated": false,
+      "sourceSize": "{260, 131}",
+      "sourceColorRect": "{{34, 27}, {211, 87}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_2_4",
+    "x": 209,
+    "y": 360,
+    "w": 201,
+    "h": 78,
+    "meta": {
+      "frame": "{{209, 360}, {201, 78}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{201, 78}",
+      "sourceColorRect": "{{0, 0}, {201, 78}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "BackgroundLayers_7_0",
+    "x": 0,
+    "y": 1136,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{0, 1136}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_1",
+    "x": 1378,
+    "y": 1708,
+    "w": 202,
+    "h": 157,
+    "meta": {
+      "frame": "{{1378, 1708}, {202, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{208, 190}",
+      "sourceColorRect": "{{0, 25}, {202, 157}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_1_3",
+    "x": 1087,
+    "y": 807,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1087, 807}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceMM_5_0",
+    "x": 1211,
+    "y": 637,
+    "w": 603,
+    "h": 97,
+    "meta": {
+      "frame": "{{1211, 637}, {603, 97}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{603, 99}",
+      "sourceColorRect": "{{0, 1}, {603, 97}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_7",
+    "x": 1655,
+    "y": 539,
+    "w": 201,
+    "h": 87,
+    "meta": {
+      "frame": "{{1655, 539}, {201, 87}}",
+      "offset": "{10, -2.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 87}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_2_2",
+    "x": 0,
+    "y": 359,
+    "w": 205,
+    "h": 79,
+    "meta": {
+      "frame": "{{0, 359}, {205, 79}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 79}",
+      "sourceColorRect": "{{0, 0}, {205, 79}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_5",
+    "x": 1086,
+    "y": 977,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1086, 977}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "BackgroundLayers_8_0",
+    "x": 0,
+    "y": 928,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{0, 928}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_1",
+    "x": 1582,
+    "y": 1345,
+    "w": 200,
+    "h": 169,
+    "meta": {
+      "frame": "{{1582, 1345}, {200, 169}}",
+      "offset": "{0.5, -1}",
+      "rotated": false,
+      "sourceSize": "{255, 221}",
+      "sourceColorRect": "{{28, 27}, {200, 169}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_2",
+    "x": 646,
+    "y": 444,
+    "w": 211,
+    "h": 85,
+    "meta": {
+      "frame": "{{646, 444}, {211, 85}}",
+      "offset": "{9.5, -4}",
+      "rotated": false,
+      "sourceSize": "{260, 131}",
+      "sourceColorRect": "{{34, 27}, {211, 85}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_2_0",
+    "x": 1692,
+    "y": 1169,
+    "w": 221,
+    "h": 171,
+    "meta": {
+      "frame": "{{1692, 1169}, {221, 171}}",
+      "offset": "{-0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{266, 218}",
+      "sourceColorRect": "{{22, 25}, {221, 171}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_1_2",
+    "x": 1378,
+    "y": 1518,
+    "w": 196,
+    "h": 176,
+    "meta": {
+      "frame": "{{1378, 1518}, {196, 176}}",
+      "offset": "{0.5, -2}",
+      "rotated": false,
+      "sourceSize": "{249, 226}",
+      "sourceColorRect": "{{27, 27}, {196, 176}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_4",
+    "x": 1086,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1086, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "PZGameplayBasicRunner_platforms_1_0",
+    "x": 0,
+    "y": 1698,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 1698}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_0",
+    "x": 1584,
+    "y": 1708,
+    "w": 201,
+    "h": 157,
+    "meta": {
+      "frame": "{{1584, 1708}, {201, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{207, 190}",
+      "sourceColorRect": "{{0, 25}, {201, 157}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceMM_6_0",
+    "x": 612,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{612, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_5",
+    "x": 1235,
+    "y": 539,
+    "w": 206,
+    "h": 87,
+    "meta": {
+      "frame": "{{1235, 539}, {206, 87}}",
+      "offset": "{9.5, -4.5}",
+      "rotated": false,
+      "sourceSize": "{255, 132}",
+      "sourceColorRect": "{{34, 27}, {206, 87}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_2_0",
+    "x": 1694,
+    "y": 448,
+    "w": 205,
+    "h": 81,
+    "meta": {
+      "frame": "{{1694, 448}, {205, 81}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 81}",
+      "sourceColorRect": "{{0, 0}, {205, 81}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_0",
+    "x": 0,
+    "y": 442,
+    "w": 201,
+    "h": 87,
+    "meta": {
+      "frame": "{{0, 442}, {201, 87}}",
+      "offset": "{10, -2.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 87}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_4",
+    "x": 1292,
+    "y": 977,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1292, 977}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceMM_7_0",
+    "x": 408,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{408, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceCoinShop_1_0",
+    "x": 0,
+    "y": 630,
+    "w": 600,
+    "h": 104,
+    "meta": {
+      "frame": "{{0, 630}, {600, 104}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{600, 104}",
+      "sourceColorRect": "{{0, 0}, {600, 104}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_8",
+    "x": 1789,
+    "y": 1710,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1789, 1710}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_0_6",
+    "x": 1378,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1378, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_2",
+    "x": 1490,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1490, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_0_3",
+    "x": 861,
+    "y": 444,
+    "w": 206,
+    "h": 85,
+    "meta": {
+      "frame": "{{861, 444}, {206, 85}}",
+      "offset": "{9.5, -4}",
+      "rotated": false,
+      "sourceSize": "{255, 131}",
+      "sourceColorRect": "{{34, 27}, {206, 85}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Obstacles_2_3",
+    "x": 1276,
+    "y": 445,
+    "w": 205,
+    "h": 84,
+    "meta": {
+      "frame": "{{1276, 445}, {205, 84}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 84}",
+      "sourceColorRect": "{{0, 0}, {205, 84}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_5",
+    "x": 1778,
+    "y": 1522,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1778, 1522}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "Characters_2_3",
+    "x": 1703,
+    "y": 977,
+    "w": 201,
+    "h": 155,
+    "meta": {
+      "frame": "{{1703, 977}, {201, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{207, 189}",
+      "sourceColorRect": "{{0, 26}, {201, 155}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceMM_8_0",
+    "x": 204,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{204, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "HD",
+    "sheet": 3,
+    "name": "InterfaceGO_4_0",
+    "x": 1818,
+    "y": 641,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{1818, 641}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Obstacles_4_0",
+    "x": 1904,
+    "y": 1498,
+    "w": 102,
+    "h": 167,
+    "meta": {
+      "frame": "{{1904, 1498}, {102, 167}}",
+      "offset": "{-1, -7.5}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{48, 24}, {102, 167}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "BackgroundLayers_3_0",
+    "x": 0,
+    "y": 10,
+    "w": 1829,
+    "h": 494,
+    "meta": {
+      "frame": "{{0, 10}, {1829, 494}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1829, 494}",
+      "sourceColorRect": "{{0, 0}, {1829, 494}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCS_7_0",
+    "x": 1781,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1781, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Coins_1_1",
+    "x": 1950,
+    "y": 1197,
+    "w": 79,
+    "h": 79,
+    "meta": {
+      "frame": "{{1950, 1197}, {79, 79}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{0, 0}, {79, 79}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_0_0",
+    "x": 0,
+    "y": 508,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 508}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceGF_1_0",
+    "x": 1681,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1681, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Characters_1_0",
+    "x": 1833,
+    "y": 121,
+    "w": 202,
+    "h": 181,
+    "meta": {
+      "frame": "{{1833, 121}, {202, 181}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 181}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "BackgroundLayers_0_0",
+    "x": 0,
+    "y": 1280,
+    "w": 1900,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 1280}, {1900, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 768}",
+      "sourceColorRect": "{{0, 0}, {1900, 768}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_5_0",
+    "x": 1881,
+    "y": 521,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1881, 521}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Obstacles_3_1",
+    "x": 1904,
+    "y": 1857,
+    "w": 138,
+    "h": 191,
+    "meta": {
+      "frame": "{{1904, 1857}, {138, 191}}",
+      "offset": "{7, 1.5}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{38, 3}, {138, 191}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceMM_1_0",
+    "x": 1374,
+    "y": 930,
+    "w": 572,
+    "h": 346,
+    "meta": {
+      "frame": "{{1374, 930}, {572, 346}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{572, 346}",
+      "sourceColorRect": "{{0, 0}, {572, 346}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_4_0",
+    "x": 1568,
+    "y": 626,
+    "w": 196,
+    "h": 300,
+    "meta": {
+      "frame": "{{1568, 626}, {196, 300}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 300}",
+      "sourceColorRect": "{{1, 0}, {196, 300}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Obstacles_3_0",
+    "x": 1904,
+    "y": 1669,
+    "w": 138,
+    "h": 184,
+    "meta": {
+      "frame": "{{1904, 1669}, {138, 184}}",
+      "offset": "{7, -2}",
+      "rotated": false,
+      "sourceSize": "{200, 200}",
+      "sourceColorRect": "{{38, 10}, {138, 184}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCS_2_0",
+    "x": 1904,
+    "y": 1370,
+    "w": 112,
+    "h": 124,
+    "meta": {
+      "frame": "{{1904, 1370}, {112, 124}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{112, 124}",
+      "sourceColorRect": "{{0, 0}, {112, 124}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Coins_1_0",
+    "x": 1950,
+    "y": 1116,
+    "w": 77,
+    "h": 77,
+    "meta": {
+      "frame": "{{1950, 1116}, {77, 77}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{1, 1}, {77, 77}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Coins_0_0",
+    "x": 1581,
+    "y": 521,
+    "w": 96,
+    "h": 100,
+    "meta": {
+      "frame": "{{1581, 521}, {96, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{96, 100}",
+      "sourceColorRect": "{{0, 0}, {96, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Coins_1_2",
+    "x": 1904,
+    "y": 1287,
+    "w": 79,
+    "h": 79,
+    "meta": {
+      "frame": "{{1904, 1287}, {79, 79}}",
+      "offset": "{-0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{80, 80}",
+      "sourceColorRect": "{{0, 0}, {79, 79}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_3_0",
+    "x": 1768,
+    "y": 689,
+    "w": 197,
+    "h": 237,
+    "meta": {
+      "frame": "{{1768, 689}, {197, 237}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 237}",
+      "sourceColorRect": "{{0, 0}, {197, 237}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Obstacles_1_1",
+    "x": 1374,
+    "y": 508,
+    "w": 203,
+    "h": 113,
+    "meta": {
+      "frame": "{{1374, 508}, {203, 113}}",
+      "offset": "{0.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 166}",
+      "sourceColorRect": "{{20, 26}, {203, 113}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfacePM_3_0",
+    "x": 1932,
+    "y": 17,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1932, 17}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "Obstacles_6_0",
+    "x": 1374,
+    "y": 625,
+    "w": 190,
+    "h": 301,
+    "meta": {
+      "frame": "{{1374, 625}, {190, 301}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{190, 301}",
+      "sourceColorRect": "{{0, 0}, {190, 301}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceGF_0_0",
+    "x": 1833,
+    "y": 17,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1833, 17}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 0,
+    "name": "InterfaceCoinShop_2_0",
+    "x": 1833,
+    "y": 306,
+    "w": 197,
+    "h": 198,
+    "meta": {
+      "frame": "{{1833, 306}, {197, 198}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{197, 198}",
+      "sourceColorRect": "{{0, 0}, {197, 198}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_1_6",
+    "x": 1579,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1579, 541}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_1_1",
+    "x": 1786,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1786, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceMM_0_0",
+    "x": 0,
+    "y": 508,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 508}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_1_5",
+    "x": 1784,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1784, 541}, {201, 117}}",
+      "offset": "{2, 0.5}",
+      "rotated": false,
+      "sourceSize": "{243, 170}",
+      "sourceColorRect": "{{23, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceCS_1_0",
+    "x": 1858,
+    "y": 1152,
+    "w": 112,
+    "h": 124,
+    "meta": {
+      "frame": "{{1858, 1152}, {112, 124}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{112, 124}",
+      "sourceColorRect": "{{0, 0}, {112, 124}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_Jump_2_1",
+    "x": 1595,
+    "y": 1333,
+    "w": 217,
+    "h": 185,
+    "meta": {
+      "frame": "{{1595, 1333}, {217, 185}}",
+      "offset": "{-0, -1.5}",
+      "rotated": false,
+      "sourceSize": "{263, 234}",
+      "sourceColorRect": "{{23, 26}, {217, 185}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_1_6",
+    "x": 1834,
+    "y": 142,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1834, 142}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_1_4",
+    "x": 1834,
+    "y": 21,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1834, 21}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_0_1",
+    "x": 1786,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1786, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_1_3",
+    "x": 1374,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1374, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfacePM_2_0",
+    "x": 1856,
+    "y": 1784,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1856, 1784}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_5_0",
+    "x": 1374,
+    "y": 1782,
+    "w": 478,
+    "h": 266,
+    "meta": {
+      "frame": "{{1374, 1782}, {478, 266}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{478, 266}",
+      "sourceColorRect": "{{0, 0}, {478, 266}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_8_0",
+    "x": 1374,
+    "y": 1522,
+    "w": 495,
+    "h": 256,
+    "meta": {
+      "frame": "{{1374, 1522}, {495, 256}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{495, 256}",
+      "sourceColorRect": "{{0, 0}, {495, 256}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_0_3",
+    "x": 1374,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1374, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceCS_0_0",
+    "x": 0,
+    "y": 1280,
+    "w": 1370,
+    "h": 768,
+    "meta": {
+      "frame": "{{0, 1280}, {1370, 768}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1370, 768}",
+      "sourceColorRect": "{{0, 0}, {1370, 768}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceMM_3_0",
+    "x": 1873,
+    "y": 1618,
+    "w": 153,
+    "h": 160,
+    "meta": {
+      "frame": "{{1873, 1618}, {153, 160}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{153, 160}",
+      "sourceColorRect": "{{0, 0}, {153, 160}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_0_0",
+    "x": 1816,
+    "y": 1337,
+    "w": 202,
+    "h": 181,
+    "meta": {
+      "frame": "{{1816, 1337}, {202, 181}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 181}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_Jump_2_2",
+    "x": 1374,
+    "y": 1333,
+    "w": 217,
+    "h": 185,
+    "meta": {
+      "frame": "{{1374, 1333}, {217, 185}}",
+      "offset": "{-0, -1.5}",
+      "rotated": false,
+      "sourceSize": "{263, 234}",
+      "sourceColorRect": "{{23, 26}, {217, 185}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_1_2",
+    "x": 1580,
+    "y": 846,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1580, 846}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceCS_4_0",
+    "x": 1856,
+    "y": 1888,
+    "w": 153,
+    "h": 160,
+    "meta": {
+      "frame": "{{1856, 1888}, {153, 160}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{153, 160}",
+      "sourceColorRect": "{{0, 0}, {153, 160}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Obstacles_1_7",
+    "x": 1374,
+    "y": 541,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1374, 541}, {201, 117}}",
+      "offset": "{2, 0.5}",
+      "rotated": false,
+      "sourceSize": "{243, 170}",
+      "sourceColorRect": "{{23, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfacePM_1_0",
+    "x": 1858,
+    "y": 1048,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1858, 1048}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_1_7",
+    "x": 1834,
+    "y": 325,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1834, 325}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "BackgroundLayers_6_0",
+    "x": 0,
+    "y": 13,
+    "w": 1830,
+    "h": 491,
+    "meta": {
+      "frame": "{{0, 13}, {1830, 491}}",
+      "offset": "{-12, 6.5}",
+      "rotated": false,
+      "sourceSize": "{1854, 532}",
+      "sourceColorRect": "{{0, 14}, {1830, 491}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "InterfaceGF_4_0",
+    "x": 1374,
+    "y": 1030,
+    "w": 480,
+    "h": 246,
+    "meta": {
+      "frame": "{{1374, 1030}, {480, 246}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{480, 246}",
+      "sourceColorRect": "{{0, 0}, {480, 246}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 1,
+    "name": "Characters_0_2",
+    "x": 1580,
+    "y": 662,
+    "w": 202,
+    "h": 180,
+    "meta": {
+      "frame": "{{1580, 662}, {202, 180}}",
+      "offset": "{-0, 1}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 26}, {202, 180}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_1_4",
+    "x": 1584,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1584, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "PZGameplayBasicRunner_platforms_2_0",
+    "x": 0,
+    "y": 294,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 294}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_Jump_0_0",
+    "x": 1378,
+    "y": 297,
+    "w": 202,
+    "h": 164,
+    "meta": {
+      "frame": "{{1378, 297}, {202, 164}}",
+      "offset": "{-0.5, -0.5}",
+      "rotated": false,
+      "sourceSize": "{257, 215}",
+      "sourceColorRect": "{{27, 26}, {202, 164}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfacePM_0_0",
+    "x": 0,
+    "y": 58,
+    "w": 779,
+    "h": 232,
+    "meta": {
+      "frame": "{{0, 58}, {779, 232}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{779, 232}",
+      "sourceColorRect": "{{0, 0}, {779, 232}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_1_5",
+    "x": 1378,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1378, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfaceMM_2_0",
+    "x": 1904,
+    "y": 1532,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1532}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_2_2",
+    "x": 1794,
+    "y": 304,
+    "w": 202,
+    "h": 157,
+    "meta": {
+      "frame": "{{1794, 304}, {202, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{208, 190}",
+      "sourceColorRect": "{{0, 25}, {202, 157}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfaceCS_5_0",
+    "x": 1904,
+    "y": 1740,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1740}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "BackgroundLayers_5_0",
+    "x": 0,
+    "y": 648,
+    "w": 1900,
+    "h": 380,
+    "meta": {
+      "frame": "{{0, 648}, {1900, 380}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 380}",
+      "sourceColorRect": "{{0, 0}, {1900, 380}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "BackgroundLayers_4_0",
+    "x": 783,
+    "y": 86,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{783, 86}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfaceGO_2_0",
+    "x": 1904,
+    "y": 1948,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1948}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfaceGO_1_0",
+    "x": 1904,
+    "y": 1844,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1844}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "InterfaceCS_3_0",
+    "x": 1904,
+    "y": 1636,
+    "w": 95,
+    "h": 100,
+    "meta": {
+      "frame": "{{1904, 1636}, {95, 100}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{95, 100}",
+      "sourceColorRect": "{{0, 0}, {95, 100}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "BackgroundLayers_2_0",
+    "x": 0,
+    "y": 1448,
+    "w": 1900,
+    "h": 600,
+    "meta": {
+      "frame": "{{0, 1448}, {1900, 600}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 600}",
+      "sourceColorRect": "{{0, 0}, {1900, 600}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_0_7",
+    "x": 1790,
+    "y": 465,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1790, 465}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "Characters_Jump_1_0",
+    "x": 1584,
+    "y": 298,
+    "w": 206,
+    "h": 163,
+    "meta": {
+      "frame": "{{1584, 298}, {206, 163}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{257, 215}",
+      "sourceColorRect": "{{26, 26}, {206, 163}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 2,
+    "name": "BackgroundLayers_1_0",
+    "x": 0,
+    "y": 1032,
+    "w": 1900,
+    "h": 412,
+    "meta": {
+      "frame": "{{0, 1032}, {1900, 412}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1900, 412}",
+      "sourceColorRect": "{{0, 0}, {1900, 412}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_1_2",
+    "x": 1292,
+    "y": 807,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1292, 807}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_7",
+    "x": 1786,
+    "y": 1359,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1786, 1359}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_0_5",
+    "x": 1584,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1584, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_6",
+    "x": 1071,
+    "y": 444,
+    "w": 201,
+    "h": 85,
+    "meta": {
+      "frame": "{{1071, 444}, {201, 85}}",
+      "offset": "{10, -1.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 85}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_2_1",
+    "x": 1485,
+    "y": 445,
+    "w": 205,
+    "h": 84,
+    "meta": {
+      "frame": "{{1485, 445}, {205, 84}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 84}",
+      "sourceColorRect": "{{0, 0}, {205, 84}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceGO_5_0",
+    "x": 1702,
+    "y": 831,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{1702, 831}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_1",
+    "x": 1445,
+    "y": 539,
+    "w": 206,
+    "h": 87,
+    "meta": {
+      "frame": "{{1445, 539}, {206, 87}}",
+      "offset": "{9.5, -4.5}",
+      "rotated": false,
+      "sourceSize": "{255, 132}",
+      "sourceColorRect": "{{34, 27}, {206, 87}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "PZGameplayBasicRunner_platforms_0_0",
+    "x": 0,
+    "y": 1344,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 1344}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_7_0",
+    "x": 205,
+    "y": 444,
+    "w": 437,
+    "h": 85,
+    "meta": {
+      "frame": "{{205, 444}, {437, 85}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{437, 85}",
+      "sourceColorRect": "{{0, 0}, {437, 85}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_1_0",
+    "x": 1497,
+    "y": 808,
+    "w": 201,
+    "h": 116,
+    "meta": {
+      "frame": "{{1497, 808}, {201, 116}}",
+      "offset": "{1.5, -0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 167}",
+      "sourceColorRect": "{{22, 26}, {201, 116}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_1_1",
+    "x": 1578,
+    "y": 1518,
+    "w": 196,
+    "h": 176,
+    "meta": {
+      "frame": "{{1578, 1518}, {196, 176}}",
+      "offset": "{0.5, -2}",
+      "rotated": false,
+      "sourceSize": "{249, 226}",
+      "sourceColorRect": "{{27, 27}, {196, 176}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_3",
+    "x": 1288,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1288, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceCS_12_0",
+    "x": 0,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{0, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceGO_0_0",
+    "x": 0,
+    "y": 738,
+    "w": 1083,
+    "h": 186,
+    "meta": {
+      "frame": "{{0, 738}, {1083, 186}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1083, 186}",
+      "sourceColorRect": "{{0, 0}, {1083, 186}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceGO_6_0",
+    "x": 604,
+    "y": 637,
+    "w": 603,
+    "h": 97,
+    "meta": {
+      "frame": "{{604, 637}, {603, 97}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{603, 99}",
+      "sourceColorRect": "{{0, 1}, {603, 97}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_6",
+    "x": 1378,
+    "y": 1345,
+    "w": 200,
+    "h": 169,
+    "meta": {
+      "frame": "{{1378, 1345}, {200, 169}}",
+      "offset": "{0.5, -1}",
+      "rotated": false,
+      "sourceSize": "{255, 221}",
+      "sourceColorRect": "{{28, 27}, {200, 169}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceMM_4_0",
+    "x": 816,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{816, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_0_4",
+    "x": 1790,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1790, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_6",
+    "x": 1498,
+    "y": 977,
+    "w": 201,
+    "h": 155,
+    "meta": {
+      "frame": "{{1498, 977}, {201, 155}}",
+      "offset": "{-2.5, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{1, 26}, {201, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_4",
+    "x": 1020,
+    "y": 539,
+    "w": 211,
+    "h": 87,
+    "meta": {
+      "frame": "{{1020, 539}, {211, 87}}",
+      "offset": "{9.5, -5}",
+      "rotated": false,
+      "sourceSize": "{260, 131}",
+      "sourceColorRect": "{{34, 27}, {211, 87}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_2_4",
+    "x": 209,
+    "y": 360,
+    "w": 201,
+    "h": 78,
+    "meta": {
+      "frame": "{{209, 360}, {201, 78}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{201, 78}",
+      "sourceColorRect": "{{0, 0}, {201, 78}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "BackgroundLayers_7_0",
+    "x": 0,
+    "y": 1136,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{0, 1136}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_1",
+    "x": 1378,
+    "y": 1708,
+    "w": 202,
+    "h": 157,
+    "meta": {
+      "frame": "{{1378, 1708}, {202, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{208, 190}",
+      "sourceColorRect": "{{0, 25}, {202, 157}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_1_3",
+    "x": 1087,
+    "y": 807,
+    "w": 201,
+    "h": 117,
+    "meta": {
+      "frame": "{{1087, 807}, {201, 117}}",
+      "offset": "{1.5, 0.5}",
+      "rotated": false,
+      "sourceSize": "{242, 170}",
+      "sourceColorRect": "{{22, 26}, {201, 117}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceMM_5_0",
+    "x": 1211,
+    "y": 637,
+    "w": 603,
+    "h": 97,
+    "meta": {
+      "frame": "{{1211, 637}, {603, 97}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{603, 99}",
+      "sourceColorRect": "{{0, 1}, {603, 97}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_7",
+    "x": 1655,
+    "y": 539,
+    "w": 201,
+    "h": 87,
+    "meta": {
+      "frame": "{{1655, 539}, {201, 87}}",
+      "offset": "{10, -2.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 87}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_2_2",
+    "x": 0,
+    "y": 359,
+    "w": 205,
+    "h": 79,
+    "meta": {
+      "frame": "{{0, 359}, {205, 79}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 79}",
+      "sourceColorRect": "{{0, 0}, {205, 79}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_5",
+    "x": 1086,
+    "y": 977,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1086, 977}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "BackgroundLayers_8_0",
+    "x": 0,
+    "y": 928,
+    "w": 1082,
+    "h": 204,
+    "meta": {
+      "frame": "{{0, 928}, {1082, 204}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{1082, 204}",
+      "sourceColorRect": "{{0, 0}, {1082, 204}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_1",
+    "x": 1582,
+    "y": 1345,
+    "w": 200,
+    "h": 169,
+    "meta": {
+      "frame": "{{1582, 1345}, {200, 169}}",
+      "offset": "{0.5, -1}",
+      "rotated": false,
+      "sourceSize": "{255, 221}",
+      "sourceColorRect": "{{28, 27}, {200, 169}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_2",
+    "x": 646,
+    "y": 444,
+    "w": 211,
+    "h": 85,
+    "meta": {
+      "frame": "{{646, 444}, {211, 85}}",
+      "offset": "{9.5, -4}",
+      "rotated": false,
+      "sourceSize": "{260, 131}",
+      "sourceColorRect": "{{34, 27}, {211, 85}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_2_0",
+    "x": 1692,
+    "y": 1169,
+    "w": 221,
+    "h": 171,
+    "meta": {
+      "frame": "{{1692, 1169}, {221, 171}}",
+      "offset": "{-0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{266, 218}",
+      "sourceColorRect": "{{22, 25}, {221, 171}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_1_2",
+    "x": 1378,
+    "y": 1518,
+    "w": 196,
+    "h": 176,
+    "meta": {
+      "frame": "{{1378, 1518}, {196, 176}}",
+      "offset": "{0.5, -2}",
+      "rotated": false,
+      "sourceSize": "{249, 226}",
+      "sourceColorRect": "{{27, 27}, {196, 176}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_4",
+    "x": 1086,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1086, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "PZGameplayBasicRunner_platforms_1_0",
+    "x": 0,
+    "y": 1698,
+    "w": 1374,
+    "h": 350,
+    "meta": {
+      "frame": "{{0, 1698}, {1374, 350}}",
+      "offset": "{0.5, 0}",
+      "rotated": false,
+      "sourceSize": "{1375, 350}",
+      "sourceColorRect": "{{1, 0}, {1374, 350}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_0",
+    "x": 1584,
+    "y": 1708,
+    "w": 201,
+    "h": 157,
+    "meta": {
+      "frame": "{{1584, 1708}, {201, 157}}",
+      "offset": "{-3, -8.5}",
+      "rotated": false,
+      "sourceSize": "{207, 190}",
+      "sourceColorRect": "{{0, 25}, {201, 157}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceMM_6_0",
+    "x": 612,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{612, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_5",
+    "x": 1235,
+    "y": 539,
+    "w": 206,
+    "h": 87,
+    "meta": {
+      "frame": "{{1235, 539}, {206, 87}}",
+      "offset": "{9.5, -4.5}",
+      "rotated": false,
+      "sourceSize": "{255, 132}",
+      "sourceColorRect": "{{34, 27}, {206, 87}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_2_0",
+    "x": 1694,
+    "y": 448,
+    "w": 205,
+    "h": 81,
+    "meta": {
+      "frame": "{{1694, 448}, {205, 81}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 81}",
+      "sourceColorRect": "{{0, 0}, {205, 81}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_0",
+    "x": 0,
+    "y": 442,
+    "w": 201,
+    "h": 87,
+    "meta": {
+      "frame": "{{0, 442}, {201, 87}}",
+      "offset": "{10, -2.5}",
+      "rotated": false,
+      "sourceSize": "{251, 136}",
+      "sourceColorRect": "{{35, 27}, {201, 87}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_4",
+    "x": 1292,
+    "y": 977,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1292, 977}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceMM_7_0",
+    "x": 408,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{408, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceCoinShop_1_0",
+    "x": 0,
+    "y": 630,
+    "w": 600,
+    "h": 104,
+    "meta": {
+      "frame": "{{0, 630}, {600, 104}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{600, 104}",
+      "sourceColorRect": "{{0, 0}, {600, 104}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_8",
+    "x": 1789,
+    "y": 1710,
+    "w": 202,
+    "h": 155,
+    "meta": {
+      "frame": "{{1789, 1710}, {202, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{208, 189}",
+      "sourceColorRect": "{{0, 26}, {202, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_0_6",
+    "x": 1378,
+    "y": 1869,
+    "w": 202,
+    "h": 179,
+    "meta": {
+      "frame": "{{1378, 1869}, {202, 179}}",
+      "offset": "{-0, 0.5}",
+      "rotated": false,
+      "sourceSize": "{256, 234}",
+      "sourceColorRect": "{{27, 27}, {202, 179}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_2",
+    "x": 1490,
+    "y": 1168,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1490, 1168}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_0_3",
+    "x": 861,
+    "y": 444,
+    "w": 206,
+    "h": 85,
+    "meta": {
+      "frame": "{{861, 444}, {206, 85}}",
+      "offset": "{9.5, -4}",
+      "rotated": false,
+      "sourceSize": "{255, 131}",
+      "sourceColorRect": "{{34, 27}, {206, 85}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Obstacles_2_3",
+    "x": 1276,
+    "y": 445,
+    "w": 205,
+    "h": 84,
+    "meta": {
+      "frame": "{{1276, 445}, {205, 84}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{205, 84}",
+      "sourceColorRect": "{{0, 0}, {205, 84}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_Jump_0_5",
+    "x": 1778,
+    "y": 1522,
+    "w": 198,
+    "h": 172,
+    "meta": {
+      "frame": "{{1778, 1522}, {198, 172}}",
+      "offset": "{0.5, -1.5}",
+      "rotated": false,
+      "sourceSize": "{253, 223}",
+      "sourceColorRect": "{{28, 27}, {198, 172}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "Characters_2_3",
+    "x": 1703,
+    "y": 977,
+    "w": 201,
+    "h": 155,
+    "meta": {
+      "frame": "{{1703, 977}, {201, 155}}",
+      "offset": "{-3, -9}",
+      "rotated": false,
+      "sourceSize": "{207, 189}",
+      "sourceColorRect": "{{0, 26}, {201, 155}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceMM_8_0",
+    "x": 204,
+    "y": 533,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{204, 533}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  },
+  {
+    "tier": "SD",
+    "sheet": 3,
+    "name": "InterfaceGO_4_0",
+    "x": 1818,
+    "y": 641,
+    "w": 200,
+    "h": 93,
+    "meta": {
+      "frame": "{{1818, 641}, {200, 93}}",
+      "offset": "{-0, 0}",
+      "rotated": false,
+      "sourceSize": "{200, 93}",
+      "sourceColorRect": "{{0, 0}, {200, 93}}"
+    }
+  }
+]

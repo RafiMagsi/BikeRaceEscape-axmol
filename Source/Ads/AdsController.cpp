@@ -53,42 +53,86 @@ void AdsController::onLevelsMenu() { handleContext(AdsContext::LevelsMenu); }
 void AdsController::onPauseMenu() { handleContext(AdsContext::PauseMenu); }
 void AdsController::onPlaying() { handleContext(AdsContext::Playing); }
 void AdsController::onGameOver() { handleContext(AdsContext::GameOver); }
+// Interstitial networks that are enabled and configured on this platform, in the order the
+// "free game" button prefers them (Chartboost first on iOS: fast full-screen).
+std::vector<AdsController::InterstitialNetwork> AdsController::interstitialNetworks() const {
+    std::vector<InterstitialNetwork> nets;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    if (config_.chartboost.enabled && !config_.chartboost.interstitialLocationIOS.empty()) {
+        nets.push_back({false, config_.chartboost.interstitialLocationIOS});
+    }
+    if (config_.admobEnabled && !config_.admob.interstitialIdIOS.empty()) {
+        nets.push_back({true, config_.admob.interstitialIdIOS});
+    }
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    if (config_.admobEnabled && !config_.admob.interstitialIdAndroid.empty()) {
+        nets.push_back({true, config_.admob.interstitialIdAndroid});
+    }
+#endif
+    return nets;
+}
+
+// Shows the first network that has an interstitial cached. Returns true if one was shown.
+bool AdsController::showFirstReadyInterstitial() {
+    for (const auto& net : interstitialNetworks()) {
+        selectAdMobInterstitial(net.admob);
+        if (!provider_->isInterstitialReady()) continue;
+
+        AXLOGI("AdsController: showing {} interstitial", net.admob ? "AdMob" : "Chartboost");
+        showInterstitial();
+        nextInterstitialAdMob_ = !net.admob; // let the next automatic ad use the other network
+        loadInterstitial({net.placementId}); // cache the next one
+        return true;
+    }
+    return false;
+}
+
+void AdsController::cancelMoreGames() {
+    if (!moreGamesPending_) return;
+    moreGamesPending_ = false;
+    ax::Director::getInstance()->getScheduler()->unschedule("pz_more_games_poll", this);
+}
+
 void AdsController::onMoreGames() {
     if (!adsEnabled_ || !provider_) return;
 
-    // Prefer Chartboost interstitial for the "more games/free game" button (fast full-screen).
-    // If Chartboost is disabled, fall back to rewarded (if configured) or interstitial.
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    if (config_.chartboost.enabled && !config_.chartboost.interstitialLocationIOS.empty()) {
-        const std::string loc = config_.chartboost.interstitialLocationIOS;
-        const bool ready = provider_->isInterstitialReady();
-        AXLOGI("AdsController: onMoreGames (Chartboost) ready={} location='{}'", ready, loc);
-        if (ready) {
-            showInterstitial();
-            loadInterstitial({loc}); // warm next one
-        } else {
-            loadInterstitial({loc});
-            AXLOGI("AdsController: onMoreGames Chartboost not ready; caching only");
-        }
+    // Explicit button tap: show whichever network already has an ad cached.
+    if (showFirstReadyInterstitial()) {
+        cancelMoreGames();
         return;
     }
-#endif
+    if (moreGamesPending_) return; // already waiting for an ad to fill
 
-    // Fallbacks (kept for compatibility)
-    if (config_.admobEnabled) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        if (!config_.admob.rewardedIdIOS.empty()) {
-            loadRewarded({config_.admob.rewardedIdIOS});
-            showRewarded();
-            return;
-        }
-        if (!config_.admob.interstitialIdIOS.empty()) {
-            loadInterstitial({config_.admob.interstitialIdIOS});
-            showInterstitial();
-            return;
-        }
-#endif
+    // Nothing is cached yet (e.g. right after launch): request every enabled network and show the
+    // first one that fills. Give up after a few seconds so a late ad never pops up mid-game.
+    const auto nets = interstitialNetworks();
+    if (nets.empty()) {
+        AXLOGW("AdsController: onMoreGames: no interstitial network is enabled/configured");
+        return;
     }
+    for (const auto& net : nets) {
+        selectAdMobInterstitial(net.admob);
+        if (!provider_->isInterstitialReady()) loadInterstitial({net.placementId});
+    }
+    AXLOGI("AdsController: onMoreGames: no ad cached yet; waiting for one to load");
+
+    static constexpr float kPollInterval = 0.25f;
+    static constexpr float kTimeout = 10.0f;
+    moreGamesPending_ = true;
+    moreGamesElapsed_ = 0.0f;
+    ax::Director::getInstance()->getScheduler()->schedule(
+        [this](float dt) {
+            moreGamesElapsed_ += dt;
+            if (!adsEnabled_ || !provider_) {
+                cancelMoreGames();
+            } else if (showFirstReadyInterstitial()) {
+                cancelMoreGames();
+            } else if (moreGamesElapsed_ >= kTimeout) {
+                AXLOGW("AdsController: onMoreGames: no ad filled within {}s; giving up", kTimeout);
+                cancelMoreGames();
+            }
+        },
+        this, kPollInterval, false, "pz_more_games_poll");
 }
 
 void AdsController::showBanner() {
@@ -135,6 +179,9 @@ void AdsController::selectAdMobInterstitial(bool admob) {
 void AdsController::handleContext(AdsContext ctx) {
     const int i = static_cast<int>(ctx);
     if (!adsEnabled_ || !provider_) return;
+
+    // A pending "free game" ad must not appear after the player has left the main menu.
+    if (ctx != AdsContext::MainMenu) cancelMoreGames();
 
     const auto& s = config_.setups[i];
 

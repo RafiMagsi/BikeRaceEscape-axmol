@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "IAdsProvider.h"
 #include "AdsConfig.h"
@@ -62,6 +63,18 @@ private:
     int interstitialCounters_[6]{};
     int rewardedCounters_[6]{};
     bool nextInterstitialAdMob_{true};
+
+    // "Free game" button: show the first cached interstitial, otherwise load and show the first that fills.
+    bool moreGamesPending_{false};
+    float moreGamesElapsed_{0.0f};
+
+    struct InterstitialNetwork {
+        bool admob;
+        std::string placementId;
+    };
+    std::vector<InterstitialNetwork> interstitialNetworks() const;
+    bool showFirstReadyInterstitial();
+    void cancelMoreGames();
 
     void handleContext(AdsContext ctx);
     void selectAdMobInterstitial(bool admob);

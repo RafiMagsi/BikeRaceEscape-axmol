@@ -10,15 +10,15 @@
 		</data>
 		<key>AppIcon60x60@2x.png</key>
 		<data>
-		rlQomVbsrQHt0m5sKlrfVrtlTGs=
+		kINNZuP9KhZ/DNpCV6Vl+LFLDkM=
 		</data>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<data>
-		MdRp4DYLgPFPSx8nhTIvjRM7oDI=
+		a4PNjqZ0E/GpfmDptK2AJM9+yqU=
 		</data>
 		<key>Assets.car</key>
 		<data>
-		8k5LoTZPNSjQVAtevU15x2Byt3g=
+		GIaD2Ccq+Cd9H1U2J8NFMFImsWY=
 		</data>
 		<key>CompleteGameInfo.plist</key>
 		<data>
@@ -38,15 +38,15 @@
 		</data>
 		<key>Frameworks/soft_oal.framework/Info.plist</key>
 		<data>
-		mpb0Zeyi8OeL40p/fBHLsjSZ/wI=
+		F2ZqA7xiSbatCsVphqTUH8fISjs=
 		</data>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<data>
-		H0KuB4OCdbSWuz88UQXzm1s3Yc4=
+		trTKXGn0pklnPy0Ip3CkWJi8qBw=
 		</data>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<data>
-		71ncO5rGHA/qcQ405o9vA0/IICg=
+		1GTfVsklhfxJdt0DP15TmqpFK2Y=
 		</data>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>Images/HD/animation_s0.png</key>
 		<data>
-		ty7qVuMsgcBl6hZzkCF/iwoat7k=
+		BfzrToYaETOzRUlZVbWF8xy1oy4=
 		</data>
 		<key>Images/HD/animation_s1.plist</key>
 		<data>
@@ -98,7 +98,7 @@
 		</data>
 		<key>Images/HD/animation_s1.png</key>
 		<data>
-		eOhVEWyQ/xRS2ioNhQBN4i3+wEc=
+		8Gy3MjiOcBMZivyGZbcdpRRatrw=
 		</data>
 		<key>Images/HD/animation_s2.plist</key>
 		<data>
@@ -106,7 +106,7 @@
 		</data>
 		<key>Images/HD/animation_s2.png</key>
 		<data>
-		wzDtOJPnU6pJH597bPIKhLlTSoI=
+		dy6ntMVhQILZV+PMSUn5gzZ+3d8=
 		</data>
 		<key>Images/HD/animation_s3.plist</key>
 		<data>
@@ -114,7 +114,7 @@
 		</data>
 		<key>Images/HD/animation_s3.png</key>
 		<data>
-		gwPLJZ4/36Au7SfkOg+Ae4t5+OE=
+		inETSbWuuIb5/2679q1UNWRZYJ0=
 		</data>
 		<key>Images/HD/free_game.png</key>
 		<data>
@@ -154,7 +154,7 @@
 		</data>
 		<key>Images/SD/animation_s0.png</key>
 		<data>
-		mj2KWDytKIDPBcQomVk5yFSrnJc=
+		lUmXKHLYiB3+TwN2Z5rjNp1Q0eI=
 		</data>
 		<key>Images/SD/animation_s1.plist</key>
 		<data>
@@ -162,7 +162,7 @@
 		</data>
 		<key>Images/SD/animation_s1.png</key>
 		<data>
-		G3FG+9mbp1r53+fFbJWeVJI+3vk=
+		0NqMC2r7OdjgMqb1JYLzKOC1AZY=
 		</data>
 		<key>Images/SD/animation_s2.plist</key>
 		<data>
@@ -170,7 +170,7 @@
 		</data>
 		<key>Images/SD/animation_s2.png</key>
 		<data>
-		MOAeUWQeQ/5CnCiEXcRKCakHjZQ=
+		j4vkHvYUUUCn3V9P0glfmMR5ER0=
 		</data>
 		<key>Images/SD/animation_s3.plist</key>
 		<data>
@@ -178,7 +178,7 @@
 		</data>
 		<key>Images/SD/animation_s3.png</key>
 		<data>
-		I9kMfqeQanTvb8W08rdm3Y2eubM=
+		t3vw6Tevfa47d7vnHR4sSsPsXYM=
 		</data>
 		<key>Images/SD/free_game.png</key>
 		<data>
@@ -483,21 +483,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lFXTBUrG2suObNkYMlmErfEK7N831EJySOSxjrdH9OU=
+			wzQcQw/r4fQb/ZM8mFXiOyYwN6GlKaeesIaNZLl3Aao=
 			</data>
 		</dict>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			VxeIsokJiZmJt9bRL0TBE+zfLyGtZzpYMQCCqZsgoa4=
+			X6nS7wOkzlrXrP/OVWw7fTMtZgGSGjY6o0ukJ5uCLf4=
 			</data>
 		</dict>
 		<key>Assets.car</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			iJ245R6cjTc6doP69U8eciOqdSvjpcSB3XShFo45NUc=
+			hhcDPVUNBYdI3P/Yp/oiVz825gf8f5Okhl6TosFjS9s=
 			</data>
 		</dict>
 		<key>CompleteGameInfo.plist</key>
@@ -532,21 +532,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			523jAC3ZTARHRBezV6EIjds5BSZGuH2rOT8rFpHFJec=
+			6AaFdz1wia4OtFFJQb1qV1El9r/OAEfL+KRnk8gDSDU=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			DA/XyOXTCgyPEeaOQLEMAzGLp1uTfkUYd8VTmksX+AU=
+			oSf5kafdao8fiDoPx2hNqzJ0u85mRxYFC6Gj2cMBqto=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			49zkc7GRJ4CHAF52DHwx5Dtp77g55yt6344FgRjZHF4=
+			zMuCYVvqccjX18xHVSxNC4naRZQpH5/ZN6tCbQ61vRA=
 			</data>
 		</dict>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
@@ -609,7 +609,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XIUajb/XReDPeT41MAsTbvb3ty3n338rCCfu7EtKK6c=
+			fbbeDrJOXoztmCpBhXawj5wad1k9W/W3jifNcKpUtS8=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s1.plist</key>
@@ -623,7 +623,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			+ni5nhNnfBSRm+W8HRXMqdmarXrYg2/JfFVPB0QplP8=
+			YVPh43hotFc6drzcVsN2xXKe+q9m0xN412moniw0R2E=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s2.plist</key>
@@ -637,7 +637,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			7Y8+jCYk4Uq7q8pXN7rH+R+S30PE8wQs8BDjaOFT8SE=
+			MMkCLdD7Zf3PpsAsTJr868XXnSdCd2Xkx2Ry2e2sIbg=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s3.plist</key>
@@ -651,7 +651,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			GSAXXxcAaZxt6xOsD+0jWuodkIJSkSDHm9GPoKIUuGQ=
+			gM/Vs/E1DNR+DndpoOh8BlCoyVaqTZB+kTPNRhY08M0=
 			</data>
 		</dict>
 		<key>Images/HD/free_game.png</key>
@@ -714,7 +714,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			sdouaeNQUPZsbJ46MO4GrI+z1FgNUxK9y4M/6n6g2qQ=
+			057GZK0pUjVepmOIyAE/cDGKRls+koMu16ydA/w/Kr0=
 			</data>
 		</dict>
 		<key>Images/SD/animation_s1.plist</key>
@@ -728,7 +728,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			QQv7dc8gQhc5znalzp+s5IcP7yzwtxBXMOoG89oNKJw=
+			B00Q2rh93a3gOqPtG9gbHo8OVCGciaBNDYV7jpD/SX8=
 			</data>
 		</dict>
 		<key>Images/SD/animation_s2.plist</key>
@@ -742,7 +742,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			iiPw2xhHFveqmk56Xk3Wowa1ntsIsNvSsjhZlw6LNRU=
+			ewmlq18HyqJFDwlJHQfd6ysruImy2bpIPSJJV/hSMpw=
 			</data>
 		</dict>
 		<key>Images/SD/animation_s3.plist</key>
@@ -756,7 +756,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2KPGG2heKeHaSCdALMmA5ELoPHYMQQv5hNM+BQcWbks=
+			DQwmJ0MRsQbzXKnvad9A6TJsbM6RROeG9gbIt5kMUXg=
 			</data>
 		</dict>
 		<key>Images/SD/free_game.png</key>

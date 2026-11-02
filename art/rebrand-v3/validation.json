@@ -1,0 +1,15 @@
+{
+  "physics_frames": 146,
+  "preserved_alpha_frames": 210,
+  "atlases": {
+    "HD/animation_s0": "7db6de0eb24e5e8ced982a418576b08f9c1a77593d5bf5b78e27cd70aa54b52f",
+    "HD/animation_s1": "6153e1e37868b4573a76bcdc56c376c5729efaaf66d31378d769a89e2c344761",
+    "HD/animation_s2": "30c9022dd0fb65fdcfa6c02c4c9afcebc5d79d27427765e4c76472d9edac21b8",
+    "HD/animation_s3": "80cfd5b3f1350cd47e0e7769a0e87c0650a8c956aa4d907e9133cd461634f0cd",
+    "SD/animation_s0": "d39ec664ad2952355ea66388c8013f70318a465b3e92832ed7ac9d03fc3f2abd",
+    "SD/animation_s1": "074d10dab87dddade03aa3ed1bd81b1e8f0e54219c89a04d0d857b8e90ff497f",
+    "SD/animation_s2": "7b09a5ab5f07caa2450f09491d07ddeb2b2bb889b2d9ba483d224957f852329c",
+    "SD/animation_s3": "0d0c26274311b106f35ca9ef69df40e9326c6cce9144e786f606c8b7990c5178"
+  },
+  "metadata_unchanged": true
+}

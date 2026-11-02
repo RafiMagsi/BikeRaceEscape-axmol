@@ -50,6 +50,9 @@ static UIViewController* PZTopMostViewController() {
 #error "AdsProviderChartboostApple.mm must be compiled with -fobjc-arc (see CMakeLists.txt)."
 #endif
 static CHBInterstitial* g_interstitial = nil;
+// The ad that is on screen. A new cache request replaces g_interstitial while this one is still
+// presenting, so keep it alive (ARC) until Chartboost reports it dismissed.
+static CHBInterstitial* g_presentingInterstitial = nil;
 static std::atomic<bool> g_interstitialCached{false};
 static std::atomic<bool> g_chartboostStarted{false};
 static std::atomic<bool> g_pendingCacheAfterStart{false};
@@ -77,6 +80,7 @@ static std::string g_pendingLocationAfterStart;
     if (error) {
         AXLOGW("AdsProviderChartboost(iOS): interstitial show failed: {}",
                [[(NSError*)error localizedDescription] UTF8String]);
+        g_presentingInterstitial = nil;
         return;
     }
     g_interstitialCached.store(false);
@@ -86,6 +90,7 @@ static std::string g_pendingLocationAfterStart;
 - (void)didDismissAd:(CHBDismissEvent*)event {
     (void)event;
     AXLOGI("AdsProviderChartboost(iOS): interstitial dismissed");
+    g_presentingInterstitial = nil;
 }
 
 @end
@@ -247,6 +252,7 @@ void AdsProviderChartboost::showInterstitial() {
         }
 
         g_interstitialCached.store(false);
+        g_presentingInterstitial = g_interstitial;
         [g_interstitial showFromViewController:vc];
     });
 #endif

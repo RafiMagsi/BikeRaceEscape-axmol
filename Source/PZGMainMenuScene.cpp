@@ -147,8 +147,11 @@ void PZGMainMenuScene::load(const char* keyName){
     moreSpriteClick->setColor( ccc3(128, 128, 128) );
     MenuItemSprite* more_button1 =
         MenuItemSprite::create(more_button, moreSpriteClick, AX_CALLBACK_1(PZGMainMenuScene::moreGames, this));
-    more_button1->setPosition(ccp(screenSize.width*0, screenSize.height));
+    // Top-left corner of the screen, scaled up so it is easy to hit.
+    constexpr float kFreeGameButtonScale = 1.28f;
+    more_button1->setScale(kFreeGameButtonScale);
     more_button1->setAnchorPoint(ccp(0, 1));
+    more_button1->setPosition(ccp(0, screenSize.height));
     
     Menu* pMenu;
     pMenu = Menu::create(more_button1, NULL);

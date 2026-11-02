@@ -58,6 +58,27 @@
     return YES;
 }
 
+// Several buttons (back, start, upgrade) sit close to the bottom edge. By default iOS holds touches in the
+// home-indicator zone to see whether they are a system swipe, which makes those buttons feel unresponsive.
+// Hide the indicator and defer the bottom-edge system gesture, as games normally do (a first swipe up shows
+// the indicator, a second one goes home).
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+    return YES;
+}
+
+- (UIRectEdge)preferredScreenEdgesDeferringSystemGestures
+{
+    return UIRectEdgeBottom;
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+    [self setNeedsUpdateOfScreenEdgesDeferringSystemGestures];
+}
+
 - (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindow:(UIWindow *)window API_AVAILABLE(ios(16.0))
 {
     return UIInterfaceOrientationMaskLandscape;

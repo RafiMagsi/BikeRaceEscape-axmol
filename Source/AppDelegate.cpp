@@ -14,6 +14,8 @@
 
 #include <chrono>
 #include <thread>
+#include <cstdlib>
+#include "base/Utils.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
     #include <Foundation/Foundation.h>
@@ -255,6 +257,31 @@ void AppDelegate::scheduledLoading() {
         }
 
         director->replaceScene(scene);
+#if defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
+        // Temporary local art QA hook. Removed after simulator captures.
+        if (std::getenv("PZ_ART_CAPTURE")) {
+            director->getScheduler()->schedule([director, step=0](float) mutable {
+                auto* current = director->getRunningScene();
+                if (!current) return;
+                ++step;
+                if (step == 2 || step == 5 || (step >= 8 && step <= 24)) {
+                    ax::utils::captureScreen([](bool, std::string_view){},
+                        "art-review-" + std::to_string(step) + ".png");
+                }
+                if (step == 3) {
+                    for (auto* node : current->getChildren())
+                        if (auto* menu = dynamic_cast<PZGMainMenuScene*>(node))
+                            menu->menuStartGameCallback(nullptr);
+                }
+                if (step == 6) {
+                    for (auto* node : current->getChildren())
+                        if (auto* menu = dynamic_cast<PZGCharacterMenu*>(node))
+                            menu->startGameCallback(nullptr);
+                }
+                if (step >= 25) director->getScheduler()->unschedule("art-review", director);
+            }, director, 1.0f, false, "art-review");
+        }
+#endif
         AXLOGI("AppDelegate::scheduledLoading -> PZGMainMenuScene");
         return;
     }

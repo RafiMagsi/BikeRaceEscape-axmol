@@ -1,0 +1,6 @@
+# Local recovery/assembly outputs; source artwork, reports, and captures stay versioned.
+baseline/
+original/
+atlas/
+frames/
+alpha.png
