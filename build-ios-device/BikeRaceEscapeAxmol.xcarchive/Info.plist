@@ -13,9 +13,9 @@
 		<key>CFBundleIdentifier</key>
 		<string>com.nextfiction.dinobikeescape</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.2.0</string>
+		<string>1.3.0</string>
 		<key>CFBundleVersion</key>
-		<string>7</string>
+		<string>8</string>
 		<key>SigningIdentity</key>
 		<string>Apple Development: Muhammad Rafi (2M8ARTYE7F)</string>
 		<key>Team</key>
@@ -24,7 +24,7 @@
 	<key>ArchiveVersion</key>
 	<integer>2</integer>
 	<key>CreationDate</key>
-	<date>2026-11-02T11:40:32Z</date>
+	<date>2026-11-02T12:11:08Z</date>
 	<key>Name</key>
 	<string>BikeRaceEscapeAxmol</string>
 	<key>SchemeName</key>

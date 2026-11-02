@@ -270,14 +270,6 @@ void AppDelegate::scheduledLoading() {
         }
 
         director->replaceScene(scene);
-        // TEMPORARY diagnostic (remove after use): PZ_LANDING_CAPTURE=1 saves the landing page to Documents.
-        if (std::getenv("PZ_LANDING_CAPTURE")) {
-            director->getScheduler()->schedule([](float) {
-                ax::utils::captureScreen([](bool ok, std::string_view path) {
-                    AXLOGI("landing capture ok={} path={}", ok, path);
-                }, "landing-check.png");
-            }, director, 0.0f, 0, 5.0f, false, "pz_landing_capture");
-        }
         AXLOGI("AppDelegate::scheduledLoading -> PZGMainMenuScene");
         return;
     }
