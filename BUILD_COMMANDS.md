@@ -143,13 +143,17 @@ xcodebuild -exportArchive \
 
 ## 4. Android build
 
-> **Important:** do **not** set `AX_ROOT` for Android. The default `~/development/axmol` is correct (ninja is installed there).
+> **Before you start**
+>
+> - Run the commands from the `proj.android` folder (that is where `gradlew` is).
+> - Android builds with the shared engine `~/development/axmol` (ninja is installed there). If `AX_ROOT` is left pointing at the project's iOS copy (`thirdparty/axmol`), `proj.android/settings.gradle` ignores it and uses the shared engine, so you don't have to fix your terminal.
+> - The SDK location comes from `proj.android/local.properties` (`sdk.dir=/Users/rafi/Library/Android/sdk`, git-ignored). You do **not** need to export `ANDROID_HOME`. If that file is missing, create it with the line above.
+> - The Gradle project is named `:BikeRaceEscapeAxmol`. Do not use `:app:`.
 
 ### 4.1 Build the signed bundle (AAB)
 
 ```bash
-cd proj.android
-export ANDROID_HOME=$HOME/Library/Android/sdk
+cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/proj.android
 
 ./gradlew :BikeRaceEscapeAxmol:bundleRelease
 ```
@@ -159,11 +163,9 @@ Output: `proj.android/app/build/outputs/bundle/release/BikeRaceEscapeAxmol-relea
 ### 4.2 Clean build
 
 ```bash
-cd proj.android
-export ANDROID_HOME=$HOME/Library/Android/sdk
+cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/proj.android
 
-./gradlew :BikeRaceEscapeAxmol:clean
-rm -rf app/.cxx app/build        # also clears the native build cache
+rm -rf app/.cxx app/build        # removes the native build cache and all outputs
 ./gradlew :BikeRaceEscapeAxmol:bundleRelease
 ```
 
@@ -261,7 +263,11 @@ Back the file up before changing it, and stop the app before copying a changed f
 | `animation_sN.png.tmp.png couldn't be opened` | Another process was rewriting `Content/Images` when CMake ran | Re-run 3.1, then archive again |
 | `Duplicate resources … ic_launcher` (Android) | Icons generated into `app/src/main/res` | Generator now writes to `app/res`; delete `app/src/main/res` if it reappears |
 | `No suitable ninja found` (Android) | ninja missing from `~/development/axmol/tools/external/ninja` | Install ninja 1.10 to 1.13.2 into that folder |
-| Gradle `clean` fails immediately | `AX_ROOT` was unset | Open a fresh shell; do not `unset AX_ROOT` for Android |
+| `Couldn't find android sdk. Specify path in local.properties or system env ANDROID_HOME` | No SDK location set | Create `proj.android/local.properties` containing `sdk.dir=/Users/rafi/Library/Android/sdk` |
+| `Project ':app' not found` or `Cannot locate tasks that match ':app:bundleRelease'` | Wrong project name | Use `:BikeRaceEscapeAxmol:bundleRelease` |
+| `./gradlew: No such file or directory` | Not in the `proj.android` folder | `cd` to `proj.android` first |
+| `Cannot run program …/thirdparty/axmol/tools/external/ninja/ninja` / `No suitable ninja found` | `AX_ROOT` pointed at the iOS engine copy, which has no ninja | Fixed in `settings.gradle` (it now switches to `~/development/axmol`). If you still see it, run `git status proj.android/settings.gradle` to make sure the change is there |
+| Gradle fails right away with another engine or `AX_ROOT` error | `AX_ROOT` is unset in that shell | `export AX_ROOT=$HOME/development/axmol`, or open a fresh terminal |
 | Play Console says minimum SDK is too low | `min_sdk` in `.axproj` | Keep `min_sdk=24` |
 | No ads on the phone | `PMP_RemoveAds` is `true` in the saved settings | Check `UserDefault.bin` (section 5) |
 | Command never returns | macOS has no `timeout` command | Run long commands in the background |

@@ -4,7 +4,15 @@ def folder = new File("${settingsDir}/../axmol")
 if (folder.exists()) {
     System.setProperty("AX_ROOT", folder.path)
 } else {
-    System.setProperty("AX_ROOT", "${System.env.AX_ROOT}")
+    def axRoot = System.env.AX_ROOT
+    // The iOS build uses the project's own engine copy (thirdparty/axmol). Android is built and signed with the
+    // shared engine, so an AX_ROOT left pointing at the iOS copy (e.g. exported in the same terminal) is ignored.
+    def sharedEngine = new File("${System.getProperty('user.home')}/development/axmol")
+    if (axRoot != null && axRoot.contains("/thirdparty/axmol") && sharedEngine.exists()) {
+        println "AX_ROOT points at the iOS engine copy (${axRoot}); using ${sharedEngine.path} for Android"
+        axRoot = sharedEngine.path
+    }
+    System.setProperty("AX_ROOT", "${axRoot}")
 }
 
 include ':libaxmol'
