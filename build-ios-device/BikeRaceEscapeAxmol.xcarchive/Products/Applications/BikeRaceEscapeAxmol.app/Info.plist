@@ -78,7 +78,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
-	<string>12.0</string>
+	<string>15.0</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2023. All rights reserved.</string>
 	<key>PZGameCenterLeaderboardId</key>

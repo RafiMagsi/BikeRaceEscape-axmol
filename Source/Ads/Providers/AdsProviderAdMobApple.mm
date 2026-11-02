@@ -4,6 +4,8 @@
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
+#include <atomic>
+
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <dispatch/dispatch.h>
@@ -15,19 +17,64 @@
 #define PZ_HAS_GMA 0
 #endif
 
+#if PZ_HAS_GMA
+
+#if !__has_feature(objc_arc)
+#error "AdsProviderAdMobApple.mm must be compiled with -fobjc-arc (see CMakeLists.txt); without it loaded ads are never retained and presenting one crashes."
+#endif
+
+// All Google Mobile Ads state below is touched on the main queue only, except the two atomic "ready"
+// flags, which the game code polls. Nothing here is reached through the C++ provider object, so the
+// async blocks never depend on `this` staying alive.
+//
+// Lifetime rule (the cause of the show-time crash): an ad that has been handed to
+// presentFromRootViewController: must stay strongly referenced until adDidDismissFullScreenContent:,
+// and `fullScreenContentDelegate` is a *weak* property, so the delegate needs its own strong owner.
+static GADBannerView* g_banner = nil;
+
+static GADInterstitialAd* g_interstitial = nil;          // loaded, not shown yet
+static GADInterstitialAd* g_presentingInterstitial = nil; // on screen, released on dismissal
+static BOOL g_interstitialLoading = NO;
+static std::atomic<bool> g_interstitialReady{false};
+
+static GADRewardedAd* g_rewarded = nil;
+static GADRewardedAd* g_presentingRewarded = nil;
+static BOOL g_rewardedLoading = NO;
+static std::atomic<bool> g_rewardedReady{false};
+
+@interface PZAdMobFullScreenDelegate : NSObject <GADFullScreenContentDelegate>
+@end
+
+static PZAdMobFullScreenDelegate* g_fullScreenDelegate = nil;
+
+@implementation PZAdMobFullScreenDelegate
+
+- (void)ad:(id<GADFullScreenPresentingAd>)ad didFailToPresentFullScreenContentWithError:(NSError*)error {
+    AXLOGW("AdsProviderAdMob(iOS): ad failed to present: {}", error.localizedDescription.UTF8String ?: "");
+    if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
+    if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
+}
+
+- (void)adDidDismissFullScreenContent:(id<GADFullScreenPresentingAd>)ad {
+    AXLOGI("AdsProviderAdMob(iOS): full screen ad dismissed");
+    if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
+    if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
+}
+
+@end
+
+static PZAdMobFullScreenDelegate* _fullScreenDelegate() {
+    if (!g_fullScreenDelegate) g_fullScreenDelegate = [[PZAdMobFullScreenDelegate alloc] init];
+    return g_fullScreenDelegate;
+}
+
+#endif // PZ_HAS_GMA
+
 namespace PZ {
 
 namespace {
-#if PZ_HAS_GMA
-static GADBannerView* g_banner = nil;
-static GADInterstitialAd* g_interstitial = nil;
-static GADRewardedAd* g_rewarded = nil;
-#else
-static id g_banner = nil;
-static id g_interstitial = nil;
-static id g_rewarded = nil;
-#endif
 
+#if PZ_HAS_GMA
 static UIViewController* _topMostViewController() {
     UIViewController* root = nil;
 
@@ -52,11 +99,17 @@ static UIViewController* _topMostViewController() {
     if (!root) return nil;
 
     UIViewController* top = root;
-    while (top.presentedViewController) {
+    while (top.presentedViewController && !top.presentedViewController.isBeingDismissed) {
         top = top.presentedViewController;
     }
     return top;
 }
+
+static NSString* _nsString(const std::string& s) {
+    return [NSString stringWithUTF8String:s.c_str()] ?: @"";
+}
+#endif
+
 } // namespace
 
 bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
@@ -97,12 +150,12 @@ void AdsProviderAdMob::loadBanner(const AdRequest& request) {
 void AdsProviderAdMob::showBanner() {
     if (!initialized_) return;
 #if PZ_HAS_GMA
+    if (lastBannerPlacement_.empty()) {
+        AXLOGW("AdsProviderAdMob(iOS): showBanner called without placement id");
+        return;
+    }
+    NSString* unitId = _nsString(lastBannerPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (lastBannerPlacement_.empty()) {
-            AXLOGW("AdsProviderAdMob(iOS): showBanner called without placement id");
-            return;
-        }
-
         UIViewController* vc = _topMostViewController();
         if (!vc || !vc.view) {
             AXLOGW("AdsProviderAdMob(iOS): no view controller to present banner");
@@ -123,7 +176,7 @@ void AdsProviderAdMob::showBanner() {
             ]];
         }
 
-        g_banner.adUnitID = [NSString stringWithUTF8String:lastBannerPlacement_.c_str()];
+        g_banner.adUnitID = unitId;
         [g_banner loadRequest:[GADRequest request]];
         g_banner.hidden = NO;
     });
@@ -143,42 +196,36 @@ void AdsProviderAdMob::hideBanner() {
 }
 
 bool AdsProviderAdMob::isInterstitialReady() const {
+#if PZ_HAS_GMA
+    return initialized_ && g_interstitialReady.load();
+#else
     return initialized_ && interstitialReady_;
+#endif
 }
 
 void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
     if (!initialized_) return;
     lastInterstitialPlacement_ = request.placementId;
 #if PZ_HAS_GMA
-    interstitialReady_ = false;
+    if (lastInterstitialPlacement_.empty()) return;
+    NSString* unitId = _nsString(lastInterstitialPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (lastInterstitialPlacement_.empty()) return;
-        [GADInterstitialAd loadWithAdUnitID:[NSString stringWithUTF8String:lastInterstitialPlacement_.c_str()]
+        // Keep an already cached ad, and never start a second request while one is in flight.
+        if (g_interstitial || g_interstitialLoading) return;
+        g_interstitialLoading = YES;
+        [GADInterstitialAd loadWithAdUnitID:unitId
                                     request:[GADRequest request]
                           completionHandler:^(GADInterstitialAd* ad, NSError* error) {
-                              if (error) {
-                                  AXLOGW("AdsProviderAdMob(iOS): interstitial load failed: {}", [[error localizedDescription] UTF8String]);
-                                  interstitialReady_ = false;
-                                  interstitialAutoShow_ = false;
+                              g_interstitialLoading = NO;
+                              if (error || !ad) {
+                                  AXLOGW("AdsProviderAdMob(iOS): interstitial load failed: {}", error.localizedDescription.UTF8String ?: "no ad");
+                                  g_interstitialReady = false;
                                   return;
                               }
+                              ad.fullScreenContentDelegate = _fullScreenDelegate();
                               g_interstitial = ad;
-                              interstitialReady_ = (g_interstitial != nil);
+                              g_interstitialReady = true;
                               AXLOGI("AdsProviderAdMob(iOS): interstitial loaded");
-
-                              if (interstitialReady_ && interstitialAutoShow_) {
-                                  UIViewController* vc = _topMostViewController();
-                                  if (!vc) {
-                                      AXLOGW("AdsProviderAdMob(iOS): cannot present interstitial (no view controller)");
-                                      interstitialAutoShow_ = false;
-                                      return;
-                                  }
-                                  [g_interstitial presentFromRootViewController:vc];
-                                  g_interstitial = nil;
-                                  interstitialReady_ = false;
-                                  interstitialAutoShow_ = false;
-                                  AXLOGI("AdsProviderAdMob(iOS): interstitial presented (auto-show)");
-                              }
                           }];
     });
 #else
@@ -189,50 +236,82 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
 
 void AdsProviderAdMob::showInterstitial() {
     if (!initialized_) return;
-    if (!interstitialReady_) {
-        interstitialAutoShow_ = true;
-        AXLOGI("AdsProviderAdMob(iOS): showInterstitial called but not ready; will auto-show after load");
+#if PZ_HAS_GMA
+    // Only ever show a cached ad (an ad is never queued to pop up later, e.g. in the middle of a run).
+    // Claim it right away so a second call in the same frame cannot present it twice.
+    bool expected = true;
+    if (!g_interstitialReady.compare_exchange_strong(expected, false)) {
+        AXLOGI("AdsProviderAdMob(iOS): showInterstitial called but no interstitial is cached");
         return;
     }
-#if PZ_HAS_GMA
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController* vc = _topMostViewController();
-        if (!vc) return;
-        if (!g_interstitial) {
-            AXLOGW("AdsProviderAdMob(iOS): interstitial not loaded");
+        GADInterstitialAd* ad = g_interstitial;
+        if (!ad) return;
+
+        if (g_presentingInterstitial) {
+            // An ad is already on screen: keep the cached one for later.
+            g_interstitialReady = true;
             return;
         }
-        [g_interstitial presentFromRootViewController:vc];
+
+        UIViewController* vc = _topMostViewController();
+        if (!vc) {
+            AXLOGW("AdsProviderAdMob(iOS): cannot present interstitial (no view controller)");
+            g_interstitialReady = true; // keep it, try again on the next tick
+            return;
+        }
+
+        NSError* presentError = nil;
+        if (![ad canPresentFromRootViewController:vc error:&presentError]) {
+            // Expired or otherwise unusable: drop it so the next tick loads a fresh one.
+            AXLOGW("AdsProviderAdMob(iOS): interstitial cannot be presented: {}", presentError.localizedDescription.UTF8String ?: "");
+            g_interstitial = nil;
+            return;
+        }
+
+        // Hand the ad over to g_presentingInterstitial; it is released in adDidDismissFullScreenContent:.
         g_interstitial = nil;
+        g_presentingInterstitial = ad;
+        ad.fullScreenContentDelegate = _fullScreenDelegate();
+        [ad presentFromRootViewController:vc];
+        AXLOGI("AdsProviderAdMob(iOS): interstitial presented");
     });
 #else
     AXLOGI("AdsProviderAdMob(iOS)::showInterstitial (stub) placementId='{}'", lastInterstitialPlacement_);
-#endif
     interstitialReady_ = false;
+#endif
     interstitialAutoShow_ = false;
 }
 
 bool AdsProviderAdMob::isRewardedReady() const {
+#if PZ_HAS_GMA
+    return initialized_ && g_rewardedReady.load();
+#else
     return initialized_ && rewardedReady_;
+#endif
 }
 
 void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
     if (!initialized_) return;
     lastRewardedPlacement_ = request.placementId;
 #if PZ_HAS_GMA
-    rewardedReady_ = false;
+    if (lastRewardedPlacement_.empty()) return;
+    NSString* unitId = _nsString(lastRewardedPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (lastRewardedPlacement_.empty()) return;
-        [GADRewardedAd loadWithAdUnitID:[NSString stringWithUTF8String:lastRewardedPlacement_.c_str()]
+        if (g_rewarded || g_rewardedLoading) return;
+        g_rewardedLoading = YES;
+        [GADRewardedAd loadWithAdUnitID:unitId
                                 request:[GADRequest request]
                       completionHandler:^(GADRewardedAd* ad, NSError* error) {
-                          if (error) {
-                              AXLOGW("AdsProviderAdMob(iOS): rewarded load failed: {}", [[error localizedDescription] UTF8String]);
-                              rewardedReady_ = false;
+                          g_rewardedLoading = NO;
+                          if (error || !ad) {
+                              AXLOGW("AdsProviderAdMob(iOS): rewarded load failed: {}", error.localizedDescription.UTF8String ?: "no ad");
+                              g_rewardedReady = false;
                               return;
                           }
+                          ad.fullScreenContentDelegate = _fullScreenDelegate();
                           g_rewarded = ad;
-                          rewardedReady_ = (g_rewarded != nil);
+                          g_rewardedReady = true;
                           AXLOGI("AdsProviderAdMob(iOS): rewarded loaded");
                       }];
     });
@@ -244,30 +323,53 @@ void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
 
 void AdsProviderAdMob::showRewarded() {
     if (!initialized_) return;
+#if PZ_HAS_GMA
+    bool expected = true;
+    if (!g_rewardedReady.compare_exchange_strong(expected, false)) {
+        AXLOGI("AdsProviderAdMob(iOS)::showRewarded not ready");
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        GADRewardedAd* ad = g_rewarded;
+        if (!ad) return;
+
+        if (g_presentingRewarded || g_presentingInterstitial) {
+            g_rewardedReady = true;
+            return;
+        }
+
+        UIViewController* vc = _topMostViewController();
+        if (!vc) {
+            AXLOGW("AdsProviderAdMob(iOS): cannot present rewarded (no view controller)");
+            g_rewardedReady = true;
+            return;
+        }
+
+        NSError* presentError = nil;
+        if (![ad canPresentFromRootViewController:vc error:&presentError]) {
+            AXLOGW("AdsProviderAdMob(iOS): rewarded cannot be presented: {}", presentError.localizedDescription.UTF8String ?: "");
+            g_rewarded = nil;
+            return;
+        }
+
+        g_rewarded = nil;
+        g_presentingRewarded = ad;
+        ad.fullScreenContentDelegate = _fullScreenDelegate();
+        [ad presentFromRootViewController:vc
+                 userDidEarnRewardHandler:^{
+                     GADAdReward* reward = ad.adReward;
+                     AXLOGI("AdsProviderAdMob(iOS): earned reward type='{}' amount={}",
+                            reward.type.UTF8String ?: "", reward.amount.intValue);
+                 }];
+    });
+#else
     if (!rewardedReady_) {
         AXLOGI("AdsProviderAdMob(iOS)::showRewarded (stub) not ready");
         return;
     }
-#if PZ_HAS_GMA
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController* vc = _topMostViewController();
-        if (!vc) return;
-        if (!g_rewarded) {
-            AXLOGW("AdsProviderAdMob(iOS): rewarded not loaded");
-            return;
-        }
-        [g_rewarded presentFromRootViewController:vc
-                         userDidEarnRewardHandler:^{
-                             GADAdReward* reward = g_rewarded.adReward;
-                             AXLOGI("AdsProviderAdMob(iOS): earned reward type='{}' amount={}",
-                                    [[reward type] UTF8String], [[reward amount] intValue]);
-                         }];
-        g_rewarded = nil;
-    });
-#else
     AXLOGI("AdsProviderAdMob(iOS)::showRewarded (stub) placementId='{}'", lastRewardedPlacement_);
-#endif
     rewardedReady_ = false;
+#endif
 }
 
 } // namespace PZ

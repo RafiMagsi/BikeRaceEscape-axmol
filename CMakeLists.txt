@@ -67,6 +67,17 @@ set_source_files_properties(${LEGACY_BOX2D_SOURCES} PROPERTIES
   COMPILE_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/thirdparty"
 )
 
+# The iOS ad providers keep SDK objects (loaded ads, delegates, the banner) in strong statics and blocks,
+# so they are written for ARC. ARC is not enabled project-wide; without it nothing retains a loaded ad
+# and presenting it crashes (dangling pointer / unrecognized selector).
+if(APPLE)
+  set_source_files_properties(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Ads/Providers/AdsProviderAdMobApple.mm
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Ads/Providers/AdsProviderChartboostApple.mm
+    PROPERTIES COMPILE_FLAGS "-fobjc-arc"
+  )
+endif()
+
 set(GAME_INC_DIRS
   "${CMAKE_CURRENT_SOURCE_DIR}/Source"
   "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty"
@@ -234,7 +245,7 @@ if(IOS AND XCODE)
 
     # Create Podfile if it doesn't exist
     if(NOT EXISTS "${_PODFILE_PATH}")
-      file(WRITE "${_PODFILE_PATH}" "platform :ios, '12.0'\n\ntarget '${APP_NAME}' do\n  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'\n  pod 'ChartboostSDK'\nend\n")
+      file(WRITE "${_PODFILE_PATH}" "platform :ios, '15.0'\n\ntarget '${APP_NAME}' do\n  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'\n  pod 'ChartboostSDK'\nend\n")
       message(STATUS "[CocoaPods] Created Podfile at ${_PODFILE_PATH}")
       message(STATUS "[CocoaPods] Run 'pod install' in ${CMAKE_BINARY_DIR} to install dependencies")
     else()

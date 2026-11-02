@@ -46,6 +46,9 @@ static UIViewController* PZTopMostViewController() {
 
 // ObjC declarations must be at global scope (not inside a C++ namespace).
 #if PZ_HAS_CHARTBOOST
+#if !__has_feature(objc_arc)
+#error "AdsProviderChartboostApple.mm must be compiled with -fobjc-arc (see CMakeLists.txt)."
+#endif
 static CHBInterstitial* g_interstitial = nil;
 static std::atomic<bool> g_interstitialCached{false};
 static std::atomic<bool> g_chartboostStarted{false};
@@ -60,7 +63,7 @@ static std::string g_pendingLocationAfterStart;
 - (void)didCacheAd:(CHBCacheEvent*)event error:(CHBCacheError*)error {
     if (error) {
         AXLOGW("AdsProviderChartboost(iOS): interstitial cache failed: {}",
-               [[error localizedDescription] UTF8String]);
+               [[(NSError*)error localizedDescription] UTF8String]);
         g_interstitialCached.store(false);
         return;
     }
@@ -73,7 +76,7 @@ static std::string g_pendingLocationAfterStart;
     (void)event;
     if (error) {
         AXLOGW("AdsProviderChartboost(iOS): interstitial show failed: {}",
-               [[error localizedDescription] UTF8String]);
+               [[(NSError*)error localizedDescription] UTF8String]);
         return;
     }
     g_interstitialCached.store(false);
@@ -137,7 +140,7 @@ bool AdsProviderChartboost::initialize(const std::string& appIdOrKey) {
                       appSignature:[NSString stringWithUTF8String:appSignature_.c_str()]
                         completion:^(CHBStartError* error) {
                             if (error) {
-                                AXLOGW("AdsProviderChartboost(iOS): start failed: {}", [[error localizedDescription] UTF8String]);
+                                AXLOGW("AdsProviderChartboost(iOS): start failed: {}", [[(NSError*)error localizedDescription] UTF8String]);
                             } else {
                                 AXLOGI("AdsProviderChartboost(iOS): started");
                                 g_chartboostStarted.store(true);
