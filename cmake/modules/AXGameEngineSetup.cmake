@@ -5,7 +5,13 @@ if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/axmol")
 else()
   set(_AX_ROOT "$ENV{AX_ROOT}")
 
-  if(NOT(_AX_ROOT STREQUAL ""))
+  # iOS always uses the project's own engine copy: it carries the Apple fixes (OpenAL must not link -latomic,
+  # which does not exist on iOS). The shared engine that AX_ROOT normally points at lacks them, and using it
+  # fails the archive with "library 'atomic' not found". Android and the others keep using AX_ROOT.
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/axmol")
+    set(_AX_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/axmol")
+    message(STATUS "iOS: using the project engine ${_AX_ROOT} (env AX_ROOT is ignored)")
+  elseif(NOT(_AX_ROOT STREQUAL ""))
     file(TO_CMAKE_PATH ${_AX_ROOT} _AX_ROOT)
     message(STATUS "Using system env var _AX_ROOT=${_AX_ROOT}")
   else()

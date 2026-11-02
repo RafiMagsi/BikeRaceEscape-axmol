@@ -6,6 +6,9 @@ The current reskin is in `art/rebrand-v3`. Use this kit for review; v2 is histor
 - `feature-graphic-1024x500.png`: promotional banner.
 - `icon-1024.png` and `icon-512.png`: new rider/dinosaur icon, also exported into
   existing app icon sets and platform store directories.
+- `../ios/search_results/`: iOS search-results artwork in the supported
+  1920x1280, 3840x2560 and 5244x2950 sizes, with PNG masters and upload-friendly
+  JPEG copies. These use the exact game logo over a crop-aware sewer chase scene.
 - `listing/`: five captioned layouts using real updated simulator captures.
 
 The same listing designs are exported to the existing iOS 6.9-inch, 6.3-inch and

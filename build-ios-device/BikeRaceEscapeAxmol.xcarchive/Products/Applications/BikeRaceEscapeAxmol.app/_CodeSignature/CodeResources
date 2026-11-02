@@ -10,15 +10,15 @@
 		</data>
 		<key>AppIcon60x60@2x.png</key>
 		<data>
-		rlQomVbsrQHt0m5sKlrfVrtlTGs=
+		ER0pq/r+Kj2iGbZMP6fvfmf7rNQ=
 		</data>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<data>
-		MdRp4DYLgPFPSx8nhTIvjRM7oDI=
+		hxUT07bCG8wgi/0Lt9Wv8rtdMpE=
 		</data>
 		<key>Assets.car</key>
 		<data>
-		8k5LoTZPNSjQVAtevU15x2Byt3g=
+		xP05zVHaFYZcp+DfKNcqzBKEYfQ=
 		</data>
 		<key>CompleteGameInfo.plist</key>
 		<data>
@@ -38,15 +38,15 @@
 		</data>
 		<key>Frameworks/soft_oal.framework/Info.plist</key>
 		<data>
-		ZezP7B1ovvrD7Ow/hgUEHRKhdU8=
+		k+rFw3nlphamdiYHMDkNaQsEVLU=
 		</data>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<data>
-		mftYr9SqvFEtKTAYfdgnUuXvG9A=
+		e4/Py8FX/Y/gLMV0aKg2/9icJJ0=
 		</data>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<data>
-		/hD624wR2v+COQ7j7z28EdQ4dec=
+		jsq7v/Hwf7FsX/OugSlZghV8in0=
 		</data>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
 		<data>
@@ -483,21 +483,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lFXTBUrG2suObNkYMlmErfEK7N831EJySOSxjrdH9OU=
+			580PEmJlfCBaYXnVDlx2Yg1uH/dLz3ZXzsQKs3GMcCo=
 			</data>
 		</dict>
 		<key>AppIcon76x76@2x~ipad.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			VxeIsokJiZmJt9bRL0TBE+zfLyGtZzpYMQCCqZsgoa4=
+			u9Dl1dIdyQXmgx7hY0s9jLUm47qumUC8nF1MB6ZMSAA=
 			</data>
 		</dict>
 		<key>Assets.car</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			iJ245R6cjTc6doP69U8eciOqdSvjpcSB3XShFo45NUc=
+			tGJ5G9h9M/jPviNtx0qR+EUVqriUeQVYysATW7jFGEA=
 			</data>
 		</dict>
 		<key>CompleteGameInfo.plist</key>
@@ -532,21 +532,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			I8CUQN0FUBUJN+m4eAcNCbnLr9Pwo82W3Ozv/Q3gIoM=
+			kktewtTIcK2+lSUVVKXQggK3U/xMJZXzpol1nBYNfbs=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			9ZhLBqoJh9SZnwmp4vXLpDJ0/bD8lwxSSkPyK4ckBFs=
+			jqSC+vQbNPffLe6lyY/wy+eG6JovQmo8Fq9OAkFmvNo=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Lygh2YxGfBGSZhxy/QN+EPw6DZ7tfdbJ4AedidfPIEw=
+			ygDTYa8FvEcDQuJzlcGVNmMpfhBSQtFociHXuV9LGXo=
 			</data>
 		</dict>
 		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
