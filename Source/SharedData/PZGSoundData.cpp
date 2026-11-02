@@ -82,7 +82,8 @@ void PZGSoundData::preloadSound(){
     CocosDenshion::SimpleAudioEngine* audioEngine = CocosDenshion::SimpleAudioEngine::sharedEngine();
     if (isMusic) {
         PZLog( "preloading music" );
-        // audioEngine->preloadBackgroundMusic( getSoundResourcePath() );
+        // Prime the audio cache (decodes the first buffers) so playBackgroundMusic() starts immediately.
+        ax::AudioEngine::preload( getSoundResourcePath() );
     }
     else{
         PZLog( "preloading sound" );

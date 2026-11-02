@@ -32,6 +32,7 @@ if(mode==='prepare') {
 } else if(mode==='assemble') {
   const frames=JSON.parse(fs.readFileSync(`${root}/manifest.json`));
   const layers={0:'sky',1:'city',2:'wall',3:'trees',4:'foreground',5:'water',6:'debris',7:'reeds',8:'reeds'};
+  const controls={InterfaceGF_0_0:[0,0],InterfaceMM_3_0:[1,0],InterfaceCS_4_0:[1,0],InterfacePM_3_0:[1,0],InterfaceCS_3_0:[2,0],InterfaceCS_5_0:[0,1],InterfaceGO_1_0:[0,1],InterfacePM_1_0:[0,1],InterfaceGO_2_0:[2,1],InterfacePM_2_0:[2,1]};
   for(const tier of ['HD','SD']) {
     mkdir(`${root}/frames/${tier}`);mkdir(`${root}/atlas/${tier}`);
     for(const f of frames.filter(f=>f.tier===tier)) {
@@ -52,6 +53,17 @@ if(mode==='prepare') {
         if(n===8) args.push('-modulate','88,80,100');
         if(n===2) args.push('-modulate','72,78,100');
         args.push('-depth','8',out);run(args);
+      } else if(['Obstacles_5_0','Obstacles_8_0'].includes(f.name)) {
+        const source=`${root}/sources/${f.name==='Obstacles_5_0'?'ramp':'dirt'}.png`;
+        run([source,'-resize',`${f.w}x${f.h}!`,'-modulate','85,80,100',`${root}/material.png`]);
+        run([original,`${root}/material.png`,'-compose','Over','-composite',out]);
+        run([original,'-alpha','extract',`${root}/alpha.png`]);
+        run([out,'-alpha','off',`${root}/alpha.png`,'-alpha','off','-compose','CopyOpacity','-composite','-depth','8',out]);
+      } else if(controls[f.name]) {
+        const [col,row]=controls[f.name];
+        run([`${root}/sources/controls.png`,'-crop',`442x452+${36+col*512}+${24+row*506}`,'+repage','-resize',`${f.w}x${f.h}!`,out]);
+        run([original,'-alpha','extract',`${root}/alpha.png`]);
+        run([out,'-alpha','off',`${root}/alpha.png`,'-alpha','off','-compose','CopyOpacity','-composite','-depth','8',out]);
       } else if(f.name==='InterfaceMM_1_0') {
         const source=`${root}/sources/logo.png`;
         const geom=run([source,'-alpha','extract','-threshold','35%','-format','%@','info:']).trim();
@@ -88,5 +100,11 @@ if(mode==='prepare') {
     if(!fs.readFileSync(`Content/Images/${tier}/animation_s${i}.plist`).equals(fs.readFileSync(`${root}/baseline/${tier}/animation_s${i}.plist`))) throw Error('Atlas metadata changed since baseline');
   }
   for(const tier of ['HD','SD']) for(let i=0;i<4;i++) fs.copyFileSync(`${root}/atlas/${tier}/animation_s${i}.png`,`Content/Images/${tier}/animation_s${i}.png`);
+  for(const tier of ['HD','SD']) {
+    const dest=`Content/Images/${tier}/gameLogo.png`;
+    const size=run(['identify','-format','%wx%h',dest]);
+    if(!fs.existsSync(`${root}/baseline/${tier}/gameLogo.png`)) fs.copyFileSync(dest,`${root}/baseline/${tier}/gameLogo.png`);
+    run([`${root}/frames/${tier}/InterfaceMM_1_0.png`,'-resize',size,'-gravity','center','-background','none','-extent',size,dest]);
+  }
   console.log('Installed pixel-only atlas replacements');
 } else throw Error('Expected prepare, assemble, or install');

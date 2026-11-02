@@ -5,6 +5,8 @@
 #include "PZGLoadingScene.h"
 #include "PZGMainMenuScene.h"
 #include "SharedData/PZGSharedData.h"
+#include "SharedData/PZGSoundData.h"
+#include "constants.h"
 #include "PZCrashReporter.h"
 #include "Ads/AdsController.h"
 #include "Ads/AdsConfig.h"
@@ -152,6 +154,17 @@ void AppDelegate::scheduledLoading() {
     auto* sd = PZGSharedData::sharedInstanse();
     if (sd) sd->readDataFromFile();
 
+    // Warm the menu music now, so it starts instantly when the menu appears instead of decoding while
+    // textures are uploading and the ad SDKs are starting up (that overlap made the music stutter).
+    if (sd && sd->soundResource) {
+        auto* sounds = (__Array*)sd->soundResource->objectForKey("Sounds");
+        if (sounds && sounds->count() > kSoundIDMainMenuMusic) {
+            if (auto* music = dynamic_cast<PZGSoundData*>(sounds->objectAtIndex(kSoundIDMainMenuMusic))) {
+                music->preloadSound();
+            }
+        }
+    }
+
     // ---- Ads bootstrap (Content/ads.plist) ----
     {
         fprintf(stderr, "\n[ADS-BOOTSTRAP-START] Initializing ads system\n");
@@ -257,31 +270,14 @@ void AppDelegate::scheduledLoading() {
         }
 
         director->replaceScene(scene);
-#if defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
-        // Temporary local art QA hook. Removed after simulator captures.
-        if (std::getenv("PZ_ART_CAPTURE")) {
-            director->getScheduler()->schedule([director, step=0](float) mutable {
-                auto* current = director->getRunningScene();
-                if (!current) return;
-                ++step;
-                if (step == 2 || step == 5 || (step >= 8 && step <= 24)) {
-                    ax::utils::captureScreen([](bool, std::string_view){},
-                        "art-review-" + std::to_string(step) + ".png");
-                }
-                if (step == 3) {
-                    for (auto* node : current->getChildren())
-                        if (auto* menu = dynamic_cast<PZGMainMenuScene*>(node))
-                            menu->menuStartGameCallback(nullptr);
-                }
-                if (step == 6) {
-                    for (auto* node : current->getChildren())
-                        if (auto* menu = dynamic_cast<PZGCharacterMenu*>(node))
-                            menu->startGameCallback(nullptr);
-                }
-                if (step >= 25) director->getScheduler()->unschedule("art-review", director);
-            }, director, 1.0f, false, "art-review");
+        // TEMPORARY diagnostic (remove after use): PZ_LANDING_CAPTURE=1 saves the landing page to Documents.
+        if (std::getenv("PZ_LANDING_CAPTURE")) {
+            director->getScheduler()->schedule([](float) {
+                ax::utils::captureScreen([](bool ok, std::string_view path) {
+                    AXLOGI("landing capture ok={} path={}", ok, path);
+                }, "landing-check.png");
+            }, director, 0.0f, 0, 5.0f, false, "pz_landing_capture");
         }
-#endif
         AXLOGI("AppDelegate::scheduledLoading -> PZGMainMenuScene");
         return;
     }

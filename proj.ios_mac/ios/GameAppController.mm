@@ -28,10 +28,26 @@
 #import "GameAppController.h"
 #import "GameViewController.h"
 
+#import <AVFoundation/AVFoundation.h>
+
 @implementation GameAppController
 
 #pragma mark -
 #pragma mark Application lifecycle
+
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+    // Own the audio session before OpenAL or any ad SDK touches it. Both ad SDKs call
+    // -[AVAudioSession setCategory:...] themselves; if that happens while the menu music is already playing,
+    // the route is rebuilt and the music drops out for a moment right at the start of the game.
+    // SoloAmbient is the iOS default for games (honours the silent switch), made explicit here.
+    NSError* error = nil;
+    AVAudioSession* session = [AVAudioSession sharedInstance];
+    if (![session setCategory:AVAudioSessionCategorySoloAmbient error:&error] ||
+        ![session setActive:YES error:&error]) {
+        NSLog(@"GameAppController: audio session setup failed: %@", error);
+    }
+    return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
 
 - createRootViewController {
     GameViewController* viewController = [[GameViewController alloc] init];

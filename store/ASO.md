@@ -30,7 +30,9 @@ unlock new bikes and outrun the dinosaurs before they catch you.
 - Remove Ads with a one-time purchase
 
 ## Assets
-Real gameplay screenshots are still needed. The simulator capture only produced a rotated menu frame.
-Required: iOS 6.9" (1320x2868 or 2868x1320) and iPad 13"; Play phone screenshots (min 2), 512px icon
-(`proj.android/app/res/play-store/ic_launcher_512.png`) and a 1024x500 feature graphic.
-Also, `art/icon-source.png` shows a generic motocross rider with no dino or sewer theme; consider an icon that matches the logo.
+Current artwork is documented in `store/rebrand-v3/README.md`. The icon now features
+the red rider and dinosaur. The 1024x500 feature graphic and headers share the
+suburban canal setting. Five listing layouts use real updated simulator captures;
+exports occupy the existing iOS and Android size directories. Raw iPhone/iPad
+captures and their verification limits are in `art/rebrand-v3/captures` and
+`art/rebrand-v3/QA.md`. No store submission has been made.

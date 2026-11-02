@@ -49,14 +49,20 @@ static PZAdMobFullScreenDelegate* g_fullScreenDelegate = nil;
 
 @implementation PZAdMobFullScreenDelegate
 
+- (void)adWillPresentFullScreenContent:(id<GADFullScreenPresentingAd>)ad {
+    ax::AudioEngine::pauseAll();
+}
+
 - (void)ad:(id<GADFullScreenPresentingAd>)ad didFailToPresentFullScreenContentWithError:(NSError*)error {
     AXLOGW("AdsProviderAdMob(iOS): ad failed to present: {}", error.localizedDescription.UTF8String ?: "");
+    ax::AudioEngine::resumeAll();
     if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
     if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
 }
 
 - (void)adDidDismissFullScreenContent:(id<GADFullScreenPresentingAd>)ad {
     AXLOGI("AdsProviderAdMob(iOS): full screen ad dismissed");
+    ax::AudioEngine::resumeAll();
     if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
     if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
 }
@@ -122,6 +128,9 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
 #if PZ_HAS_GMA
     // Note: Modern GMA reads the App ID from Info.plist (GADApplicationIdentifier).
     // We keep `appIdOrKey` for compatibility with other providers / configs.
+    // The app owns the audio session (see GameAppController): keep the SDK from switching its category,
+    // which interrupts the menu music. The game's audio is paused/resumed around full-screen ads instead.
+    [GADMobileAds sharedInstance].audioVideoManager.audioSessionIsApplicationManaged = YES;
     [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
     AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
 

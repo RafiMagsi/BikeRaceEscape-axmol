@@ -84,6 +84,7 @@ static std::string g_pendingLocationAfterStart;
         return;
     }
     g_interstitialCached.store(false);
+    ax::AudioEngine::pauseAll(); // resumed in didDismissAd
     AXLOGI("AdsProviderChartboost(iOS): interstitial shown");
 }
 
@@ -91,6 +92,7 @@ static std::string g_pendingLocationAfterStart;
     (void)event;
     AXLOGI("AdsProviderChartboost(iOS): interstitial dismissed");
     g_presentingInterstitial = nil;
+    ax::AudioEngine::resumeAll();
 }
 
 @end

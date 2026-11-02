@@ -8,8 +8,15 @@ fs.mkdirSync(`${out}/listing`,{recursive:true});
 const magick=a=>exec('magick',a,{stdio:'pipe'}).toString();
 const font='/System/Library/Fonts/Supplemental/Arial Bold.ttf';
 const regular='/System/Library/Fonts/Supplemental/Arial.ttf';
+const textRenderer=`${out}/work/render-text`;
+exec('swiftc',['tools/render_store_text.swift','-o',textRenderer]);
+let textId=0;
 function cover(source,w,h,dest) {magick([source,'-resize',`${w}x${h}^`,'-gravity','center','-extent',`${w}x${h}`,'-alpha','off',dest]);}
-function title(args,text,x,y,size,color='#f5f0df',face=font) {args.push('-font',face,'-pointsize',String(size),'-fill',color,'-gravity','NorthWest','-annotate',`+${x}+${y}`,text);}
+function title(args,text,x,y,size,color='#f5f0df',face=font) {
+  const label=`${out}/work/text-${textId++}.png`;
+  exec(textRenderer,[text,String(size),color,face===font?'bold':'regular',label]);
+  args.push(label,'-gravity','NorthWest','-geometry',`+${x}+${y}`,'-compose','Over','-composite');
+}
 function promotional(w,h,dest){
   const temp=`${out}/work/hero-${w}-${h}.png`;cover(`${src}/hero.png`,w,h,temp);
   const logo=`${out}/work/logo-${w}.png`;
@@ -46,10 +53,11 @@ const manifestPath='art/rebrand-v3/captures/selected.json';
 if(fs.existsSync(manifestPath)) {
   const captures=JSON.parse(fs.readFileSync(manifestPath));
   const formats=[['ios/iphone_6.9',2868,1320],['ios/iphone_6.3',2622,1206],['ios/ipad_13',2752,2064],['android/phone',1920,1080],['android/tablet_7',1920,1080],['android/tablet_10',2560,1440],['rebrand-v3/listing',1920,1080]];
-  const spec=[['01_escape','ENTER THE SEWER RUN','A new look. The same escape.',captures.menu],['02_jump','MAKE THE JUMP','Time your takeoff. Find the next landing.',captures.jump],['03_coins','KEEP THE RUN ALIVE','Collect coins along the route.',captures.run],['04_bikes','CHOOSE YOUR RIDE','Find your next bike.',captures.bikes],['05_sewer','WATCH WHAT LURKS','Stay sharp through the drainage district.',captures.sewer]];
+  const spec=[['01_escape','ENTER THE SEWER RUN','Your route starts beneath the city.',captures.menu],['02_jump','MAKE THE JUMP','Time your takeoff. Find the next landing.',captures.jump],['03_coins','KEEP THE RUN ALIVE','Collect coins along the route.',captures.run],['04_bikes','CHOOSE YOUR RIDE','Find your next bike.',captures.bikes],['05_sewer','WATCH WHAT LURKS','Stay sharp through the drainage district.',captures.sewer]];
   for(const [dir,w,h] of formats) {
     fs.mkdirSync(`store/${dir}`,{recursive:true});fs.mkdirSync(`store/${dir}_jpg`,{recursive:true});
     for(const [name,heading,sub,capture] of spec) {
+      if(process.argv.includes('--first-only') && name!=='01_escape') continue;
       const margin=Math.round(w*.035), top=Math.round(h*.20),availH=h-top-margin;
       const shot=`${out}/work/capture-${w}-${h}.png`;
       magick([capture,'-resize',`${w-margin*2}x${availH}`,shot]);

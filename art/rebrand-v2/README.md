@@ -1,5 +1,8 @@
 # Rebrand v2 asset kit
 
+Historical revision. The current runtime and store artwork is documented in
+`../rebrand-v3/README.md` and `../../store/rebrand-v3/README.md`.
+
 These are versioned, review-ready assets. The existing production assets are intentionally untouched until the new art is approved.
 
 ## Generated assets
