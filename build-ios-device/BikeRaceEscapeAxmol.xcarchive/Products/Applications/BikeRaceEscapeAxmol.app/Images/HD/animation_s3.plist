@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>frames</key>
+	<dict>
+		<key>BackgroundLayers_7_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 1136}, {1082, 204}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {1082, 204}}</string>
+			<key>sourceSize</key>
+			<string>{1082, 204}</string>
+		</dict>
+		<key>BackgroundLayers_8_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 928}, {1082, 204}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {1082, 204}}</string>
+			<key>sourceSize</key>
+			<string>{1082, 204}</string>
+		</dict>
+		<key>Characters_0_4</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1790, 1869}, {202, 179}}</string>
+			<key>offset</key>
+			<string>{-0, 0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{27, 27}, {202, 179}}</string>
+			<key>sourceSize</key>
+			<string>{256, 234}</string>
+		</dict>
+		<key>Characters_0_5</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1584, 1869}, {202, 179}}</string>
+			<key>offset</key>
+			<string>{-0, 0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{27, 27}, {202, 179}}</string>
+			<key>sourceSize</key>
+			<string>{256, 234}</string>
+		</dict>
+		<key>Characters_0_6</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1378, 1869}, {202, 179}}</string>
+			<key>offset</key>
+			<string>{-0, 0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{27, 27}, {202, 179}}</string>
+			<key>sourceSize</key>
+			<string>{256, 234}</string>
+		</dict>
+		<key>Characters_2_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1584, 1708}, {201, 157}}</string>
+			<key>offset</key>
+			<string>{-3, -8.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 25}, {201, 157}}</string>
+			<key>sourceSize</key>
+			<string>{207, 190}</string>
+		</dict>
+		<key>Characters_2_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1378, 1708}, {202, 157}}</string>
+			<key>offset</key>
+			<string>{-3, -8.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 25}, {202, 157}}</string>
+			<key>sourceSize</key>
+			<string>{208, 190}</string>
+		</dict>
+		<key>Characters_2_3</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1703, 977}, {201, 155}}</string>
+			<key>offset</key>
+			<string>{-3, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 26}, {201, 155}}</string>
+			<key>sourceSize</key>
+			<string>{207, 189}</string>
+		</dict>
+		<key>Characters_2_4</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1292, 977}, {202, 155}}</string>
+			<key>offset</key>
+			<string>{-3, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 26}, {202, 155}}</string>
+			<key>sourceSize</key>
+			<string>{208, 189}</string>
+		</dict>
+		<key>Characters_2_5</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1086, 977}, {202, 155}}</string>
+			<key>offset</key>
+			<string>{-3, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 26}, {202, 155}}</string>
+			<key>sourceSize</key>
+			<string>{208, 189}</string>
+		</dict>
+		<key>Characters_2_6</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1498, 977}, {201, 155}}</string>
+			<key>offset</key>
+			<string>{-2.5, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{1, 26}, {201, 155}}</string>
+			<key>sourceSize</key>
+			<string>{208, 189}</string>
+		</dict>
+		<key>Characters_2_7</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1786, 1359}, {202, 155}}</string>
+			<key>offset</key>
+			<string>{-3, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 26}, {202, 155}}</string>
+			<key>sourceSize</key>
+			<string>{208, 189}</string>
+		</dict>
+		<key>Characters_2_8</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1789, 1710}, {202, 155}}</string>
+			<key>offset</key>
+			<string>{-3, -9}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 26}, {202, 155}}</string>
+			<key>sourceSize</key>
+			<string>{208, 189}</string>
+		</dict>
+		<key>Characters_Jump_0_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1582, 1345}, {200, 169}}</string>
+			<key>offset</key>
+			<string>{0.5, -1}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {200, 169}}</string>
+			<key>sourceSize</key>
+			<string>{255, 221}</string>
+		</dict>
+		<key>Characters_Jump_0_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1490, 1168}, {198, 172}}</string>
+			<key>offset</key>
+			<string>{0.5, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {198, 172}}</string>
+			<key>sourceSize</key>
+			<string>{253, 223}</string>
+		</dict>
+		<key>Characters_Jump_0_3</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1288, 1168}, {198, 172}}</string>
+			<key>offset</key>
+			<string>{0.5, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {198, 172}}</string>
+			<key>sourceSize</key>
+			<string>{253, 223}</string>
+		</dict>
+		<key>Characters_Jump_0_4</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1086, 1168}, {198, 172}}</string>
+			<key>offset</key>
+			<string>{0.5, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {198, 172}}</string>
+			<key>sourceSize</key>
+			<string>{253, 223}</string>
+		</dict>
+		<key>Characters_Jump_0_5</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1778, 1522}, {198, 172}}</string>
+			<key>offset</key>
+			<string>{0.5, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {198, 172}}</string>
+			<key>sourceSize</key>
+			<string>{253, 223}</string>
+		</dict>
+		<key>Characters_Jump_0_6</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1378, 1345}, {200, 169}}</string>
+			<key>offset</key>
+			<string>{0.5, -1}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{28, 27}, {200, 169}}</string>
+			<key>sourceSize</key>
+			<string>{255, 221}</string>
+		</dict>
+		<key>Characters_Jump_1_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1578, 1518}, {196, 176}}</string>
+			<key>offset</key>
+			<string>{0.5, -2}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{27, 27}, {196, 176}}</string>
+			<key>sourceSize</key>
+			<string>{249, 226}</string>
+		</dict>
+		<key>Characters_Jump_1_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1378, 1518}, {196, 176}}</string>
+			<key>offset</key>
+			<string>{0.5, -2}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{27, 27}, {196, 176}}</string>
+			<key>sourceSize</key>
+			<string>{249, 226}</string>
+		</dict>
+		<key>Characters_Jump_2_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1692, 1169}, {221, 171}}</string>
+			<key>offset</key>
+			<string>{-0.5, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{22, 25}, {221, 171}}</string>
+			<key>sourceSize</key>
+			<string>{266, 218}</string>
+		</dict>
+		<key>InterfaceCS_12_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 533}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceCoinShop_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 630}, {600, 104}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {600, 104}}</string>
+			<key>sourceSize</key>
+			<string>{600, 104}</string>
+		</dict>
+		<key>InterfaceGO_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 738}, {1083, 186}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {1083, 186}}</string>
+			<key>sourceSize</key>
+			<string>{1083, 186}</string>
+		</dict>
+		<key>InterfaceGO_4_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1818, 641}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceGO_5_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1702, 831}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceGO_6_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{604, 637}, {603, 97}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 1}, {603, 97}}</string>
+			<key>sourceSize</key>
+			<string>{603, 99}</string>
+		</dict>
+		<key>InterfaceMM_4_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{816, 533}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceMM_5_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1211, 637}, {603, 97}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 1}, {603, 97}}</string>
+			<key>sourceSize</key>
+			<string>{603, 99}</string>
+		</dict>
+		<key>InterfaceMM_6_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{612, 533}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceMM_7_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{408, 533}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>InterfaceMM_8_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{204, 533}, {200, 93}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {200, 93}}</string>
+			<key>sourceSize</key>
+			<string>{200, 93}</string>
+		</dict>
+		<key>Obstacles_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 442}, {201, 87}}</string>
+			<key>offset</key>
+			<string>{10, -2.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{35, 27}, {201, 87}}</string>
+			<key>sourceSize</key>
+			<string>{251, 136}</string>
+		</dict>
+		<key>Obstacles_0_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1445, 539}, {206, 87}}</string>
+			<key>offset</key>
+			<string>{9.5, -4.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{34, 27}, {206, 87}}</string>
+			<key>sourceSize</key>
+			<string>{255, 132}</string>
+		</dict>
+		<key>Obstacles_0_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{646, 444}, {211, 85}}</string>
+			<key>offset</key>
+			<string>{9.5, -4}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{34, 27}, {211, 85}}</string>
+			<key>sourceSize</key>
+			<string>{260, 131}</string>
+		</dict>
+		<key>Obstacles_0_3</key>
+		<dict>
+			<key>frame</key>
+			<string>{{861, 444}, {206, 85}}</string>
+			<key>offset</key>
+			<string>{9.5, -4}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{34, 27}, {206, 85}}</string>
+			<key>sourceSize</key>
+			<string>{255, 131}</string>
+		</dict>
+		<key>Obstacles_0_4</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1020, 539}, {211, 87}}</string>
+			<key>offset</key>
+			<string>{9.5, -5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{34, 27}, {211, 87}}</string>
+			<key>sourceSize</key>
+			<string>{260, 131}</string>
+		</dict>
+		<key>Obstacles_0_5</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1235, 539}, {206, 87}}</string>
+			<key>offset</key>
+			<string>{9.5, -4.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{34, 27}, {206, 87}}</string>
+			<key>sourceSize</key>
+			<string>{255, 132}</string>
+		</dict>
+		<key>Obstacles_0_6</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1071, 444}, {201, 85}}</string>
+			<key>offset</key>
+			<string>{10, -1.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{35, 27}, {201, 85}}</string>
+			<key>sourceSize</key>
+			<string>{251, 136}</string>
+		</dict>
+		<key>Obstacles_0_7</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1655, 539}, {201, 87}}</string>
+			<key>offset</key>
+			<string>{10, -2.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{35, 27}, {201, 87}}</string>
+			<key>sourceSize</key>
+			<string>{251, 136}</string>
+		</dict>
+		<key>Obstacles_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1497, 808}, {201, 116}}</string>
+			<key>offset</key>
+			<string>{1.5, -0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{22, 26}, {201, 116}}</string>
+			<key>sourceSize</key>
+			<string>{242, 167}</string>
+		</dict>
+		<key>Obstacles_1_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1292, 807}, {201, 117}}</string>
+			<key>offset</key>
+			<string>{1.5, 0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{22, 26}, {201, 117}}</string>
+			<key>sourceSize</key>
+			<string>{242, 170}</string>
+		</dict>
+		<key>Obstacles_1_3</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1087, 807}, {201, 117}}</string>
+			<key>offset</key>
+			<string>{1.5, 0.5}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{22, 26}, {201, 117}}</string>
+			<key>sourceSize</key>
+			<string>{242, 170}</string>
+		</dict>
+		<key>Obstacles_2_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1694, 448}, {205, 81}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {205, 81}}</string>
+			<key>sourceSize</key>
+			<string>{205, 81}</string>
+		</dict>
+		<key>Obstacles_2_1</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1485, 445}, {205, 84}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {205, 84}}</string>
+			<key>sourceSize</key>
+			<string>{205, 84}</string>
+		</dict>
+		<key>Obstacles_2_2</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 359}, {205, 79}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {205, 79}}</string>
+			<key>sourceSize</key>
+			<string>{205, 79}</string>
+		</dict>
+		<key>Obstacles_2_3</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1276, 445}, {205, 84}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {205, 84}}</string>
+			<key>sourceSize</key>
+			<string>{205, 84}</string>
+		</dict>
+		<key>Obstacles_2_4</key>
+		<dict>
+			<key>frame</key>
+			<string>{{209, 360}, {201, 78}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {201, 78}}</string>
+			<key>sourceSize</key>
+			<string>{201, 78}</string>
+		</dict>
+		<key>Obstacles_7_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{205, 444}, {437, 85}}</string>
+			<key>offset</key>
+			<string>{-0, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0, 0}, {437, 85}}</string>
+			<key>sourceSize</key>
+			<string>{437, 85}</string>
+		</dict>
+		<key>PZGameplayBasicRunner_platforms_0_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 1344}, {1374, 350}}</string>
+			<key>offset</key>
+			<string>{0.5, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{1, 0}, {1374, 350}}</string>
+			<key>sourceSize</key>
+			<string>{1375, 350}</string>
+		</dict>
+		<key>PZGameplayBasicRunner_platforms_1_0</key>
+		<dict>
+			<key>frame</key>
+			<string>{{0, 1698}, {1374, 350}}</string>
+			<key>offset</key>
+			<string>{0.5, 0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{1, 0}, {1374, 350}}</string>
+			<key>sourceSize</key>
+			<string>{1375, 350}</string>
+		</dict>
+	</dict>
+	<key>metadata</key>
+	<dict>
+		<key>format</key>
+		<integer>2</integer>
+		<key>realTextureFileName</key>
+		<string>animation_s3.png</string>
+		<key>size</key>
+		<string>{2048, 2048}</string>
+		<key>smartupdate</key>
+		<string>$ProjectZero:Smartupdate:$</string>
+		<key>textureFileName</key>
+		<string>animation_s3.png</string>
+	</dict>
+</dict>
+</plist>
