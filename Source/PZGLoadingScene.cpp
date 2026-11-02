@@ -27,16 +27,13 @@ bool PZGLoadingScene::init()
 
     AXLOGI("PZGLoadingScene::init");
     PZGSharedData *sd = PZGSharedData::sharedInstanse();
-#if  (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    Sprite *splash;
-    if(FileUtils::getInstance()->isFileExist( "default.png" )){
-        splash = Sprite::create( "default.png" );    
-    }
-#else
-    Sprite* splash = nullptr;
+    (void)sd;
 
-    // Legacy project referenced a splash key ("GeneralApplicationSplashScreen_0_0") which isn't present in this port's
-    // Content bundle. Avoid calling Sprite::create with a missing/blank filename (it can assert/crash on iOS).
+    // Use the same branded loading artwork on every platform. The legacy project referenced a splash key
+    // ("GeneralApplicationSplashScreen_0_0") which isn't present in this port's Content bundle, and the
+    // Android-only "default.png" fallback never existed either. Always initialize the pointer: leaving it
+    // uninitialized caused a SIGSEGV in PZGLoadingScene::init() on Android when "default.png" was missing.
+    Sprite* splash = nullptr;
     const char* candidates[] = {
         "GeneralApplicationSplashScreen_0_0.png",
         "GeneralApplicationSplashScreen.png",
@@ -49,10 +46,15 @@ bool PZGLoadingScene::init()
         const std::string full = fileUtils->fullPathForFilename(name);
         if (!full.empty() && fileUtils->isFileExist(full)) {
             splash = Sprite::create(full);
-            if (splash) break;
+            if (splash) {
+                AXLOGI("PZGLoadingScene: using splash image '{}'", name);
+                break;
+            }
         }
     }
-#endif
+    if (!splash) {
+        AXLOGW("PZGLoadingScene: no splash image found, continuing without one");
+    }
     if (splash) {
         float scale = 1.0;
         Size size = Director::getInstance()->getWinSize();
@@ -87,7 +89,14 @@ bool PZGLoadingScene::init()
     }
 
     
-    this->scheduleOnce( AX_SCHEDULE_SELECTOR( PZGLoadingScene::continueLoadingSelector ), 0.5);
+    // Keep the loading artwork on screen long enough to be seen. iOS already holds its LaunchScreen for
+    // 2 seconds before the first frame, so Android mirrors that with the in-game loading screen.
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    constexpr float kLoadingScreenSeconds = 2.0f;
+#else
+    constexpr float kLoadingScreenSeconds = 0.5f;
+#endif
+    this->scheduleOnce( AX_SCHEDULE_SELECTOR( PZGLoadingScene::continueLoadingSelector ), kLoadingScreenSeconds);
     
 	return true;
 }

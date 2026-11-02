@@ -147,25 +147,23 @@ void PZGBaseMenuScene::load(const char* keyName){
             sprite->setRotation( -infoObj->rotation );
             sprite->setScaleX( infoObj->scale_x );
             sprite->setScaleY( infoObj->scale_y );
-            
-//            //fill up background images
-//            if (infoObj->position_lock == true) {
-//                float scale = 1.0;
-//                Size size = Director::getInstance()->getWinSize();
-//                float winAr = size.width/size.height;
-//                
-//                Size splashSize = sprite->getContentSize();
-//                float splashAr = splashSize.width/splashSize.height;
-//                
-//                if (winAr > splashAr) {
-//                    scale = size.width/splashSize.width;
-//                }
-//                else{
-//                    scale = size.height/splashSize.height;
-//                }
-//                sprite->setScale( scale );
-//            }
-            
+
+            // Fill the screen with position-locked background art. The menu backdrop is 1370x768 while a
+            // 20:9 phone exposes 1422x640 design units with FIXED_HEIGHT, which left black bars on both
+            // sides. Scale uniformly to cover the visible area on any device aspect ratio.
+            if (infoObj->position_lock) {
+                const Size winSize = Director::getInstance()->getWinSize();
+                const Size spriteSize = sprite->getContentSize();
+                if (spriteSize.width > 0.0f && spriteSize.height > 0.0f) {
+                    const float winAr = winSize.width / winSize.height;
+                    const float spriteAr = spriteSize.width / spriteSize.height;
+                    const float scale = (winAr > spriteAr)
+                        ? winSize.width / spriteSize.width
+                        : winSize.height / spriteSize.height;
+                    sprite->setScale(scale);
+                }
+            }
+
             this->addChild(sprite, 300);
         }
     }

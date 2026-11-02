@@ -25,14 +25,31 @@ THE SOFTWARE.
 ****************************************************************************/
 package dev.axmol.app;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
+
+import java.io.InputStream;
+import java.lang.ref.WeakReference;
+
 import dev.axmol.lib.AxmolActivity;
 import dev.axmol.lib.SharedLoader;
 import android.os.Build;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 
 public class AppActivity extends AxmolActivity {
+    private static final String TAG = "AppActivity";
+    private static final int SPLASH_FALLBACK_MS = 10000;
+    private static final Handler sUiHandler = new Handler(Looper.getMainLooper());
+    private static WeakReference<AppActivity> sInstance = new WeakReference<>(null);
+
+    private View splashOverlay;
+
     static {
         // DNT remove, some android simulator require explicit load shared libraries, otherwise will crash
         SharedLoader.load();
@@ -40,6 +57,7 @@ public class AppActivity extends AxmolActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sInstance = new WeakReference<>(this);
         super.setEnableVirtualButton(false);
         super.onCreate(savedInstanceState);
         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
@@ -62,4 +80,83 @@ public class AppActivity extends AxmolActivity {
         
     }
 
+    @Override
+    public void init() {
+        super.init();
+        showSplashOverlay();
+    }
+
+    /**
+     * Android shows the launcher icon (or a blank window) while the native engine is loading. Cover that window
+     * with the same artwork the game uses for its loading scene, so the launch looks the same as on iOS.
+     */
+    private void showSplashOverlay() {
+        if (splashOverlay != null || mFrameLayout == null) {
+            return;
+        }
+
+        ImageView splash = new ImageView(this);
+        splash.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        splash.setBackgroundColor(0xFF0B1117);
+        splash.setClickable(false);
+        splash.setFocusable(false);
+
+        try {
+            int resId = getResources().getIdentifier("splash_background", "drawable", getPackageName());
+            if (resId != 0) {
+                splash.setImageResource(resId);
+            } else {
+                try (InputStream in = getAssets().open("Images/HD/GeneralApplicationSplashScreen.png")) {
+                    splash.setImageBitmap(BitmapFactory.decodeStream(in));
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Unable to load splash overlay", e);
+        }
+
+        mFrameLayout.addView(splash, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        splashOverlay = splash;
+
+        sUiHandler.postDelayed(this::hideSplashOverlay, SPLASH_FALLBACK_MS);
+    }
+
+    private void hideSplashOverlay() {
+        final View overlay = splashOverlay;
+        if (overlay == null) {
+            return;
+        }
+        splashOverlay = null;
+        overlay.animate()
+                .alpha(0f)
+                .setDuration(250)
+                .withEndAction(() -> {
+                    if (overlay.getParent() instanceof ViewGroup) {
+                        ((ViewGroup) overlay.getParent()).removeView(overlay);
+                    }
+                })
+                .start();
+    }
+
+    /**
+     * Called from C++ once the first game scene is running. The delay lets the engine finish its first frame
+     * before the overlay fades away, avoiding a flash of an empty window.
+     */
+    public static void hideSplashAfter(final int delayMs) {
+        sUiHandler.postDelayed(() -> {
+            AppActivity activity = sInstance.get();
+            if (activity != null) {
+                activity.hideSplashOverlay();
+            }
+        }, Math.max(0, delayMs));
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (sInstance.get() == this) {
+            sInstance = new WeakReference<>(null);
+        }
+        hideSplashOverlay();
+        super.onDestroy();
+    }
 }

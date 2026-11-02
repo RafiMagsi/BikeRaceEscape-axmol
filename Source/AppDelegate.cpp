@@ -24,6 +24,8 @@
     #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
         #import <GoogleMobileAds/GoogleMobileAds.h>
     #endif
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    #include "platform/android/jni/JniHelper.h"
 #endif
 
 USING_NS_AX;
@@ -142,6 +144,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
         return false;
     }
     director->runWithScene(scene);
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    // The Java splash overlay covers the window while the native engine initializes. Fade it out shortly after
+    // the loading scene starts rendering so there is no flash of an empty window.
+    ax::JniHelper::callStaticVoidMethod("dev/axmol/app/AppActivity", "hideSplashAfter", 700);
+#endif
+
     AXLOGI("AppDelegate::applicationDidFinishLaunching end");
     return true;
 }

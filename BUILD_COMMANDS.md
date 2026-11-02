@@ -271,3 +271,44 @@ Back the file up before changing it, and stop the app before copying a changed f
 | Play Console says minimum SDK is too low | `min_sdk` in `.axproj` | Keep `min_sdk=24` |
 | No ads on the phone | `PMP_RemoveAds` is `true` in the saved settings | Check `UserDefault.bin` (section 5) |
 | Command never returns | macOS has no `timeout` command | Run long commands in the background |
+
+
+## Android (build + install + launch)
+
+The package name got split across lines when pasted (com.nextfiction. + dinobikeescape/...), so zsh ran it as two commands. Use it as one line, quoted:
+
+~/Library/Android/sdk/platform-tools/adb shell am start -n 'com.nextfiction.dinobikeescape/dev.axmol.app.AppActivity'
+
+Or launch by package (avoids the long component name):
+
+~/Library/Android/sdk/platform-tools/adb shell monkey -p com.nextfiction.dinobikeescape -c android.intent.category.LAUNCHER 1
+
+The earlier Warning: Activity not started... just meant it was already running; after install -r, run the command again.
+#### #############################################
+
+cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/proj.android
+./gradlew :BikeRaceEscapeAxmol:assembleRelease
+
+~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/release/BikeRaceEscapeAxmol-release.apk
+
+~/Library/Android/sdk/platform-tools/adb shell am start -n com.nextfiction.
+dinobikeescape/dev.axmol.app.AppActivity
+
+iOS (archive + install + launch)
+
+cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol
+
+rm -rf build-ios-device/BikeRaceEscapeAxmol.xcarchive
+
+xcodebuild -workspace build-ios-device/BikeRaceEscapeAxmol.xcworkspace -scheme BikeRaceEscapeAxmol \
+  -configuration Release -destination 'generic/platform=iOS' \
+  -archivePath build-ios-device/BikeRaceEscapeAxmol.xcarchive -allowProvisioningUpdates archive
+
+APP=build-ios-device/BikeRaceEscapeAxmol.xcarchive/Products/Applications/BikeRaceEscapeAxmol.app
+DEV=9EABB48C-7555-51D7-8014-E04CD3B2ED01
+
+xcrun devicectl device install app --device $DEV $APP
+
+xcrun devicectl device process launch --device $DEV --terminate-existing com.nextfiction.dinobikeescape
+
+The iPhone must be connected and unlocked (currently devicectl shows it as unavailable). If CMake/Content changed, regenerate the Xcode project first with BUILD_COMMANDS.md §3.1.

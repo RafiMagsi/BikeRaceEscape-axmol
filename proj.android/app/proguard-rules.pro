@@ -23,3 +23,7 @@
 #-dontwarn android.webkit.WebView
 #-dontwarn android.net.http.SslError
 #-dontwarn android.webkit.WebViewClient
+# Classes in this package are called from native code via JNI (AdsBridge, AppActivity splash hooks);
+# R8 must not rename or strip them.
+-keep class dev.axmol.app.** { *; }
+-keepclassmembers class dev.axmol.app.** { *; }
