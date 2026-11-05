@@ -26,7 +26,7 @@ void ensureLoaded();
 // outlines, gold arcade numerals).
 // ---------------------------------------------------------------------------------------------
 inline const char* kFontPath = "Fonts/LilitaOne-Regular.ttf";   // Lilita One (SIL OFL): chunky comic display face
-inline float kMinFontPx = 12.f;    // smallest glyph size any label may use (readability on phones)
+inline float kMinFontPx = 14.f;    // smallest glyph size any label may use (readability on phones)
 inline float kFontScale = 1.45f;   // glyph size multiplier so a swapped font keeps the same visual weight (pixel fonts: 1.0)
 
 inline ax::Color3B kColText      {255, 255, 255};
@@ -218,6 +218,8 @@ inline bool kEnableJetpack     = true;   // fifth power-up: fly over the traffic
 inline bool kEnableRocket      = true;   // rocket bike: shield + magnet + extra speed
 inline bool kEnableGun         = true;   // auto-cannon: shoots the traffic ahead
 inline bool kEnableFreeGameAd  = false;  // old "FREE GAME" corner ribbon that opened a full-screen ad: misleading under AdMob policy
+inline bool kEnableSfx         = true;   // generated sound effects (Content/Sounds/fx_*.mp3)
+inline bool kEnableVoice       = true;   // announcer voice lines for labels (Content/Sounds/vo_*.mp3)
 inline bool kEnableFreeCoins   = true;   // rewarded-video free coins on the menu
 inline bool kEnableDoubleCoins = true;   // rewarded-video coin doubler on the results screen
 inline bool kEnableBigAir      = true;   // bonus for long jumps
@@ -298,6 +300,9 @@ inline float kBigAirMin           = 0.85f;    // seconds in the air that count a
 inline int   kBigAirCoins         = 5;
 
 // Gadgets (menu loadout). The pool below is the data source; these are only safety defaults.
+inline float kStdRoundButtonPx  = 76.f;     // diameter of every round BACK / RETRY / CONTINUE button (design units)
+inline float kSfxVolume         = 0.85f;
+inline float kVoiceVolume       = 1.0f;
 inline int   kGadgetSlots         = 3;
 inline int   kGadgetStartStock     = 1;        // free charges of every gadget for a new player
 inline float kGadgetMagnetSeconds = 8.0f;

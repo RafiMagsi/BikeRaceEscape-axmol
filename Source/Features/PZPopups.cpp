@@ -3,8 +3,10 @@
 //
 #include "PZPopups.h"
 #include "PZUI.h"
+#include "PZQA.h"   // TEMP-QA
 #include "PZLayout.h"
 #include "PZHaptics.h"
+#include "PZAudio.h"
 #include "PZNotifications.h"
 #include "PZSettingsController.h"
 #include "Ads/AdsController.h"
@@ -59,6 +61,7 @@ LayerColor* openModal(Node* parent, float w, float h, int z, float dim) {
     (void)z;
     auto* base = PZUI::modalBase(dim);
     parent->addChild(base, kZModal);
+    PZAudio::play("fx_open");
     const Vec2 mid = PZLayout::popupCentre();
     h = std::min(h, PZLayout::popupMaxHeight());
     auto* panel = PZUI::panel(w, h);
@@ -444,8 +447,8 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
         const bool revive = onReviveCoins && onReviveVideo;
         const float pillW = 236.f, pillH = 46.f, gap = 12.f;
         const float roundX = revive ? (pillW + gap * 0.5f + 44.f + gap) : 74.f;
-        if (auto* back = menu->getChildByTag(1)) { back->setScale(0.72f); back->setPosition(Vec2(cx - roundX, buttonY)); }
-        if (auto* restart = menu->getChildByTag(2)) { restart->setScale(0.72f); restart->setPosition(Vec2(cx + roundX, buttonY)); }
+        if (auto* back = menu->getChildByTag(1)) { back->setPosition(Vec2(cx - roundX, buttonY)); }
+        if (auto* restart = menu->getChildByTag(2)) { restart->setPosition(Vec2(cx + roundX, buttonY)); }
         if (revive) {
             auto* sc = PZSettingsController::shared();
             char b[48];
@@ -578,6 +581,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
             PZUI::floatText(root, b, Vec2(cx, panelY + 82.f), PZCfg::kColAccent2, 10.f, 30);
             PZUI::burst(root, xpBar->getPosition(), PZCfg::kColAccent2, 22, 140.f, 0.8f, 20);
             PZHaptics::play(PZHaptics::Kind::Success);
+            PZAudio::play("fx_levelup");
             PZUI::redrawBar(xpBar, barW, 10.f, 0.f, PZCfg::kColAccent2);
             xpBar->runAction(ActionFloat::create(0.6f, 0.f, r.fracAfter,
                                                  [xpBar, barW](float v) { PZUI::redrawBar(xpBar, barW, 10.f, v, PZCfg::kColAccent2); }));
@@ -643,7 +647,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
         const std::string text = pg->missionText(slot);
         root->runAction(Sequence::create(DelayTime::create(delay), CallFunc::create([=]() {
             PZUI::banner(root, PZCfg::kStrMissionToast, text, PZCfg::kColGood, PZLayout::mapY(392.f), 1.4f, 30);
-            playCoin();
+            PZAudio::play("fx_mission");
             PZHaptics::play(PZHaptics::Kind::Success);
         }), nullptr));
         delay += 1.9f;
@@ -859,12 +863,13 @@ std::vector<GadgetCard*> buildGadgetGrid(Node* host, Node* noticeHost, const Vec
                 }
                 if (!pg->buyGadget(def.id)) {
                     PZHaptics::play(PZHaptics::Kind::Error);
+                    PZAudio::play("fx_error");
                     PZUI::banner(noticeHost, PZCfg::kStrShopTitle, PZCfg::kStrReviveNoCoinsShort, PZCfg::kColBad, noticeY, 0.9f, 1600);
                     return;
                 }
                 // New charges go straight into an empty loadout slot so buying always has a visible effect.
                 if (!pg->gadgetSelected(def.id) && pg->selectedGadgetCount() < PZCfg::kGadgetSlots) pg->toggleGadget(def.id);
-                playCoin();
+                PZAudio::play("fx_buy");
                 PZHaptics::play(PZHaptics::Kind::Success);
                 (*refresh)();
                 (*cards)[static_cast<size_t>(i)]->pulse();
@@ -1923,6 +1928,7 @@ private:
 
 void attachMenuWidgets(Node* menuLayer) {
     if (!menuLayer) return;
+    PZQA::install();   // TEMP-QA
     menuLayer->removeChildByTag(kTagMenuWidgets);
     auto* w = MenuWidgets::make(menuLayer);
     if (!w) return;

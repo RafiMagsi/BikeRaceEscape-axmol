@@ -8646,7 +8646,7 @@
 			<key>FontScale</key>
 			<real>1.45</real>
 			<key>MinFontPx</key>
-			<real>12.0</real>
+			<real>14.0</real>
 			<key>StageTints</key>
 			<array>
 				<array>
@@ -8829,6 +8829,8 @@
 			<real>350.0</real>
 			<key>StartGrace</key>
 			<real>1.2</real>
+			<key>StdRoundButtonPx</key>
+			<real>76.0</real>
 			<key>TurboDuration</key>
 			<real>5.0</real>
 			<key>TurboMagnetRadius</key>

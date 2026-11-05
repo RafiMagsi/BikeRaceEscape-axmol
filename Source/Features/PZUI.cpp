@@ -3,6 +3,7 @@
 //
 #include "PZUI.h"
 #include "PZHaptics.h"
+#include "PZAudio.h"
 #include "SharedData/PZGSharedData.h"
 #include "SharedData/PZGArtCoins.h"
 #include <cmath>
@@ -372,6 +373,7 @@ void floatText(Node* parent, const std::string& text, const Vec2& pos, const Col
 
 void banner(Node* parent, const std::string& title, const std::string& sub, const Color3B& color, float y, float hold, int z) {
     if (!parent) return;
+    PZAudio::sayLabel(title);       // every banner announces itself (see PZAudio bindings)
     const Size win = Director::getInstance()->getWinSize();
     auto* box = Node::create();
     box->setCascadeOpacityEnabled(true);

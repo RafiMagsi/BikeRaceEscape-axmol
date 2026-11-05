@@ -132,7 +132,7 @@ void ensureLoaded() {
     R(feat, EnableNotifications); R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
     R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
     R(feat, EnableFairPlacement); R(feat, EnableHazardBudget); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
-    R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableFreeGameAd); R(feat, EnableDoubleCoins);
+    R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableSfx); R(feat, EnableVoice); R(feat, EnableFreeGameAd); R(feat, EnableDoubleCoins);
     R(feat, EnableBigAir); R(feat, EnableStartGrace);
     R(feat, EnableRocket); R(feat, EnableGun);
 
@@ -150,7 +150,7 @@ void ensureLoaded() {
     R(tun, Budget1Distance); R(tun, Budget2Distance); R(tun, Budget3Distance); R(tun, ClusterMaxWidth); R(tun, ClusterGap); R(tun, ArcCoinCount); R(tun, ArcHeight);
     R(tun, NotifMinRuns); R(tun, NotifAskCooldownDays); R(tun, NotifMaxAsks); R(tun, JumpBuffer); R(tun, ReadySeconds); R(tun, MercyBestBelow); R(tun, MercySaves); R(tun, ReviveTurbo);
     R(tun, StartGrace); R(tun, BigAirMin); R(tun, BigAirCoins);
-    R(tun, GadgetSlots); R(tun, GadgetStartStock); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
+    R(tun, GadgetSlots); R(tun, SfxVolume); R(tun, VoiceVolume); R(tun, StdRoundButtonPx); R(tun, GadgetStartStock); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
     R(tun, JetpackDuration); R(tun, JetpackHeight); R(tun, JetpackCoinEvery); R(tun, JetpackCoinsPerTick); R(tun, WeightJetpack);
     R(tun, RocketDuration); R(tun, RocketSpeedMult); R(tun, GunDuration); R(tun, GunInterval); R(tun, GunRange);
     R(tun, OrbWeightRocket); R(tun, OrbWeightGun);

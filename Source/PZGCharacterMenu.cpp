@@ -151,10 +151,7 @@ void PZGCharacterMenu::load(const char* keyName){
                 // The plist places this button against the bottom-left corner at 1.0 scale, where it is
                 // small for a thumb and inside the system gesture zone. Make it larger and lift it clear
                 // of the bottom edge (the area around it is empty).
-                constexpr float kBackButtonScale = 1.25f;
-                constexpr float kBackButtonBottomGap = 12.0f;
-                item->setScaleX(item->getScaleX() * kBackButtonScale);
-                item->setScaleY(item->getScaleY() * kBackButtonScale);
+                constexpr float kBackButtonBottomGap = 12.0f;   // size is standardised by PZGBaseMenuScene::load
                 const float halfHeight = item->getBoundingBox().size.height * 0.5f;
                 const float minY = Director::getInstance()->getSafeAreaRect().origin.y + kBackButtonBottomGap + halfHeight;
                 if (item->getPositionY() < minY) item->setPositionY(minY);

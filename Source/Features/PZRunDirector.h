@@ -146,6 +146,7 @@ private:
     void flash(const ax::Color3B& colour, float alpha, float duration);
     void ring(const ax::Vec2& at, const ax::Color3B& colour, float radius, float duration);
     void dustPuff(const ax::Vec2& at, int count, float spread);
+    void landingFx(float groundY, float strength);   // flat shock ring on the road, wheel sparks + flames, ground flare
     void coinFly(const ax::Vec2& from);
     void freezeFor(float seconds);
     void riderAfterimage(const ax::Color3B& tint);

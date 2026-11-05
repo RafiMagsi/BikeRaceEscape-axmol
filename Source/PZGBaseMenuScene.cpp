@@ -8,6 +8,7 @@
 
 #include "PZLegacyCompat.h"
 #include "PZGBaseMenuScene.h"
+#include "Features/PZGameConfig.h"
 #include "Features/PZLayout.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
@@ -132,6 +133,15 @@ void PZGBaseMenuScene::load(const char* keyName){
             menuItem->setRotation( -infoObj->rotation );
             menuItem->setScaleX( infoObj->scale_x );
             menuItem->setScaleY( infoObj->scale_y );
+            // One standard size for the round navigation buttons (BACK / RETRY / CONTINUE) on every screen.
+            if (infoObj->subkey) {
+                const std::string sk = infoObj->subkey->getCString();
+                if (sk == "GUI_BackButton" || sk == "GUI_RestartButton" || sk == "GUI_ContinueButton") {
+                    const Size cs = sprite->getContentSize();
+                    const float natural = std::max(cs.width, cs.height);
+                    if (natural > 1.f) menuItem->setScale(PZCfg::kStdRoundButtonPx / natural);
+                }
+            }
             menuItem->setTag( infoObj->index );
 
             pMenu->addChild(menuItem);

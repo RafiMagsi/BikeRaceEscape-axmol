@@ -6,6 +6,7 @@
 #include "PZPopups.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
+#include "PZAudio.h"
 
 #include "PZGGameFieldScene.h"
 #include "PZGGamefieldPlatforms.h"
@@ -202,7 +203,7 @@ void PZRunDirector::onLoaded() {
     if (!_scene) return;
     // Best-score read-out tucked under the live distance counter (same gold arcade style as the HUD).
     if (_bestLabel) _bestLabel->removeFromParent();
-    _bestLabel = PZUI::heading("", 8.f, PZCfg::kColDim);
+    _bestLabel = PZUI::heading("", 10.f, PZCfg::kColDim);
     _bestLabel->setAnchorPoint(Vec2(0.f, 0.5f));
     if (_scene->distance_label) {
         const Vec2 p = _scene->distance_label->getPosition();
@@ -286,6 +287,7 @@ void PZRunDirector::clearRunVisuals() {
 void PZRunDirector::startRun() {
     clearRunVisuals();
     PZProgress::shared()->refreshMissions();
+    { static bool audioReady = false; if (!audioReady) { audioReady = true; PZAudio::preload(); } }
 
     _time = 0.f;
     _stage = 1;
@@ -450,6 +452,7 @@ void PZRunDirector::updateStage() {
     _scene->addBonusCoins(PZCfg::kStageCoinBonus);
     _stats.coins += PZCfg::kStageCoinBonus;
     playPickupSound();
+    PZAudio::play("fx_stage");
 
     if (!PZCfg::kStageTints.empty()) {
         const auto& t = PZCfg::kStageTints[(st - 1) % PZCfg::kStageTints.size()];
@@ -496,6 +499,7 @@ void PZRunDirector::onCoin(PZGCoin* coin) {
         std::snprintf(buf, sizeof(buf), PZCfg::kStrComboBonus, bonus);
         awardBonus(bonus, at + Vec2(0, 34), buf, PZCfg::kColAccent2);
         PZHaptics::play(PZHaptics::Kind::Light);
+        PZAudio::play("fx_combo_bonus");
     }
 }
 
@@ -536,6 +540,8 @@ void PZRunDirector::updateNearMiss() {
             awardBonus(PZCfg::kNearMissCoins, Vec2(rb.getMidX(), rb.getMaxY() + 20.f), buf, PZCfg::kColGood);
             ring(Vec2(rb.getMidX(), rb.getMinY()), PZCfg::kColGood, 90.f, 0.35f);
             PZHaptics::play(PZHaptics::Kind::Medium);
+            PZAudio::play("fx_nearmiss");
+            PZAudio::say("vo_close_call", 0);
         }
     }
 }
@@ -702,6 +708,19 @@ void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride
     PZUI::glitter(_scene, at, col, 10, 90.f, 0.8f, kZFx + 5);
     ring(at, col, 110.f, 0.45f);
     if (!bonus && kind != PowerUp::Blast) cameraPunch(1.0f + (PZCfg::kPunchZoom - 1.0f) * 0.7f, 0.1f, 0.28f);
+
+    {   // pickup sounds: a generic chime + the power-up's own effect, and the announcer for those without a banner
+        if (!bonus) PZAudio::play("fx_powerup");
+        switch (kind) {
+        case PowerUp::Magnet:  PZAudio::play("fx_magnet", 0.9f, 0.1f);  if (!bonus) PZAudio::say("vo_magnet"); break;
+        case PowerUp::Shield:  PZAudio::play("fx_shield", 0.9f, 0.1f);  if (!bonus) PZAudio::say("vo_shield"); break;
+        case PowerUp::Turbo:   PZAudio::play("fx_turbo", 0.9f, 0.1f);   if (!bonus) PZAudio::say("vo_turbo"); break;
+        case PowerUp::Blast:   PZAudio::play("fx_blast", 1.0f, 0.1f);   break;
+        case PowerUp::Jetpack: PZAudio::play("fx_jetpack", 0.9f, 0.1f); break;
+        case PowerUp::Rocket:  PZAudio::play("fx_rocket", 0.9f, 0.1f);  break;
+        case PowerUp::Gun:     PZAudio::play("fx_gun_on", 0.9f, 0.1f);  break;
+        }
+    }
 
     switch (kind) {
     case PowerUp::Magnet:
@@ -1092,6 +1111,7 @@ void PZRunDirector::fireAt(PZGObstacle* target) {
     const Vec2 from = riderPos() + Vec2(34.f, 8.f);
     const Rect box = target->worldBox();
     const Vec2 to(box.getMidX(), box.getMidY());
+    PZAudio::play("fx_shot", 0.7f, 0.08f);
 
     auto* tracer = DrawNode::create();
     tracer->drawSegment(Vec2::ZERO, to - from, 2.4f, PZUI::c4f(Color3B(255, 248, 210), 0.95f));
@@ -1197,6 +1217,8 @@ void PZRunDirector::beginReadyCountdown() {
             RemoveSelf::create(), nullptr));
         ring(centre, col, 150.f, 0.5f);
         PZHaptics::play(go ? PZHaptics::Kind::Success : PZHaptics::Kind::Light);
+        PZAudio::play(go ? "fx_go_hit" : "fx_tick", 1.f, 0.05f);
+        if (go) PZAudio::say("vo_go", 2);
     };
 
     const float step = PZCfg::kReadySeconds;
@@ -1607,6 +1629,7 @@ void PZRunDirector::destroyObstacle(PZGObstacle* o, Style style, bool reward) {
     o->dead = true;
     o->deleteReady = true;
     o->setVisible(false);     // the husk is replaced by the ghost animation; matters while the world is frozen
+    PZAudio::play(style == Style::Launch ? "fx_smash" : "fx_explosion", 0.9f, 0.05f);
     if (!reward) return;      // rescue clean-up: the same animation, but no coins, stats, hit-stop or shake
 
     ++_stats.smashed;
@@ -1672,6 +1695,7 @@ bool PZRunDirector::onObstacleHit(PZGObstacle* o) {
     if (_shieldT > 0.f) {
         _shieldT = 0.f;
         _graceT = PZCfg::kHitGrace;
+        PZAudio::play("fx_shield_break");
         destroyObstacle(o, Style::Explode);
         startWave(riderPos(), PZCfg::kShieldBreakRadius, 1600.f, PZCfg::kColShield);
         PZUI::floatText(_scene, PZCfg::kStrShieldBreak, riderPos() + Vec2(0, 56), PZCfg::kColShield, 12.f, kZFx);
@@ -1736,6 +1760,85 @@ void PZRunDirector::dustPuff(const Vec2& at, int count, float spread) {
         d->runAction(Sequence::create(Spawn::create(MoveBy::create(dur, Vec2(rnd(-spread, spread * 0.4f), rnd(10.f, 34.f))),
                                                     ScaleTo::create(dur, rnd(1.6f, 2.4f)), FadeOut::create(dur), nullptr),
                                       RemoveSelf::create(), nullptr));
+    }
+}
+
+// Landing: the impact happens at the tyres, so everything is drawn on the road under the bike (not a ring around it):
+// a flat shock ring that races along the road, sparks thrown off both wheels, a short flame lick at each tyre on hard
+// landings, and a warm additive flare on the surface.
+void PZRunDirector::landingFx(float groundY, float strength) {
+    if (!PZCfg::kEnableFx) return;
+    strength = std::max(0.f, std::min(1.f, strength));
+    const float x = riderPos().x;
+    const float wheelDX = 36.f;
+    const Color3B hot(255, 196, 64), warm(255, 224, 150), flame(255, 120, 30);
+
+    // 1. flat shock ring along the road
+    auto* wave = DrawNode::create();
+    wave->setPosition(Vec2(x, groundY + 3.f));
+    _scene->addChild(wave, kZAura + 3);
+    const float maxR = 80.f + 90.f * strength;
+    wave->runAction(ActionFloat::create(0.34f, 0.f, 1.f, [wave, maxR, warm](float t) {
+        wave->clear();
+        const float r = 16.f + (maxR - 16.f) * (1.f - (1.f - t) * (1.f - t));
+        const float a = std::max(0.f, 1.f - t);
+        Vec2 prev(r, 0.f);
+        for (int i = 1; i <= 24; ++i) {
+            const float ang = static_cast<float>(M_PI) * i / 24.f;
+            const Vec2 p(std::cos(ang) * r, std::sin(ang) * r * 0.22f);
+            wave->drawSegment(prev, p, 1.5f + 2.5f * a, PZUI::c4f(warm, 0.85f * a));
+            prev = p;
+        }
+    }));
+    wave->runAction(Sequence::create(DelayTime::create(0.36f), RemoveSelf::create(), nullptr));
+
+    // 2. warm flare on the surface under the bike
+    auto* flare = DrawNode::create();
+    Vec2 diamond[4] = {Vec2(-70.f, 0.f), Vec2(0.f, 7.f), Vec2(70.f, 0.f), Vec2(0.f, -3.f)};
+    flare->drawSolidPoly(diamond, 4, PZUI::c4f(hot, 0.55f + 0.3f * strength), 0.f, PZUI::c4f(hot, 0.f));
+    flare->setBlendFunc(BlendFunc::ADDITIVE);
+    flare->setPosition(Vec2(x, groundY + 4.f));
+    flare->setScale(0.4f, 1.f);
+    _scene->addChild(flare, kZAura + 4);
+    flare->runAction(Sequence::create(Spawn::create(EaseOut::create(ScaleTo::create(0.3f, 1.4f, 0.6f), 2.f), FadeOut::create(0.3f), nullptr),
+                                      RemoveSelf::create(), nullptr));
+
+    // 3. sparks off both tyres (ballistic arcs)
+    const int perWheel = 3 + static_cast<int>(strength * 5.f);
+    for (int w = 0; w < 2; ++w) {
+        const float wx = x + (w == 0 ? -wheelDX : wheelDX);
+        for (int i = 0; i < perWheel; ++i) {
+            auto* sp = DrawNode::create();
+            sp->drawDot(Vec2::ZERO, rnd(1.6f, 2.8f), PZUI::c4f(rnd(0.f, 1.f) < 0.5f ? hot : warm, 1.f));
+            const Vec2 start(wx, groundY + 5.f);
+            sp->setPosition(start);
+            _scene->addChild(sp, kZAura + 5);
+            const float dir = (w == 0 ? -1.f : 1.f) * rnd(0.3f, 1.f);
+            const Vec2 vel(dir * rnd(60.f, 150.f) * (0.6f + strength), rnd(90.f, 210.f) * (0.6f + 0.6f * strength));
+            const float dur = rnd(0.28f, 0.5f);
+            sp->runAction(ActionFloat::create(dur, 0.f, dur, [sp, start, vel](float tt) {
+                sp->setPosition(start + vel * tt + Vec2(0.f, -520.f * 0.5f * tt * tt));
+            }));
+            sp->runAction(Sequence::create(Spawn::create(FadeOut::create(dur), ScaleTo::create(dur, 0.3f), nullptr), RemoveSelf::create(), nullptr));
+        }
+    }
+
+    // 4. flame lick at each tyre on hard landings
+    if (strength > 0.35f) {
+        for (int w = 0; w < 2; ++w) {
+            auto* f = DrawNode::create();
+            Vec2 outer[3] = {Vec2(-7.f, 0.f), Vec2(0.f, 26.f), Vec2(7.f, 0.f)};
+            Vec2 inner[3] = {Vec2(-3.5f, 0.f), Vec2(0.f, 14.f), Vec2(3.5f, 0.f)};
+            f->drawSolidPoly(outer, 3, PZUI::c4f(flame, 0.9f), 0.f, PZUI::c4f(flame, 0.f));
+            f->drawSolidPoly(inner, 3, PZUI::c4f(Color3B(255, 236, 120), 0.95f), 0.f, PZUI::c4f(hot, 0.f));
+            f->setBlendFunc(BlendFunc::ADDITIVE);
+            f->setPosition(Vec2(x + (w == 0 ? -wheelDX : wheelDX), groundY + 3.f));
+            f->setScale(0.3f, 0.2f);
+            _scene->addChild(f, kZAura + 5);
+            f->runAction(Sequence::create(Spawn::create(EaseOut::create(ScaleTo::create(0.26f, 1.0f + 0.5f * strength, 0.9f + 0.7f * strength), 2.f),
+                                                        FadeOut::create(0.26f), nullptr),
+                                          RemoveSelf::create(), nullptr));
+        }
     }
 }
 
@@ -1853,12 +1956,14 @@ void PZRunDirector::updateFx(float dt, float scroll) {
         if (_prevJump == 0 && jc != 0 && ch->p_body && ch->p_body->GetLinearVelocity().y > 0.f) {
             dustPuff(Vec2(riderPos().x - 30.f, groundY + 6.f), 4, 70.f);
             PZHaptics::play(PZHaptics::Kind::Light);
+            PZAudio::play("fx_jump", 0.7f, 0.12f);
             _airTime = 0.f;
         } else if (_prevJump != 0 && jc == 0) {
             const float strength = std::min(1.f, _airTime / 0.7f);
             dustPuff(Vec2(riderPos().x, groundY + 6.f), 4 + static_cast<int>(strength * 5.f), 110.f);
             if (_airTime > 0.25f) {
-                ring(Vec2(riderPos().x, groundY + 4.f), Color3B(220, 205, 180), 55.f + 40.f * strength, 0.3f);
+                PZAudio::play("fx_land", 0.5f + 0.5f * strength, 0.1f);
+                landingFx(groundY, strength);
                 shakeScene(1.5f + 2.5f * strength, 0.12f);
                 PZHaptics::play(strength > 0.55f ? PZHaptics::Kind::Medium : PZHaptics::Kind::Light);
             }
@@ -1867,8 +1972,9 @@ void PZRunDirector::updateFx(float dt, float scroll) {
                 std::snprintf(buf, sizeof(buf), PZCfg::kStrBigAir, PZCfg::kBigAirCoins);
                 awardBonus(PZCfg::kBigAirCoins, Vec2(riderPos().x, riderPos().y + 58.f), buf, PZCfg::kColAccent2);
                 PZUI::burst(_scene, riderPos(), PZCfg::kColAccent, 16, 100.f, 0.55f, kZFx);
-                ring(Vec2(riderPos().x, groundY + 4.f), PZCfg::kColAccent, 120.f, 0.4f);
                 PZUI::glitter(_scene, riderPos(), PZCfg::kColAccent, 12, 90.f, 0.8f, kZFx + 5);
+                PZAudio::play("fx_bigair");
+                PZAudio::say("vo_big_air", 0);
                 cameraPunch(1.0f + (PZCfg::kPunchZoom - 1.0f) * 0.6f, 0.1f, 0.3f);
                 PZHaptics::play(PZHaptics::Kind::Success);
             }
@@ -1974,6 +2080,8 @@ bool PZRunDirector::onDeath() {
     // An active shield saves the rider from one fall (hits are already absorbed in onObstacleHit).
     if (_shieldT > 0.f) {
         _shieldT = 0.f;
+        PZAudio::play("fx_shield_break");
+        PZAudio::play("fx_revive");
         rescueRider();
         PZUI::floatText(_scene, PZCfg::kStrShieldBreak, riderPos() + Vec2(0, 56), PZCfg::kColShield, 12.f, kZFx);
         PZUI::burst(_scene, riderPos(), PZCfg::kColShield, 14, 90.f, 0.5f, kZFx);
@@ -1984,6 +2092,8 @@ bool PZRunDirector::onDeath() {
     // Lucky Helmet gadget: one free hit/fall per run.
     if (_helmetSaves > 0) {
         --_helmetSaves;
+        PZAudio::play("fx_helmet");
+        PZAudio::play("fx_revive");
         refreshGadgetStrip();
         rescueRider();
         PZUI::banner(_scene, PZCfg::kStrLuckyHelmet, "", PZCfg::kColShield,
@@ -1996,6 +2106,7 @@ bool PZRunDirector::onDeath() {
     // Beginners get a free second chance so early runs don't end on the first mistake.
     if (mercyAvailable()) {
         ++_mercyUsed;
+        PZAudio::play("fx_revive");
         rescueRider();
         PZUI::banner(_scene, PZCfg::kStrSaved, "", PZCfg::kColGood, Director::getInstance()->getWinSize().height * 0.6f, 0.8f);
         PZUI::burst(_scene, riderPos(), PZCfg::kColGood, 14, 90.f, 0.5f, kZFx);
@@ -2006,6 +2117,7 @@ bool PZRunDirector::onDeath() {
 
     flash(PZCfg::kColBad, 0.4f, 0.5f);
     PZHaptics::play(PZHaptics::Kind::Error);
+    PZAudio::play("fx_crash");
     if (!PZCfg::kEnableRevive || _reviveOffered) return false;
     auto* sc = PZSettingsController::shared();
     const bool video = PZCfg::kEnableReviveVideo;   // offered even while the ad is still loading; the popup polls
@@ -2090,6 +2202,7 @@ void PZRunDirector::reviveAccepted(bool paidWithCoins) {
     }
     _reviveWait = true;
     _reviveWaitT = 0.f;
+    PZAudio::play("fx_revive");
 
     const Size win = Director::getInstance()->getWinSize();
     PZUI::banner(_scene, PZCfg::kStrReviveWait, "", PZCfg::kColAccent, win.height * 0.7f, 1.0f);
@@ -2123,6 +2236,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     PZProgress::shared()->snapshot();
     const PZRunResult result = PZProgress::shared()->commitRun(_stats);
     _lastResult = result;
+    if (!result.newBest) PZAudio::say("vo_game_over", 1);
     refreshHud();
     auto claimDoubleCoins = [this]() -> int {
         const int extra = static_cast<int>(std::lround(_stats.coins * (PZCfg::kDoubleCoinsMultiplier - 1.f)));
