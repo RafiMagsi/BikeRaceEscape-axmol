@@ -88,7 +88,7 @@
 				<key>chartboostInterstitial</key>
 				<integer>1</integer>
 				<key>showAfterCount</key>
-				<integer>1</integer>
+				<integer>2</integer>
 			</dict>
 			<key>OnMainMenu</key>
 			<dict>

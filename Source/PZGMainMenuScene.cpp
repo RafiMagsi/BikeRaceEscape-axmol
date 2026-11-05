@@ -143,25 +143,24 @@ void PZGMainMenuScene::load(const char* keyName){
     }
 
     Size screenSize = Director::getInstance()->getWinSize();
-    Sprite *more_button = Sprite::create("free_game.png" );
-    Sprite *moreSpriteClick = Sprite::create( "free_game.png" );
-    moreSpriteClick->setColor( ccc3(128, 128, 128) );
-    MenuItemSprite* more_button1 =
-        MenuItemSprite::create(more_button, moreSpriteClick, AX_CALLBACK_1(PZGMainMenuScene::moreGames, this));
-    // Top-left corner of the screen, scaled up so it is easy to hit.
-    constexpr float kFreeGameButtonScale = 1.28f;
-    more_button1->setScale(kFreeGameButtonScale);
-    more_button1->setAnchorPoint(ccp(0, 1));
-    more_button1->setPosition(ccp(0, screenSize.height));
-    
-    Menu* pMenu;
-    pMenu = Menu::create(more_button1, NULL);
-    pMenu->setPosition( ccp(screenSize.width *0.9, screenSize.height*0.066) );
-    //    pMenu = Menu::create(startGameItem, backItem, NULL);
-    pMenu->setPosition(Vec2::ZERO);
-    pMenu->setTag(400);
-    
-    this->addChild(pMenu,400);
+    // The old "FREE GAME" corner ribbon opened a full-screen ad behind a misleading label, which AdMob policy forbids.
+    // It only exists when a reskin explicitly turns it back on (features/EnableFreeGameAd) with an honest label.
+    if (PZCfg::kEnableFreeGameAd) {
+        Sprite *more_button = Sprite::create("free_game.png" );
+        Sprite *moreSpriteClick = Sprite::create( "free_game.png" );
+        moreSpriteClick->setColor( ccc3(128, 128, 128) );
+        MenuItemSprite* more_button1 =
+            MenuItemSprite::create(more_button, moreSpriteClick, AX_CALLBACK_1(PZGMainMenuScene::moreGames, this));
+        constexpr float kFreeGameButtonScale = 1.28f;
+        more_button1->setScale(kFreeGameButtonScale);
+        more_button1->setAnchorPoint(ccp(0, 1));
+        more_button1->setPosition(ccp(0, screenSize.height));
+
+        Menu* pMenu = Menu::create(more_button1, NULL);
+        pMenu->setPosition(Vec2::ZERO);
+        pMenu->setTag(400);
+        this->addChild(pMenu,400);
+    }
 
     // Level plate, DAILY reward and MISSIONS buttons (code-drawn; see Source/Features).
     PZPopups::attachMenuWidgets(this);

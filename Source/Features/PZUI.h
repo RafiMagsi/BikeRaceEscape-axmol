@@ -27,6 +27,10 @@ ax::Node* panel(float w, float h, float radius = 22.f);
 // The game's own coin art (falls back to a drawn coin). `size` is the on-screen diameter.
 ax::Node* coinIcon(float size);
 
+// Code-drawn icon for a gadget / power-up id (magnet, turbo, shield, jetpack, headstart, rocket, helmet, gun), drawn to
+// look like what it does. `size` is the on-screen diameter; unknown ids get a lettered badge.
+ax::Node* gadgetIcon(const std::string& id, float size, const std::string& fallbackLetter = "?", bool dim = false);
+
 // Rounded rectangle centred on (0,0) of the returned node.
 ax::DrawNode* roundedRect(float w, float h, float radius, const ax::Color3B& fill, float fillAlpha,
                           const ax::Color3B& border, float borderAlpha = 1.f, float borderWidth = 2.f);

@@ -11,6 +11,13 @@
 #import <UIKit/UIKit.h>
 #import <dispatch/dispatch.h>
 
+#if __has_include(<UserMessagingPlatform/UserMessagingPlatform.h>)
+#import <UserMessagingPlatform/UserMessagingPlatform.h>
+#define PZ_HAS_UMP 1
+#else
+#define PZ_HAS_UMP 0
+#endif
+
 #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
 #import <GoogleMobileAds/GoogleMobileAds.h>
 #define PZ_HAS_GMA 1
@@ -32,6 +39,54 @@
 // presentFromRootViewController: must stay strongly referenced until adDidDismissFullScreenContent:,
 // and `fullScreenContentDelegate` is a *weak* property, so the delegate needs its own strong owner.
 static GADBannerView* g_banner = nil;
+
+// AdMob policy: no ad request before the Google UMP consent flow says ads may be requested (EEA / UK / US states).
+static BOOL g_adsStarted = NO;
+static BOOL pzCanRequestAds() {
+#if PZ_HAS_UMP
+    return UMPConsentInformation.sharedInstance.canRequestAds;
+#else
+    return YES;
+#endif
+}
+static void pzStartAdsIfAllowed() {
+    if (g_adsStarted || !pzCanRequestAds()) return;
+    g_adsStarted = YES;
+    [GADMobileAds sharedInstance].audioVideoManager.audioSessionIsApplicationManaged = YES;
+    [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
+    AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
+}
+static UIViewController* pzRootViewController() {
+    UIWindow* window = nil;
+    for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            for (UIWindow* w in ((UIWindowScene*)scene).windows) { if (w.isKeyWindow) { window = w; break; } }
+        }
+        if (window) break;
+    }
+    if (!window) window = UIApplication.sharedApplication.windows.firstObject;
+    UIViewController* vc = window.rootViewController;
+    while (vc.presentedViewController) vc = vc.presentedViewController;
+    return vc;
+}
+static void pzRunConsentFlow() {
+#if PZ_HAS_UMP
+    UMPRequestParameters* params = [[UMPRequestParameters alloc] init];
+    [UMPConsentInformation.sharedInstance requestConsentInfoUpdateWithParameters:params
+                                                               completionHandler:^(NSError* _Nullable error) {
+        if (error) AXLOGW("AdsProviderAdMob(iOS): consent info update failed: {}", error.localizedDescription.UTF8String);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIViewController* vc = pzRootViewController();
+            if (!vc) { pzStartAdsIfAllowed(); return; }
+            [UMPConsentForm loadAndPresentIfRequiredFromViewController:vc completionHandler:^(NSError* _Nullable formError) {
+                if (formError) AXLOGW("AdsProviderAdMob(iOS): consent form: {}", formError.localizedDescription.UTF8String);
+                pzStartAdsIfAllowed();
+            }];
+        });
+    }];
+#endif
+    pzStartAdsIfAllowed();   // consent from an earlier session may already allow ads
+}
 
 static GADInterstitialAd* g_interstitial = nil;          // loaded, not shown yet
 static GADInterstitialAd* g_presentingInterstitial = nil; // on screen, released on dismissal
@@ -156,9 +211,7 @@ bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     // We keep `appIdOrKey` for compatibility with other providers / configs.
     // The app owns the audio session (see GameAppController): keep the SDK from switching its category,
     // which interrupts the menu music. The game's audio is paused/resumed around full-screen ads instead.
-    [GADMobileAds sharedInstance].audioVideoManager.audioSessionIsApplicationManaged = YES;
-    [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
-    AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
+    pzRunConsentFlow();
 
     // Set test device ID so we get test ads (not real ads)
     NSArray *testDeviceIDs = @[ @"be650e90ca1cb0f5e1cde5dbcf188455", @"19b2994fff154d01ff1a3869eaad7f63" ];
@@ -191,6 +244,7 @@ void AdsProviderAdMob::showBanner() {
     }
     NSString* unitId = _nsString(lastBannerPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (!pzCanRequestAds()) return;     // consent flow still open: no banner request yet
         UIViewController* vc = _topMostViewController();
         if (!vc || !vc.view) {
             AXLOGW("AdsProviderAdMob(iOS): no view controller to present banner");
@@ -248,7 +302,7 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
     NSString* unitId = _nsString(lastInterstitialPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
         // Keep an already cached ad, and never start a second request while one is in flight.
-        if (g_interstitial || g_interstitialLoading) return;
+        if (g_interstitial || g_interstitialLoading || !pzCanRequestAds()) return;
         g_interstitialLoading = YES;
         [GADInterstitialAd loadWithAdUnitID:unitId
                                     request:[GADRequest request]
@@ -335,7 +389,7 @@ void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
     if (lastRewardedPlacement_.empty()) return;
     NSString* unitId = _nsString(lastRewardedPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (g_rewarded || g_rewardedLoading) return;
+        if (g_rewarded || g_rewardedLoading || !pzCanRequestAds()) return;
         g_rewardedLoading = YES;
         [GADRewardedAd loadWithAdUnitID:unitId
                                 request:[GADRequest request]

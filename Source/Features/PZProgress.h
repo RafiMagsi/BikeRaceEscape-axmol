@@ -7,6 +7,7 @@
 
 #include "PZLegacyCompat.h"
 #include "PZGameConfig.h"
+#include <map>
 #include <string>
 #include <vector>
 
@@ -85,6 +86,11 @@ public:
     bool gadgetSelected(const std::string& id) const;
     int  selectedGadgetCount() const;
     void toggleGadget(const std::string& id);
+    // Charges: buying adds one, every equipped gadget uses one at the start of a run.
+    int  gadgetStock(const std::string& id) const;
+    void addGadgetStock(const std::string& id, int n);
+    bool consumeGadgetStock(const std::string& id);
+    bool buyGadget(const std::string& id);      // spends coins (false: locked or not enough coins)
 
     // --- rewarded-video economy ---
     bool freeCoinsAvailable() const;
@@ -124,6 +130,10 @@ public:
 
     // --- runs ---
     PZRunResult commitRun(const PZRunStats& stats);
+    // Game-over revive: remember the state before a run is committed and roll back to it if the player revives.
+    // (Coins are not part of the snapshot; the caller removes the level-up coins that commitRun granted.)
+    void snapshot();
+    bool restoreSnapshot();
 
     void save();
 
@@ -144,6 +154,7 @@ private:
     int  _notifLastAsk = -1000;
     bool _notifOn = true;
     std::vector<std::string> _gadgets;      // equipped gadget ids (validated on load)
+    std::map<std::string, int> _stock;      // gadget id -> charges owned
     int  _lastFreeCoins = -100000;
     int  _lastHourly = -100000;
     int  _spinDay = -1000;

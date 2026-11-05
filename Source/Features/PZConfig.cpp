@@ -92,7 +92,7 @@ void ensureLoaded() {
     }
 
     const ValueMap* theme = section(*root, "theme");
-    R(theme, FontPath);
+    R(theme, FontPath); R(theme, FontScale); R(theme, MinFontPx);
     R(theme, ColText); R(theme, ColDim); R(theme, ColAccent); R(theme, ColAccent2); R(theme, ColGood); R(theme, ColBad);
     R(theme, ColPanel); R(theme, ColPanelEdge); R(theme, ColPanelEdge2); R(theme, ColButton); R(theme, ColButtonDark);
     R(theme, ColMagnet); R(theme, ColShield); R(theme, ColTurbo); R(theme, ColBlast); R(theme, ColJetpack);
@@ -117,10 +117,10 @@ void ensureLoaded() {
     R(str, StrJetpack); R(str, StrBigAir); R(str, StrStartHint); R(str, StrHeadStart); R(str, StrLuckyHelmet);
     R(str, StrRocketName); R(str, StrGunName); R(str, StrRocketIcon); R(str, StrGunIcon); R(str, StrRocket); R(str, StrGun);
     R(str, StrReviveWait); R(str, StrGetReady);
-    R(str, StrReviveTitle); R(str, StrReviveBtn); R(str, StrReviveNoCoins); R(str, StrReviveSkip); R(str, StrReviveCoins); R(str, StrReviveVideo); R(str, StrReviveFree); R(str, StrReviveLoading); R(str, StrReviveSub); R(str, StrMissionTrack);
+    R(str, StrReviveTitle); R(str, StrReviveButton); R(str, StrReviveAdButton); R(str, StrReviveBtn); R(str, StrReviveNoCoins); R(str, StrReviveSkip); R(str, StrReviveNoCoinsShort); R(str, StrReviveCoins); R(str, StrReviveVideo); R(str, StrReviveFree); R(str, StrReviveLoading); R(str, StrReviveSub); R(str, StrMissionTrack);
     R(str, StrVideoNoAd); R(str, StrVideoRetry); R(str, StrGiftsBtn); R(str, StrGiftsTitle); R(str, StrGiftDaily); R(str, StrGiftHourly); R(str, StrGiftSpin); R(str, StrGiftVideo); R(str, StrGiftChest); R(str, StrGiftMissions); R(str, StrGiftReady); R(str, StrGiftIn); R(str, StrGiftNextChest); R(str, StrGiftMissionHint); R(str, StrGiftClaimed); R(str, StrSpinBtn); R(str, StrSpinVideo); R(str, StrSpinTitle); R(str, StrComebackTitle); R(str, StrComebackSub); R(str, StrFreeCoinsBtn); R(str, StrFreeCoinsTitle); R(str, StrFreeCoinsSub); R(str, StrFreeCoinsWait); R(str, StrFreeCoinsReady);
     R(str, StrDoubleCoins); R(str, StrDoubleClaimed); R(str, StrDoubleCoinsSub);
-    R(str, StrGadgetsTitle); R(str, StrGadgetsSub); R(str, StrGadgetsBtn); R(str, StrGadgetLocked); R(str, StrGadgetEquipped);
+    R(str, StrGadgetsTitle); R(str, StrGadgetsSub); R(str, StrGadgetsBtn); R(str, StrGadgetLocked); R(str, StrGadgetEquipped); R(str, StrGadgetOwned); R(str, StrShopBtn); R(str, StrShopTitle); R(str, StrShopPowerUps); R(str, StrShopCoins); R(str, StrShopWatchAd); R(str, StrShopAdNote); R(str, StrShopPacks); R(str, StrShopBuy);
     R(str, StrDailyTitle); R(str, StrDailyDay); R(str, StrDailyClaim); R(str, StrDailyStreak); R(str, StrDailyBtn);
     R(str, StrMissionsTitle); R(str, StrMissionsBtn); R(str, StrMissionClaim); R(str, StrMissionDone);
     R(str, StrMissionNew); R(str, StrClose);
@@ -132,7 +132,7 @@ void ensureLoaded() {
     R(feat, EnableNotifications); R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
     R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
     R(feat, EnableFairPlacement); R(feat, EnableHazardBudget); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
-    R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableDoubleCoins);
+    R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableFreeGameAd); R(feat, EnableDoubleCoins);
     R(feat, EnableBigAir); R(feat, EnableStartGrace);
     R(feat, EnableRocket); R(feat, EnableGun);
 
@@ -150,7 +150,7 @@ void ensureLoaded() {
     R(tun, Budget1Distance); R(tun, Budget2Distance); R(tun, Budget3Distance); R(tun, ClusterMaxWidth); R(tun, ClusterGap); R(tun, ArcCoinCount); R(tun, ArcHeight);
     R(tun, NotifMinRuns); R(tun, NotifAskCooldownDays); R(tun, NotifMaxAsks); R(tun, JumpBuffer); R(tun, ReadySeconds); R(tun, MercyBestBelow); R(tun, MercySaves); R(tun, ReviveTurbo);
     R(tun, StartGrace); R(tun, BigAirMin); R(tun, BigAirCoins);
-    R(tun, GadgetSlots); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
+    R(tun, GadgetSlots); R(tun, GadgetStartStock); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
     R(tun, JetpackDuration); R(tun, JetpackHeight); R(tun, JetpackCoinEvery); R(tun, JetpackCoinsPerTick); R(tun, WeightJetpack);
     R(tun, RocketDuration); R(tun, RocketSpeedMult); R(tun, GunDuration); R(tun, GunInterval); R(tun, GunRange);
     R(tun, OrbWeightRocket); R(tun, OrbWeightGun);
@@ -238,7 +238,7 @@ void ensureLoaded() {
             if (row.getType() != Value::Type::MAP) continue;
             const auto& g = row.asValueMap();
             auto id = g.find("Id"), name = g.find("Name"), desc = g.find("Desc"), icon = g.find("Icon");
-            auto lv = g.find("UnlockLevel"), val = g.find("Value");
+            auto lv = g.find("UnlockLevel"), val = g.find("Value"), price = g.find("Price");
             if (id == g.end() || name == g.end() || icon == g.end()) continue;
             GadgetTemplate t;
             t.id = id->second.asString();
@@ -247,6 +247,7 @@ void ensureLoaded() {
             t.icon = icon->second.asString();
             t.unlockLevel = lv != g.end() ? std::max(1, lv->second.asInt()) : 1;
             t.value = val != g.end() ? val->second.asFloat() : 0.f;
+            t.price = price != g.end() ? std::max(0, price->second.asInt()) : 100;
             if (!t.id.empty()) pool.push_back(std::move(t));
         }
         if (!pool.empty()) kGadgetPool = std::move(pool);

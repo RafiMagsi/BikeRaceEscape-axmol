@@ -254,6 +254,8 @@ if(IOS AND XCODE)
   target_link_libraries(${APP_NAME} "-framework GameKit")
   # In-App Purchases (StoreKit)
   target_link_libraries(${APP_NAME} "-framework StoreKit")
+  # Local reminder notifications (PZNotificationsApple.mm uses UNUserNotificationCenter)
+  target_link_libraries(${APP_NAME} "-framework UserNotifications")
 
   # ---- CocoaPods Setup for iOS ----
   # Create Podfile for CocoaPods dependency management (pods installed via build script)

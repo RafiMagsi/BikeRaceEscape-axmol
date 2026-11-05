@@ -22,6 +22,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.ump.ConsentInformation;
+import com.google.android.ump.ConsentRequestParameters;
+import com.google.android.ump.UserMessagingPlatform;
 
 /**
  * Java side of the AdMob bridge. Called from C++ (AdsProviderAdMob.cpp) through JniHelper.
@@ -46,9 +49,51 @@ public class AdsBridge {
     /** Reports to C++ (PZ::AdsController::handleRewardedFinished) once a rewarded ad has finished. */
     private static native void nativeOnRewardedFinished(boolean earned);
 
+    /** True once the Google UMP consent flow allows ad requests (always true outside regulated regions). */
+    private static volatile boolean canRequestAds = false;
+    private static boolean adsStarted = false;
+
+    /**
+     * AdMob policy: collect consent (EEA / UK / US states) with Google's UMP form before any ad request, and only start
+     * the SDK once ads may be requested. The form is shown by the SDK only where required.
+     */
     public static void init(Activity a) {
         activity = a;
-        MobileAds.initialize(a, status -> Log.i(TAG, "Mobile Ads initialized"));
+        final ConsentInformation info = UserMessagingPlatform.getConsentInformation(a);
+        ConsentRequestParameters params = new ConsentRequestParameters.Builder().build();
+        info.requestConsentInfoUpdate(a, params,
+                () -> UserMessagingPlatform.loadAndShowConsentFormIfRequired(a, formError -> {
+                    if (formError != null) Log.w(TAG, "consent form: " + formError.getMessage());
+                    startAds(info);
+                }),
+                requestError -> {
+                    Log.w(TAG, "consent info: " + requestError.getMessage());
+                    startAds(info);
+                });
+        startAds(info);   // consent from an earlier session may already allow ads
+    }
+
+    private static synchronized void startAds(ConsentInformation info) {
+        if (!info.canRequestAds()) return;
+        canRequestAds = true;
+        if (adsStarted || activity == null) return;
+        adsStarted = true;
+        MobileAds.initialize(activity, status -> Log.i(TAG, "Mobile Ads initialized"));
+    }
+
+    /** Privacy options entry point (Settings): re-opens the consent form when the user's region requires it. */
+    public static void showPrivacyOptions() {
+        UI.post(() -> {
+            if (activity == null) return;
+            UserMessagingPlatform.showPrivacyOptionsForm(activity, err -> {
+                if (err != null) Log.w(TAG, "privacy options: " + err.getMessage());
+            });
+        });
+    }
+
+    public static boolean privacyOptionsRequired() {
+        return activity != null && UserMessagingPlatform.getConsentInformation(activity)
+                .getPrivacyOptionsRequirementStatus() == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED;
     }
 
     public static void setBannerId(final String id) {
@@ -57,7 +102,7 @@ public class AdsBridge {
 
     public static void showBanner() {
         UI.post(() -> {
-            if (activity == null || bannerId.isEmpty()) return;
+            if (activity == null || bannerId.isEmpty() || !canRequestAds) return;
             if (banner == null) {
                 banner = new AdView(activity);
                 banner.setAdUnitId(bannerId);
@@ -89,7 +134,7 @@ public class AdsBridge {
 
     public static void loadInterstitial(final String unitId) {
         UI.post(() -> {
-            if (activity == null || unitId == null || unitId.isEmpty()) return;
+            if (activity == null || unitId == null || unitId.isEmpty() || !canRequestAds) return;
             if (interstitialLoading || interstitialReady) return;
             interstitialLoading = true;
             InterstitialAd.load(activity, unitId, new AdRequest.Builder().build(),
@@ -139,7 +184,7 @@ public class AdsBridge {
 
     public static void loadRewarded(final String unitId) {
         UI.post(() -> {
-            if (activity == null || unitId == null || unitId.isEmpty()) return;
+            if (activity == null || unitId == null || unitId.isEmpty() || !canRequestAds) return;
             if (rewardedLoading || rewardedReady) return;
             rewardedLoading = true;
             RewardedAd.load(activity, unitId, new AdRequest.Builder().build(), new RewardedAdLoadCallback() {

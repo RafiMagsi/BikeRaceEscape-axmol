@@ -55,6 +55,9 @@ public:
     void reviveFromVideo();
     void reviveDeclined();
 
+    // Game-over screen: REVIVE for coins / WATCH AD. Either rolls the committed run back and resumes it.
+    void reviveFromGameOver(bool withCoins);
+
 private:
     enum class Style { Explode, Launch };
 
@@ -125,6 +128,7 @@ private:
     void collect(PowerUp kind, const ax::Vec2& at, float durationOverride = 0.f);
     void endTurbo();
     void endGun();
+    void resumeFromGameOver(bool paidWithCoins);
     void rescueRider();      // put the rider back on solid ground (revive / shield save / mercy)
     bool mercyAvailable() const;
 
@@ -170,6 +174,8 @@ private:
     ax::DrawNode* _rocketFlame = nullptr;
     ax::DrawNode* _gunArt = nullptr;     // cannon mounted in front of the bike while gun mode is live
     ax::DrawNode* _gunFlash = nullptr;
+    bool  _deathDeferred = false;        // a death signal arrived mid physics step: decide it at the next safe point
+    bool  _skipDeathOnce = false;
     bool  _deathPending = false;         // revive popup / video / hover / countdown in progress: ignore further deaths
     bool  _reviveWait = false;           // holding the rider in the air until a platform arrives
     float _reviveWaitT = 0.f;
@@ -178,6 +184,8 @@ private:
     float _comboT = 0.f;
     bool  _reviveOffered = false;
     bool  _committed = false;
+    PZRunResult _lastResult;             // what commitRun granted (rolled back if the player revives from game over)
+    bool  _gameOverBusy = false;         // a rewarded ad is showing for the game-over revive
     int   _mercyUsed = 0;
     bool  _readyCountdown = false;
     bool  _cinematic = false;
@@ -224,6 +232,8 @@ private:
     }
     HudRow _rows[kChipCount];
     ax::Node* _gadgetStrip = nullptr;
+    std::vector<std::string> _activeGadgets;   // gadgets whose charge was used for this run
+    static constexpr int kGadgetStartTag = 7711;
     ax::Node* _tracker = nullptr;
     ax::Label* _trackerText = nullptr;
     ax::Label* _trackerCount = nullptr;

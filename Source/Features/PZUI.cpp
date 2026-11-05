@@ -6,6 +6,7 @@
 #include "SharedData/PZGSharedData.h"
 #include "SharedData/PZGArtCoins.h"
 #include <cmath>
+#include <unordered_map>
 #include <vector>
 
 USING_NS_AX;
@@ -31,12 +32,18 @@ void roundedPoints(std::vector<Vec2>& pts, float w, float h, float r) {
 }
 } // namespace
 
+// Optional-art lookups are cached: the engine logs a warning for every missing file, and orbs are created constantly.
 bool fileExists(const std::string& name) {
-    return FileUtils::getInstance()->isFileExist(name);
+    static std::unordered_map<std::string, bool> cache;
+    auto it = cache.find(name);
+    if (it != cache.end()) return it->second;
+    const bool ok = FileUtils::getInstance()->isFileExist(name);
+    cache.emplace(name, ok);
+    return ok;
 }
 
 Label* label(const std::string& text, float size, const Color3B& color) {
-    Label* l = Label::createWithTTF(text, PZCfg::kFontPath, size);
+    Label* l = Label::createWithTTF(text, PZCfg::kFontPath, std::max(size * PZCfg::kFontScale, PZCfg::kMinFontPx));
     if (!l || l->getContentSize().width <= 0) {
         l = Label::createWithSystemFont(text, "Courier", size * 1.6f);
     }
@@ -48,6 +55,91 @@ Label* heading(const std::string& text, float size, const Color3B& color) {
     Label* l = label(text, size, color);
     if (l) l->enableOutline(Color4B(40, 16, 0, 255), std::max(2, static_cast<int>(size / 7.f)));
     return l;
+}
+
+Node* gadgetIcon(const std::string& id, float size, const std::string& fallbackLetter, bool dim) {
+    auto* root = Node::create();
+    auto* d = DrawNode::create();
+    root->addChild(d);
+    const float u = size * 0.5f;   // radius
+    const float a = dim ? 0.45f : 1.f;
+    auto C = [a](int r, int g, int b) { return Color4F(r / 255.f, g / 255.f, b / 255.f, a); };
+    auto P = [u](float x, float y) { return Vec2(x * u, y * u); };
+    auto poly = [&](std::vector<Vec2> pts, const Color4F& fill, const Color4F& line, float w = 1.5f) {
+        d->drawSolidPoly(pts.data(), static_cast<unsigned int>(pts.size()), fill, w, line, true);
+    };
+    const Color4F outline = C(30, 22, 18);
+
+    if (id == "magnet") {
+        // Horseshoe: red arch with silver pole tips.
+        const int segs = 14;
+        for (int i = 0; i < segs; ++i) {
+            const float a0 = CC_DEGREES_TO_RADIANS(180.f - 180.f * i / segs);
+            const float a1 = CC_DEGREES_TO_RADIANS(180.f - 180.f * (i + 1) / segs);
+            d->drawSegment(P(0.55f * std::cos(a0), 0.15f + 0.55f * std::sin(a0)), P(0.55f * std::cos(a1), 0.15f + 0.55f * std::sin(a1)),
+                           u * 0.30f, C(214, 48, 52));
+        }
+        poly({P(-0.85f, 0.15f), P(-0.25f, 0.15f), P(-0.25f, -0.55f), P(-0.85f, -0.55f)}, C(214, 48, 52), outline);
+        poly({P(0.25f, 0.15f), P(0.85f, 0.15f), P(0.85f, -0.55f), P(0.25f, -0.55f)}, C(214, 48, 52), outline);
+        poly({P(-0.85f, -0.30f), P(-0.25f, -0.30f), P(-0.25f, -0.55f), P(-0.85f, -0.55f)}, C(226, 230, 238), outline);
+        poly({P(0.25f, -0.30f), P(0.85f, -0.30f), P(0.85f, -0.55f), P(0.25f, -0.55f)}, C(226, 230, 238), outline);
+    } else if (id == "turbo") {
+        poly({P(0.15f, 0.95f), P(-0.55f, 0.00f), P(-0.05f, 0.00f), P(-0.25f, -0.95f), P(0.60f, 0.12f), P(0.08f, 0.12f)},
+             C(255, 214, 40), outline);
+        poly({P(0.10f, 0.62f), P(-0.25f, 0.10f), P(0.12f, 0.10f)}, C(255, 244, 170), C(255, 244, 170), 0.f);
+    } else if (id == "shield") {
+        std::vector<Vec2> body = {P(0.0f, 0.95f), P(0.78f, 0.65f), P(0.72f, -0.10f), P(0.0f, -0.95f), P(-0.72f, -0.10f), P(-0.78f, 0.65f)};
+        poly(body, C(54, 138, 238), outline, 2.f);
+        poly({P(0.0f, 0.78f), P(0.60f, 0.54f), P(0.56f, -0.05f), P(0.0f, -0.74f)}, C(110, 186, 255), C(110, 186, 255), 0.f);
+        poly({P(0.0f, 0.78f), P(-0.60f, 0.54f), P(-0.56f, -0.05f), P(0.0f, -0.74f)}, C(38, 102, 200), C(38, 102, 200), 0.f);
+        d->drawSolidCircle(P(0.f, 0.12f), u * 0.20f, 0.f, 16, C(255, 255, 255));
+    } else if (id == "jetpack") {
+        poly({P(-0.62f, 0.75f), P(-0.10f, 0.75f), P(-0.10f, -0.35f), P(-0.62f, -0.35f)}, C(170, 178, 192), outline);
+        poly({P(0.10f, 0.75f), P(0.62f, 0.75f), P(0.62f, -0.35f), P(0.10f, -0.35f)}, C(170, 178, 192), outline);
+        poly({P(-0.62f, 0.45f), P(-0.10f, 0.45f), P(-0.10f, 0.25f), P(-0.62f, 0.25f)}, C(222, 64, 52), C(222, 64, 52), 0.f);
+        poly({P(0.10f, 0.45f), P(0.62f, 0.45f), P(0.62f, 0.25f), P(0.10f, 0.25f)}, C(222, 64, 52), C(222, 64, 52), 0.f);
+        poly({P(-0.56f, -0.35f), P(-0.16f, -0.35f), P(-0.36f, -0.95f)}, C(255, 148, 30), outline);
+        poly({P(0.16f, -0.35f), P(0.56f, -0.35f), P(0.36f, -0.95f)}, C(255, 148, 30), outline);
+        poly({P(-0.45f, -0.35f), P(-0.27f, -0.35f), P(-0.36f, -0.70f)}, C(255, 236, 120), C(255, 236, 120), 0.f);
+        poly({P(0.27f, -0.35f), P(0.45f, -0.35f), P(0.36f, -0.70f)}, C(255, 236, 120), C(255, 236, 120), 0.f);
+    } else if (id == "headstart") {
+        // Two forward chevrons: "go ahead".
+        for (int k = 0; k < 2; ++k) {
+            const float ox = -0.62f + k * 0.62f;
+            poly({P(ox, 0.80f), P(ox + 0.55f, 0.0f), P(ox, -0.80f), P(ox + 0.30f, -0.80f), P(ox + 0.85f, 0.0f), P(ox + 0.30f, 0.80f)},
+                 k == 0 ? C(96, 214, 96) : C(150, 238, 120), outline);
+        }
+    } else if (id == "rocket") {
+        poly({P(-0.20f, -0.45f), P(-0.20f, 0.50f), P(0.0f, 0.95f), P(0.20f, 0.50f), P(0.20f, -0.45f)}, C(236, 238, 244), outline, 2.f);
+        poly({P(-0.20f, 0.50f), P(0.0f, 0.95f), P(0.20f, 0.50f)}, C(224, 56, 48), outline, 2.f);
+        poly({P(-0.20f, -0.10f), P(-0.62f, -0.62f), P(-0.20f, -0.45f)}, C(224, 56, 48), outline);
+        poly({P(0.20f, -0.10f), P(0.62f, -0.62f), P(0.20f, -0.45f)}, C(224, 56, 48), outline);
+        d->drawSolidCircle(P(0.f, 0.22f), u * 0.14f, 0.f, 14, C(70, 160, 240));
+        poly({P(-0.14f, -0.45f), P(0.14f, -0.45f), P(0.0f, -0.98f)}, C(255, 160, 30), C(255, 160, 30), 0.f);
+    } else if (id == "helmet") {
+        const int segs = 14;
+        std::vector<Vec2> dome;
+        for (int i = 0; i <= segs; ++i) {
+            const float t = CC_DEGREES_TO_RADIANS(180.f * i / segs);
+            dome.push_back(P(0.85f * std::cos(t), -0.05f + 0.85f * std::sin(t)));
+        }
+        poly(dome, C(250, 190, 40), outline, 2.f);
+        poly({P(-0.85f, -0.05f), P(0.85f, -0.05f), P(0.85f, -0.30f), P(-0.85f, -0.30f)}, C(214, 146, 26), outline);
+        poly({P(-0.10f, 0.08f), P(0.80f, 0.08f), P(0.70f, 0.50f), P(0.10f, 0.52f)}, C(70, 160, 240), outline);
+        d->drawSolidCircle(P(-0.32f, 0.5f), u * 0.10f, 0.f, 10, C(255, 244, 190));
+    } else if (id == "gun") {
+        poly({P(-0.80f, -0.15f), P(-0.80f, -0.65f), P(-0.15f, -0.65f), P(-0.15f, -0.15f)}, C(86, 92, 106), outline);   // body
+        poly({P(-0.20f, 0.05f), P(0.62f, 0.05f), P(0.62f, -0.40f), P(-0.20f, -0.40f)}, C(150, 158, 172), outline);     // barrel
+        poly({P(0.62f, 0.14f), P(0.80f, 0.14f), P(0.80f, -0.49f), P(0.62f, -0.49f)}, C(96, 102, 116), outline);        // muzzle
+        poly({P(0.82f, -0.12f), P(1.0f, 0.12f), P(0.96f, -0.18f), P(1.0f, -0.46f), P(0.82f, -0.26f)}, C(255, 200, 40), C(255, 200, 40), 0.f);
+        d->drawSolidCircle(P(-0.48f, -0.40f), u * 0.18f, 0.f, 12, C(40, 44, 54));
+    } else {
+        d->drawSolidCircle(Vec2::ZERO, u * 0.9f, 0.f, 24, C(70, 76, 96));
+        auto* l = heading(fallbackLetter, size * 0.55f, dim ? PZCfg::kColDim : PZCfg::kColAccent);
+        root->addChild(l);
+    }
+    root->setContentSize(Size(size, size));
+    return root;
 }
 
 Node* coinIcon(float size) {

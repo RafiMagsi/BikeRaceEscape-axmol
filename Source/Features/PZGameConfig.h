@@ -25,7 +25,9 @@ void ensureLoaded();
 // Theme: matches the original game UI (dark navy panels, bronze rings, orange pill buttons with white
 // outlines, gold arcade numerals).
 // ---------------------------------------------------------------------------------------------
-inline const char* kFontPath = "Fonts/PressStart2P-Regular.ttf";
+inline const char* kFontPath = "Fonts/LilitaOne-Regular.ttf";   // Lilita One (SIL OFL): chunky comic display face
+inline float kMinFontPx = 12.f;    // smallest glyph size any label may use (readability on phones)
+inline float kFontScale = 1.45f;   // glyph size multiplier so a swapped font keeps the same visual weight (pixel fonts: 1.0)
 
 inline ax::Color3B kColText      {255, 255, 255};
 inline ax::Color3B kColDim       {190, 170, 140};   // warm grey for secondary text
@@ -99,8 +101,11 @@ inline const char* kStrHeadStart     = "HEAD START +%dM";
 inline const char* kStrLuckyHelmet   = "LUCKY HELMET!";
 
 inline const char* kStrReviveTitle   = "CONTINUE?";
+inline const char* kStrReviveButton  = "REVIVE";
+inline const char* kStrReviveAdButton = "WATCH AD  REVIVE";
 inline const char* kStrReviveBtn     = "REVIVE  %d";
 inline const char* kStrReviveNoCoins = "NEED %d COINS";
+inline const char* kStrReviveNoCoinsShort = "NOT ENOUGH COINS";
 inline const char* kStrReviveSkip    = "NO THANKS";
 inline const char* kStrReviveCoins   = "YOU HAVE %d";
 inline const char* kStrReviveVideo   = "WATCH VIDEO";
@@ -143,6 +148,15 @@ inline const char* kStrGadgetsSub    = "EQUIP UP TO %d";
 inline const char* kStrGadgetsBtn    = "GADGETS";
 inline const char* kStrGadgetLocked  = "UNLOCKS AT LV %d";
 inline const char* kStrGadgetEquipped= "EQUIPPED";
+inline const char* kStrGadgetOwned   = "OWNED  x%d";
+inline const char* kStrShopBtn       = "SHOP";
+inline const char* kStrShopTitle     = "SHOP";
+inline const char* kStrShopPowerUps  = "POWER-UPS";
+inline const char* kStrShopCoins     = "COINS";
+inline const char* kStrShopWatchAd   = "WATCH AD    +%d COINS";
+inline const char* kStrShopAdNote    = "OPTIONAL VIDEO - ONLY STARTS WHEN YOU TAP IT";
+inline const char* kStrShopPacks     = "COIN PACKS";
+inline const char* kStrShopBuy       = "BUY";
 
 inline const char* kStrDailyTitle    = "DAILY REWARD";
 inline const char* kStrDailyDay      = "DAY %d";
@@ -203,6 +217,7 @@ inline bool kEnableGadgets     = true;   // menu loadout of two passive perks
 inline bool kEnableJetpack     = true;   // fifth power-up: fly over the traffic
 inline bool kEnableRocket      = true;   // rocket bike: shield + magnet + extra speed
 inline bool kEnableGun         = true;   // auto-cannon: shoots the traffic ahead
+inline bool kEnableFreeGameAd  = false;  // old "FREE GAME" corner ribbon that opened a full-screen ad: misleading under AdMob policy
 inline bool kEnableFreeCoins   = true;   // rewarded-video free coins on the menu
 inline bool kEnableDoubleCoins = true;   // rewarded-video coin doubler on the results screen
 inline bool kEnableBigAir      = true;   // bonus for long jumps
@@ -283,7 +298,8 @@ inline float kBigAirMin           = 0.85f;    // seconds in the air that count a
 inline int   kBigAirCoins         = 5;
 
 // Gadgets (menu loadout). The pool below is the data source; these are only safety defaults.
-inline int   kGadgetSlots         = 2;
+inline int   kGadgetSlots         = 3;
+inline int   kGadgetStartStock     = 1;        // free charges of every gadget for a new player
 inline float kGadgetMagnetSeconds = 8.0f;
 inline float kGadgetShieldSeconds = 12.0f;
 inline int   kGadgetHeadStartM    = 150;
@@ -291,7 +307,7 @@ inline int   kGadgetHelmetSaves   = 1;
 
 // Revive
 inline int   kReviveCost          = 100;
-inline float kReviveCountdown     = 8.0f;     // seconds the player has to choose on the CONTINUE? offer
+inline float kReviveCountdown     = 10.0f;    // seconds the player has to choose on the CONTINUE? offer
 
 // Rewarded-video economy
 // Gifts
@@ -396,14 +412,19 @@ struct GadgetTemplate {
     std::string desc;
     std::string icon;      // short glyph shown in the round icon
     int unlockLevel = 1;
-    float value = 0.f;     // seconds for magnet/shield, metres for headstart, saves for helmet
+    float value = 0.f;     // seconds for the timed power-ups, metres for headstart, saves for helmet
+    int price = 100;       // coins per charge in the shop; every equipped gadget uses one charge at the start of a run
 };
 
 inline std::vector<GadgetTemplate> kGadgetPool = {
-    {"magnet",    "COIN MAGNET",  "START WITH A MAGNET",  "M", 1, 8.f},
-    {"shield",    "FORCE SHIELD", "START WITH A SHIELD",  "S", 3, 12.f},
-    {"headstart", "HEAD START",   "BEGIN 150M AHEAD",     "H", 5, 150.f},
-    {"helmet",    "LUCKY HELMET", "ONE FREE HIT PER RUN", "L", 7, 1.f},
+    {"magnet",    "COIN MAGNET",  "PULLS COINS IN FOR 8 SECONDS",  "M", 1, 8.f,   60},
+    {"turbo",     "TURBO START",  "SMASH THROUGH EVERYTHING",      "T", 2, 5.f,   90},
+    {"shield",    "FORCE SHIELD", "BLOCKS ONE HIT OR FALL",        "S", 3, 12.f, 120},
+    {"jetpack",   "JETPACK",      "FLY OVER THE FIRST GAPS",       "J", 4, 6.f,  160},
+    {"headstart", "HEAD START",   "BEGIN 150M AHEAD",              "H", 5, 150.f, 100},
+    {"rocket",    "ROCKET",       "BLAST A PATH AHEAD",            "R", 6, 6.f,  180},
+    {"helmet",    "LUCKY HELMET", "ONE FREE HIT PER RUN",          "L", 7, 1.f,  150},
+    {"gun",       "BIKE CANNON",  "SHOOT OBSTACLES DOWN",          "G", 8, 7.f,  200},
 };
 
 // Missions ------------------------------------------------------------------------------------

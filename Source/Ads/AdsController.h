@@ -60,6 +60,13 @@ public:
     // Called by the platform providers (game thread) when a rewarded ad finishes.
     void handleRewardedFinished(bool earned);
 
+    // Policy pacing (AdMob "disruptive ads" rules): interstitials only at natural breaks, never in a player's first runs,
+    // never back to back, and never straight after a rewarded video. Revive / gift taps call cancelPendingInterstitial().
+    void cancelPendingInterstitial();
+    void setInterstitialPolicy(int graceBreaks, float minGapSeconds, float delaySeconds) {
+        graceBreaks_ = graceBreaks; minGapSeconds_ = minGapSeconds; delaySeconds_ = delaySeconds;
+    }
+
 private:
     AdsController() = default;
 
@@ -74,6 +81,13 @@ private:
     int rewardedCounters_[6]{};
     std::function<void(bool)> rewardedCallback_;
     bool nextInterstitialAdMob_{true};
+    int graceBreaks_{2};            // natural breaks (game overs) without any interstitial at the start
+    float minGapSeconds_{120.f};    // minimum time between two full-screen ads of any kind
+    float delaySeconds_{1.4f};      // wait after the game-over screen appears so no tap can land on the ad by accident
+    int breaksSeen_{0};
+    double lastFullscreenAt_{-1.0e9};
+    bool fullscreenAllowed() const;
+    void markFullscreenShown();
 
     // "Free game" button: show the first cached interstitial, otherwise load and show the first that fills.
     bool moreGamesPending_{false};

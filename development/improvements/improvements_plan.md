@@ -124,13 +124,41 @@ STATUS OF "NEW IMPLEMENTATIONS" (latest pass)
 14. Obstacle placement: relaxed over-aggressive filtering and added a hazard budget (see META_FEATURES.md).
 Notes: the Android jump is half as high in pixels as iOS (kPhysicsWorldScale 0.1 vs 0.05); placement now uses the real apex.
 Real AdMob rewarded unit IDs are still needed for end-to-end video revive / spin / free coins in release.
+
+## Testing Round 1 - NOTE# Do not update the tasks just add your feedback under the task number before the other task/point starts.
 15. Always show revive in gameover make revive time 10 seonds
 16. Improve all the menus with proper positions, some screens are too conjested, you can reduce the size of back,retry, button to standard sizes
 17. Improve all HUD displays, find a better game font if you can with good texture
 18. Again check all die/revive/powerup use cases/senarios
 19. Add all powerups in the gadgets and put price on each, also show gadgets in the gameplay i asked this before, all gadgets should have icons according to their nature.
 20. Show ads as google admob ads policy, so there should be no rejection or policy voilations.
+21. Make a complete shop with powerups and coins. with watch ad get coinds button, put coins on the button (should follow admob policy)
 
+STATUS OF "Testing Round 1" (items 15-21)
+15. DONE + simulator-verified: game over always offers REVIVE (coins) and WATCH AD REVIVE side by side (once per run, rolls the committed run back via PZProgress::snapshot); revive countdown 10 s (tuning/ReviveCountdown).
+    Fixes found on the way: death during a physics step is deferred (Box2D SetTransform assertion), shield/helmet/mercy rescue prefers a platform with runway, revive no longer parks the rider under the deck (bad _riderOffset).
+16. PARTIAL: game-over buttons are now standard size (BACK / REVIVE / WATCH AD / RETRY in one row, no overlap with the stats panel); pause and main menu checked. Character select / coin shop screens were not re-laid-out.
+17. DONE (font) / PARTIAL (HUD): Lilita One (SIL OFL) replaces Press Start 2P everywhere (theme/FontPath, FontScale, MinFontPx). HUD numbers/popups/pills re-checked; a few legacy labels (BEST under the score) are still small.
+18. PARTIAL: die/revive/shield/mercy/helmet/popup/game-over revive/second-death paths re-tested in the simulator. Power-up-specific death cases (rocket/jetpack/gun landings) were not re-run this round.
+19. DONE: all 8 power-ups are gadgets with a coin price, charges (buy 1, each equipped gadget uses 1 per run), nature-specific code-drawn icons (PZUI::gadgetIcon), in-run strip with icons (dim = out of charges/spent). Unlock levels still gate some gadgets.
+20. DONE in code, NOT run against real ads: Google UMP consent on Android + iOS before any ad request, interstitial pacing (grace breaks, 120 s gap, 1.4 s delay at game over, every 2nd game over, cancelled when the player revives), misleading "FREE GAME" full-screen-ad ribbon removed (features/EnableFreeGameAd=false), rewarded ads only on a player tap with the coin amount on the button.
+    Still needed by you: real rewarded unit IDs in ads.plist, a Privacy Options entry (AdsBridge.showPrivacyOptions exists, no button yet), and the AdMob/Play "Ads" + Data-safety declarations.
+21. DONE: SHOP (menu pill) with POWER-UPS and COINS tabs; COINS tab has WATCH AD +N COINS (cooldown, optional-video note) and the 3 store packs from IAPSettings (item 24 asks for 6 packs: not done).
+
+## Testing Round 2
+22.1 There are so many missing sounds, fix all effects sounds, like when blast power up is picked the hitting obstables there is no sound
+22.2 Label sounds like Go!, Second Chance and others, add sounds for all these text should be man voice sound as in games (Taken 3)
+23. When bike jumps and comes back to platform the yellow circle effect is not right, make it under the bike or tires fire, or flare at the platfrom under bike. Make it better
+24. For coin shop increase the amounts for each coin make list of 6 coins packs
+25. Add animations and transitions in all HUD and screens they should have move in or similar animations, screen transitions should be better
+26. Add running bike on main menu and other screens excpt gameover. or add what's better as game on these screens to show active gameplay.
+27. The main menu should have bike running and other details, so when a user play first time it should not go away from a static screen. Make it interactive and interesting.
+28. If there are too many notifications coming on screen give a gap, like Mission Complete, Get Ready etc. Do a proper logic on it.
+29. Increase the price of Power Ups start from 1,000 to 20,000 coins.
+30. Reduce the frequency of coins by 50% exept some predefined set of coins like BIKE shape of coins group.
+31. Another bug, when player falls down and revives i see some coins or power ups get's generated at some y postion as the player position when fall in pit
+## ##################################
+## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control
 returned. Revive/mercy/shield/helmet rescues and powered-ride landings now explode all hazards around the rider (visibly, no
 reward), the rider is untouchable during the hover and the 3-2-1 countdown, duplicate death signals are ignored while a revive

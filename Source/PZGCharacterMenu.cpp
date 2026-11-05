@@ -7,6 +7,7 @@
 //
 
 #include "PZGCharacterMenu.h"
+#include "Features/PZGameConfig.h"
 #include "PZGGameFieldScene.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
@@ -29,7 +30,7 @@ USING_NS_AX;
 namespace {
 // Arcade label: bundled Press Start 2P TTF, falling back to the system monospace font.
 static ax::Label* retroLabel(const char* text, float size) {
-    auto* l = ax::Label::createWithTTF(text, "Fonts/PressStart2P-Regular.ttf", size);
+    auto* l = ax::Label::createWithTTF(text, PZCfg::kFontPath, size * PZCfg::kFontScale);
     if (l && l->getContentSize().width > 0) return l;
     return ax::Label::createWithSystemFont(text, "Courier", size * 1.6f);
 }

@@ -231,23 +231,30 @@ void PZRunDirector::refreshGadgetStrip() {
         _gadgetStrip->setVisible(false);
         return;
     }
+    // One round icon per equipped gadget: bright = charge used this run, dim = out of charges / already spent.
     auto* pg = PZProgress::shared();
     const int count = std::min(pg->selectedGadgetCount(), std::max(0, PZCfg::kGadgetSlots));
+    int shown = 0;
     for (int i = 0; i < count; ++i) {
         const std::string id = pg->gadgetAt(i);
         const int idx = pg->gadgetPoolIndex(id);
         if (idx < 0) continue;
         const auto& def = PZCfg::kGadgetPool[idx];
+        const bool active = std::find(_activeGadgets.begin(), _activeGadgets.end(), id) != _activeGadgets.end();
+        const bool spent = active && id == "helmet" && _helmetSaves <= 0;
+        const bool dim = !active || spent;
+        const float x = shown * 34.f;
         auto* disc = DrawNode::create();
-        disc->drawSolidCircle(Vec2::ZERO, 12.f, 0.f, 20, PZUI::c4f(PZCfg::kColPanel, 0.92f));
-        disc->drawCircle(Vec2::ZERO, 12.f, 0.f, 20, false, PZUI::c4f(PZCfg::kColPanelEdge), 2.f);
-        disc->setPosition(Vec2(i * 30.f, 0.f));
+        disc->drawSolidCircle(Vec2::ZERO, 15.f, 0.f, 22, PZUI::c4f(PZCfg::kColPanel, dim ? 0.7f : 0.94f));
+        disc->drawCircle(Vec2::ZERO, 15.f, 0.f, 22, false, PZUI::c4f(dim ? Color3B(90, 92, 104) : PZCfg::kColAccent), 2.f);
+        disc->setPosition(Vec2(x, 0.f));
         _gadgetStrip->addChild(disc);
-        auto* glyph = PZUI::heading(def.icon, 10.f, PZCfg::kColAccent);
-        glyph->setPosition(Vec2(i * 30.f, 0.f));
-        _gadgetStrip->addChild(glyph);
+        auto* icon = PZUI::gadgetIcon(id, 20.f, def.icon, dim);
+        icon->setPosition(Vec2(x, 0.f));
+        _gadgetStrip->addChild(icon);
+        ++shown;
     }
-    _gadgetStrip->setVisible(count > 0);
+    _gadgetStrip->setVisible(shown > 0);
 }
 
 void PZRunDirector::clearRunVisuals() {
@@ -323,13 +330,18 @@ void PZRunDirector::startRun() {
 }
 
 void PZRunDirector::applyGadgets() {
+    _activeGadgets.clear();
+    stopAllActionsByTag(kGadgetStartTag);
     if (!PZCfg::kEnableGadgets || !_scene) return;
     auto* pg = PZProgress::shared();
     const int count = std::min(pg->selectedGadgetCount(), std::max(0, PZCfg::kGadgetSlots));
+    float delay = 0.6f;   // timed rides start once the scene has settled, one after the other
     for (int i = 0; i < count; ++i) {
         const std::string id = pg->gadgetAt(i);
         const int idx = pg->gadgetPoolIndex(id);
         if (idx < 0 || !pg->gadgetUnlocked(idx)) continue;
+        if (!pg->consumeGadgetStock(id)) continue;      // out of charges: buy more in the shop
+        _activeGadgets.push_back(id);
         const float value = PZCfg::kGadgetPool[idx].value;
         if (id == "magnet") {
             _magnetT = _magnetMax = value > 0.f ? value : PZCfg::kGadgetMagnetSeconds;
@@ -346,6 +358,19 @@ void PZRunDirector::applyGadgets() {
             PZUI::burst(_scene, riderPos(), PZCfg::kColAccent2, 12, 80.f, 0.5f, kZFx);
         } else if (id == "helmet") {
             _helmetSaves = std::max(1, static_cast<int>(value > 0.f ? value : PZCfg::kGadgetHelmetSaves));
+        } else {
+            PowerUp kind = PowerUp::Turbo;
+            if (id == "jetpack") kind = PowerUp::Jetpack;
+            else if (id == "rocket") kind = PowerUp::Rocket;
+            else if (id == "gun") kind = PowerUp::Gun;
+            else if (id != "turbo") continue;
+            const float seconds = value > 0.f ? value : 5.f;
+            auto* seq = Sequence::create(DelayTime::create(delay), CallFunc::create([this, kind, seconds]() {
+                if (_scene && !_scene->gameOver && !_deathPending) collect(kind, riderPos(), seconds);
+            }), nullptr);
+            seq->setTag(kGadgetStartTag);
+            runAction(seq);
+            delay += seconds + 0.4f;
         }
     }
 }
@@ -388,8 +413,16 @@ void PZRunDirector::update(float dt) {
     if (!turboActive() && _scene->character->jump_counter == 0) {
         float gy = 0.f;
         if (platform() && platform()->groundYAt(riderPos().x, gy)) {
-            _riderOffset = riderPos().y - gy;
-            _haveOffset = true;
+            // Only trust it while the rider really rests on that surface (not while falling past a platform that
+            // overlaps its x range, which gave offsets like -190 and parked revived riders under the deck).
+            const float off = riderPos().y - gy;
+            const float k = kDeviceScale();
+            const b2Body* body = _scene->character->p_body;
+            const bool still = body && std::abs(body->GetLinearVelocity().y) < 1.0f;
+            if (still && off > 8.f * k && off < 120.f * k) {
+                _riderOffset = off;
+                _haveOffset = true;
+            }
         }
     }
 }
@@ -1909,6 +1942,28 @@ void PZRunDirector::updateMissionTracker(float dt) {
 // ---- death / revive --------------------------------------------------------------------------
 
 bool PZRunDirector::onDeath() {
+    if (_skipDeathOnce) {              // the deferred decision below already ran and chose a real game over
+        _skipDeathOnce = false;
+        return false;
+    }
+    if (_deathDeferred) return true;
+    // Death signals come from the contact listener, i.e. in the middle of b2World::Step. Every rescue moves the rider's
+    // body (SetTransform), which Box2D forbids while the world is locked, so take the decision one frame later.
+    if (_scene->world && _scene->world->IsLocked()) {
+        _deathDeferred = true;
+        retain();
+        Director::getInstance()->getScheduler()->runOnAxmolThread([this]() {
+            _deathDeferred = false;
+            if (_scene && !_scene->gameOver) {
+                if (!onDeath()) {
+                    _skipDeathOnce = true;
+                    _scene->gameOverCallBack(true);
+                }
+            }
+            release();
+        });
+        return true;
+    }
     // A second death signal (hit + fall in the same frame, two obstacles at once) must not stack a game-over screen on
     // top of a revive in progress.
     if (_deathPending) return true;
@@ -1929,6 +1984,7 @@ bool PZRunDirector::onDeath() {
     // Lucky Helmet gadget: one free hit/fall per run.
     if (_helmetSaves > 0) {
         --_helmetSaves;
+        refreshGadgetStrip();
         rescueRider();
         PZUI::banner(_scene, PZCfg::kStrLuckyHelmet, "", PZCfg::kColShield,
                      Director::getInstance()->getWinSize().height * 0.6f, 0.8f);
@@ -2064,7 +2120,9 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     if (_gadgetStrip) _gadgetStrip->setVisible(false);
     _comboLabel->setVisible(false);
     _magnetT = _shieldT = _turboT = _jetpackT = 0.f;
+    PZProgress::shared()->snapshot();
     const PZRunResult result = PZProgress::shared()->commitRun(_stats);
+    _lastResult = result;
     refreshHud();
     auto claimDoubleCoins = [this]() -> int {
         const int extra = static_cast<int>(std::lround(_stats.coins * (PZCfg::kDoubleCoinsMultiplier - 1.f)));
@@ -2073,5 +2131,64 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         PZSettingsController::shared()->save();
         return extra;
     };
-    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, result, claimDoubleCoins);
+    std::function<void()> onCoins, onVideo;
+    if (PZCfg::kEnableRevive && !_stats.revived) {
+        onCoins = [this]() { reviveFromGameOver(true); };
+        onVideo = [this]() { reviveFromGameOver(false); };
+    }
+    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, result, claimDoubleCoins, onCoins, onVideo);
+}
+
+void PZRunDirector::reviveFromGameOver(bool withCoins) {
+    if (_gameOverBusy || !_committed || _stats.revived || !_scene) return;
+    PZ::AdsController::shared()->cancelPendingInterstitial();
+    auto* sc = PZSettingsController::shared();
+    const Size win = Director::getInstance()->getWinSize();
+    if (withCoins) {
+        if (sc->coins < PZCfg::kReviveCost) {
+            PZUI::banner(_scene, PZCfg::kStrReviveNoCoinsShort, "", PZCfg::kColBad, win.height * 0.6f, 0.9f, 1600);
+            PZHaptics::play(PZHaptics::Kind::Error);
+            return;
+        }
+        resumeFromGameOver(true);
+        return;
+    }
+    _gameOverBusy = true;
+    PZ::AdsController::shared()->showRewardedWithCallback([this](bool earned) {
+        _gameOverBusy = false;
+        if (earned) {
+            resumeFromGameOver(false);
+        } else if (_scene) {
+            PZUI::banner(_scene, PZCfg::kStrVideoNoAd, "", PZCfg::kColBad,
+                         Director::getInstance()->getWinSize().height * 0.6f, 1.0f, 1600);
+        }
+    });
+}
+
+void PZRunDirector::resumeFromGameOver(bool paidWithCoins) {
+    if (!_committed || !_scene) return;
+    PZ::AdsController::shared()->cancelPendingInterstitial();
+    // Roll the committed run back: best/xp/missions return to the pre-run state, and the level-up coins are taken out.
+    PZProgress::shared()->restoreSnapshot();
+    auto* sc = PZSettingsController::shared();
+    if (_lastResult.levelUpCoins > 0) sc->coins = std::max(0, static_cast<int>(sc->coins) - _lastResult.levelUpCoins);
+    sc->save();
+    _lastResult = PZRunResult();
+    _committed = false;
+    _reviveOffered = true;     // one revive per run
+
+    // Take the results overlay down and give the field back.
+    if (Node* overlay = _scene->getChildByTag(10)) overlay->removeFromParent();
+    if (Menu* menu = dynamic_cast<Menu*>(_scene->getChildByTag(kBaseMenuItemTag))) {
+        for (int tag : {6, 7, 8}) {
+            if (auto* item = dynamic_cast<MenuItem*>(menu->getChildByTag(tag))) item->setVisible(true);
+        }
+        if (auto* pause = dynamic_cast<MenuItem*>(menu->getChildByTag(kUIIDGameFieldPauseButton))) pause->setEnabled(true);
+    }
+    if (_gadgetStrip) _gadgetStrip->setVisible(true);
+    if (_comboLabel) _comboLabel->setVisible(true);
+    if (_tracker) _tracker->setVisible(true);
+    if (_scene->character) _scene->character->reset();
+
+    reviveAccepted(paidWithCoins);
 }

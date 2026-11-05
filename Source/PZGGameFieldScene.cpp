@@ -29,8 +29,11 @@ USING_NS_AX;
 namespace {
 // Arcade label: bundled Press Start 2P TTF, falling back to the system monospace font.
 Label* retroLabel(const char* text, float size) {
-    auto* l = Label::createWithTTF(text, "Fonts/PressStart2P-Regular.ttf", size);
-    if (l && l->getContentSize().width > 0) return l;
+    auto* l = Label::createWithTTF(text, PZCfg::kFontPath, size * PZCfg::kFontScale);
+    if (l && l->getContentSize().width > 0) {
+        l->enableOutline(Color4B(30, 14, 0, 255), 3);     // readable over any background
+        return l;
+    }
     return Label::createWithSystemFont(text, "Courier", size * 1.6f);
 }
 } // namespace

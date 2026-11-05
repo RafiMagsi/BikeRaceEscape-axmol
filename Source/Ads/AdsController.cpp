@@ -79,6 +79,7 @@ bool AdsController::showFirstReadyInterstitial() {
         if (!provider_->isInterstitialReady()) continue;
 
         AXLOGI("AdsController: showing {} interstitial", net.admob ? "AdMob" : "Chartboost");
+        markFullscreenShown();
         showInterstitial();
         nextInterstitialAdMob_ = !net.admob; // let the next automatic ad use the other network
         loadInterstitial({net.placementId}); // cache the next one
@@ -205,6 +206,20 @@ bool AdsController::isRewardedAvailable() const {
     return provider_ && initialized_ && provider_->isRewardedReady();
 }
 
+namespace {
+double nowSeconds() {
+    using namespace std::chrono;
+    return duration<double>(steady_clock::now().time_since_epoch()).count();
+}
+} // namespace
+
+bool AdsController::fullscreenAllowed() const { return nowSeconds() - lastFullscreenAt_ >= minGapSeconds_; }
+void AdsController::markFullscreenShown() { lastFullscreenAt_ = nowSeconds(); }
+
+void AdsController::cancelPendingInterstitial() {
+    ax::Director::getInstance()->getScheduler()->unschedule("pz_delayed_interstitial", this);
+}
+
 void AdsController::showRewardedWithCallback(std::function<void(bool)> callback) {
     if (!isRewardedAvailable()) {
         if (callback) callback(false);
@@ -212,6 +227,8 @@ void AdsController::showRewardedWithCallback(std::function<void(bool)> callback)
         return;
     }
     rewardedCallback_ = std::move(callback);
+    cancelPendingInterstitial();
+    markFullscreenShown();
     provider_->showRewarded();
 }
 
@@ -295,9 +312,26 @@ void AdsController::handleContext(AdsContext ctx) {
             }
             const AdRequest req = requestFor(useAdMob);
             AXLOGI("AdsController: interstitial tick (ctx={}, network={}, ready={})", i, useAdMob ? "AdMob" : "Chartboost", ready);
-            if (ready) {
-                showInterstitial();
+            // Pacing: grace period for new players, minimum gap, and a short delay at game over so the ad can never land
+            // on a tap that was meant for the game-over buttons.
+            const bool atBreak = ctx == AdsContext::GameOver;
+            if (atBreak) ++breaksSeen_;
+            if (ready && (!atBreak || breaksSeen_ > graceBreaks_) && fullscreenAllowed()) {
                 nextInterstitialAdMob_ = !useAdMob;
+                const bool admobPick = useAdMob;
+                auto fire = [this, admobPick](float) {
+                    if (!adsEnabled_ || !provider_) return;
+                    selectAdMobInterstitial(admobPick);
+                    if (!provider_->isInterstitialReady() || !fullscreenAllowed()) return;
+                    markFullscreenShown();
+                    showInterstitial();
+                };
+                if (atBreak && delaySeconds_ > 0.f) {
+                    ax::Director::getInstance()->getScheduler()->schedule(fire, this, 0.f, 0, delaySeconds_, false,
+                                                                          "pz_delayed_interstitial");
+                } else {
+                    fire(0.f);
+                }
             }
             if (!req.placementId.empty()) loadInterstitial(req); // cache the next one
         }

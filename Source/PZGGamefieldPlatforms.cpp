@@ -724,17 +724,22 @@ bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
     const float inv = 1.0f / kPhysicsWorldScale();
 
     // Nearest platform (smallest left edge) that still gives some runway ahead of the rider.
+    // Prefer a platform with real runway (the rider must get a chance to react before the next gap); only when none
+    // is long enough, take any platform that is still under/ahead of the rider.
     const PZGPlatfrom* best = nullptr;
     float bestLeft = 0.0f;
-    for (int i = 0; i < kMaxPlatfroms; ++i) {
-        const PZGPlatfrom* p = platforms[i];
-        if (!p || !p->body) continue;
-        const float cx = p->body->GetPosition().x * inv;
-        const float hw = p->width * k;
-        if (cx + hw < x + 140.0f * k) continue;
-        if (!best || cx - hw < bestLeft) {
-            best = p;
-            bestLeft = cx - hw;
+    const float runways[2] = {430.0f * k, 140.0f * k};
+    for (int pass = 0; pass < 2 && !best; ++pass) {
+        for (int i = 0; i < kMaxPlatfroms; ++i) {
+            const PZGPlatfrom* p = platforms[i];
+            if (!p || !p->body) continue;
+            const float cx = p->body->GetPosition().x * inv;
+            const float hw = p->width * k;
+            if (cx + hw < x + runways[pass]) continue;
+            if (!best || cx - hw < bestLeft) {
+                best = p;
+                bestLeft = cx - hw;
+            }
         }
     }
     if (!best) {

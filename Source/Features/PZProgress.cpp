@@ -2,6 +2,7 @@
 //  PZProgress.cpp
 //
 #include "PZProgress.h"
+#include <memory>
 #include "PZSettingsController.h"
 
 #include <algorithm>
@@ -155,6 +156,10 @@ void PZProgress::load() {
         const int idx = gadgetPoolIndex(id);
         if (idx >= 0 && gadgetUnlocked(idx) && !gadgetSelected(id)) _gadgets.push_back(id);
     }
+    _stock.clear();
+    for (const auto& g : PZCfg::kGadgetPool) {
+        _stock[g.id] = std::max(0, ud->getIntegerForKey((std::string("PZP_GStock_") + g.id).c_str(), std::max(0, PZCfg::kGadgetStartStock)));
+    }
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         _missions[i].templateIdx = ud->getIntegerForKey(slotKey("T", i).c_str(), i);
         _missions[i].progress    = ud->getIntegerForKey(slotKey("P", i).c_str(), 0);
@@ -178,6 +183,7 @@ void PZProgress::save() {
         const std::string key = std::string(kKeyGadget) + std::to_string(i);
         ud->setStringForKey(key.c_str(), i < static_cast<int>(_gadgets.size()) ? _gadgets[i] : std::string());
     }
+    for (const auto& kv : _stock) ud->setIntegerForKey((std::string("PZP_GStock_") + kv.first).c_str(), kv.second);
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         ud->setIntegerForKey(slotKey("T", i).c_str(), _missions[i].templateIdx);
         ud->setIntegerForKey(slotKey("P", i).c_str(), _missions[i].progress);
@@ -226,6 +232,36 @@ void PZProgress::toggleGadget(const std::string& id) {
         return;   // loadout full: deselect a card first
     }
     save();
+}
+
+int PZProgress::gadgetStock(const std::string& id) const {
+    auto it = _stock.find(id);
+    return it == _stock.end() ? 0 : it->second;
+}
+
+void PZProgress::addGadgetStock(const std::string& id, int n) {
+    if (gadgetPoolIndex(id) < 0) return;
+    _stock[id] = std::max(0, gadgetStock(id) + n);
+    save();
+}
+
+bool PZProgress::consumeGadgetStock(const std::string& id) {
+    if (gadgetStock(id) <= 0) return false;
+    _stock[id] = gadgetStock(id) - 1;
+    save();
+    return true;
+}
+
+bool PZProgress::buyGadget(const std::string& id) {
+    const int idx = gadgetPoolIndex(id);
+    if (idx < 0 || !gadgetUnlocked(idx)) return false;
+    auto* sc = PZSettingsController::shared();
+    const int price = PZCfg::kGadgetPool[idx].price;
+    if (sc->coins < price) return false;
+    sc->coins = static_cast<int>(sc->coins) - price;
+    sc->save();
+    addGadgetStock(id, 1);
+    return true;
 }
 
 // ---- rewarded-video economy ------------------------------------------------------------------
@@ -513,6 +549,22 @@ std::string PZProgress::timeUntilNewMissions() const {
 }
 
 // ---- run commit ------------------------------------------------------------------------------
+
+static std::shared_ptr<PZProgress>& progressSnapshot() {
+    static std::shared_ptr<PZProgress> snap;
+    return snap;
+}
+
+void PZProgress::snapshot() { progressSnapshot() = std::make_shared<PZProgress>(*this); }
+
+bool PZProgress::restoreSnapshot() {
+    auto& snap = progressSnapshot();
+    if (!snap) return false;
+    *this = *snap;
+    snap.reset();
+    save();
+    return true;
+}
 
 PZRunResult PZProgress::commitRun(const PZRunStats& s) {
     refreshMissions();
