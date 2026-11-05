@@ -6,8 +6,10 @@
 #include "PZLayout.h"
 #include "PZHaptics.h"
 #include "PZSettingsController.h"
+#include "Ads/AdsController.h"
 #include "SharedData/PZGSharedData.h"
 #include "SharedData/PZGSoundData.h"
+#include "constants.h"
 
 #include <cmath>
 #include <memory>
@@ -65,17 +67,21 @@ void later(std::function<void()> fn) {
 // Revive (coins or rewarded video)
 // ================================================================================================
 
-Node* showRevive(Node* parent, int cost, int coinsOwned, bool videoAvailable, std::function<void()> onCoins,
+Node* showRevive(Node* parent, int cost, int coinsOwned, bool videoSupported, std::function<void()> onCoins,
                  std::function<void()> onVideo, std::function<void()> onDecline) {
     if (!parent) return nullptr;
     const Vec2 mid = PZLayout::popupCentre();
-    auto* base = openModal(parent, 520.f, videoAvailable ? 410.f : 350.f, 300, 0.76f);
+    auto* base = openModal(parent, 520.f, videoSupported ? 430.f : 360.f, 300, 0.78f);
 
-    auto* title = PZUI::heading(PZCfg::kStrReviveTitle, 24.f, PZCfg::kColAccent);
-    title->setPosition(mid + Vec2(0, videoAvailable ? 172.f : 142.f));
+    auto* title = PZUI::heading(PZCfg::kStrReviveTitle, 26.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, videoSupported ? 180.f : 146.f));
     base->addChild(title);
 
-    const float ringY = videoAvailable ? 100.f : 70.f;
+    auto* sub = PZUI::heading(PZCfg::kStrReviveSub, 7.f, PZCfg::kColDim);
+    sub->setPosition(mid + Vec2(0, videoSupported ? 152.f : 120.f));
+    base->addChild(sub);
+
+    const float ringY = videoSupported ? 92.f : 72.f;
     auto* ring = DrawNode::create();
     ring->setPosition(mid + Vec2(0, ringY));
     base->addChild(ring);
@@ -86,7 +92,7 @@ Node* showRevive(Node* parent, int cost, int coinsOwned, bool videoAvailable, st
     char buf[64];
     std::snprintf(buf, sizeof(buf), PZCfg::kStrReviveCoins, coinsOwned);
     auto* owned = PZUI::heading(buf, 8.f, PZCfg::kColDim);
-    owned->setPosition(mid + Vec2(0, ringY - 56.f));
+    owned->setPosition(mid + Vec2(0, ringY - 54.f));
     base->addChild(owned);
 
     enum Choice { Coins, Video, Decline };
@@ -99,36 +105,59 @@ Node* showRevive(Node* parent, int cost, int coinsOwned, bool videoAvailable, st
     };
 
     const bool canAfford = coinsOwned >= cost;
-    float y = ringY - 112.f;
+    float y = ringY - 108.f;
 
     std::snprintf(buf, sizeof(buf), canAfford ? PZCfg::kStrReviveBtn : PZCfg::kStrReviveNoCoins, cost);
-    auto* coinBtn = PZUI::Button::create(buf, 400.f, 52.f, PZCfg::kColGood, [finish]() { finish(Coins); }, 15.f);
+    auto* coinBtn = PZUI::Button::create(buf, 400.f, 50.f, PZCfg::kColGood, [finish]() { finish(Coins); }, 15.f);
     coinBtn->setPosition(mid + Vec2(0, y));
     coinBtn->setActive(canAfford);
     base->addChild(coinBtn);
     auto* coinIcon = PZUI::coinIcon(26.f);
-    coinIcon->setPosition(Vec2(400.f - 36.f, 26.f));
+    coinIcon->setPosition(Vec2(400.f - 36.f, 25.f));
     coinBtn->addChild(coinIcon, 5);
     if (canAfford) {
         coinBtn->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.55f, 1.03f), ScaleTo::create(0.55f, 1.f), nullptr)));
     }
-    y -= 62.f;
+    y -= 60.f;
 
-    if (videoAvailable) {
-        std::snprintf(buf, sizeof(buf), "%s  %s", PZCfg::kStrReviveVideo, PZCfg::kStrReviveFree);
-        auto* vidBtn = PZUI::Button::create(buf, 400.f, 52.f, PZCfg::kColButton, [finish]() { finish(Video); }, 14.f);
+    PZUI::Button* vidBtn = nullptr;
+    auto videoReady = std::make_shared<bool>(false);
+    if (videoSupported) {
+        const bool ready = PZ::AdsController::shared()->isRewardedAvailable();
+        *videoReady = ready;
+        const std::string text = ready ? std::string(PZCfg::kStrReviveVideo) + "  " + PZCfg::kStrReviveFree
+                                       : std::string(PZCfg::kStrReviveLoading);
+        vidBtn = PZUI::Button::create(text, 400.f, 50.f, PZCfg::kColButton,
+                                      [finish, videoReady]() { if (*videoReady) finish(Video); }, 13.f);
         vidBtn->setPosition(mid + Vec2(0, y));
+        vidBtn->setActive(ready);
         base->addChild(vidBtn);
-        // Play glyph.
         auto* tri = DrawNode::create();
         Vec2 pts[3] = {Vec2(-8, -10), Vec2(-8, 10), Vec2(10, 0)};
         tri->drawSolidPoly(pts, 3, PZUI::c4f(Color3B(255, 255, 255)), 2.f, PZUI::c4f(Color3B(90, 30, 0)), true);
-        tri->setPosition(Vec2(34.f, 26.f));
+        tri->setPosition(Vec2(34.f, 25.f));
         vidBtn->addChild(tri, 5);
-        y -= 62.f;
+
+        // Poll: reward ads can take a few seconds; keep the button in sync instead of hiding the option.
+        base->schedule([done, videoReady, vidBtn, finish] (float) {
+            if (*done) return;
+            const bool readyNow = PZ::AdsController::shared()->isRewardedAvailable();
+            if (readyNow && !*videoReady) {
+                *videoReady = true;
+                vidBtn->setText(std::string(PZCfg::kStrReviveVideo) + "  " + PZCfg::kStrReviveFree);
+                vidBtn->setActive(true);
+                vidBtn->setScale(0.9f);
+                vidBtn->runAction(EaseBackOut::create(ScaleTo::create(0.2f, 1.f)));
+                PZHaptics::play(PZHaptics::Kind::Light);
+            } else if (!readyNow && !*videoReady) {
+                PZ::AdsController::shared()->requestRewarded();
+            }
+            (void)finish;
+        }, 0.35f, "pz_revive_adpoll");
+        y -= 60.f;
     }
 
-    auto* no = PZUI::Button::create(PZCfg::kStrReviveSkip, 230.f, 38.f, Color3B(120, 124, 134), [finish]() { finish(Decline); }, 10.f);
+    auto* no = PZUI::Button::create(PZCfg::kStrReviveSkip, 230.f, 36.f, Color3B(120, 124, 134), [finish]() { finish(Decline); }, 10.f);
     no->setPosition(mid + Vec2(0, y - 4.f));
     base->addChild(no);
 
@@ -370,10 +399,12 @@ Node* showMissions(Node* parent, std::function<void()> onClosed) {
 // Game-over results
 // ================================================================================================
 
-void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& stats, const PZRunResult& r) {
+void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& stats, const PZRunResult& r,
+                   std::function<int()> claimDoubleCoins) {
     if (!gameOverLayer) return;
     const Size win = winSize();
     const Rect safe = PZLayout::safeRect();
+    const float cx = safe.getMidX();
 
     // Score count-up.
     if (distanceLabel) {
@@ -390,20 +421,22 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
             nullptr));
     }
 
+    // The two round art buttons move down together, above the banner, so the stats panel has room.
+    if (auto* menu = dynamic_cast<Menu*>(gameOverLayer->getChildByTag(kBaseMenuItemTag))) {
+        const float buttonY = safe.getMinY() + (PZLayout::bannerReserve() > 0.f ? 46.f : 70.f);
+        if (auto* back = menu->getChildByTag(1)) back->setPosition(Vec2(cx - 74.f, buttonY));
+        if (auto* restart = menu->getChildByTag(2)) restart->setPosition(Vec2(cx + 74.f, buttonY));
+    }
+
     auto* root = Node::create();
     root->setTag(0x5253);
     gameOverLayer->addChild(root, 400);
 
-    const float cx = safe.getMidX();
     char buf[64];
-
-    // Layout: headline just under the "GAME OVER" art, the rest in the free space flanking the two round buttons.
-    const float headY = win.height * 0.535f;
-    const float leftX = win.width * 0.255f, rightX = win.width * 0.745f;
-    const float rowY = std::max(win.height * 0.355f, safe.getMinY() + 90.f);
+    const float headY = PZLayout::mapY(358.f);
 
     if (r.newBest) {
-        auto* nb = PZUI::heading(PZCfg::kStrNewBest, 22.f, PZCfg::kColAccent);
+        auto* nb = PZUI::heading(PZCfg::kStrNewBest, 20.f, PZCfg::kColAccent);
         nb->setPosition(Vec2(cx, headY));
         nb->setScale(0.1f);
         root->addChild(nb);
@@ -411,32 +444,51 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
             DelayTime::create(1.0f),
             EaseBackOut::create(ScaleTo::create(0.35f, 1.f)),
             CallFunc::create([root, nb]() {
-                PZUI::burst(root, nb->getPosition(), PZCfg::kColAccent, 26, 150.f, 0.9f, 20);
+                PZUI::burst(root, nb->getPosition(), PZCfg::kColAccent, 28, 160.f, 0.9f, 20);
                 PZHaptics::play(PZHaptics::Kind::Success);
             }),
-            RepeatForever::create(Sequence::create(ScaleTo::create(0.5f, 1.08f), ScaleTo::create(0.5f, 1.f), nullptr)),
+            RepeatForever::create(Sequence::create(ScaleTo::create(0.5f, 1.06f), ScaleTo::create(0.5f, 1.f), nullptr)),
             nullptr));
     } else {
         std::snprintf(buf, sizeof(buf), PZCfg::kStrResultsBest, r.best);
-        auto* bl = PZUI::heading(buf, 12.f, PZCfg::kColDim);
+        auto* bl = PZUI::heading(buf, 11.f, PZCfg::kColDim);
         bl->setPosition(Vec2(cx, headY));
         root->addChild(bl);
     }
 
-    // Coins earned (left of the buttons).
-    std::snprintf(buf, sizeof(buf), PZCfg::kStrResultsCoins, stats.coins);
-    auto* coins = PZUI::heading(buf, 12.f, PZCfg::kColAccent);
-    coins->setPosition(Vec2(leftX, rowY));
-    root->addChild(coins);
+    // Stats panel: three large values on top, level/XP + rewarded double coins on the bottom row.
+    const float panelW = std::max(360.f, std::min(560.f, safe.size.width - 460.f));
+    const float panelY = PZLayout::mapY(225.f);
+    auto* panel = PZUI::panel(panelW, 146.f, 16.f);
+    panel->setPosition(Vec2(cx, panelY));
+    root->addChild(panel);
 
-    // Level + XP bar (right of the buttons).
+    const float colX = panelW * 0.30f;
+    auto addStat = [&](float x, const char* label, const std::string& value, const Color3B& color) {
+        auto* l = PZUI::heading(label, 7.f, PZCfg::kColDim);
+        l->setPosition(Vec2(x, panelY + 52.f));
+        root->addChild(l);
+        auto* v = PZUI::heading(value, 17.f, color);
+        v->setPosition(Vec2(x, panelY + 28.f));
+        root->addChild(v);
+        return v;
+    };
+    addStat(cx - colX, PZCfg::kStrStatsDistance, std::to_string(stats.distance), PZCfg::kColText);
+    auto* coinsValue = addStat(cx, PZCfg::kStrStatsCoins, "+" + std::to_string(stats.coins), PZCfg::kColAccent);
+    addStat(cx + colX, PZCfg::kStrStatsBest, std::to_string(r.best), PZCfg::kColAccent2);
+
+    // Level + XP bar, bottom-left of the panel.
     std::snprintf(buf, sizeof(buf), PZCfg::kStrResultsLevel, r.levelBefore);
-    auto* lv = PZUI::heading(buf, 11.f, PZCfg::kColAccent2);
-    lv->setPosition(Vec2(rightX, rowY + 16.f));
+    auto* lv = PZUI::heading(buf, 8.f, PZCfg::kColAccent2);
+    lv->setAnchorPoint(Vec2(0.f, 0.5f));
+    lv->setPosition(Vec2(cx - panelW * 0.5f + 20.f, panelY - 36.f));
     root->addChild(lv);
 
-    auto* xpBar = PZUI::bar(190.f, 12.f, r.fracBefore, PZCfg::kColAccent2);
-    xpBar->setPosition(Vec2(rightX, rowY - 14.f));
+    const bool hasDouble = PZCfg::kEnableDoubleCoins && claimDoubleCoins && stats.coins > 0;
+    const float barW = hasDouble ? std::min(190.f, panelW * 0.30f) : std::min(panelW - 150.f, 360.f);
+    const float barX = hasDouble ? (cx - panelW * 0.5f + 70.f + barW * 0.5f) : (cx + 10.f);
+    auto* xpBar = PZUI::bar(barW, 10.f, r.fracBefore, PZCfg::kColAccent2);
+    xpBar->setPosition(Vec2(barX, panelY - 36.f));
     root->addChild(xpBar);
 
     const bool leveled = r.levelAfter > r.levelBefore;
@@ -444,21 +496,65 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     xpBar->runAction(Sequence::create(
         DelayTime::create(0.6f),
         ActionFloat::create(0.8f, r.fracBefore, endFrac,
-                            [xpBar](float v) { PZUI::redrawBar(xpBar, 190.f, 12.f, v, PZCfg::kColAccent2); }),
+                            [xpBar, barW](float v) { PZUI::redrawBar(xpBar, barW, 10.f, v, PZCfg::kColAccent2); }),
         CallFunc::create([=]() {
             if (!leveled) return;
             char b[48];
             std::snprintf(b, sizeof(b), PZCfg::kStrResultsLevel, r.levelAfter);
             lv->setString(b);
             std::snprintf(b, sizeof(b), PZCfg::kStrLevelUp, r.levelUpCoins);
-            PZUI::floatText(root, b, Vec2(rightX, rowY + 48.f), PZCfg::kColAccent2, 11.f, 30);
+            PZUI::floatText(root, b, Vec2(cx, panelY + 82.f), PZCfg::kColAccent2, 10.f, 30);
             PZUI::burst(root, xpBar->getPosition(), PZCfg::kColAccent2, 22, 140.f, 0.8f, 20);
             PZHaptics::play(PZHaptics::Kind::Success);
-            PZUI::redrawBar(xpBar, 190.f, 12.f, 0.f, PZCfg::kColAccent2);
+            PZUI::redrawBar(xpBar, barW, 10.f, 0.f, PZCfg::kColAccent2);
             xpBar->runAction(ActionFloat::create(0.6f, 0.f, r.fracAfter,
-                                                 [xpBar](float v) { PZUI::redrawBar(xpBar, 190.f, 12.f, v, PZCfg::kColAccent2); }));
+                                                 [xpBar, barW](float v) { PZUI::redrawBar(xpBar, barW, 10.f, v, PZCfg::kColAccent2); }));
         }),
         nullptr));
+
+    // Rewarded double coins, bottom-right inside the panel (keeps clear of the island cutout).
+    if (hasDouble) {
+        auto claimed = std::make_shared<bool>(false);
+        auto btnRef = std::make_shared<PZUI::Button*>(nullptr);
+        const float doubleW = std::min(210.f, panelW * 0.38f);
+        *btnRef = PZUI::Button::create(PZCfg::kStrDoubleCoins, doubleW, 38.f, PZCfg::kColButton, [=]() {
+            auto* btn = *btnRef;
+            if (!btn || *claimed) return;
+            auto* ads = PZ::AdsController::shared();
+            if (!ads->isRewardedAvailable()) {
+                ads->requestRewarded();
+                PZUI::banner(root, PZCfg::kStrDoubleCoins, PZCfg::kStrReviveLoading, PZCfg::kColAccent2,
+                             PZLayout::mapY(388.f), 0.9f, 30);
+                return;
+            }
+            ads->showRewardedWithCallback([=](bool earned) {
+                if (!earned) {
+                    PZUI::banner(root, PZCfg::kStrDoubleCoins, PZCfg::kStrVideoNoAd, PZCfg::kColBad,
+                                 PZLayout::mapY(388.f), 1.0f, 30);
+                    return;
+                }
+                auto* btnNow = *btnRef;
+                if (!btnNow) return;
+                const int bonus = claimDoubleCoins();
+                if (bonus <= 0) return;
+                *claimed = true;
+                char b[64];
+                std::snprintf(b, sizeof(b), PZCfg::kStrDoubleClaimed, bonus);
+                btnNow->setText(b);
+                btnNow->setActive(false);
+                coinsValue->setString("+" + std::to_string(stats.coins + bonus));
+                PZUI::burst(root, btnNow->getPosition(), PZCfg::kColAccent, 24, 120.f, 0.8f, 30);
+                PZUI::floatText(root, "+" + std::to_string(bonus), btnNow->getPosition() + Vec2(0, 42.f),
+                                PZCfg::kColAccent, 14.f, 30);
+                PZHaptics::play(PZHaptics::Kind::Success);
+                playCoin();
+            });
+        }, 9.f);
+        auto* btn = *btnRef;
+        btn->setPosition(Vec2(cx + panelW * 0.5f - 16.f - doubleW * 0.5f, panelY - 36.f));
+        root->addChild(btn);
+        if (!PZ::AdsController::shared()->isRewardedAvailable()) PZ::AdsController::shared()->requestRewarded();
+    }
 
     // Missions completed during this run.
     auto* pg = PZProgress::shared();
@@ -466,7 +562,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     for (int slot : r.completedMissions) {
         const std::string text = pg->missionText(slot);
         root->runAction(Sequence::create(DelayTime::create(delay), CallFunc::create([=]() {
-            PZUI::banner(root, PZCfg::kStrMissionToast, text, PZCfg::kColGood, win.height * 0.47f, 1.4f, 30);
+            PZUI::banner(root, PZCfg::kStrMissionToast, text, PZCfg::kColGood, PZLayout::mapY(392.f), 1.4f, 30);
             playCoin();
             PZHaptics::play(PZHaptics::Kind::Success);
         }), nullptr));
@@ -475,10 +571,206 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
 }
 
 // ================================================================================================
+// Gadget loadout
+// ================================================================================================
+
+namespace {
+
+class GadgetCard : public Node {
+public:
+    static GadgetCard* make(const PZCfg::GadgetTemplate& def, bool unlocked, bool selected, float w, float h,
+                            std::function<void()> onTap) {
+        auto* c = new GadgetCard();
+        if (!c->init()) { delete c; return nullptr; }
+        c->autorelease();
+        c->_w = w; c->_h = h; c->_def = def; c->_unlocked = unlocked; c->_selected = selected;
+        c->_onTap = std::move(onTap);
+        c->setContentSize(Size(w, h));
+        c->setAnchorPoint(Vec2(0.5f, 0.5f));
+        c->rebuild();
+
+        auto* l = EventListenerTouchOneByOne::create();
+        l->setSwallowTouches(true);
+        l->onTouchBegan = [c](Touch* t, Event*) {
+            const Vec2 p = c->convertToNodeSpace(t->getLocation());
+            if (p.x < 0 || p.y < 0 || p.x > c->_w || p.y > c->_h) return false;
+            c->setScale(0.97f);
+            return true;
+        };
+        l->onTouchEnded = [c](Touch* t, Event*) {
+            c->setScale(1.f);
+            const Vec2 p = c->convertToNodeSpace(t->getLocation());
+            if (p.x < 0 || p.y < 0 || p.x > c->_w || p.y > c->_h) return;
+            if (c->_onTap) c->_onTap();
+        };
+        l->onTouchCancelled = [c](Touch*, Event*) { c->setScale(1.f); };
+        c->getEventDispatcher()->addEventListenerWithSceneGraphPriority(l, c);
+        return c;
+    }
+
+    void setState(bool unlocked, bool selected) {
+        _unlocked = unlocked; _selected = selected;
+        rebuild();
+    }
+
+private:
+    void rebuild() {
+        removeAllChildren();
+        const Color3B edge = _selected ? PZCfg::kColAccent : (_unlocked ? PZCfg::kColPanelEdge : Color3B(80, 84, 96));
+        auto* bg = PZUI::roundedRect(_w, _h, 14.f, PZCfg::kColPanel, 0.96f, edge, 1.f, _selected ? 3.f : 2.f);
+        addChild(bg);
+        if (_selected) {
+            auto* glow = PZUI::roundedRect(_w - 8.f, _h - 8.f, 11.f, PZCfg::kColAccent, 0.08f, PZCfg::kColAccent, 0.35f, 1.f);
+            addChild(glow);
+        }
+
+        auto* disc = DrawNode::create();
+        disc->drawSolidCircle(Vec2::ZERO, 24.f, 0.f, 24, PZUI::c4f(PZCfg::kColPanelEdge, _unlocked ? 0.22f : 0.10f));
+        disc->drawCircle(Vec2::ZERO, 24.f, 0.f, 24, false, PZUI::c4f(edge, 0.95f), 2.f);
+        disc->setPosition(Vec2(-_w * 0.5f + 44.f, 8.f));
+        addChild(disc);
+        auto* glyph = PZUI::heading(_def.icon, 18.f, _unlocked ? PZCfg::kColAccent : PZCfg::kColDim);
+        glyph->setPosition(Vec2(-_w * 0.5f + 44.f, 8.f));
+        addChild(glyph);
+
+        auto* name = PZUI::heading(_def.name, 11.f, _unlocked ? PZCfg::kColText : PZCfg::kColDim);
+        name->setAnchorPoint(Vec2(0.f, 0.5f));
+        name->setPosition(Vec2(-_w * 0.5f + 78.f, 18.f));
+        const float maxW = _w - 92.f;
+        if (name->getContentSize().width > maxW) name->setScale(maxW / name->getContentSize().width);
+        addChild(name);
+
+        auto* desc = PZUI::heading(_def.desc, 6.f, PZCfg::kColDim);
+        desc->setAnchorPoint(Vec2(0.f, 0.5f));
+        desc->setPosition(Vec2(-_w * 0.5f + 78.f, -4.f));
+        if (desc->getContentSize().width > maxW) desc->setScale(maxW / desc->getContentSize().width);
+        addChild(desc);
+
+        char buf[48];
+        if (!_unlocked) {
+            std::snprintf(buf, sizeof(buf), PZCfg::kStrGadgetLocked, _def.unlockLevel);
+            auto* lock = PZUI::heading(buf, 7.f, PZCfg::kColBad);
+            lock->setAnchorPoint(Vec2(0.f, 0.5f));
+            lock->setPosition(Vec2(-_w * 0.5f + 78.f, -24.f));
+            addChild(lock);
+        } else {
+            auto* tag = PZUI::heading(_selected ? PZCfg::kStrGadgetEquipped : "", 7.f,
+                                      _selected ? PZCfg::kColAccent : PZCfg::kColDim);
+            tag->setAnchorPoint(Vec2(0.f, 0.5f));
+            tag->setPosition(Vec2(-_w * 0.5f + 78.f, -24.f));
+            addChild(tag);
+            if (_selected) {
+                auto* dot = DrawNode::create();
+                dot->drawSolidCircle(Vec2::ZERO, 5.f, 0.f, 14, PZUI::c4f(PZCfg::kColAccent));
+                dot->setPosition(Vec2(_w * 0.5f - 18.f, _h * 0.5f - 16.f));
+                addChild(dot);
+            }
+        }
+    }
+
+    float _w = 0, _h = 0;
+    PZCfg::GadgetTemplate _def;
+    bool _unlocked = false;
+    bool _selected = false;
+    std::function<void()> _onTap;
+};
+
+} // namespace
+
+Node* showGadgets(Node* parent, std::function<void()> onClosed) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelW = std::min(720.f, PZLayout::safeRect().size.width - 60.f);
+    const float panelH = std::min(430.f, PZLayout::popupMaxHeight());
+    auto* base = openModal(parent, panelW, panelH, 330, 0.80f);
+
+    auto* title = PZUI::heading(PZCfg::kStrGadgetsTitle, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, panelH * 0.5f - 44.f));
+    base->addChild(title);
+
+    char buf[64];
+    std::snprintf(buf, sizeof(buf), PZCfg::kStrGadgetsSub, PZCfg::kGadgetSlots);
+    auto* sub = PZUI::heading(buf, 8.f, PZCfg::kColDim);
+    sub->setPosition(mid + Vec2(0, panelH * 0.5f - 72.f));
+    base->addChild(sub);
+
+    const int count = pg->gadgetPoolCount();
+    const int cols = 2;
+    const int rows = std::max(1, (count + cols - 1) / cols);
+    const float cardW = std::min(300.f, (panelW - 90.f) * 0.5f);
+    const float cardH = 92.f;
+    const float gapX = 18.f;
+    const float gapY = 12.f;
+    const float totalW = cols * cardW + (cols - 1) * gapX;
+    const float totalH = rows * cardH + (rows - 1) * gapY;
+    const float left = mid.x - totalW * 0.5f + cardW * 0.5f;
+    const float top = mid.y + 48.f;
+
+    auto refreshCards = std::make_shared<std::function<void()>>();
+    std::vector<GadgetCard*> cards;
+    for (int i = 0; i < count; ++i) {
+        const auto& def = PZCfg::kGadgetPool[i];
+        const int col = i % cols;
+        const int row = i / cols;
+        const Vec2 pos(left + col * (cardW + gapX), top - row * (cardH + gapY));
+        auto* card = GadgetCard::make(def, pg->gadgetUnlocked(i), pg->gadgetSelected(def.id), cardW, cardH,
+            [=]() {
+                char notice[64];
+                if (!pg->gadgetUnlocked(i)) {
+                    std::snprintf(notice, sizeof(notice), PZCfg::kStrGadgetLocked, def.unlockLevel);
+                    PZHaptics::play(PZHaptics::Kind::Warning);
+                    PZUI::banner(base, PZCfg::kStrGadgetsTitle, notice, PZCfg::kColBad,
+                                 mid.y - panelH * 0.5f + 70.f, 0.8f, 40);
+                    return;
+                }
+                const int before = pg->selectedGadgetCount();
+                pg->toggleGadget(def.id);
+                if (before == pg->selectedGadgetCount() && !pg->gadgetSelected(def.id) && pg->selectedGadgetCount() >= PZCfg::kGadgetSlots) {
+                    std::snprintf(notice, sizeof(notice), PZCfg::kStrGadgetsSub, PZCfg::kGadgetSlots);
+                    PZUI::banner(base, PZCfg::kStrGadgetsTitle, notice, PZCfg::kColAccent2,
+                                 mid.y - panelH * 0.5f + 70.f, 0.8f, 40);
+                    PZHaptics::play(PZHaptics::Kind::Warning);
+                    return;
+                }
+                PZHaptics::play(PZHaptics::Kind::Selection);
+                if (*refreshCards) (*refreshCards)();
+            });
+        if (!card) continue;
+        card->setPosition(pos);
+        cards.push_back(card);
+        base->addChild(card);
+    }
+    *refreshCards = [pg, cards]() {
+        for (size_t i = 0; i < cards.size(); ++i) {
+            const auto& def = PZCfg::kGadgetPool[i];
+            cards[i]->setState(pg->gadgetUnlocked(static_cast<int>(i)), pg->gadgetSelected(def.id));
+        }
+    };
+
+    Node* basePtr = base;
+    float closeY = mid.y - panelH * 0.5f + 34.f;
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton,
+                                       [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 12.f);
+    close->setPosition(Vec2(mid.x, closeY));
+    base->addChild(close);
+
+    return base;
+}
+
+// ================================================================================================
+// Main-menu widgets// ================================================================================================
 // Main-menu widgets
 // ================================================================================================
 
 namespace {
+
+std::string clockText(int secs) {
+    char b[24];
+    std::snprintf(b, sizeof(b), "%d:%02d", secs / 60, secs % 60);
+    return b;
+}
+
 class MenuWidgets : public Node {
 public:
     static MenuWidgets* make(Node* host) {
@@ -504,15 +796,18 @@ public:
         _best->setString(b);
         if (_daily) _daily->setBadge(pg->dailyAvailable() ? 1 : 0);
         if (_missions) _missions->setBadge(pg->unclaimedMissions());
+        if (_gadgets) _gadgets->setBadge(pg->selectedGadgetCount());
         if (_vibe) {
             std::snprintf(b, sizeof(b), "%s %s", PZCfg::kStrVibration, pg->hapticsEnabled() ? PZCfg::kStrOn : PZCfg::kStrOff);
             _vibe->setText(b);
         }
+        updateFreeLabel();
     }
 
 private:
     void build() {
         auto* pg = PZProgress::shared();
+        const Size win = winSize();
         const Rect safe = PZLayout::safeRect();
         const float colX = safe.getMaxX() - 14.f - 110.f;        // column centre (buttons are 220 wide)
         float y = safe.getMaxY() - 12.f;
@@ -533,34 +828,137 @@ private:
         _xp = PZUI::bar(160.f, 10.f, pg->levelFraction(), PZCfg::kColAccent2);
         _xp->setPosition(Vec2(0.f, -15.f));
         plate->addChild(_xp);
-        y -= 76.f + 18.f;
+        y -= 76.f + 14.f;
 
         Node* host = _host;
         if (PZCfg::kEnableDailyReward) {
-            _daily = PZUI::Button::create(PZCfg::kStrDailyBtn, 220.f, 50.f, PZCfg::kColButton, [this, host]() {
+            _daily = PZUI::Button::create(PZCfg::kStrDailyBtn, 220.f, 42.f, PZCfg::kColButton, [this, host]() {
                 PZPopups::showDailyReward(host, [this]() { refresh(); });
-            }, 13.f);
-            _daily->setPosition(Vec2(colX, y - 25.f));
+            }, 12.f);
+            _daily->setPosition(Vec2(colX, y - 21.f));
             addChild(_daily);
-            y -= 50.f + 16.f;
+            y -= 42.f + 10.f;
         }
         if (PZCfg::kEnableMissions) {
-            _missions = PZUI::Button::create(PZCfg::kStrMissionsBtn, 220.f, 50.f, Color3B(70, 150, 240), [this, host]() {
+            _missions = PZUI::Button::create(PZCfg::kStrMissionsBtn, 220.f, 42.f, Color3B(70, 150, 240), [this, host]() {
                 PZPopups::showMissions(host, [this]() { refresh(); });
-            }, 13.f);
-            _missions->setPosition(Vec2(colX, y - 25.f));
+            }, 12.f);
+            _missions->setPosition(Vec2(colX, y - 21.f));
             addChild(_missions);
-            y -= 50.f + 16.f;
+            y -= 42.f + 10.f;
         }
-        _vibe = PZUI::Button::create("", 220.f, 36.f, Color3B(120, 124, 134), [this]() {
+
+        // Secondary 2-up row: compact, and nudged inwards on island phones so nothing hides under the cutout.
+        const bool islandPhone = win.width / std::max(1.f, win.height) > 2.0f;
+        float rowRight = safe.getMaxX() - 14.f - (islandPhone ? 90.f : 0.f);
+        const float secW = 104.f, secH = 36.f, secGap = 10.f;
+        const float rowY = y - 8.f - secH * 0.5f;
+        if (PZCfg::kEnableFreeCoins) {
+            rowRight -= secW;
+            _free = PZUI::Button::create(PZCfg::kStrFreeCoinsBtn, secW, secH, PZCfg::kColButton, [this]() {
+                onFreeCoins();
+            }, 7.f);
+            _free->setPosition(Vec2(rowRight + secW * 0.5f, rowY));
+            addChild(_free);
+            rowRight -= secGap;
+        }
+        if (PZCfg::kEnableGadgets) {
+            rowRight -= secW;
+            _gadgets = PZUI::Button::create(PZCfg::kStrGadgetsBtn, secW, secH, Color3B(150, 105, 220), [this, host]() {
+                PZPopups::showGadgets(host, [this]() { refresh(); });
+            }, 7.f);
+            _gadgets->setPosition(Vec2(rowRight + secW * 0.5f, rowY));
+            addChild(_gadgets);
+        }
+
+        // Vibration lives in the bottom-right corner: out of the meta cluster, above the banner, below the cutout.
+        _vibe = PZUI::Button::create("", 126.f, 32.f, Color3B(120, 124, 134), [this]() {
             auto* p = PZProgress::shared();
             p->setHapticsEnabled(!p->hapticsEnabled());
             PZHaptics::play(PZHaptics::Kind::Medium);   // instant preview when turning on
             refresh();
         }, 8.f);
-        _vibe->setPosition(Vec2(colX, y - 18.f));
+        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 34.f));
         addChild(_vibe);
+
         refresh();
+        schedule([this, win](float dt) {
+            updateFreeLabel();
+            if (!_freePending) return;
+            _freeWait += dt;
+            if (PZ::AdsController::shared()->isRewardedAvailable()) {
+                _freePending = false;
+                showFreeCoinsAd();
+            } else if (_freeWait > 8.f) {
+                _freePending = false;
+                PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrVideoNoAd, PZCfg::kColBad,
+                             win.height * 0.55f, 1.0f, 30);
+            } else {
+                PZ::AdsController::shared()->requestRewarded();
+            }
+        }, 0.35f, "pz_menu_free_poll");
+    }
+
+    void updateFreeLabel() {
+        if (!_free) return;
+        auto* pg = PZProgress::shared();
+        std::string text;
+        if (pg->freeCoinsAvailable()) {
+            text = PZCfg::kStrFreeCoinsBtn;
+            _free->setBadge(1);
+        } else {
+            char b[40];
+            std::snprintf(b, sizeof(b), PZCfg::kStrFreeCoinsReady, clockText(pg->freeCoinsSecondsLeft()).c_str());
+            text = b;
+            _free->setBadge(0);
+        }
+        if (text != _freeText) {
+            _freeText = text;
+            _free->setText(text);
+        }
+    }
+
+    void onFreeCoins() {
+        auto* pg = PZProgress::shared();
+        if (!pg->freeCoinsAvailable()) {
+            char b[48];
+            std::snprintf(b, sizeof(b), PZCfg::kStrFreeCoinsWait, clockText(pg->freeCoinsSecondsLeft()).c_str());
+            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColAccent2, winSize().height * 0.55f, 1.2f, 30);
+            return;
+        }
+        showFreeCoinsAd();
+    }
+
+    void showFreeCoinsAd() {
+        auto* ads = PZ::AdsController::shared();
+        if (!ads->isRewardedAvailable()) {
+            ads->requestRewarded();
+            _freePending = true;
+            _freeWait = 0.f;
+            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrReviveLoading, PZCfg::kColAccent2,
+                         winSize().height * 0.55f, 1.0f, 30);
+            return;
+        }
+        ads->showRewardedWithCallback([this](bool earned) {
+            _freePending = false;
+            if (!earned) {
+                PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrVideoNoAd, PZCfg::kColBad,
+                             winSize().height * 0.55f, 1.0f, 30);
+                return;
+            }
+            const int got = PZProgress::shared()->claimFreeCoins(PZCfg::kFreeCoinsAmount);
+            if (got <= 0) return;
+            char b[64];
+            std::snprintf(b, sizeof(b), PZCfg::kStrFreeCoinsSub, got);
+            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColGood, winSize().height * 0.55f, 1.3f, 30);
+            if (_free) {
+                const Vec2 world = _free->convertToWorldSpace(Vec2::ZERO);
+                PZUI::burst(_host, _host->convertToNodeSpace(world), PZCfg::kColAccent, 20, 100.f, 0.7f, 30);
+            }
+            playCoin();
+            PZHaptics::play(PZHaptics::Kind::Success);
+            refresh();
+        });
     }
 
     Node* _host = nullptr;
@@ -569,7 +967,12 @@ private:
     DrawNode* _xp = nullptr;
     PZUI::Button* _daily = nullptr;
     PZUI::Button* _missions = nullptr;
+    PZUI::Button* _gadgets = nullptr;
+    PZUI::Button* _free = nullptr;
     PZUI::Button* _vibe = nullptr;
+    std::string _freeText;
+    bool _freePending = false;
+    float _freeWait = 0.f;
 };
 } // namespace
 

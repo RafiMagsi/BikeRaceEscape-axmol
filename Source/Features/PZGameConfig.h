@@ -44,6 +44,7 @@ inline ax::Color3B kColMagnet    {255,  95, 175};
 inline ax::Color3B kColShield    { 85, 175, 255};
 inline ax::Color3B kColTurbo     {255, 150,  40};
 inline ax::Color3B kColBlast     {255,  70,  50};
+inline ax::Color3B kColJetpack   {120, 235, 255};
 
 // Per-stage atmosphere tint (cycled): RGB + alpha of a full-screen overlay.
 struct StageTint { unsigned char r, g, b, a; };
@@ -75,10 +76,17 @@ inline const char* kStrMagnet        = "MAGNET";
 inline const char* kStrShield        = "SHIELD";
 inline const char* kStrTurbo         = "TURBO";
 inline const char* kStrBlastName     = "BLAST";
+inline const char* kStrJetpackName   = "JETPACK";
 inline const char* kStrMagnetIcon    = "M";
 inline const char* kStrShieldIcon    = "S";
 inline const char* kStrTurboIcon     = "T";
 inline const char* kStrBlastIcon     = "B";
+inline const char* kStrJetpackIcon   = "J";
+inline const char* kStrJetpack       = "JETPACK!";
+inline const char* kStrBigAir        = "BIG AIR! +%d";
+inline const char* kStrStartHint     = "TAP TO JUMP";
+inline const char* kStrHeadStart     = "HEAD START +%dM";
+inline const char* kStrLuckyHelmet   = "LUCKY HELMET!";
 
 inline const char* kStrReviveTitle   = "CONTINUE?";
 inline const char* kStrReviveBtn     = "REVIVE  %d";
@@ -88,7 +96,25 @@ inline const char* kStrReviveCoins   = "YOU HAVE %d";
 inline const char* kStrReviveVideo   = "WATCH VIDEO";
 inline const char* kStrReviveFree    = "FREE";
 inline const char* kStrReviveLoading = "VIDEO LOADING...";
+inline const char* kStrReviveSub     = "KEEP YOUR RUN + TURBO";
 inline const char* kStrMissionTrack  = "MISSION";
+
+inline const char* kStrVideoNoAd     = "NO VIDEO RIGHT NOW";
+inline const char* kStrVideoRetry    = "TRY AGAIN";
+inline const char* kStrFreeCoinsBtn  = "FREE COINS";
+inline const char* kStrFreeCoinsTitle= "FREE COINS";
+inline const char* kStrFreeCoinsSub  = "+%d COINS";
+inline const char* kStrFreeCoinsWait = "READY IN %s";
+inline const char* kStrFreeCoinsReady= "FREE IN %s";
+inline const char* kStrDoubleCoins   = "DOUBLE COINS";
+inline const char* kStrDoubleClaimed = "DOUBLED! +%d";
+inline const char* kStrDoubleCoinsSub= "+%d BONUS COINS";
+
+inline const char* kStrGadgetsTitle  = "GADGETS";
+inline const char* kStrGadgetsSub    = "EQUIP UP TO %d";
+inline const char* kStrGadgetsBtn    = "GADGETS";
+inline const char* kStrGadgetLocked  = "UNLOCKS AT LV %d";
+inline const char* kStrGadgetEquipped= "EQUIPPED";
 
 inline const char* kStrDailyTitle    = "DAILY REWARD";
 inline const char* kStrDailyDay      = "DAY %d";
@@ -105,6 +131,10 @@ inline const char* kStrClose         = "CLOSE";
 
 inline const char* kStrResultsBest   = "BEST %d";
 inline const char* kStrResultsCoins  = "COINS +%d";
+inline const char* kStrResultsDistance = "DISTANCE %d";
+inline const char* kStrStatsDistance = "DISTANCE";
+inline const char* kStrStatsCoins    = "COINS";
+inline const char* kStrStatsBest     = "BEST";
 inline const char* kStrResultsLevel  = "LEVEL %d";
 inline const char* kStrLevelUp       = "LEVEL UP!  +%d";
 inline const char* kStrMissionToast  = "MISSION COMPLETE!";
@@ -131,6 +161,12 @@ inline bool kEnableFairPlacement = true; // obstacle safe zones / spacing / dens
 inline bool kEnableCoinArcs    = true;   // guide coins over obstacle clusters and gaps
 inline bool kEnableMercy       = true;   // free second chance for new players
 inline bool kEnableJumpBuffer  = true;   // forgiving jump input
+inline bool kEnableGadgets     = true;   // menu loadout of two passive perks
+inline bool kEnableJetpack     = true;   // fifth power-up: fly over the traffic
+inline bool kEnableFreeCoins   = true;   // rewarded-video free coins on the menu
+inline bool kEnableDoubleCoins = true;   // rewarded-video coin doubler on the results screen
+inline bool kEnableBigAir      = true;   // bonus for long jumps
+inline bool kEnableStartGrace  = true;   // short safe window when a run starts
 
 // ---------------------------------------------------------------------------------------------
 // Tuning
@@ -164,7 +200,11 @@ inline float kTurboMagnetRadius   = 360.0f;
 inline float kBlastRadius         = 1500.0f;  // blast wipes every obstacle within this distance ahead
 inline float kBlastWaveSpeed      = 2200.0f;  // shockwave expansion speed (units / s): staggers the explosions
 inline float kHitGrace            = 1.4f;
-inline float kWeightMagnet = 0.28f, kWeightShield = 0.28f, kWeightTurbo = 0.2f, kWeightBlast = 0.24f;
+inline float kJetpackDuration     = 6.0f;
+inline float kJetpackHeight       = 250.0f;   // flight line above the ground (screen units, scaled per device)
+inline float kJetpackCoinEvery    = 0.30f;    // seconds between free coins while flying
+inline int   kJetpackCoinsPerTick = 1;
+inline float kWeightMagnet = 0.26f, kWeightShield = 0.26f, kWeightTurbo = 0.20f, kWeightBlast = 0.20f, kWeightJetpack = 0.08f;
 
 // Obstacle fairness & placement
 inline float kDensityStart        = 0.55f;    // fraction of lethal obstacles kept at distance 0 ...
@@ -181,10 +221,25 @@ inline float kJumpBuffer          = 0.14f;    // seconds a too-early tap is reme
 inline int   kMercyBestBelow      = 600;      // players whose best is below this get mercy saves ...
 inline int   kMercySaves          = 1;        // ... this many per run
 inline float kReviveTurbo         = 2.2f;     // turbo seconds granted on revive so the rider can't re-die at once
+inline float kStartGrace          = 1.2f;     // collision grace when a run begins
+inline float kBigAirMin           = 0.85f;    // seconds in the air that count as a trick
+inline int   kBigAirCoins         = 5;
+
+// Gadgets (menu loadout). The pool below is the data source; these are only safety defaults.
+inline int   kGadgetSlots         = 2;
+inline float kGadgetMagnetSeconds = 8.0f;
+inline float kGadgetShieldSeconds = 12.0f;
+inline int   kGadgetHeadStartM    = 150;
+inline int   kGadgetHelmetSaves   = 1;
 
 // Revive
 inline int   kReviveCost          = 100;
 inline float kReviveCountdown     = 5.0f;
+
+// Rewarded-video economy
+inline int   kFreeCoinsAmount     = 100;
+inline int   kFreeCoinsCooldown   = 300;      // seconds between free-coin videos
+inline float kDoubleCoinsMultiplier = 2.0f;   // 2 = the run's coins paid again as a bonus
 
 // UI layout: design units reserved along the bottom edge for the AdMob banner (nothing is placed there).
 inline float kBannerReserve       = 104.0f;
@@ -206,6 +261,24 @@ inline int   kXpPerStage       = 40;
 
 // Daily reward (index = streak day, wraps after the last entry)
 inline std::vector<int> kDailyRewards = {50, 75, 100, 150, 200, 300, 500};
+
+// Gadgets (Jetpack-Joyride-style loadout) ------------------------------------------------------
+// `id` is the behaviour key (magnet / shield / headstart / helmet); the rest is presentation/tuning.
+struct GadgetTemplate {
+    std::string id;
+    std::string name;
+    std::string desc;
+    std::string icon;      // short glyph shown in the round icon
+    int unlockLevel = 1;
+    float value = 0.f;     // seconds for magnet/shield, metres for headstart, saves for helmet
+};
+
+inline std::vector<GadgetTemplate> kGadgetPool = {
+    {"magnet",    "COIN MAGNET",  "START WITH A MAGNET",  "M", 1, 8.f},
+    {"shield",    "FORCE SHIELD", "START WITH A SHIELD",  "S", 3, 12.f},
+    {"headstart", "HEAD START",   "BEGIN 150M AHEAD",     "H", 5, 150.f},
+    {"helmet",    "LUCKY HELMET", "ONE FREE HIT PER RUN", "L", 7, 1.f},
+};
 
 // Missions ------------------------------------------------------------------------------------
 enum class MissionType {
@@ -245,9 +318,10 @@ inline std::vector<MissionTemplate> kMissionPool = {
 // ---------------------------------------------------------------------------------------------
 // Optional art overrides (relative to Content/Images/HD). Used only when the file exists.
 // ---------------------------------------------------------------------------------------------
-inline const char* kArtOrbMagnet = "powerup_magnet.png";
-inline const char* kArtOrbShield = "powerup_shield.png";
-inline const char* kArtOrbTurbo  = "powerup_turbo.png";
-inline const char* kArtOrbBlast  = "powerup_blast.png";
+inline const char* kArtOrbMagnet  = "powerup_magnet.png";
+inline const char* kArtOrbShield  = "powerup_shield.png";
+inline const char* kArtOrbTurbo   = "powerup_turbo.png";
+inline const char* kArtOrbBlast   = "powerup_blast.png";
+inline const char* kArtOrbJetpack = "powerup_jetpack.png";
 
 } // namespace PZCfg

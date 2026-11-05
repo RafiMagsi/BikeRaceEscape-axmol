@@ -4,6 +4,7 @@
 #include "PZProgress.h"
 #include "PZSettingsController.h"
 
+#include <algorithm>
 #include <cmath>
 #include <ctime>
 
@@ -17,6 +18,9 @@ const char* kKeyLastClaim = "PZP_DailyLast";
 const char* kKeyStreak    = "PZP_DailyStreak";
 const char* kKeyMissionDay= "PZP_MissionDay";
 const char* kKeyHaptics   = "PZP_Haptics";
+const char* kKeyGadget    = "PZP_Gadget";
+const char* kKeyGadgetInit= "PZP_GadgetInit";
+const char* kKeyFreeCoins = "PZP_FreeCoinsAt";
 
 std::string slotKey(const char* name, int slot) {
     return std::string("PZP_M") + std::to_string(slot) + "_" + name;
@@ -31,6 +35,20 @@ bool isSingleRunType(PZCfg::MissionType t) {
 PZProgress::PZProgress() {
     PZCfg::ensureLoaded();
     load();
+
+    // First install: hand the player the first unlocked gadget so the loadout isn't an empty mystery.
+    auto* ud = UserDefault::getInstance();
+    if (!ud->getBoolForKey(kKeyGadgetInit, false)) {
+        _gadgets.clear();
+        for (int i = 0; i < gadgetPoolCount() && static_cast<int>(_gadgets.size()) < PZCfg::kGadgetSlots; ++i) {
+            if (gadgetUnlocked(i)) {
+                _gadgets.push_back(PZCfg::kGadgetPool[i].id);
+                break;
+            }
+        }
+        ud->setBoolForKey(kKeyGadgetInit, true);
+        save();
+    }
 }
 
 void PZProgress::setHapticsEnabled(bool on) {
@@ -73,6 +91,17 @@ void PZProgress::load() {
     _streak       = ud->getIntegerForKey(kKeyStreak, 0);
     _missionDay   = ud->getIntegerForKey(kKeyMissionDay, -1);
     _haptics      = ud->getBoolForKey(kKeyHaptics, PZCfg::kEnableHaptics);
+    _lastFreeCoins = ud->getIntegerForKey(kKeyFreeCoins, -100000);
+
+    _gadgets.clear();
+    const int slots = std::max(0, PZCfg::kGadgetSlots);
+    for (int i = 0; i < slots; ++i) {
+        const std::string key = std::string(kKeyGadget) + std::to_string(i);
+        const auto sv = ud->getStringForKey(key.c_str(), "");
+        const std::string id(sv.data(), sv.size());
+        const int idx = gadgetPoolIndex(id);
+        if (idx >= 0 && gadgetUnlocked(idx) && !gadgetSelected(id)) _gadgets.push_back(id);
+    }
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         _missions[i].templateIdx = ud->getIntegerForKey(slotKey("T", i).c_str(), i);
         _missions[i].progress    = ud->getIntegerForKey(slotKey("P", i).c_str(), 0);
@@ -91,12 +120,83 @@ void PZProgress::save() {
     ud->setIntegerForKey(kKeyLastClaim, _lastClaimDay);
     ud->setIntegerForKey(kKeyStreak, _streak);
     ud->setIntegerForKey(kKeyMissionDay, _missionDay);
+    ud->setIntegerForKey(kKeyFreeCoins, _lastFreeCoins);
+    for (int i = 0; i < std::max(0, PZCfg::kGadgetSlots); ++i) {
+        const std::string key = std::string(kKeyGadget) + std::to_string(i);
+        ud->setStringForKey(key.c_str(), i < static_cast<int>(_gadgets.size()) ? _gadgets[i] : std::string());
+    }
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         ud->setIntegerForKey(slotKey("T", i).c_str(), _missions[i].templateIdx);
         ud->setIntegerForKey(slotKey("P", i).c_str(), _missions[i].progress);
         ud->setBoolForKey(slotKey("C", i).c_str(), _missions[i].claimed);
     }
     ud->flush();
+}
+
+// ---- gadgets ---------------------------------------------------------------------------------
+
+int PZProgress::gadgetPoolIndex(const std::string& id) const {
+    for (int i = 0; i < gadgetPoolCount(); ++i) {
+        if (PZCfg::kGadgetPool[i].id == id) return i;
+    }
+    return -1;
+}
+
+const std::string& PZProgress::gadgetAt(int slot) const {
+    static const std::string empty;
+    if (slot < 0 || slot >= static_cast<int>(_gadgets.size())) return empty;
+    return _gadgets[slot];
+}
+
+bool PZProgress::gadgetUnlocked(int poolIndex) const {
+    if (poolIndex < 0 || poolIndex >= gadgetPoolCount()) return false;
+    return level() >= PZCfg::kGadgetPool[poolIndex].unlockLevel;
+}
+
+bool PZProgress::gadgetSelected(const std::string& id) const {
+    return std::find(_gadgets.begin(), _gadgets.end(), id) != _gadgets.end();
+}
+
+int PZProgress::selectedGadgetCount() const {
+    return static_cast<int>(_gadgets.size());
+}
+
+void PZProgress::toggleGadget(const std::string& id) {
+    const int idx = gadgetPoolIndex(id);
+    if (idx < 0 || !gadgetUnlocked(idx)) return;
+    auto it = std::find(_gadgets.begin(), _gadgets.end(), id);
+    if (it != _gadgets.end()) {
+        _gadgets.erase(it);
+    } else if (static_cast<int>(_gadgets.size()) < std::max(0, PZCfg::kGadgetSlots)) {
+        _gadgets.push_back(id);
+    } else {
+        return;   // loadout full: deselect a card first
+    }
+    save();
+}
+
+// ---- rewarded-video economy ------------------------------------------------------------------
+
+int PZProgress::freeCoinsSecondsLeft() const {
+    const int now = static_cast<int>(std::time(nullptr));
+    const int elapsed = now - _lastFreeCoins;
+    return std::max(0, PZCfg::kFreeCoinsCooldown - elapsed);
+}
+
+bool PZProgress::freeCoinsAvailable() const {
+    return PZCfg::kEnableFreeCoins && freeCoinsSecondsLeft() <= 0;
+}
+
+int PZProgress::claimFreeCoins(int amount) {
+    if (!freeCoinsAvailable() || amount <= 0) return 0;
+    _lastFreeCoins = static_cast<int>(std::time(nullptr));
+    awardCoins(amount);
+    save();
+    return amount;
+}
+
+void PZProgress::awardCoins(int amount) {
+    grantCoins(amount);
 }
 
 // ---- level -----------------------------------------------------------------------------------

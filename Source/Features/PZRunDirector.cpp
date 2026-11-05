@@ -70,7 +70,8 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
     _shieldAura = DrawNode::create();
     _magnetAura = DrawNode::create();
     _turboAura = DrawNode::create();
-    for (DrawNode* a : {_shieldAura, _magnetAura, _turboAura}) {
+    _jetpackAura = DrawNode::create();
+    for (DrawNode* a : {_shieldAura, _magnetAura, _turboAura, _jetpackAura}) {
         a->setVisible(false);
         scene->addChild(a, kZAura);
     }
@@ -81,9 +82,12 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
     _magnetAura->drawCircle(Vec2::ZERO, 52.f, 0.f, 24, false, PZUI::c4f(PZCfg::kColMagnet, 0.5f), 2.f);
     _turboAura->drawSolidCircle(Vec2::ZERO, 70.f, 0.f, 28, PZUI::c4f(PZCfg::kColTurbo, 0.20f));
     _turboAura->drawCircle(Vec2::ZERO, 70.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColTurbo, 0.9f), 3.f);
+    _jetpackAura->drawSolidCircle(Vec2::ZERO, 62.f, 0.f, 28, PZUI::c4f(PZCfg::kColJetpack, 0.13f));
+    _jetpackAura->drawCircle(Vec2::ZERO, 76.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColJetpack, 0.55f), 2.f);
+    _jetpackAura->drawCircle(Vec2::ZERO, 68.f, 0.f, 28, false, PZUI::c4f(Color3B(255, 255, 255), 0.30f), 1.2f);
 
     // Power-up chips along the top of the screen: bronze orb icon with a framed timer bar underneath.
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 5; ++i) {
         HudRow& r = _rows[i];
         r.root = Node::create();
         r.root->setVisible(false);
@@ -113,6 +117,11 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
     _tracker->addChild(_trackerCount);
     _tracker->setVisible(false);
     _hud->addChild(_tracker);
+
+    // Equipped gadget strip (small bronze discs under the coin counter).
+    _gadgetStrip = Node::create();
+    _gadgetStrip->setVisible(false);
+    _hud->addChild(_gadgetStrip);
 
     // Speed lines (pooled).
     for (int i = 0; i < 9; ++i) {
@@ -173,11 +182,12 @@ void PZRunDirector::layoutHud() {
     const Rect safe = PZLayout::safeRect();
     // Chips sit centred just under the distance / best read-outs; the combo counter hangs under the coin counter and
     // the mission tracker under the pause button, so nothing overlaps the original HUD.
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 5; ++i) {
         _rows[i].root->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 126.f));
     }
-    _comboLabel->setPosition(Vec2(safe.getMinX() + 24.f, safe.getMaxY() - 100.f));
-    if (_tracker) _tracker->setPosition(Vec2(safe.getMaxX() - 130.f, safe.getMaxY() - 112.f));
+    _comboLabel->setPosition(Vec2(safe.getMinX() + 24.f, safe.getMaxY() - 162.f));
+    if (_tracker) _tracker->setPosition(Vec2(safe.getMaxX() - 130.f, safe.getMaxY() - 150.f));
+    if (_gadgetStrip) _gadgetStrip->setPosition(Vec2(safe.getMinX() + 24.f, safe.getMaxY() - 122.f));
 }
 
 void PZRunDirector::onLoaded() {
@@ -195,6 +205,7 @@ void PZRunDirector::onLoaded() {
     _hud->addChild(_bestLabel);
     layoutHud();
     refreshHud();
+    refreshGadgetStrip();
 }
 
 void PZRunDirector::refreshHud() {
@@ -203,6 +214,32 @@ void PZRunDirector::refreshHud() {
         std::snprintf(buf, sizeof(buf), PZCfg::kStrBest, PZProgress::shared()->bestScore());
         _bestLabel->setString(buf);
     }
+}
+
+void PZRunDirector::refreshGadgetStrip() {
+    if (!_gadgetStrip) return;
+    _gadgetStrip->removeAllChildren();
+    if (!PZCfg::kEnableGadgets) {
+        _gadgetStrip->setVisible(false);
+        return;
+    }
+    auto* pg = PZProgress::shared();
+    const int count = std::min(pg->selectedGadgetCount(), std::max(0, PZCfg::kGadgetSlots));
+    for (int i = 0; i < count; ++i) {
+        const std::string id = pg->gadgetAt(i);
+        const int idx = pg->gadgetPoolIndex(id);
+        if (idx < 0) continue;
+        const auto& def = PZCfg::kGadgetPool[idx];
+        auto* disc = DrawNode::create();
+        disc->drawSolidCircle(Vec2::ZERO, 12.f, 0.f, 20, PZUI::c4f(PZCfg::kColPanel, 0.92f));
+        disc->drawCircle(Vec2::ZERO, 12.f, 0.f, 20, false, PZUI::c4f(PZCfg::kColPanelEdge), 2.f);
+        disc->setPosition(Vec2(i * 30.f, 0.f));
+        _gadgetStrip->addChild(disc);
+        auto* glyph = PZUI::heading(def.icon, 10.f, PZCfg::kColAccent);
+        glyph->setPosition(Vec2(i * 30.f, 0.f));
+        _gadgetStrip->addChild(glyph);
+    }
+    _gadgetStrip->setVisible(count > 0);
 }
 
 void PZRunDirector::clearRunVisuals() {
@@ -218,6 +255,7 @@ void PZRunDirector::clearRunVisuals() {
     _shieldAura->setVisible(false);
     _magnetAura->setVisible(false);
     _turboAura->setVisible(false);
+    _jetpackAura->setVisible(false);
     for (auto& r : _rows) r.root->setVisible(false);
     _comboLabel->setVisible(false);
     _tint->stopAllActions();
@@ -248,6 +286,7 @@ void PZRunDirector::startRun() {
     _freezeUntil = std::chrono::steady_clock::time_point{};
     _stats = PZRunStats();
     _nextOrbAt = PZCfg::kPowerUpFirstDelay;
+    _helmetSaves = 0;
     _trackerSlot = -1;
     _trackerClock = 0.f;
     for (bool& d : _trackerDone) d = false;
@@ -256,7 +295,43 @@ void PZRunDirector::startRun() {
     if (_scene && _scene->character && _scene->character->p_body) {
         _scene->character->p_body->SetGravityScale(1.f);
     }
+    if (PZCfg::kEnableStartGrace) _graceT = PZCfg::kStartGrace;
+    applyGadgets();
+    refreshGadgetStrip();
     refreshHud();
+
+    const float winH = Director::getInstance()->getWinSize().height;
+    const bool newcomer = PZProgress::shared()->bestScore() <= 0;
+    PZUI::banner(_scene, PZCfg::kStrGo, newcomer ? PZCfg::kStrStartHint : "", PZCfg::kColGood, winH * 0.62f, 1.15f);
+    PZHaptics::play(PZHaptics::Kind::Selection);
+}
+
+void PZRunDirector::applyGadgets() {
+    if (!PZCfg::kEnableGadgets || !_scene) return;
+    auto* pg = PZProgress::shared();
+    const int count = std::min(pg->selectedGadgetCount(), std::max(0, PZCfg::kGadgetSlots));
+    for (int i = 0; i < count; ++i) {
+        const std::string id = pg->gadgetAt(i);
+        const int idx = pg->gadgetPoolIndex(id);
+        if (idx < 0 || !pg->gadgetUnlocked(idx)) continue;
+        const float value = PZCfg::kGadgetPool[idx].value;
+        if (id == "magnet") {
+            _magnetT = _magnetMax = value > 0.f ? value : PZCfg::kGadgetMagnetSeconds;
+        } else if (id == "shield") {
+            _shieldT = _shieldMax = value > 0.f ? value : PZCfg::kGadgetShieldSeconds;
+        } else if (id == "headstart") {
+            const int metres = static_cast<int>(value > 0.f ? value : PZCfg::kGadgetHeadStartM);
+            _scene->gf_distance += metres;
+            char buf[48];
+            std::snprintf(buf, sizeof(buf), PZCfg::kStrHeadStart, metres);
+            PZUI::floatText(_scene, buf, Vec2(PZLayout::safeRect().getMidX(),
+                                             Director::getInstance()->getWinSize().height * 0.52f),
+                            PZCfg::kColAccent2, 12.f, kZFx);
+            PZUI::burst(_scene, riderPos(), PZCfg::kColAccent2, 12, 80.f, 0.5f, kZFx);
+        } else if (id == "helmet") {
+            _helmetSaves = std::max(1, static_cast<int>(value > 0.f ? value : PZCfg::kGadgetHelmetSaves));
+        }
+    }
 }
 
 void PZRunDirector::update(float dt) {
@@ -277,6 +352,7 @@ void PZRunDirector::update(float dt) {
     updateOrbs(dt, scroll);
     updateMagnet(dt);
     updateTurboRide(dt);
+    updateJetpackRide(dt);
     updateWaves(dt);
     updateKills(dt);
     updateNearMiss();
@@ -414,6 +490,7 @@ Color3B PZRunDirector::colorFor(PowerUp kind) {
     case PowerUp::Magnet: return PZCfg::kColMagnet;
     case PowerUp::Shield: return PZCfg::kColShield;
     case PowerUp::Blast:  return PZCfg::kColBlast;
+    case PowerUp::Jetpack:return PZCfg::kColJetpack;
     default:              return PZCfg::kColTurbo;
     }
 }
@@ -423,6 +500,7 @@ const char* PZRunDirector::nameFor(PowerUp kind) {
     case PowerUp::Magnet: return PZCfg::kStrMagnet;
     case PowerUp::Shield: return PZCfg::kStrShield;
     case PowerUp::Blast:  return PZCfg::kStrBlastName;
+    case PowerUp::Jetpack:return PZCfg::kStrJetpackName;
     default:              return PZCfg::kStrTurbo;
     }
 }
@@ -436,7 +514,8 @@ Node* PZRunDirector::makeOrbVisual(PowerUp kind, float scale) const {
     const Color3B col = colorFor(kind);
     const char* art = kind == PowerUp::Magnet ? PZCfg::kArtOrbMagnet
                     : kind == PowerUp::Shield ? PZCfg::kArtOrbShield
-                    : kind == PowerUp::Blast  ? PZCfg::kArtOrbBlast : PZCfg::kArtOrbTurbo;
+                    : kind == PowerUp::Blast  ? PZCfg::kArtOrbBlast
+                    : kind == PowerUp::Jetpack ? PZCfg::kArtOrbJetpack : PZCfg::kArtOrbTurbo;
     const float r = PZCfg::kOrbRadius * scale;
     if (PZUI::fileExists(art)) {
         auto* spr = Sprite::create(art);
@@ -456,7 +535,8 @@ Node* PZRunDirector::makeOrbVisual(PowerUp kind, float scale) const {
     root->addChild(d);
     const char* icon = kind == PowerUp::Magnet ? PZCfg::kStrMagnetIcon
                      : kind == PowerUp::Shield ? PZCfg::kStrShieldIcon
-                     : kind == PowerUp::Blast  ? PZCfg::kStrBlastIcon : PZCfg::kStrTurboIcon;
+                     : kind == PowerUp::Blast  ? PZCfg::kStrBlastIcon
+                     : kind == PowerUp::Jetpack ? PZCfg::kStrJetpackIcon : PZCfg::kStrTurboIcon;
     auto* l = PZUI::heading(icon, 18.f * scale, col);
     root->addChild(l);
     if (scale >= 0.9f) {
@@ -478,12 +558,14 @@ void PZRunDirector::spawnOrb() {
     const float y = std::min(win.height - 120.f, gy + lift + CCRANDOM_0_1() * 30.f);
 
     const float wM = PZCfg::kWeightMagnet, wS = PZCfg::kWeightShield, wT = PZCfg::kWeightTurbo, wB = PZCfg::kWeightBlast;
-    const float total = std::max(0.001f, wM + wS + wT + wB);
+    const float wJ = PZCfg::kEnableJetpack ? PZCfg::kWeightJetpack : 0.f;
+    const float total = std::max(0.001f, wM + wS + wT + wB + wJ);
     const float r = CCRANDOM_0_1() * total;
     PowerUp kind = PowerUp::Blast;
     if (r < wM) kind = PowerUp::Magnet;
     else if (r < wM + wS) kind = PowerUp::Shield;
     else if (r < wM + wS + wT) kind = PowerUp::Turbo;
+    else if (r >= wM + wS + wT + wB) kind = PowerUp::Jetpack;
 
     Orb orb;
     orb.kind = kind;
@@ -494,7 +576,7 @@ void PZRunDirector::spawnOrb() {
 }
 
 void PZRunDirector::updateOrbs(float dt, float scroll) {
-    if (PZCfg::kEnablePowerUps && _time >= _nextOrbAt && _orbs.empty() && _turboT <= 0.f) {
+    if (PZCfg::kEnablePowerUps && _time >= _nextOrbAt && _orbs.empty() && _turboT <= 0.f && _jetpackT <= 0.f) {
         spawnOrb();
         _nextOrbAt = _time + PZCfg::kPowerUpIntervalMin +
                      CCRANDOM_0_1() * (PZCfg::kPowerUpIntervalMax - PZCfg::kPowerUpIntervalMin);
@@ -531,6 +613,7 @@ void PZRunDirector::grantByName(const std::string& name) {
 }
 
 void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride) {
+    if (_jetpackT > 0.f && kind == PowerUp::Turbo) return;   // flight owns gravity; ignore turbo pickups mid-air
     const bool bonus = durationOverride > 0.f;      // granted by revive: no pickup chrome
     const Color3B col = colorFor(kind);
     if (!bonus) {
@@ -568,6 +651,27 @@ void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride
         PZUI::banner(_scene, PZCfg::kStrBlast, "", col, Director::getInstance()->getWinSize().height * 0.6f, 0.6f);
         runAction(Sequence::create(DelayTime::create(0.14f), CallFunc::create([]() { PZHaptics::play(PZHaptics::Kind::Medium); }), nullptr));
         break;
+    case PowerUp::Jetpack:
+        if (_jetpackT <= 0.f) {
+            if (turboActive()) endTurbo();
+            if (_scene->character && _scene->character->p_body) {
+                float gy = riderPos().y;
+                float ground = 0.f;
+                if (platform() && platform()->groundYAt(riderPos().x, ground)) gy = ground;
+                const float maxY = Director::getInstance()->getWinSize().height - 150.f;
+                _jetpackLockY = std::min(maxY, gy + PZCfg::kJetpackHeight * kDeviceScale());
+                _scene->character->p_body->SetGravityScale(0.f);
+                _scene->character->jump_counter = 1;
+            }
+            PZUI::shake(_scene, Vec2::ZERO, 8.f, 0.35f);
+            flash(col, 0.3f, 0.3f);
+            PZUI::banner(_scene, PZCfg::kStrJetpack, "", col,
+                         Director::getInstance()->getWinSize().height * 0.6f, 0.7f);
+            PZHaptics::play(PZHaptics::Kind::Heavy);
+        }
+        _jetpackT = _jetpackMax = bonus ? durationOverride : PZCfg::kJetpackDuration;
+        _jetpackCoinClock = 0.f;
+        break;
     }
 }
 
@@ -578,19 +682,24 @@ void PZRunDirector::updatePowerUps(float dt) {
         _turboT -= dt;
         if (_turboT <= 0.f) endTurbo();
     }
+    if (_jetpackT > 0.f) {
+        _jetpackT -= dt;
+        if (_jetpackT <= 0.f) endJetpack();
+    }
     const float target = _turboT > 0.f ? PZCfg::kTurboSpeedMult : 1.f;
     _boost += (target - _boost) * std::min(1.f, dt * 4.f);
     if (std::abs(_boost - target) < 0.002f) _boost = target;
 
-    const float left[4] = {_magnetT, _shieldT, _turboT, 0.f};
-    const float full[4] = {std::max(_magnetMax, 0.01f), std::max(_shieldMax, 0.01f), std::max(_turboMax, 0.01f), 1.f};
-    const PowerUp kinds[4] = {PowerUp::Magnet, PowerUp::Shield, PowerUp::Turbo, PowerUp::Blast};
+    const float left[5] = {_magnetT, _shieldT, _turboT, _jetpackT, 0.f};
+    const float full[5] = {std::max(_magnetMax, 0.01f), std::max(_shieldMax, 0.01f), std::max(_turboMax, 0.01f),
+                           std::max(_jetpackMax, 0.01f), 1.f};
+    const PowerUp kinds[5] = {PowerUp::Magnet, PowerUp::Shield, PowerUp::Turbo, PowerUp::Jetpack, PowerUp::Blast};
     const Rect safe = PZLayout::safeRect();
     int active = 0;
-    for (int i = 0; i < 3; ++i) if (left[i] > 0.f) ++active;
-    const float spacing = 92.f;
+    for (int i = 0; i < 4; ++i) if (left[i] > 0.f) ++active;
+    const float spacing = 86.f;
     int slot = 0;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 4; ++i) {
         HudRow& r = _rows[i];
         if (left[i] > 0.f) {
             const float frac = left[i] / full[i];
@@ -604,7 +713,7 @@ void PZRunDirector::updatePowerUps(float dt) {
             r.root->setVisible(false);
         }
     }
-    _rows[3].root->setVisible(false);
+    _rows[4].root->setVisible(false);
 }
 
 void PZRunDirector::updateMagnet(float dt) {
@@ -681,6 +790,71 @@ void PZRunDirector::endTurbo() {
     ch->jump_counter = 1;   // airborne until the platform contact re-grounds the rider
     PZUI::burst(_scene, ch->loc, PZCfg::kColTurbo, 14, 80.f, 0.5f, kZFx);
     ring(ch->loc, PZCfg::kColTurbo, 150.f, 0.45f);
+    PZHaptics::play(PZHaptics::Kind::Medium);
+}
+
+void PZRunDirector::updateJetpackRide(float dt) {
+    if (_jetpackT <= 0.f || !_scene->character || !_scene->character->p_body) return;
+    PZGCharacter* ch = _scene->character;
+
+    // Hover on the flight line with a light bob; the world scrolls underneath.
+    const float bob = std::sin(_auraClock * 7.f) * 7.f;
+    const float dy = (_jetpackLockY + bob) - ch->loc.y;
+    ch->p_body->SetLinearVelocity(b2Vec2(0.f, dy * 8.f * kPhysicsWorldScale()));
+    ch->jump_counter = 1;
+
+    // Clear anything in the flight path (and pay smash coins through destroyObstacle).
+    if (platform()) {
+        const Rect rb = riderBox();
+        for (int i = 0; i < platform()->obstacleSlots(); ++i) {
+            PZGObstacle* o = platform()->obstacleAt(i);
+            if (!o || o->dead || !o->sprite || !o->destroyCharacter) continue;
+            if (o->worldBox().intersectsRect(rb)) destroyObstacle(o, Style::Explode);
+        }
+    }
+
+    // Flame trail + afterimages.
+    _trailClock += dt;
+    if (_trailClock > 0.035f) {
+        _trailClock = 0.f;
+        PZUI::burst(_scene, ch->loc + Vec2(-30.f, -16.f), PZCfg::kColJetpack, 3, 34.f, 0.3f, kZFx - 12);
+        PZUI::burst(_scene, ch->loc + Vec2(-30.f, -16.f), PZCfg::kColTurbo, 1, 22.f, 0.22f, kZFx - 12);
+        riderAfterimage(PZCfg::kColJetpack);
+    }
+
+    // A ribbon of coins pays for the ride; they fly to the HUD so the count stays readable.
+    _jetpackCoinClock += dt;
+    if (_jetpackCoinClock >= std::max(0.05f, PZCfg::kJetpackCoinEvery)) {
+        _jetpackCoinClock = 0.f;
+        const int n = std::max(1, PZCfg::kJetpackCoinsPerTick);
+        awardBonus(n, ch->loc + Vec2(0.f, 30.f), "", PZCfg::kColAccent);
+        if (PZCfg::kEnableFx) coinFly(ch->loc + Vec2(20.f, 12.f));
+        PZHaptics::play(PZHaptics::Kind::Tick);
+    }
+}
+
+void PZRunDirector::endJetpack() {
+    PZGCharacter* ch = _scene->character;
+    if (!ch || !ch->p_body) return;
+    _jetpackT = 0.f;
+    ch->p_body->SetGravityScale(1.f);
+    _graceT = std::max(_graceT, 1.2f);
+
+    // Land on the nearest solid ground, sliding the world if the rider is over a gap.
+    float gy = 0.f;
+    PZGGamefieldPlatforms* p = platform();
+    if (p) {
+        if (!p->groundYAt(ch->loc.x, gy)) {
+            p->alignForRevive(ch->loc.x, gy);
+            if (!p->groundYAt(ch->loc.x, gy)) gy = _jetpackLockY - (_haveOffset ? _riderOffset : 0.f);
+        }
+        ch->setLoc(Vec2(ch->loc.x, gy + (_haveOffset ? _riderOffset : 0.f) + 4.f));
+        ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+    }
+    ch->jump_counter = 1;   // airborne until the platform contact re-grounds the rider
+    PZUI::burst(_scene, ch->loc, PZCfg::kColJetpack, 18, 95.f, 0.55f, kZFx);
+    ring(ch->loc, PZCfg::kColJetpack, 170.f, 0.45f);
+    PZUI::shake(_scene, Vec2::ZERO, 4.f, 0.2f);
     PZHaptics::play(PZHaptics::Kind::Medium);
 }
 
@@ -844,6 +1018,10 @@ bool PZRunDirector::mercyAvailable() const {
 
 bool PZRunDirector::onObstacleHit(PZGObstacle* o) {
     if (!o) return false;
+    if (_jetpackT > 0.f) {
+        destroyObstacle(o, Style::Explode);
+        return true;
+    }
     if (turboActive()) {
         destroyObstacle(o, Style::Launch);
         return true;
@@ -970,6 +1148,12 @@ void PZRunDirector::updateAuras(float dt) {
         _turboAura->setPosition(rp);
         _turboAura->setScale(pulse * 1.05f);
     }
+    _jetpackAura->setVisible(_jetpackT > 0.f);
+    if (_jetpackT > 0.f) {
+        _jetpackAura->setPosition(rp);
+        _jetpackAura->setScale(1.f + 0.06f * std::sin(_auraClock * 11.f));
+        _jetpackAura->setOpacity(_jetpackT < 1.5f && std::fmod(_auraClock, 0.25f) < 0.12f ? 110 : 255);
+    }
 }
 
 void PZRunDirector::updateSpeedLines(float dt) {
@@ -1003,7 +1187,7 @@ void PZRunDirector::updateFx(float dt, float scroll) {
     // Jump / landing events, detected from the rider's grounded counter.
     const int jc = ch->jump_counter;
     const float groundY = riderPos().y - (_haveOffset ? _riderOffset : 40.f);
-    if (!turboActive()) {
+    if (!turboActive() && _jetpackT <= 0.f) {
         if (_prevJump == 0 && jc != 0 && ch->p_body && ch->p_body->GetLinearVelocity().y > 0.f) {
             dustPuff(Vec2(riderPos().x - 30.f, groundY + 6.f), 4, 70.f);
             PZHaptics::play(PZHaptics::Kind::Light);
@@ -1016,13 +1200,21 @@ void PZRunDirector::updateFx(float dt, float scroll) {
                 PZUI::shake(_scene, Vec2::ZERO, 1.5f + 2.5f * strength, 0.12f);
                 PZHaptics::play(strength > 0.55f ? PZHaptics::Kind::Medium : PZHaptics::Kind::Light);
             }
+            if (PZCfg::kEnableBigAir && _airTime >= PZCfg::kBigAirMin) {
+                char buf[40];
+                std::snprintf(buf, sizeof(buf), PZCfg::kStrBigAir, PZCfg::kBigAirCoins);
+                awardBonus(PZCfg::kBigAirCoins, Vec2(riderPos().x, riderPos().y + 58.f), buf, PZCfg::kColAccent2);
+                PZUI::burst(_scene, riderPos(), PZCfg::kColAccent, 16, 100.f, 0.55f, kZFx);
+                ring(Vec2(riderPos().x, groundY + 4.f), PZCfg::kColAccent, 120.f, 0.4f);
+                PZHaptics::play(PZHaptics::Kind::Success);
+            }
         }
         _airTime = (jc != 0) ? _airTime + dt : 0.f;
     }
     _prevJump = jc;
 
     // Running dust at the rear wheel while grounded.
-    if (jc == 0 && !turboActive()) {
+    if (jc == 0 && !turboActive() && _jetpackT <= 0.f) {
         _dustClock += dt;
         if (_dustClock > 0.07f) {
             _dustClock = 0.f;
@@ -1096,6 +1288,17 @@ bool PZRunDirector::onDeath() {
         PZHaptics::play(PZHaptics::Kind::Warning);
         return true;
     }
+    // Lucky Helmet gadget: one free hit/fall per run.
+    if (_helmetSaves > 0) {
+        --_helmetSaves;
+        rescueRider();
+        PZUI::banner(_scene, PZCfg::kStrLuckyHelmet, "", PZCfg::kColShield,
+                     Director::getInstance()->getWinSize().height * 0.6f, 0.8f);
+        PZUI::burst(_scene, riderPos(), PZCfg::kColShield, 14, 90.f, 0.5f, kZFx);
+        flash(PZCfg::kColShield, 0.3f, 0.35f);
+        PZHaptics::play(PZHaptics::Kind::Warning);
+        return true;
+    }
     // Beginners get a free second chance so early runs don't end on the first mistake.
     if (mercyAvailable()) {
         ++_mercyUsed;
@@ -1111,8 +1314,9 @@ bool PZRunDirector::onDeath() {
     PZHaptics::play(PZHaptics::Kind::Error);
     if (!PZCfg::kEnableRevive || _reviveOffered) return false;
     auto* sc = PZSettingsController::shared();
-    const bool video = PZCfg::kEnableReviveVideo && PZ::AdsController::shared()->isRewardedAvailable();
+    const bool video = PZCfg::kEnableReviveVideo;   // offered even while the ad is still loading; the popup polls
     if (sc->coins < PZCfg::kReviveCost && !video) return false;     // nothing to offer: go straight to game over
+    if (video) PZ::AdsController::shared()->requestRewarded();
     _reviveOffered = true;
 
     _scene->gameOver = true;     // freeze the world while the offer is up
@@ -1206,9 +1410,18 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     _shieldAura->setVisible(false);
     _magnetAura->setVisible(false);
     _turboAura->setVisible(false);
+    _jetpackAura->setVisible(false);
+    if (_gadgetStrip) _gadgetStrip->setVisible(false);
     _comboLabel->setVisible(false);
-    _magnetT = _shieldT = _turboT = 0.f;
+    _magnetT = _shieldT = _turboT = _jetpackT = 0.f;
     const PZRunResult result = PZProgress::shared()->commitRun(_stats);
     refreshHud();
-    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, result);
+    auto claimDoubleCoins = [this]() -> int {
+        const int extra = static_cast<int>(std::lround(_stats.coins * (PZCfg::kDoubleCoinsMultiplier - 1.f)));
+        if (extra <= 0) return 0;
+        if (_scene) _scene->addBonusCoins(extra);
+        PZSettingsController::shared()->save();
+        return extra;
+    };
+    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, result, claimDoubleCoins);
 }

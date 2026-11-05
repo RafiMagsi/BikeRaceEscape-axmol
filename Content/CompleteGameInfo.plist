@@ -7694,6 +7694,8 @@
 			<string>powerup_shield.png</string>
 			<key>ArtOrbTurbo</key>
 			<string>powerup_turbo.png</string>
+			<key>ArtOrbJetpack</key>
+			<string>powerup_jetpack.png</string>
 		</dict>
 		<key>daily</key>
 		<dict>
@@ -7739,6 +7741,18 @@
 			<key>EnableShake</key>
 			<true/>
 			<key>EnableStages</key>
+			<true/>
+			<key>EnableGadgets</key>
+			<true/>
+			<key>EnableJetpack</key>
+			<true/>
+			<key>EnableFreeCoins</key>
+			<true/>
+			<key>EnableDoubleCoins</key>
+			<true/>
+			<key>EnableBigAir</key>
+			<true/>
+			<key>EnableStartGrace</key>
 			<true/>
 		</dict>
 		<key>missions</key>
@@ -7847,6 +7861,77 @@
 				</dict>
 			</array>
 		</dict>
+		<key>rewards</key>
+		<dict>
+			<key>FreeCoinsAmount</key>
+			<integer>100</integer>
+			<key>FreeCoinsCooldown</key>
+			<integer>300</integer>
+			<key>DoubleCoinsMultiplier</key>
+			<real>2.0</real>
+		</dict>
+		<key>gadgets</key>
+		<dict>
+			<key>Pool</key>
+			<array>
+				<dict>
+					<key>Id</key>
+					<string>magnet</string>
+					<key>Name</key>
+					<string>COIN MAGNET</string>
+					<key>Desc</key>
+					<string>START WITH A MAGNET</string>
+					<key>Icon</key>
+					<string>M</string>
+					<key>UnlockLevel</key>
+					<integer>1</integer>
+					<key>Value</key>
+					<real>8.0</real>
+				</dict>
+				<dict>
+					<key>Id</key>
+					<string>shield</string>
+					<key>Name</key>
+					<string>FORCE SHIELD</string>
+					<key>Desc</key>
+					<string>START WITH A SHIELD</string>
+					<key>Icon</key>
+					<string>S</string>
+					<key>UnlockLevel</key>
+					<integer>3</integer>
+					<key>Value</key>
+					<real>12.0</real>
+				</dict>
+				<dict>
+					<key>Id</key>
+					<string>headstart</string>
+					<key>Name</key>
+					<string>HEAD START</string>
+					<key>Desc</key>
+					<string>BEGIN 150M AHEAD</string>
+					<key>Icon</key>
+					<string>H</string>
+					<key>UnlockLevel</key>
+					<integer>5</integer>
+					<key>Value</key>
+					<real>150.0</real>
+				</dict>
+				<dict>
+					<key>Id</key>
+					<string>helmet</string>
+					<key>Name</key>
+					<string>LUCKY HELMET</string>
+					<key>Desc</key>
+					<string>ONE FREE HIT PER RUN</string>
+					<key>Icon</key>
+					<string>L</string>
+					<key>UnlockLevel</key>
+					<integer>7</integer>
+					<key>Value</key>
+					<real>1.0</real>
+				</dict>
+			</array>
+		</dict>
 		<key>strings</key>
 		<dict>
 			<key>StrBest</key>
@@ -7947,6 +8032,60 @@
 			<string>T</string>
 			<key>StrVibration</key>
 			<string>VIBRATION</string>
+			<key>StrJetpackName</key>
+			<string>JETPACK</string>
+			<key>StrJetpackIcon</key>
+			<string>J</string>
+			<key>StrJetpack</key>
+			<string>JETPACK!</string>
+			<key>StrBigAir</key>
+			<string>BIG AIR! +%d</string>
+			<key>StrStartHint</key>
+			<string>TAP TO JUMP</string>
+			<key>StrHeadStart</key>
+			<string>HEAD START +%dM</string>
+			<key>StrLuckyHelmet</key>
+			<string>LUCKY HELMET!</string>
+			<key>StrReviveSub</key>
+			<string>KEEP YOUR RUN + TURBO</string>
+			<key>StrVideoNoAd</key>
+			<string>NO VIDEO RIGHT NOW</string>
+			<key>StrVideoRetry</key>
+			<string>TRY AGAIN</string>
+			<key>StrFreeCoinsBtn</key>
+			<string>FREE COINS</string>
+			<key>StrFreeCoinsTitle</key>
+			<string>FREE COINS</string>
+			<key>StrFreeCoinsSub</key>
+			<string>+%d COINS</string>
+			<key>StrFreeCoinsWait</key>
+			<string>READY IN %s</string>
+			<key>StrFreeCoinsReady</key>
+			<string>FREE IN %s</string>
+			<key>StrDoubleCoins</key>
+			<string>DOUBLE COINS</string>
+			<key>StrDoubleClaimed</key>
+			<string>DOUBLED! +%d</string>
+			<key>StrDoubleCoinsSub</key>
+			<string>+%d BONUS COINS</string>
+			<key>StrGadgetsTitle</key>
+			<string>GADGETS</string>
+			<key>StrGadgetsSub</key>
+			<string>EQUIP UP TO %d</string>
+			<key>StrGadgetsBtn</key>
+			<string>GADGETS</string>
+			<key>StrGadgetLocked</key>
+			<string>UNLOCKS AT LV %d</string>
+			<key>StrGadgetEquipped</key>
+			<string>EQUIPPED</string>
+			<key>StrResultsDistance</key>
+			<string>DISTANCE %d</string>
+			<key>StrStatsDistance</key>
+			<string>DISTANCE</string>
+			<key>StrStatsCoins</key>
+			<string>COINS</string>
+			<key>StrStatsBest</key>
+			<string>BEST</string>
 		</dict>
 		<key>theme</key>
 		<dict>
@@ -7997,6 +8136,12 @@
 				<integer>120</integer>
 				<integer>225</integer>
 				<integer>80</integer>
+			</array>
+			<key>ColJetpack</key>
+			<array>
+				<integer>120</integer>
+				<integer>235</integer>
+				<integer>255</integer>
 			</array>
 			<key>ColMagnet</key>
 			<array>
@@ -8163,13 +8308,39 @@
 			<key>TurboSpeedMult</key>
 			<real>1.55</real>
 			<key>WeightBlast</key>
-			<real>0.24</real>
+			<real>0.2</real>
 			<key>WeightMagnet</key>
-			<real>0.28</real>
+			<real>0.26</real>
 			<key>WeightShield</key>
-			<real>0.28</real>
+			<real>0.26</real>
 			<key>WeightTurbo</key>
 			<real>0.2</real>
+			<key>WeightJetpack</key>
+			<real>0.08</real>
+			<key>JetpackDuration</key>
+			<real>6.0</real>
+			<key>JetpackHeight</key>
+			<real>250.0</real>
+			<key>JetpackCoinEvery</key>
+			<real>0.3</real>
+			<key>JetpackCoinsPerTick</key>
+			<integer>1</integer>
+			<key>StartGrace</key>
+			<real>1.2</real>
+			<key>BigAirMin</key>
+			<real>0.85</real>
+			<key>BigAirCoins</key>
+			<integer>5</integer>
+			<key>GadgetSlots</key>
+			<integer>2</integer>
+			<key>GadgetMagnetSeconds</key>
+			<real>8.0</real>
+			<key>GadgetShieldSeconds</key>
+			<real>12.0</real>
+			<key>GadgetHeadStartM</key>
+			<integer>150</integer>
+			<key>GadgetHelmetSaves</key>
+			<integer>1</integer>
 			<key>XpPerCoin</key>
 			<integer>2</integer>
 			<key>XpPerDistance</key>

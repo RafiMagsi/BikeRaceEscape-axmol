@@ -24,7 +24,7 @@ class PZGCoin;
 
 class PZRunDirector : public ax::Node {
 public:
-    enum class PowerUp { Magnet = 0, Shield = 1, Turbo = 2, Blast = 3 };
+    enum class PowerUp { Magnet = 0, Shield = 1, Turbo = 2, Blast = 3, Jetpack = 4 };
 
     static PZRunDirector* create(PZGGameFieldScene* scene);
 
@@ -47,6 +47,7 @@ public:
     // Gives the rider a power-up right now (also usable for rewards).
     void grant(PowerUp kind);
     void grantByName(const std::string& name);
+    int  coinsEarned() const { return _stats.coins; }
 
     void reviveAccepted(bool paidWithCoins);
     void reviveFromVideo();
@@ -82,6 +83,7 @@ private:
     void clearRunVisuals();
     void layoutHud();
     void refreshHud();
+    void refreshGadgetStrip();
     void updateMissionTracker(float dt);
     void updateStage();
     void updateCombo(float dt);
@@ -90,6 +92,9 @@ private:
     void updateMagnet(float dt);
     void updateNearMiss();
     void updateTurboRide(float dt);
+    void updateJetpackRide(float dt);
+    void applyGadgets();
+    void endJetpack();
     void updateWaves(float dt);
     void updateKills(float dt);
     void updateSpeedLines(float dt);
@@ -133,6 +138,9 @@ private:
     float _boost = 1.f;
     float _magnetT = 0.f, _shieldT = 0.f, _turboT = 0.f, _graceT = 0.f;
     float _magnetMax = 1.f, _shieldMax = 1.f, _turboMax = 1.f;
+    float _jetpackT = 0.f, _jetpackMax = 1.f, _jetpackLockY = 0.f;
+    float _jetpackCoinClock = 0.f;
+    int   _helmetSaves = 0;
     int   _combo = 0;
     float _comboT = 0.f;
     bool  _reviveOffered = false;
@@ -161,7 +169,8 @@ private:
     ax::Label* _comboLabel = nullptr;
     ax::Node* _hud = nullptr;
     struct HudRow { ax::Node* root = nullptr; ax::DrawNode* bar = nullptr; ax::Node* icon = nullptr; ax::Label* name = nullptr; };
-    HudRow _rows[4];
+    HudRow _rows[5];
+    ax::Node* _gadgetStrip = nullptr;
     ax::Node* _tracker = nullptr;
     ax::Label* _trackerText = nullptr;
     ax::Label* _trackerCount = nullptr;
@@ -172,6 +181,7 @@ private:
     ax::DrawNode* _shieldAura = nullptr;
     ax::DrawNode* _magnetAura = nullptr;
     ax::DrawNode* _turboAura = nullptr;
+    ax::DrawNode* _jetpackAura = nullptr;
     std::vector<ax::DrawNode*> _speedLines;
     std::vector<ax::DrawNode*> _motes;
 };

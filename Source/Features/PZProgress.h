@@ -74,6 +74,22 @@ public:
     std::string missionText(int slot) const;
     std::string timeUntilNewMissions() const;
 
+    // --- gadgets (menu loadout; ids come from PZCfg::kGadgetPool) ---
+    int  gadgetSlotCount() const { return PZCfg::kGadgetSlots; }
+    int  gadgetPoolCount() const { return static_cast<int>(PZCfg::kGadgetPool.size()); }
+    int  gadgetPoolIndex(const std::string& id) const;
+    const std::string& gadgetAt(int slot) const;
+    bool gadgetUnlocked(int poolIndex) const;
+    bool gadgetSelected(const std::string& id) const;
+    int  selectedGadgetCount() const;
+    void toggleGadget(const std::string& id);
+
+    // --- rewarded-video economy ---
+    bool freeCoinsAvailable() const;
+    int  freeCoinsSecondsLeft() const;      // 0 when available
+    int  claimFreeCoins(int amount);        // grants the coins and starts the cooldown
+    void awardCoins(int amount);            // coins from a rewarded video / bonus, saved immediately
+
     // --- settings ---
     bool hapticsEnabled() const { return _haptics; }
     void setHapticsEnabled(bool on);
@@ -96,5 +112,7 @@ private:
     int  _streak = 0;
     int  _missionDay = -1;
     bool _haptics = true;
+    std::vector<std::string> _gadgets;      // equipped gadget ids (validated on load)
+    int  _lastFreeCoins = -100000;
     PZMission _missions[PZCfg::kMissionsPerDay];
 };

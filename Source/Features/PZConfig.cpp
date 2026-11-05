@@ -16,7 +16,9 @@
 #include "PZGameConfig.h"
 #include "PZLegacyCompat.h"
 
+#include <algorithm>
 #include <deque>
+#include <utility>
 
 USING_NS_AX;
 
@@ -93,7 +95,7 @@ void ensureLoaded() {
     R(theme, FontPath);
     R(theme, ColText); R(theme, ColDim); R(theme, ColAccent); R(theme, ColAccent2); R(theme, ColGood); R(theme, ColBad);
     R(theme, ColPanel); R(theme, ColPanelEdge); R(theme, ColPanelEdge2); R(theme, ColButton); R(theme, ColButtonDark);
-    R(theme, ColMagnet); R(theme, ColShield); R(theme, ColTurbo); R(theme, ColBlast);
+    R(theme, ColMagnet); R(theme, ColShield); R(theme, ColTurbo); R(theme, ColBlast); R(theme, ColJetpack);
     if (auto* t = find(theme, "StageTints"); t && t->getType() == Value::Type::VECTOR) {
         std::vector<StageTint> tints;
         for (const auto& row : t->asValueVector()) {
@@ -109,19 +111,26 @@ void ensureLoaded() {
     const ValueMap* str = section(*root, "strings");
     R(str, StrBest); R(str, StrNewBest); R(str, StrStage); R(str, StrStageSub); R(str, StrCloseCall); R(str, StrCombo);
     R(str, StrComboBonus); R(str, StrSmash); R(str, StrShieldBreak); R(str, StrBlast); R(str, StrSaved); R(str, StrGo);
-    R(str, StrMagnet); R(str, StrShield); R(str, StrTurbo); R(str, StrBlastName);
-    R(str, StrMagnetIcon); R(str, StrShieldIcon); R(str, StrTurboIcon); R(str, StrBlastIcon);
-    R(str, StrReviveTitle); R(str, StrReviveBtn); R(str, StrReviveNoCoins); R(str, StrReviveSkip); R(str, StrReviveCoins); R(str, StrReviveVideo); R(str, StrReviveFree); R(str, StrReviveLoading); R(str, StrMissionTrack);
+    R(str, StrMagnet); R(str, StrShield); R(str, StrTurbo); R(str, StrBlastName); R(str, StrJetpackName);
+    R(str, StrMagnetIcon); R(str, StrShieldIcon); R(str, StrTurboIcon); R(str, StrBlastIcon); R(str, StrJetpackIcon);
+    R(str, StrJetpack); R(str, StrBigAir); R(str, StrStartHint); R(str, StrHeadStart); R(str, StrLuckyHelmet);
+    R(str, StrReviveTitle); R(str, StrReviveBtn); R(str, StrReviveNoCoins); R(str, StrReviveSkip); R(str, StrReviveCoins); R(str, StrReviveVideo); R(str, StrReviveFree); R(str, StrReviveLoading); R(str, StrReviveSub); R(str, StrMissionTrack);
+    R(str, StrVideoNoAd); R(str, StrVideoRetry); R(str, StrFreeCoinsBtn); R(str, StrFreeCoinsTitle); R(str, StrFreeCoinsSub); R(str, StrFreeCoinsWait); R(str, StrFreeCoinsReady);
+    R(str, StrDoubleCoins); R(str, StrDoubleClaimed); R(str, StrDoubleCoinsSub);
+    R(str, StrGadgetsTitle); R(str, StrGadgetsSub); R(str, StrGadgetsBtn); R(str, StrGadgetLocked); R(str, StrGadgetEquipped);
     R(str, StrDailyTitle); R(str, StrDailyDay); R(str, StrDailyClaim); R(str, StrDailyStreak); R(str, StrDailyBtn);
     R(str, StrMissionsTitle); R(str, StrMissionsBtn); R(str, StrMissionClaim); R(str, StrMissionDone);
     R(str, StrMissionNew); R(str, StrClose);
-    R(str, StrResultsBest); R(str, StrResultsCoins); R(str, StrResultsLevel); R(str, StrLevelUp);
+    R(str, StrResultsBest); R(str, StrResultsCoins); R(str, StrResultsDistance); R(str, StrResultsLevel); R(str, StrLevelUp);
+    R(str, StrStatsDistance); R(str, StrStatsCoins); R(str, StrStatsBest);
     R(str, StrMissionToast); R(str, StrLevelPlate); R(str, StrVibration); R(str, StrOn); R(str, StrOff);
 
     const ValueMap* feat = section(*root, "features");
     R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
     R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
     R(feat, EnableFairPlacement); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
+    R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableDoubleCoins);
+    R(feat, EnableBigAir); R(feat, EnableStartGrace);
 
     const ValueMap* tun = section(*root, "tuning");
     R(tun, StageLength); R(tun, StageCoinBonus);
@@ -136,9 +145,15 @@ void ensureLoaded() {
     R(tun, DensityStart); R(tun, DensityFullDistance); R(tun, SafeLanding); R(tun, SafeTakeoff);
     R(tun, ClusterMaxWidth); R(tun, ClusterGap); R(tun, ArcCoinCount); R(tun, ArcHeight);
     R(tun, JumpBuffer); R(tun, MercyBestBelow); R(tun, MercySaves); R(tun, ReviveTurbo);
+    R(tun, StartGrace); R(tun, BigAirMin); R(tun, BigAirCoins);
+    R(tun, GadgetSlots); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
+    R(tun, JetpackDuration); R(tun, JetpackHeight); R(tun, JetpackCoinEvery); R(tun, JetpackCoinsPerTick); R(tun, WeightJetpack);
     R(tun, ReviveCost); R(tun, ReviveCountdown); R(tun, BannerReserve); R(tun, SmashCoins);
     R(tun, HitStop); R(tun, DustPuffs); R(tun, HapticCoinInterval);
     R(tun, XpPerLevelUnit); R(tun, LevelUpCoins); R(tun, XpPerDistance); R(tun, XpPerCoin); R(tun, XpPerStage);
+
+    const ValueMap* rewards = section(*root, "rewards");
+    R(rewards, FreeCoinsAmount); R(rewards, FreeCoinsCooldown); R(rewards, DoubleCoinsMultiplier);
 
     const ValueMap* daily = section(*root, "daily");
     if (auto* r = find(daily, "Rewards"); r && r->getType() == Value::Type::VECTOR) {
@@ -163,8 +178,29 @@ void ensureLoaded() {
         if (static_cast<int>(pool.size()) >= kMissionsPerDay) kMissionPool = pool;
     }
 
+    const ValueMap* gadgets = section(*root, "gadgets");
+    if (auto* p = find(gadgets, "Pool"); p && p->getType() == Value::Type::VECTOR) {
+        std::vector<GadgetTemplate> pool;
+        for (const auto& row : p->asValueVector()) {
+            if (row.getType() != Value::Type::MAP) continue;
+            const auto& g = row.asValueMap();
+            auto id = g.find("Id"), name = g.find("Name"), desc = g.find("Desc"), icon = g.find("Icon");
+            auto lv = g.find("UnlockLevel"), val = g.find("Value");
+            if (id == g.end() || name == g.end() || icon == g.end()) continue;
+            GadgetTemplate t;
+            t.id = id->second.asString();
+            t.name = name->second.asString();
+            t.desc = desc != g.end() ? desc->second.asString() : "";
+            t.icon = icon->second.asString();
+            t.unlockLevel = lv != g.end() ? std::max(1, lv->second.asInt()) : 1;
+            t.value = val != g.end() ? val->second.asFloat() : 0.f;
+            if (!t.id.empty()) pool.push_back(std::move(t));
+        }
+        if (!pool.empty()) kGadgetPool = std::move(pool);
+    }
+
     const ValueMap* art = section(*root, "art");
-    R(art, ArtOrbMagnet); R(art, ArtOrbShield); R(art, ArtOrbTurbo); R(art, ArtOrbBlast);
+    R(art, ArtOrbMagnet); R(art, ArtOrbShield); R(art, ArtOrbTurbo); R(art, ArtOrbBlast); R(art, ArtOrbJetpack);
 
     AXLOGI("[PZCfg] loaded metaFeatures overrides from CompleteGameInfo.plist");
 }
