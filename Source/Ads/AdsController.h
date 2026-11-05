@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -50,6 +51,15 @@ public:
     void loadRewarded(const AdRequest& request);
     void showRewarded();
 
+    // Opt-in rewarded video (e.g. revive). Independent of "Remove Ads": the player asked for it.
+    // `requestRewarded()` preloads one (idempotent); `showRewardedWithCallback` reports whether the reward was
+    // earned (false when nothing was ready, the ad failed, or the player closed it early).
+    void requestRewarded();
+    bool isRewardedAvailable() const;
+    void showRewardedWithCallback(std::function<void(bool earned)> callback);
+    // Called by the platform providers (game thread) when a rewarded ad finishes.
+    void handleRewardedFinished(bool earned);
+
 private:
     AdsController() = default;
 
@@ -62,6 +72,7 @@ private:
     int bannerCounters_[6]{};
     int interstitialCounters_[6]{};
     int rewardedCounters_[6]{};
+    std::function<void(bool)> rewardedCallback_;
     bool nextInterstitialAdMob_{true};
 
     // "Free game" button: show the first cached interstitial, otherwise load and show the first that fills.

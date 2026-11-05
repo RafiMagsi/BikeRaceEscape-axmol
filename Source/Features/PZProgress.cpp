@@ -16,6 +16,7 @@ const char* kKeyRuns      = "PZP_Runs";
 const char* kKeyLastClaim = "PZP_DailyLast";
 const char* kKeyStreak    = "PZP_DailyStreak";
 const char* kKeyMissionDay= "PZP_MissionDay";
+const char* kKeyHaptics   = "PZP_Haptics";
 
 std::string slotKey(const char* name, int slot) {
     return std::string("PZP_M") + std::to_string(slot) + "_" + name;
@@ -27,7 +28,16 @@ bool isSingleRunType(PZCfg::MissionType t) {
 }
 } // namespace
 
-PZProgress::PZProgress() { load(); }
+PZProgress::PZProgress() {
+    PZCfg::ensureLoaded();
+    load();
+}
+
+void PZProgress::setHapticsEnabled(bool on) {
+    _haptics = on;
+    UserDefault::getInstance()->setBoolForKey(kKeyHaptics, on);
+    UserDefault::getInstance()->flush();
+}
 
 PZProgress* PZProgress::shared() {
     static PZProgress* instance = new PZProgress();
@@ -62,11 +72,12 @@ void PZProgress::load() {
     _lastClaimDay = ud->getIntegerForKey(kKeyLastClaim, -1000);
     _streak       = ud->getIntegerForKey(kKeyStreak, 0);
     _missionDay   = ud->getIntegerForKey(kKeyMissionDay, -1);
+    _haptics      = ud->getBoolForKey(kKeyHaptics, PZCfg::kEnableHaptics);
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         _missions[i].templateIdx = ud->getIntegerForKey(slotKey("T", i).c_str(), i);
         _missions[i].progress    = ud->getIntegerForKey(slotKey("P", i).c_str(), 0);
         _missions[i].claimed     = ud->getBoolForKey(slotKey("C", i).c_str(), false);
-        if (_missions[i].templateIdx < 0 || _missions[i].templateIdx >= PZCfg::kMissionPoolCount) {
+        if (_missions[i].templateIdx < 0 || _missions[i].templateIdx >= static_cast<int>(PZCfg::kMissionPool.size())) {
             _missions[i].templateIdx = i;
         }
     }
@@ -115,7 +126,7 @@ int PZProgress::dailyPendingDay() const {
 
 int PZProgress::dailyPendingReward() const {
     const int day = dailyPendingDay();
-    return PZCfg::kDailyRewards[(day - 1) % PZCfg::kDailyRewardCount];
+    return PZCfg::kDailyRewards[(day - 1) % static_cast<int>(PZCfg::kDailyRewards.size())];
 }
 
 int PZProgress::claimDaily() {
@@ -142,14 +153,14 @@ void PZProgress::refreshMissions() {
     int n = 0;
     int guard = 0;
     while (n < PZCfg::kMissionsPerDay && guard++ < 200) {
-        const int idx = static_cast<int>(next() % PZCfg::kMissionPoolCount);
+        const int idx = static_cast<int>(next() % PZCfg::kMissionPool.size());
         bool clash = false;
         for (int i = 0; i < n; ++i) {
             if (chosen[i] == idx || PZCfg::kMissionPool[chosen[i]].type == PZCfg::kMissionPool[idx].type) clash = true;
         }
         if (!clash) chosen[n++] = idx;
     }
-    for (; n < PZCfg::kMissionsPerDay; ++n) chosen[n] = n % PZCfg::kMissionPoolCount;
+    for (; n < PZCfg::kMissionsPerDay; ++n) chosen[n] = n % static_cast<int>(PZCfg::kMissionPool.size());
 
     for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
         _missions[i].templateIdx = chosen[i];
@@ -187,10 +198,29 @@ int PZProgress::claimMission(int slot) {
     return reward;
 }
 
+int PZProgress::livePreview(int slot, const PZRunStats& s) const {
+    using T = PZCfg::MissionType;
+    const PZMission& m = _missions[slot];
+    const auto& t = missionTemplate(slot);
+    int cur = 0;
+    switch (t.type) {
+    case T::RunDistance: cur = s.distance; break;
+    case T::RunCoins:    cur = s.coins; break;
+    case T::ReachStage:  cur = s.stage; break;
+    case T::ComboChain:  cur = s.maxCombo; break;
+    case T::TotalCoins:  cur = s.coins; break;
+    case T::PlayRuns:    cur = 0; break;
+    case T::NearMisses:  cur = s.nearMisses; break;
+    case T::PowerUps:    cur = s.powerUps; break;
+    case T::SmashObstacles: cur = s.smashed; break;
+    }
+    return isSingleRunType(t.type) ? std::max(m.progress, cur) : m.progress + cur;
+}
+
 std::string PZProgress::missionText(int slot) const {
     const auto& t = missionTemplate(slot);
     char buf[96];
-    std::snprintf(buf, sizeof(buf), t.text, t.target);
+    std::snprintf(buf, sizeof(buf), t.text.c_str(), t.target);
     return buf;
 }
 
@@ -254,6 +284,7 @@ PZRunResult PZProgress::commitRun(const PZRunStats& s) {
             case T::PlayRuns:    add = 1; break;
             case T::NearMisses:  add = s.nearMisses; break;
             case T::PowerUps:    add = s.powerUps; break;
+            case T::SmashObstacles: add = s.smashed; break;
             }
             if (isSingleRunType(t.type)) {
                 m.progress = std::max(m.progress, single);

@@ -20,6 +20,8 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 /**
  * Java side of the AdMob bridge. Called from C++ (AdsProviderAdMob.cpp) through JniHelper.
@@ -35,6 +37,14 @@ public class AdsBridge {
     private static InterstitialAd interstitial;
     private static volatile boolean interstitialReady = false;
     private static boolean interstitialLoading = false;
+
+    private static RewardedAd rewarded;
+    private static volatile boolean rewardedReady = false;
+    private static boolean rewardedLoading = false;
+    private static boolean rewardEarned = false;
+
+    /** Reports to C++ (PZ::AdsController::handleRewardedFinished) once a rewarded ad has finished. */
+    private static native void nativeOnRewardedFinished(boolean earned);
 
     public static void init(Activity a) {
         activity = a;
@@ -120,6 +130,65 @@ public class AdsBridge {
                 }
             });
             ad.show(activity);
+        });
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Rewarded video (used for "watch a video to revive")
+    // ------------------------------------------------------------------------------------------
+
+    public static void loadRewarded(final String unitId) {
+        UI.post(() -> {
+            if (activity == null || unitId == null || unitId.isEmpty()) return;
+            if (rewardedLoading || rewardedReady) return;
+            rewardedLoading = true;
+            RewardedAd.load(activity, unitId, new AdRequest.Builder().build(), new RewardedAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull RewardedAd ad) {
+                    rewarded = ad;
+                    rewardedReady = true;
+                    rewardedLoading = false;
+                    Log.i(TAG, "rewarded loaded");
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError e) {
+                    rewarded = null;
+                    rewardedReady = false;
+                    rewardedLoading = false;
+                    Log.w(TAG, "rewarded failed: " + e.getMessage());
+                }
+            });
+        });
+    }
+
+    public static boolean isRewardedReady() {
+        return rewardedReady;
+    }
+
+    public static void showRewarded() {
+        UI.post(() -> {
+            if (activity == null || rewarded == null) {
+                nativeOnRewardedFinished(false);
+                return;
+            }
+            final RewardedAd ad = rewarded;
+            rewarded = null;
+            rewardedReady = false;
+            rewardEarned = false;
+            ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    nativeOnRewardedFinished(rewardEarned);
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(@NonNull AdError e) {
+                    Log.w(TAG, "rewarded show failed: " + e.getMessage());
+                    nativeOnRewardedFinished(false);
+                }
+            });
+            ad.show(activity, rewardItem -> rewardEarned = true);
         });
     }
 }

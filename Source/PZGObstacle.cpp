@@ -439,3 +439,11 @@ void PZGObstacle::destroyPhysics( b2World* world ){
         body = NULL;
     }
 }
+
+
+ax::Rect PZGObstacle::worldBox() const {
+    if (!sprite) {
+        return ax::Rect(getPositionX(), getPositionY(), 0, 0);
+    }
+    return ax::RectApplyAffineTransform(sprite->getBoundingBox(), getNodeToParentAffineTransform());
+}

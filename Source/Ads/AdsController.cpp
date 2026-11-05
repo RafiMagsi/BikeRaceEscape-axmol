@@ -170,6 +170,58 @@ void AdsController::showRewarded() {
     provider_->showRewarded();
 }
 
+namespace {
+std::string rewardedPlacementId(const AdsConfig& cfg) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    std::string id = cfg.admob.rewardedIdIOS;
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    std::string id = cfg.admob.rewardedIdAndroid;
+#else
+    std::string id;
+#endif
+#ifndef NDEBUG
+    // Debug builds only: fall back to Google's public sample rewarded unit so the flow can be exercised before a
+    // real unit exists. Release builds with an empty id simply have no rewarded video (the option is hidden).
+    if (id.empty()) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+        id = "ca-app-pub-3940256099942544/1712485313";
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+        id = "ca-app-pub-3940256099942544/5224354917";
+#endif
+    }
+#endif
+    return id;
+}
+} // namespace
+
+void AdsController::requestRewarded() {
+    if (!provider_ || !initialized_) return;
+    const std::string id = rewardedPlacementId(config_);
+    if (id.empty()) return;
+    provider_->loadRewarded({id});
+}
+
+bool AdsController::isRewardedAvailable() const {
+    return provider_ && initialized_ && provider_->isRewardedReady();
+}
+
+void AdsController::showRewardedWithCallback(std::function<void(bool)> callback) {
+    if (!isRewardedAvailable()) {
+        if (callback) callback(false);
+        requestRewarded();
+        return;
+    }
+    rewardedCallback_ = std::move(callback);
+    provider_->showRewarded();
+}
+
+void AdsController::handleRewardedFinished(bool earned) {
+    auto cb = std::move(rewardedCallback_);
+    rewardedCallback_ = nullptr;
+    requestRewarded();     // cache the next one
+    if (cb) cb(earned);
+}
+
 void AdsController::selectAdMobInterstitial(bool admob) {
     if (auto* mux = dynamic_cast<AdsProviderMux*>(provider_.get())) {
         mux->useBannerProviderForInterstitial(admob);

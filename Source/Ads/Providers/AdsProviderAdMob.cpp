@@ -3,6 +3,8 @@
 #include "PZLegacyCompat.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include <jni.h>
+#include "Ads/AdsController.h"
 #include "platform/android/jni/JniHelper.h"
 namespace {
 constexpr const char* kBridge = "dev/axmol/app/AdsBridge";
@@ -53,9 +55,20 @@ void AdsProviderAdMob::showInterstitial() {
     ax::JniHelper::callStaticVoidMethod(kBridge, "showInterstitial");
 }
 
-bool AdsProviderAdMob::isRewardedReady() const { return false; }
-void AdsProviderAdMob::loadRewarded(const AdRequest& request) { (void)request; }
-void AdsProviderAdMob::showRewarded() {}
+bool AdsProviderAdMob::isRewardedReady() const {
+    return initialized_ && ax::JniHelper::callStaticBooleanMethod(kBridge, "isRewardedReady");
+}
+
+void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
+    if (!initialized_) return;
+    lastRewardedPlacement_ = request.placementId;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "loadRewarded", lastRewardedPlacement_);
+}
+
+void AdsProviderAdMob::showRewarded() {
+    if (!initialized_) return;
+    ax::JniHelper::callStaticVoidMethod(kBridge, "showRewarded");
+}
 
 #elif (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 
@@ -144,4 +157,14 @@ void AdsProviderAdMob::showRewarded() {
 // Real iOS AdMob implementation should live in an ObjC++ file and be compiled only when
 // the Google Mobile Ads SDK is present. We intentionally keep this provider as a stub
 // to avoid breaking builds for contributors who haven't added the SDK yet.
+#endif
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+// Java -> C++: a rewarded ad finished. Hop to the game thread before touching game state.
+extern "C" JNIEXPORT void JNICALL Java_dev_axmol_app_AdsBridge_nativeOnRewardedFinished(JNIEnv*, jclass, jboolean earned) {
+    const bool didEarn = earned == JNI_TRUE;
+    ax::Director::getInstance()->getScheduler()->runOnAxmolThread([didEarn]() {
+        PZ::AdsController::shared()->handleRewardedFinished(didEarn);
+    });
+}
 #endif

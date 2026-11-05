@@ -19,6 +19,7 @@
 #include "PZGPlatfrom.h"
 
 #include "SharedData/PZGGameInfoLevelItem.h"
+#include <vector>
 
 #define kMaxBasicRunnerObsctales 32
 #define kMaxBasicRunnerCoins 32
@@ -50,6 +51,11 @@ class PZGGamefieldPlatforms : public ax::Layer {
     bool prefillPending;
 
     
+    void registerObstacle( PZGObstacle* obstacle );
+    void registerCoin( PZGCoin* coin );
+    void finalizeChunk( std::vector<PZGObstacle*>& pending, PZGPlatfrom* platform );
+    void addCoinArc( const ax::Vec2& from, const ax::Vec2& to, float peakRise, int count, const std::vector<ax::Rect>& avoid );
+
     int getCoinIndex( PZGGameInfoLevelItem *item );
     int getObstacleIndex( PZGGameInfoLevelItem *item );
     
@@ -76,6 +82,10 @@ public:
     void addCoins( int typeId );
     
     float platfromsBetweenDistance;
+
+    // Height (scene units) of the rider's jump apex; set by the owning gamefield so obstacle placement can
+    // reject anything that could not be jumped on this platform's physics scale.
+    float riderApex = 160.0f;
     
     PZGGameInfoLevel* getLevelInfo(float distance, int platform_type_id);
     

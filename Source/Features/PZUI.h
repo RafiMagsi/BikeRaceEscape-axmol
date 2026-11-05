@@ -18,6 +18,15 @@ inline ax::Color4F c4f(const ax::Color3B& c, float a = 1.f) {
 // Arcade-font label with system-font fallback. `size` is in design units.
 ax::Label* label(const std::string& text, float size, const ax::Color3B& color = PZCfg::kColText);
 
+// Heading style used across the game: bold gold arcade text with a dark outline.
+ax::Label* heading(const std::string& text, float size, const ax::Color3B& color = PZCfg::kColAccent);
+
+// Original-game panel: dark navy body, bronze ring with a light-gold inner line and a soft drop shadow.
+ax::Node* panel(float w, float h, float radius = 22.f);
+
+// The game's own coin art (falls back to a drawn coin). `size` is the on-screen diameter.
+ax::Node* coinIcon(float size);
+
 // Rounded rectangle centred on (0,0) of the returned node.
 ax::DrawNode* roundedRect(float w, float h, float radius, const ax::Color3B& fill, float fillAlpha,
                           const ax::Color3B& border, float borderAlpha = 1.f, float borderWidth = 2.f);

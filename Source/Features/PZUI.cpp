@@ -2,6 +2,9 @@
 //  PZUI.cpp
 //
 #include "PZUI.h"
+#include "PZHaptics.h"
+#include "SharedData/PZGSharedData.h"
+#include "SharedData/PZGArtCoins.h"
 #include <cmath>
 #include <vector>
 
@@ -39,6 +42,47 @@ Label* label(const std::string& text, float size, const Color3B& color) {
     }
     if (l) l->setColor(color);
     return l;
+}
+
+Label* heading(const std::string& text, float size, const Color3B& color) {
+    Label* l = label(text, size, color);
+    if (l) l->enableOutline(Color4B(40, 16, 0, 255), std::max(2, static_cast<int>(size / 7.f)));
+    return l;
+}
+
+Node* coinIcon(float size) {
+    auto* gsd = PZGSharedData::sharedInstanse();
+    if (gsd && gsd->artResource) {
+        if (auto* coins = static_cast<__Array*>(gsd->artResource->objectForKey("Coins")); coins && coins->count() > 0) {
+            if (auto* art = dynamic_cast<PZGArtCoins*>(coins->objectAtIndex(0))) {
+                if (Sprite* spr = art->getResource()) {
+                    const float base = std::max(spr->getContentSize().width, spr->getContentSize().height);
+                    if (base > 1.f) {
+                        spr->setScale(size / base);
+                        spr->setAnchorPoint(Vec2(0.5f, 0.5f));
+                        auto* holder = Node::create();
+                        holder->addChild(spr);
+                        return holder;
+                    }
+                }
+            }
+        }
+    }
+    auto* d = DrawNode::create();
+    d->drawSolidCircle(Vec2::ZERO, size * 0.5f, 0.f, 20, c4f(PZCfg::kColAccent));
+    d->drawCircle(Vec2::ZERO, size * 0.5f, 0.f, 20, false, c4f(Color3B(140, 90, 10)), 2.f);
+    d->drawCircle(Vec2::ZERO, size * 0.28f, 0.f, 16, false, c4f(Color3B(190, 130, 20)), 1.5f);
+    return d;
+}
+
+Node* panel(float w, float h, float radius) {
+    auto* root = Node::create();
+    auto* shadow = roundedRect(w + 6.f, h + 6.f, radius + 3.f, Color3B(0, 0, 0), 0.40f, Color3B(0, 0, 0), 0.f, 0.f);
+    shadow->setPosition(Vec2(0, -7));
+    root->addChild(shadow);
+    root->addChild(roundedRect(w, h, radius, PZCfg::kColPanel, 0.97f, PZCfg::kColPanelEdge, 1.f, 5.f));
+    root->addChild(roundedRect(w - 16.f, h - 16.f, std::max(4.f, radius - 7.f), PZCfg::kColPanel, 0.f, PZCfg::kColPanelEdge2, 0.55f, 1.5f));
+    return root;
 }
 
 DrawNode* roundedRect(float w, float h, float radius, const Color3B& fill, float fillAlpha, const Color3B& border,
@@ -107,6 +151,7 @@ bool Button::initButton(const std::string& text, float w, float h, const Color3B
         const Vec2 p = convertToNodeSpace(t->getLocation());
         const bool inside = std::abs(p.x - _w * 0.5f) <= _w * 0.5f && std::abs(p.y - _h * 0.5f) <= _h * 0.5f;
         if (inside && _onTap) {
+            PZHaptics::play(PZHaptics::Kind::Selection);
             auto cb = _onTap;   // the callback may remove this button
             cb();
         }
@@ -123,15 +168,25 @@ bool Button::initButton(const std::string& text, float w, float h, const Color3B
 void Button::rebuild() {
     if (_bg) _bg->removeFromParent();
     if (_label) _label->removeFromParent();
-    const Color3B fill = _active ? Color3B(_color.r / 4, _color.g / 4, _color.b / 4) : Color3B(40, 44, 52);
-    const Color3B edge = _active ? _color : Color3B(90, 96, 108);
-    _bg = roundedRect(_w, _h, std::min(_h * 0.32f, 14.f), fill, 0.92f, edge, 1.f, 2.5f);
+    // Orange-pill look from the original UI: drop shadow, white outline, glossy two-tone body.
+    const Color3B base = _active ? _color : Color3B(96, 98, 108);
+    const Color3B dark(static_cast<uint8_t>(base.r * 0.58f), static_cast<uint8_t>(base.g * 0.58f), static_cast<uint8_t>(base.b * 0.58f));
+    const Color3B light(static_cast<uint8_t>(base.r + (255 - base.r) * 0.32f), static_cast<uint8_t>(base.g + (255 - base.g) * 0.32f),
+                        static_cast<uint8_t>(base.b + (255 - base.b) * 0.32f));
+    const float r = _h * 0.5f;
+    _bg = DrawNode::create();
+    auto add = [this](DrawNode* d, const Vec2& off) { d->setPosition(off); _bg->addChild(d); };
+    add(roundedRect(_w + 8.f, _h + 8.f, r + 4.f, Color3B(0, 0, 0), 0.38f, Color3B(0, 0, 0), 0.f, 0.f), Vec2(0, -5.f));
+    add(roundedRect(_w + 6.f, _h + 6.f, r + 3.f, Color3B(255, 255, 255), _active ? 1.f : 0.7f, Color3B(255, 255, 255), 0.f, 0.f), Vec2(0, 0));
+    add(roundedRect(_w, _h, r, dark, 1.f, dark, 0.f, 0.f), Vec2(0, 0));
+    add(roundedRect(_w - 6.f, _h * 0.66f, r * 0.8f, base, 1.f, base, 0.f, 0.f), Vec2(0, _h * 0.08f));
+    add(roundedRect(_w - 22.f, _h * 0.26f, r * 0.4f, light, 0.55f, light, 0.f, 0.f), Vec2(0, _h * 0.22f));
     _bg->setPosition(Vec2(_w * 0.5f, _h * 0.5f));
     addChild(_bg, 0);
-    _label = label(_text, _fontSize, _active ? PZCfg::kColText : PZCfg::kColDim);
-    _label->setPosition(Vec2(_w * 0.5f, _h * 0.5f));
+    _label = heading(_text, _fontSize, _active ? PZCfg::kColText : PZCfg::kColDim);
+    _label->setPosition(Vec2(_w * 0.5f, _h * 0.5f + 1.f));
     // Shrink long captions to fit.
-    const float maxW = _w - 16.f;
+    const float maxW = _w - 28.f;
     if (_label->getContentSize().width > maxW) _label->setScale(maxW / _label->getContentSize().width);
     addChild(_label, 1);
 }
@@ -181,8 +236,7 @@ void burst(Node* parent, const Vec2& pos, const Color3B& color, int count, float
 
 void floatText(Node* parent, const std::string& text, const Vec2& pos, const Color3B& color, float size, int z) {
     if (!parent) return;
-    auto* l = label(text, size, color);
-    l->enableOutline(Color4B(0, 0, 0, 220), 2);
+    auto* l = heading(text, size, color);
     l->setPosition(pos);
     l->setScale(0.4f);
     parent->addChild(l, z);
@@ -198,13 +252,11 @@ void banner(Node* parent, const std::string& title, const std::string& sub, cons
     auto* box = Node::create();
     box->setCascadeOpacityEnabled(true);
     box->setPosition(Vec2(win.width * 0.5f, y));
-    auto* t = label(title, 30.f, color);
-    t->enableOutline(Color4B(0, 0, 0, 230), 3);
+    auto* t = heading(title, 30.f, color);
     t->setPositionY(sub.empty() ? 0.f : 12.f);
     box->addChild(t);
     if (!sub.empty()) {
-        auto* s = label(sub, 13.f, PZCfg::kColText);
-        s->enableOutline(Color4B(0, 0, 0, 230), 2);
+        auto* s = heading(sub, 13.f, PZCfg::kColText);
         s->setPositionY(-22.f);
         box->addChild(s);
     }
@@ -237,11 +289,17 @@ void shake(Node* node, const Vec2& home, float amplitude, float duration) {
 void redrawBar(DrawNode* node, float w, float h, float value, const Color3B& fill) {
     node->clear();
     value = std::max(0.f, std::min(1.f, value));
-    node->drawSolidRect(Vec2(-w * 0.5f, -h * 0.5f), Vec2(w * 0.5f, h * 0.5f), c4f(Color3B(10, 14, 24), 0.85f));
+    const Vec2 lo(-w * 0.5f, -h * 0.5f), hi(w * 0.5f, h * 0.5f);
+    node->drawSolidRect(lo + Vec2(-3, -3), hi + Vec2(3, 3), c4f(PZCfg::kColPanelEdge));         // bronze frame
+    node->drawSolidRect(lo, hi, c4f(Color3B(10, 12, 22), 0.95f));                                // trough
     if (value > 0.001f) {
-        node->drawSolidRect(Vec2(-w * 0.5f, -h * 0.5f), Vec2(-w * 0.5f + w * value, h * 0.5f), c4f(fill));
+        const Vec2 end(lo.x + w * value, hi.y);
+        node->drawSolidRect(lo, end, c4f(fill));
+        const Color3B light(static_cast<uint8_t>(fill.r + (255 - fill.r) * 0.45f), static_cast<uint8_t>(fill.g + (255 - fill.g) * 0.45f),
+                            static_cast<uint8_t>(fill.b + (255 - fill.b) * 0.45f));
+        node->drawSolidRect(Vec2(lo.x, hi.y - h * 0.38f), end, c4f(light, 0.55f));               // gloss strip
     }
-    node->drawRect(Vec2(-w * 0.5f, -h * 0.5f), Vec2(w * 0.5f, h * 0.5f), c4f(PZCfg::kColPanelEdge, 0.9f));
+    node->drawRect(lo + Vec2(-3, -3), hi + Vec2(3, 3), c4f(PZCfg::kColPanelEdge2, 0.8f));
 }
 
 DrawNode* bar(float w, float h, float value, const Color3B& fill) {

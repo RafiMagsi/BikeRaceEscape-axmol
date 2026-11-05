@@ -80,6 +80,9 @@ public:
     void init(PZGArtObstacle* obstInfo);
     void update( float dt);
     void damage(float power);
+
+    // Sprite bounds in the parent's coordinate space (includes node scale/rotation of the placed chunk item).
+    ax::Rect worldBox() const;
     void destroyPhysics( b2World* world );
 };
 

@@ -55,24 +55,21 @@ void AdsProviderMux::showInterstitial() {
     if (p) p->showInterstitial();
 }
 
+// Rewarded video comes from the AdMob side (banner_) unless a dedicated rewarded provider was given:
+// the interstitial provider (Chartboost) has no rewarded support.
 bool AdsProviderMux::isRewardedReady() const {
-    if (rewarded_) return rewarded_->isRewardedReady();
-    // fallback
-    if (interstitial_) return interstitial_->isRewardedReady();
-    if (banner_) return banner_->isRewardedReady();
-    return false;
+    auto* p = rewarded_ ? rewarded_.get() : (banner_ ? banner_.get() : interstitial_.get());
+    return p ? p->isRewardedReady() : false;
 }
 
 void AdsProviderMux::loadRewarded(const AdRequest& request) {
-    if (rewarded_) return rewarded_->loadRewarded(request);
-    if (interstitial_) return interstitial_->loadRewarded(request);
-    if (banner_) return banner_->loadRewarded(request);
+    auto* p = rewarded_ ? rewarded_.get() : (banner_ ? banner_.get() : interstitial_.get());
+    if (p) p->loadRewarded(request);
 }
 
 void AdsProviderMux::showRewarded() {
-    if (rewarded_) return rewarded_->showRewarded();
-    if (interstitial_) return interstitial_->showRewarded();
-    if (banner_) return banner_->showRewarded();
+    auto* p = rewarded_ ? rewarded_.get() : (banner_ ? banner_.get() : interstitial_.get());
+    if (p) p->showRewarded();
 }
 
 } // namespace PZ

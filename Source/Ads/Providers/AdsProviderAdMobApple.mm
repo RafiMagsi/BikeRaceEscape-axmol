@@ -1,4 +1,5 @@
 #include "Ads/Providers/AdsProviderAdMob.h"
+#include "Ads/AdsController.h"
 
 #include "PZLegacyCompat.h"
 
@@ -41,6 +42,7 @@ static GADRewardedAd* g_rewarded = nil;
 static GADRewardedAd* g_presentingRewarded = nil;
 static BOOL g_rewardedLoading = NO;
 static std::atomic<bool> g_rewardedReady{false};
+static BOOL g_rewardEarned = NO;   // set by the reward handler, reported when the ad is dismissed
 
 @interface PZAdMobFullScreenDelegate : NSObject <GADFullScreenContentDelegate>
 @end
@@ -72,14 +74,23 @@ static PZAdMobBannerDelegate* g_bannerDelegate = nil;
     AXLOGW("AdsProviderAdMob(iOS): ad failed to present: {}", error.localizedDescription.UTF8String ?: "");
     ax::AudioEngine::resumeAll();
     if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
-    if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
+    if (ad == (id)g_presentingRewarded) {
+        g_presentingRewarded = nil;
+        g_rewardEarned = NO;
+        PZ::AdsController::shared()->handleRewardedFinished(false);
+    }
 }
 
 - (void)adDidDismissFullScreenContent:(id<GADFullScreenPresentingAd>)ad {
     AXLOGI("AdsProviderAdMob(iOS): full screen ad dismissed");
     ax::AudioEngine::resumeAll();
     if (ad == (id)g_presentingInterstitial) g_presentingInterstitial = nil;
-    if (ad == (id)g_presentingRewarded) g_presentingRewarded = nil;
+    if (ad == (id)g_presentingRewarded) {
+        g_presentingRewarded = nil;
+        const bool earned = g_rewardEarned;
+        g_rewardEarned = NO;
+        PZ::AdsController::shared()->handleRewardedFinished(earned);   // reports to the game (revive)
+    }
 }
 
 @end
@@ -383,6 +394,7 @@ void AdsProviderAdMob::showRewarded() {
         ad.fullScreenContentDelegate = _fullScreenDelegate();
         [ad presentFromRootViewController:vc
                  userDidEarnRewardHandler:^{
+                     g_rewardEarned = YES;
                      GADAdReward* reward = ad.adReward;
                      AXLOGI("AdsProviderAdMob(iOS): earned reward type='{}' amount={}",
                             reward.type.UTF8String ?: "", reward.amount.intValue);

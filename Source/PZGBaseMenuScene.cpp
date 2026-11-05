@@ -8,6 +8,7 @@
 
 #include "PZLegacyCompat.h"
 #include "PZGBaseMenuScene.h"
+#include "Features/PZLayout.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
 #include "constants.h"
@@ -126,13 +127,15 @@ void PZGBaseMenuScene::load(const char* keyName){
             Sprite *spriteDisabled = infoObj->getResource();
             spriteDisabled->setColor( ccc3(60, 60, 60) );
             menuItem = MenuItemSprite::create(sprite, spriteClick, spriteDisabled);
-            menuItem->setPosition( infoObj->getPosition() );
+            // Keep every interface button above the banner ad and inside the device safe area.
+            menuItem->setPosition( ccp(infoObj->getPosition().x, PZLayout::mapY(infoObj->getPosition().y)) );
             menuItem->setRotation( -infoObj->rotation );
             menuItem->setScaleX( infoObj->scale_x );
             menuItem->setScaleY( infoObj->scale_y );
             menuItem->setTag( infoObj->index );
 
             pMenu->addChild(menuItem);
+            PZLayout::keepInside(menuItem);
             AXLOGI("    MenuItem added, menu now has {} children", pMenu->getChildren().size());
         }
         else if (infoObj->type && infoObj->type->compare("CCSprite") == 0) {
@@ -142,7 +145,8 @@ void PZGBaseMenuScene::load(const char* keyName){
             }
             
             sprite->setTag( infoObj->index );
-            sprite->setPosition( infoObj->getPosition() );
+            sprite->setPosition( infoObj->position_lock ? infoObj->getPosition()
+                                                        : ccp(infoObj->getPosition().x, PZLayout::mapY(infoObj->getPosition().y)) );
             
             sprite->setRotation( -infoObj->rotation );
             sprite->setScaleX( infoObj->scale_x );

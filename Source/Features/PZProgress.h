@@ -17,6 +17,7 @@ struct PZRunStats {
     int  maxCombo   = 0;
     int  nearMisses = 0;
     int  powerUps   = 0;
+    int  smashed    = 0;   // obstacles destroyed (shield / turbo / blast)
     int  stage      = 1;
     bool revived    = false;
 };
@@ -68,8 +69,14 @@ public:
     bool missionComplete(int slot) const;
     int  unclaimedMissions() const;
     int  claimMission(int slot);       // returns coins granted
+    // Progress of a mission including the run in flight (for the in-run tracker).
+    int  livePreview(int slot, const PZRunStats& stats) const;
     std::string missionText(int slot) const;
     std::string timeUntilNewMissions() const;
+
+    // --- settings ---
+    bool hapticsEnabled() const { return _haptics; }
+    void setHapticsEnabled(bool on);
 
     // --- runs ---
     PZRunResult commitRun(const PZRunStats& stats);
@@ -88,5 +95,6 @@ private:
     int  _lastClaimDay = -1000;
     int  _streak = 0;
     int  _missionDay = -1;
+    bool _haptics = true;
     PZMission _missions[PZCfg::kMissionsPerDay];
 };

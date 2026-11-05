@@ -1,7 +1,7 @@
 //
 //  PZPopups.h
 //  Code-drawn popups and widgets: revive offer, daily reward, missions, game-over results,
-//  main-menu widgets. Styling and text come from PZGameConfig.h.
+//  main-menu widgets. Styling and text come from PZGameConfig.h; placement from PZLayout.h.
 //
 #pragma once
 
@@ -11,9 +11,10 @@
 
 namespace PZPopups {
 
-// "CONTINUE?" offer with countdown. Exactly one of the callbacks fires, after the popup removed itself.
-ax::Node* showRevive(ax::Node* parent, int cost, int coinsOwned, std::function<void()> onRevive,
-                     std::function<void()> onDecline);
+// "CONTINUE?" offer with countdown: revive for coins and/or for a rewarded video. Exactly one callback fires, after
+// the popup removed itself. `videoAvailable` shows the free "WATCH VIDEO" option.
+ax::Node* showRevive(ax::Node* parent, int cost, int coinsOwned, bool videoAvailable,
+                     std::function<void()> onCoins, std::function<void()> onVideo, std::function<void()> onDecline);
 
 // Daily reward calendar with a CLAIM button.
 ax::Node* showDailyReward(ax::Node* parent, std::function<void()> onClosed = nullptr);
@@ -25,7 +26,7 @@ ax::Node* showMissions(ax::Node* parent, std::function<void()> onClosed = nullpt
 void attachResults(ax::Node* gameOverLayer, ax::Label* distanceLabel, const PZRunStats& stats,
                    const PZRunResult& result);
 
-// Main-menu additions (level plate, DAILY and MISSIONS buttons). Safe to call again to refresh.
+// Main-menu additions (level plate, DAILY / MISSIONS buttons, vibration toggle). Safe to call again to refresh.
 void attachMenuWidgets(ax::Node* menuLayer);
 void refreshMenuWidgets(ax::Node* menuLayer, bool allowDailyPopup);
 
