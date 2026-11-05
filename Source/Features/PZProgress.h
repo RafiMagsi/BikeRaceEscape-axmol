@@ -51,6 +51,8 @@ public:
     int   xp() const { return _xp; }
     int   level() const { return levelForXp(_xp); }
     float levelFraction() const { return fractionForXp(_xp); }
+    int   xpIntoLevel() const;                  // XP earned inside the current level
+    int   xpSpanOfLevel() const;                // XP needed to clear the current level
     static int   levelForXp(int xp);
     static float fractionForXp(int xp);
 
@@ -90,6 +92,32 @@ public:
     int  claimFreeCoins(int amount);        // grants the coins and starts the cooldown
     void awardCoins(int amount);            // coins from a rewarded video / bonus, saved immediately
 
+    // --- gifts ---
+    bool hourlyAvailable() const;
+    int  hourlySecondsLeft() const;
+    int  claimHourly();                     // random coins in [HourlyMin, HourlyMax]; starts the cooldown
+    bool spinAvailable() const;             // one free spin per day
+    int  pickSpinIndex() const;             // weighted random wheel segment
+    int  claimSpin(int index, bool freeSpin);   // grants the segment's coins; a free spin uses up the day's spin
+    int  chestLevelPending() const;         // highest unclaimed chest level reached (0 = none)
+    int  nextChestLevel() const;
+    int  claimChest();
+    bool missionChestAvailable() const;     // all of today's missions claimed, chest not yet taken
+    int  claimMissionChest();
+    int  comebackCoins() const { return _comebackCoins; }   // > 0 when a welcome-back gift is waiting
+    int  comebackDays() const { return _comebackDays; }
+    int  claimComeback();
+    int  giftsReady() const;                // badge count for the GIFTS button
+
+    // --- reminders (local notifications) ---
+    int  totalRuns() const { return _totalRuns; }
+    int  notifAsks() const { return _notifAsks; }
+    int  daysSinceNotifAsk() const;               // large when never asked
+    void markNotifAsked();
+    bool notifEnabled() const { return _notifOn; }
+    void setNotifEnabled(bool on);
+    static int today();                           // local day index
+
     // --- settings ---
     bool hapticsEnabled() const { return _haptics; }
     void setHapticsEnabled(bool on);
@@ -112,7 +140,17 @@ private:
     int  _streak = 0;
     int  _missionDay = -1;
     bool _haptics = true;
+    int  _notifAsks = 0;
+    int  _notifLastAsk = -1000;
+    bool _notifOn = true;
     std::vector<std::string> _gadgets;      // equipped gadget ids (validated on load)
     int  _lastFreeCoins = -100000;
+    int  _lastHourly = -100000;
+    int  _spinDay = -1000;
+    int  _chestClaimedLevel = 0;
+    int  _missionChestDay = -1000;
+    int  _lastPlayed = 0;
+    int  _comebackCoins = 0;
+    int  _comebackDays = 0;
     PZMission _missions[PZCfg::kMissionsPerDay];
 };

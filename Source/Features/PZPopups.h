@@ -35,6 +35,15 @@ ax::Node* showGadgets(ax::Node* parent, std::function<void()> onClosed = nullptr
 void attachMenuWidgets(ax::Node* menuLayer);
 void refreshMenuWidgets(ax::Node* menuLayer, bool allowDailyPopup);
 
+// Gift Center: daily reward, hourly gift, lucky spin, video gift, level chest and mission chest in one place.
+// `onVideoGift` runs (after the hub closes) when the VIDEO GIFT card is tapped.
+ax::Node* showGiftCenter(ax::Node* parent, std::function<void()> onClosed, std::function<void()> onVideoGift);
+ax::Node* showLuckySpin(ax::Node* parent, std::function<void()> onClosed = nullptr);
+ax::Node* showComebackGift(ax::Node* parent, std::function<void()> onClosed = nullptr);
+
+// Pre-permission "remind me?" offer (the OS dialog only appears if the player says yes). Copy rotates per ask.
+ax::Node* showNotificationOffer(ax::Node* parent);
+
 // Runs `fn` on the next frame (safe way to remove a popup from inside its own button callback).
 void later(std::function<void()> fn);
 

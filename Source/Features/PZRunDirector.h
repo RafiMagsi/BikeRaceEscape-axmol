@@ -24,7 +24,7 @@ class PZGCoin;
 
 class PZRunDirector : public ax::Node {
 public:
-    enum class PowerUp { Magnet = 0, Shield = 1, Turbo = 2, Blast = 3, Jetpack = 4 };
+    enum class PowerUp { Magnet = 0, Shield = 1, Turbo = 2, Blast = 3, Jetpack = 4, Rocket = 5, Gun = 6 };
 
     static PZRunDirector* create(PZGGameFieldScene* scene);
 
@@ -42,7 +42,9 @@ public:
     // Queries ---------------------------------------------------------------------------------
     float speedMultiplier() const { return _boost; }
     bool  turboActive() const { return _turboT > 0.f; }
+    bool  deathPending() const { return _deathPending; }   // a revive offer / revive sequence owns the end of the run
     bool  frozen() const;      // brief hit-stop: the owning scene skips its simulation step while true
+    bool  inputLocked() const { return _readyCountdown || _cinematic; }   // taps are ignored during countdown / cinematics
 
     // Gives the rider a power-up right now (also usable for rewards).
     void grant(PowerUp kind);
@@ -93,6 +95,24 @@ private:
     void updateNearMiss();
     void updateTurboRide(float dt);
     void updateJetpackRide(float dt);
+    void updateRocketRide(float dt);
+    void updateGun(float dt);
+    void updateReviveWait(float dt);
+    void beginBlastCinematic();          // freeze, zoom on every obstacle in turn, destroy, zoom back
+    void cameraTo(const ax::Vec2& focus, float scale, float duration, const ax::Vec2* screenAnchor = nullptr);
+    void cameraPunch(float scale, float inSeconds, float outSeconds);   // quick zoom pulse about the rider
+    void cameraReset(float duration);
+    void shakeScene(float amplitude, float duration);   // shake that respects the current camera position
+    void setHudVisible(bool visible);
+    void beginReadyCountdown();          // 3-2-1 with the world held, then the run resumes
+    void startRocket();
+    void endRocket();
+    void fireAt(PZGObstacle* target);
+    bool safeLandHere(float& outY);      // true when there is platform under the rider
+    float cruiseLine();                  // y a powered ride should hold (ground-relative, never in a pit)
+    bool  nearestSurface(float& outY);   // surface height under the rider, else the closest platform ahead/behind
+    float _lastGroundY = 0.f;            // last known platform surface (fallback while over a gap)
+    bool  _haveGroundY = false;
     void applyGadgets();
     void endJetpack();
     void updateWaves(float dt);
@@ -104,11 +124,13 @@ private:
     void spawnOrb();
     void collect(PowerUp kind, const ax::Vec2& at, float durationOverride = 0.f);
     void endTurbo();
+    void endGun();
     void rescueRider();      // put the rider back on solid ground (revive / shield save / mercy)
     bool mercyAvailable() const;
 
     // Obstacle destruction
-    void destroyObstacle(PZGObstacle* o, Style style);
+    void destroyObstacle(PZGObstacle* o, Style style, bool reward = true);
+    int  clearHazards(float behind, float ahead);   // visibly blow up every hazard in a window around the rider (no reward)
     void queueKill(PZGObstacle* o, float delay, Style style);
     bool obstacleAlive(PZGObstacle* o) const;
     void startWave(const ax::Vec2& origin, float maxRadius, float speed, const ax::Color3B& colour);
@@ -140,12 +162,29 @@ private:
     float _magnetMax = 1.f, _shieldMax = 1.f, _turboMax = 1.f;
     float _jetpackT = 0.f, _jetpackMax = 1.f, _jetpackLockY = 0.f;
     float _jetpackCoinClock = 0.f;
+    float _rocketT = 0.f, _rocketMax = 1.f;
+    float _rocketLockY = 0.f;
+    float _gunT = 0.f, _gunMax = 1.f;
+    float _gunClock = 0.f;
+    ax::Node* _rocketArt = nullptr;      // rocket pod strapped to the bike's side while it burns
+    ax::DrawNode* _rocketFlame = nullptr;
+    ax::DrawNode* _gunArt = nullptr;     // cannon mounted in front of the bike while gun mode is live
+    ax::DrawNode* _gunFlash = nullptr;
+    bool  _deathPending = false;         // revive popup / video / hover / countdown in progress: ignore further deaths
+    bool  _reviveWait = false;           // holding the rider in the air until a platform arrives
+    float _reviveWaitT = 0.f;
     int   _helmetSaves = 0;
     int   _combo = 0;
     float _comboT = 0.f;
     bool  _reviveOffered = false;
     bool  _committed = false;
     int   _mercyUsed = 0;
+    bool  _readyCountdown = false;
+    bool  _cinematic = false;
+    ax::Vec2 _camPos = ax::Vec2::ZERO;
+    float _camScale = 1.f;
+    std::vector<std::pair<ax::Node*, bool>> _hiddenHud;   // nodes hidden during a cinematic (restored afterwards)
+    float _lastHitStop = -10.f;
     float _riderOffset = 0.f;     // rider origin above the platform surface while grounded
     bool  _haveOffset = false;
     float _turboLockY = 0.f;
@@ -156,6 +195,7 @@ private:
     float _auraClock = 0.f;
     float _coinTickClock = 0.f;
     int   _flying = 0;            // coins currently flying to the HUD
+    ax::Vec2 _coinLabelBase;      // resting scale of the coin counter (pulses are absolute, never compounded)
     std::chrono::steady_clock::time_point _freezeUntil{};
     PZRunStats _stats;
     std::vector<Orb> _orbs;
@@ -168,8 +208,21 @@ private:
     ax::Label* _bestLabel = nullptr;
     ax::Label* _comboLabel = nullptr;
     ax::Node* _hud = nullptr;
-    struct HudRow { ax::Node* root = nullptr; ax::DrawNode* bar = nullptr; ax::Node* icon = nullptr; ax::Label* name = nullptr; };
-    HudRow _rows[5];
+    struct HudRow {
+        ax::Node* root = nullptr;
+        ax::DrawNode* bar = nullptr;
+        ax::Node* icon = nullptr;
+        ax::Label* name = nullptr;
+        ax::Label* time = nullptr;      // remaining seconds, right of the name
+    };
+    // One chip per timed power-up, in this fixed order (HUD slot i always shows chipKind(i)).
+    static constexpr int kChipCount = 6;
+    static PowerUp chipKind(int i) {
+        static const PowerUp kinds[kChipCount] = {PowerUp::Magnet, PowerUp::Shield, PowerUp::Turbo,
+                                                  PowerUp::Jetpack, PowerUp::Rocket, PowerUp::Gun};
+        return kinds[i];
+    }
+    HudRow _rows[kChipCount];
     ax::Node* _gadgetStrip = nullptr;
     ax::Node* _tracker = nullptr;
     ax::Label* _trackerText = nullptr;

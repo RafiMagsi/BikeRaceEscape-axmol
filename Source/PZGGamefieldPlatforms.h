@@ -20,9 +20,13 @@
 
 #include "SharedData/PZGGameInfoLevelItem.h"
 #include <vector>
+#include <climits>
 
-#define kMaxBasicRunnerObsctales 32
-#define kMaxBasicRunnerCoins 32
+// Capacities are generous on purpose: a coin-rich chunk plus its guide arcs adds 40+ coins at once and the world keeps
+// ~3 platforms of content spawned ahead. A too-small array evicted objects that were still on screen ("coins vanish
+// after 500m"). Objects behind the rider are culled explicitly in update().
+#define kMaxBasicRunnerObsctales 96
+#define kMaxBasicRunnerCoins 192
 #define kMaxRunnerObstaclesTypes 16
 
 #define kMaxPlatfroms 16
@@ -51,7 +55,7 @@ class PZGGamefieldPlatforms : public ax::Layer {
     bool prefillPending;
 
     
-    void registerObstacle( PZGObstacle* obstacle );
+    void registerObstacle( PZGObstacle* obstacle, int zOrder = INT_MIN );
     void registerCoin( PZGCoin* coin );
     void finalizeChunk( std::vector<PZGObstacle*>& pending, PZGPlatfrom* platform );
     void addCoinArc( const ax::Vec2& from, const ax::Vec2& to, float peakRise, int count, const std::vector<ax::Rect>& avoid );
@@ -86,6 +90,7 @@ public:
     // Height (scene units) of the rider's jump apex; set by the owning gamefield so obstacle placement can
     // reject anything that could not be jumped on this platform's physics scale.
     float riderApex = 160.0f;
+
     
     PZGGameInfoLevel* getLevelInfo(float distance, int platform_type_id);
     

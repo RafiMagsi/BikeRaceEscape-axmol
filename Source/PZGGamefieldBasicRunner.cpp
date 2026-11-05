@@ -12,6 +12,7 @@
 #include "SharedData/PZGGameplayBasicRunner.h"
 #include "constants.h"
 #include "Features/PZRunDirector.h"
+#include "Features/PZGameConfig.h"
 
 USING_NS_AX;
 
@@ -32,6 +33,20 @@ Scene* PZGGamefieldBasicRunner::scene(){
 
 	scene->addChild(layer);
 	return scene;
+}
+
+// Jump apex in scene units. Gravity and the jump impulse live in physics units, so the real height depends on
+// kPhysicsWorldScale() (0.05 on iOS vs 0.1 on Android): obstacle fairness and power-up heights must use this number,
+// not a constant.
+void PZGGamefieldBasicRunner::applyJumpApex(){
+    if (!platform || !character || !world) {
+        return;
+    }
+    const float g = std::fabs(world->GetGravity().y);
+    if (g < 0.001f) {
+        return;
+    }
+    platform->riderApex = (character->jump_height * character->jump_height) / (2.0f * g) / kPhysicsWorldScale();
 }
 
 void PZGGamefieldBasicRunner::reset(){
@@ -79,6 +94,7 @@ void PZGGamefieldBasicRunner::reset(){
         this->addChild(platform, character_depth_z - 1);
         platform->world = world;
         platform->platfromsBetweenDistance = gameInfoObject->platfromsBetweenDistance;
+        applyJumpApex();
     } else {
         AXLOGE("PZGGamefieldBasicRunner::reset: failed to create PZGGamefieldPlatforms");
     }
@@ -146,6 +162,7 @@ bool PZGGamefieldBasicRunner::init()
     if (platform) {
         this->addChild(platform, character_depth_z - 1);
         platform->world = world;
+        applyJumpApex();
     } else {
         AXLOGE("PZGGamefieldBasicRunner::init: failed to create PZGGamefieldPlatforms");
         return false;
@@ -191,12 +208,27 @@ void PZGGamefieldBasicRunner::update(float dt){
         }
     }
     
-    if (!gameOver && !gamePause) {
+    // Brief hit-stop on big impacts: the simulation holds for a few frames while effects keep playing.
+    const bool hitStop = run && run->frozen();
+
+    if (!gameOver && !gamePause && !hitStop) {
         if (!platform) {
             AXLOGE("PZGGamefieldBasicRunner::update: platform is null");
             return;
         }
         
+        // Forgiving jump: a tap just before touchdown fires the moment the rider lands.
+        if (_jumpBuffer > 0.0f) {
+            _jumpBuffer -= dt;
+            if (character->jump_counter < 1) {
+                character->jump();
+                if (!_touchHeld) {
+                    character->jumpEnd();
+                }
+                _jumpBuffer = 0.0f;
+            }
+        }
+
         world->Step(dt, 3, 3);
         
         gf_speed += gf_speed_increaser * dt;
@@ -249,11 +281,18 @@ void PZGGamefieldBasicRunner::update(float dt){
 }
 
 void PZGGamefieldBasicRunner::ccTouchesBegan(__Set *pTouch, Event *pEvent){
-    if (character) {
-        character->jump();
+    if (!character || (run && run->inputLocked())) {
+        return;
+    }
+    _touchHeld = true;
+    const bool wasGrounded = character->jump_counter < 1;
+    character->jump();
+    if (!wasGrounded && PZCfg::kEnableJumpBuffer) {
+        _jumpBuffer = PZCfg::kJumpBuffer;
     }
 }
 void PZGGamefieldBasicRunner::ccTouchesEnded(__Set *pTouch, Event *pEvent){
+    _touchHeld = false;
     if (character) {
         character->jumpEnd();
     }

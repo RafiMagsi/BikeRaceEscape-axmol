@@ -18,9 +18,19 @@ const char* kKeyLastClaim = "PZP_DailyLast";
 const char* kKeyStreak    = "PZP_DailyStreak";
 const char* kKeyMissionDay= "PZP_MissionDay";
 const char* kKeyHaptics   = "PZP_Haptics";
+const char* kKeyNotifAsks = "PZP_NotifAsks";
+const char* kKeyNotifLast = "PZP_NotifLastAsk";
+const char* kKeyNotifOn   = "PZP_NotifOn";
 const char* kKeyGadget    = "PZP_Gadget";
 const char* kKeyGadgetInit= "PZP_GadgetInit";
 const char* kKeyFreeCoins = "PZP_FreeCoinsAt";
+const char* kKeyHourly    = "PZP_HourlyAt";
+const char* kKeySpinDay   = "PZP_SpinDay";
+const char* kKeyChest     = "PZP_ChestLevel";
+const char* kKeyMChest    = "PZP_MissionChestDay";
+const char* kKeyPlayed    = "PZP_LastPlayedAt";
+const char* kKeyComeback  = "PZP_ComebackCoins";
+const char* kKeyComebackD = "PZP_ComebackDays";
 
 std::string slotKey(const char* name, int slot) {
     return std::string("PZP_M") + std::to_string(slot) + "_" + name;
@@ -49,6 +59,25 @@ PZProgress::PZProgress() {
         ud->setBoolForKey(kKeyGadgetInit, true);
         save();
     }
+}
+
+int PZProgress::today() { return todayIndex(); }
+
+int PZProgress::daysSinceNotifAsk() const { return todayIndex() - _notifLastAsk; }
+
+void PZProgress::markNotifAsked() {
+    ++_notifAsks;
+    _notifLastAsk = todayIndex();
+    auto* ud = UserDefault::getInstance();
+    ud->setIntegerForKey(kKeyNotifAsks, _notifAsks);
+    ud->setIntegerForKey(kKeyNotifLast, _notifLastAsk);
+    ud->flush();
+}
+
+void PZProgress::setNotifEnabled(bool on) {
+    _notifOn = on;
+    UserDefault::getInstance()->setBoolForKey(kKeyNotifOn, on);
+    UserDefault::getInstance()->flush();
 }
 
 void PZProgress::setHapticsEnabled(bool on) {
@@ -91,7 +120,31 @@ void PZProgress::load() {
     _streak       = ud->getIntegerForKey(kKeyStreak, 0);
     _missionDay   = ud->getIntegerForKey(kKeyMissionDay, -1);
     _haptics      = ud->getBoolForKey(kKeyHaptics, PZCfg::kEnableHaptics);
+    _notifAsks    = ud->getIntegerForKey(kKeyNotifAsks, 0);
+    _notifLastAsk = ud->getIntegerForKey(kKeyNotifLast, -1000);
+    _notifOn      = ud->getBoolForKey(kKeyNotifOn, true);
     _lastFreeCoins = ud->getIntegerForKey(kKeyFreeCoins, -100000);
+    _lastHourly   = ud->getIntegerForKey(kKeyHourly, -100000);
+    _spinDay      = ud->getIntegerForKey(kKeySpinDay, -1000);
+    _chestClaimedLevel = ud->getIntegerForKey(kKeyChest, 0);
+    _missionChestDay = ud->getIntegerForKey(kKeyMChest, -1000);
+    _lastPlayed   = ud->getIntegerForKey(kKeyPlayed, 0);
+    _comebackCoins = ud->getIntegerForKey(kKeyComeback, 0);
+    _comebackDays  = ud->getIntegerForKey(kKeyComebackD, 0);
+
+    // Welcome-back gift: measured against the last session, then the clock is restarted. An unclaimed gift persists.
+    const int nowSec = static_cast<int>(std::time(nullptr));
+    if (_lastPlayed > 0 && _comebackCoins <= 0) {
+        const int away = nowSec - _lastPlayed;
+        if (PZCfg::kEnableGifts && away >= PZCfg::kComebackMinHours * 3600) {
+            _comebackDays = std::max(1, std::min(PZCfg::kComebackMaxDays, away / 86400));
+            _comebackCoins = _comebackDays * PZCfg::kComebackCoinsPerDay;
+            ud->setIntegerForKey(kKeyComeback, _comebackCoins);
+            ud->setIntegerForKey(kKeyComebackD, _comebackDays);
+        }
+    }
+    _lastPlayed = nowSec;
+    ud->setIntegerForKey(kKeyPlayed, _lastPlayed);
 
     _gadgets.clear();
     const int slots = std::max(0, PZCfg::kGadgetSlots);
@@ -187,6 +240,117 @@ bool PZProgress::freeCoinsAvailable() const {
     return PZCfg::kEnableFreeCoins && freeCoinsSecondsLeft() <= 0;
 }
 
+// ---- gifts -----------------------------------------------------------------------------------
+
+int PZProgress::hourlySecondsLeft() const {
+    const int now = static_cast<int>(std::time(nullptr));
+    return std::max(0, PZCfg::kHourlyCooldown - (now - _lastHourly));
+}
+
+bool PZProgress::hourlyAvailable() const { return PZCfg::kEnableGifts && hourlySecondsLeft() <= 0; }
+
+int PZProgress::claimHourly() {
+    if (!hourlyAvailable()) return 0;
+    const int lo = std::min(PZCfg::kHourlyMin, PZCfg::kHourlyMax), hi = std::max(PZCfg::kHourlyMin, PZCfg::kHourlyMax);
+    const int amount = lo + static_cast<int>(CCRANDOM_0_1() * (hi - lo + 1));
+    _lastHourly = static_cast<int>(std::time(nullptr));
+    awardCoins(amount);
+    auto* ud = UserDefault::getInstance();
+    ud->setIntegerForKey(kKeyHourly, _lastHourly);
+    ud->flush();
+    return amount;
+}
+
+bool PZProgress::spinAvailable() const { return PZCfg::kEnableGifts && _spinDay != todayIndex(); }
+
+int PZProgress::pickSpinIndex() const {
+    int total = 0;
+    for (int w : PZCfg::kSpinWeights) total += std::max(0, w);
+    if (total <= 0) return 0;
+    int r = static_cast<int>(CCRANDOM_0_1() * total);
+    for (size_t i = 0; i < PZCfg::kSpinWeights.size(); ++i) {
+        r -= std::max(0, PZCfg::kSpinWeights[i]);
+        if (r < 0) return static_cast<int>(i);
+    }
+    return 0;
+}
+
+int PZProgress::claimSpin(int index, bool freeSpin) {
+    if (index < 0 || index >= static_cast<int>(PZCfg::kSpinRewards.size())) return 0;
+    const int amount = PZCfg::kSpinRewards[index];
+    awardCoins(amount);
+    if (freeSpin) {
+        _spinDay = todayIndex();
+        UserDefault::getInstance()->setIntegerForKey(kKeySpinDay, _spinDay);
+        UserDefault::getInstance()->flush();
+    }
+    return amount;
+}
+
+int PZProgress::chestLevelPending() const {
+    if (!PZCfg::kEnableGifts || PZCfg::kChestEveryLevels <= 0) return 0;
+    const int every = PZCfg::kChestEveryLevels;
+    const int reached = (level() / every) * every;       // highest chest level the player has reached
+    return reached > _chestClaimedLevel && reached >= every ? reached : 0;
+}
+
+int PZProgress::nextChestLevel() const {
+    const int every = std::max(1, PZCfg::kChestEveryLevels);
+    return (std::max(level(), _chestClaimedLevel) / every + 1) * every;
+}
+
+int PZProgress::claimChest() {
+    const int lv = chestLevelPending();
+    if (lv <= 0) return 0;
+    const int amount = lv * PZCfg::kChestCoinsPerLevel;
+    _chestClaimedLevel = lv;
+    awardCoins(amount);
+    UserDefault::getInstance()->setIntegerForKey(kKeyChest, _chestClaimedLevel);
+    UserDefault::getInstance()->flush();
+    return amount;
+}
+
+bool PZProgress::missionChestAvailable() const {
+    if (!PZCfg::kEnableGifts || !PZCfg::kEnableMissions || _missionChestDay == todayIndex()) return false;
+    for (int i = 0; i < PZCfg::kMissionsPerDay; ++i) {
+        if (!_missions[i].claimed) return false;
+    }
+    return true;
+}
+
+int PZProgress::claimMissionChest() {
+    if (!missionChestAvailable()) return 0;
+    _missionChestDay = todayIndex();
+    awardCoins(PZCfg::kMissionChestCoins);
+    UserDefault::getInstance()->setIntegerForKey(kKeyMChest, _missionChestDay);
+    UserDefault::getInstance()->flush();
+    return PZCfg::kMissionChestCoins;
+}
+
+int PZProgress::claimComeback() {
+    if (_comebackCoins <= 0) return 0;
+    const int amount = _comebackCoins;
+    _comebackCoins = 0;
+    _comebackDays = 0;
+    awardCoins(amount);
+    auto* ud = UserDefault::getInstance();
+    ud->setIntegerForKey(kKeyComeback, 0);
+    ud->setIntegerForKey(kKeyComebackD, 0);
+    ud->flush();
+    return amount;
+}
+
+int PZProgress::giftsReady() const {
+    int n = 0;
+    if (dailyAvailable()) ++n;
+    if (hourlyAvailable()) ++n;
+    if (spinAvailable()) ++n;
+    if (chestLevelPending() > 0) ++n;
+    if (missionChestAvailable()) ++n;
+    if (_comebackCoins > 0) ++n;
+    return n;
+}
+
 int PZProgress::claimFreeCoins(int amount) {
     if (!freeCoinsAvailable() || amount <= 0) return 0;
     _lastFreeCoins = static_cast<int>(std::time(nullptr));
@@ -203,6 +367,16 @@ void PZProgress::awardCoins(int amount) {
 
 int PZProgress::levelForXp(int xp) {
     return 1 + static_cast<int>(std::floor(std::sqrt(std::max(0, xp) / PZCfg::kXpPerLevelUnit)));
+}
+
+int PZProgress::xpIntoLevel() const {
+    const int lv = level();
+    return std::max(0, _xp - static_cast<int>(PZCfg::kXpPerLevelUnit * (lv - 1) * (lv - 1)));
+}
+
+int PZProgress::xpSpanOfLevel() const {
+    const int lv = level();
+    return std::max(1, static_cast<int>(PZCfg::kXpPerLevelUnit * lv * lv) - static_cast<int>(PZCfg::kXpPerLevelUnit * (lv - 1) * (lv - 1)));
 }
 
 float PZProgress::fractionForXp(int xp) {

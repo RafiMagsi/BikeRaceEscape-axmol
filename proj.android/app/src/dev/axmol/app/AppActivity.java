@@ -79,6 +79,7 @@ public class AppActivity extends AxmolActivity {
         AdsBridge.init(this);
         BillingBridge.init(this);
         HapticsBridge.init(this);
+        NotificationBridge.init(this);
         
     }
 

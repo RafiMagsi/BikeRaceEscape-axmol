@@ -97,8 +97,42 @@ The issues and improvements
 8. Improve revive system, the player should wait for next platform and then respawn and better logic is needed here, find how games respawn and use the best logic
 9. Add rocket bike power up, so you have to add rocket to the side of the bike and it’s shield + magnet + speed with special effects of speeding
 10. Add gun in front of the bike power up that shoots on all obstacles, and similar power ups
-10.1. When player picks up destory all obstacles the game should stop and do the animations step by step, like zoom on obstacles and destroy it, once all are destroyed zoom will reset and game start playing again (we need to do such use cases more, you can add use cases sections for all these use cases that makes the game more interesting)
+10.1. When player picks up destory all obstacles power-up, the game should stop and do the animations step by step, like zoom on obstacles and destroy it, once all are destroyed zoom will reset and game start playing again (we need to do such use cases more, you can add use cases sections for all these use cases that makes the game more interesting) (mixing with existing blast wave)
 11. Add zoom effects, move in, move out, glitter effects and more what we can
 12. Make gift system better, more offers 
 13. Add local notifications system with messages and gift rewards, the push notifications permission should be asked when it’s better to do, not in the start of the game but when it feels like user like the game, after a few replays, levels or play time, find the best solutions, first show popup for reward reminder then the os permission popup, keep asking every once a time with different message on the reminder popup, add as much as possible local push notifications messages and send with standard time differences
 14. Do similar things as above and let’s make this game great
+
+STATUS OF "NEW IMPLEMENTATIONS" (latest pass)
+1. Falls with power-ups: FIXED. Powered rides take their flight line from the nearest platform surface (search ahead/behind +
+   last known ground) and end themselves if the rider drops out of the line; shield/mercy rescue unchanged.
+2. Coins hiding after ~500 m: FIXED (real cause: 32-slot coin/hazard arrays evicting on-screen objects as chunks and guide arcs
+   added 40+ at once). Capacity raised, free-slot registration, explicit off-screen cull.
+3. Coin counter growth: FIXED (absolute scale targets) + glitter on arrival.
+4. Power-up chips: DONE (icon, name, seconds left on the right, timer bar; six chip slots in one canonical order).
+5. Similar issues found and fixed: HUD chip/icon mismatch crash (rows sized 7, created 5), GadgetCard origin offset,
+   hit-stop never honoured by the runner, jump apex never fed to the generator, jump buffering missing.
+6. Gadget cards alignment: FIXED (card content is centred on the node origin; the anchor/hit-test were offset by half a card).
+7. Home level bar: REDESIGNED (round level badge, XP counter, framed animated bar, best, next unlock).
+8. Revive: hover until a platform arrives, land, 3-2-1 GET READY countdown with the world held, then turbo sprint + grace.
+9. Rocket bike: DONE (side pod, shield + magnet + speed, flame/afterimages). 10. Gun: DONE (nose cannon, muzzle flash, recoil).
+10.1 Cinematic Blast: DONE (freeze, HUD hides, zoom on each hazard, reticle, explosion, zoom out, shockwave for the rest).
+11. Zoom/glitter FX: DONE (camera punch about the rider, cinematic zoom, glitter on pickups/stages/rewards).
+12. Gifts: DONE (Gift Center hub, hourly gift, lucky spin, level chest, mission chest, welcome-back gift).
+13. Local notifications: DONE (soft ask after engagement, OS prompt only on yes, rotating copy + re-ask pacing, schedule of
+    gift/daily/missions/streak/comeback reminders). iOS verified in the simulator; Android compiled (not run on a device).
+14. Obstacle placement: relaxed over-aggressive filtering and added a hazard budget (see META_FEATURES.md).
+Notes: the Android jump is half as high in pixels as iOS (kPhysicsWorldScale 0.1 vs 0.05); placement now uses the real apex.
+Real AdMob rewarded unit IDs are still needed for end-to-end video revive / spin / free coins in release.
+15. Always show revive in gameover make revive time 10 seonds
+16. Improve all the menus with proper positions, some screens are too conjested, you can reduce the size of back,retry, button to standard sizes
+17. Improve all HUD displays, find a better game font if you can with good texture
+18. Again check all die/revive/powerup use cases/senarios
+19. Add all powerups in the gadgets and put price on each, also show gadgets in the gameplay i asked this before, all gadgets should have icons according to their nature.
+20. Show ads as google admob ads policy, so there should be no rejection or policy voilations.
+
+Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control
+returned. Revive/mercy/shield/helmet rescues and powered-ride landings now explode all hazards around the rider (visibly, no
+reward), the rider is untouchable during the hover and the 3-2-1 countdown, duplicate death signals are ignored while a revive
+is pending, the hover has a 2.5 s cap, and the CONTINUE? offer lasts 8 s (`tuning/ReviveCountdown`). Full matrix in
+docs/META_FEATURES.md ("Death / revive use cases").

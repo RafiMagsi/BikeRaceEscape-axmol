@@ -45,6 +45,8 @@ inline ax::Color3B kColShield    { 85, 175, 255};
 inline ax::Color3B kColTurbo     {255, 150,  40};
 inline ax::Color3B kColBlast     {255,  70,  50};
 inline ax::Color3B kColJetpack   {120, 235, 255};
+inline ax::Color3B kColRocket    {255, 105,  60};
+inline ax::Color3B kColGun       {190, 130, 255};
 
 // Per-stage atmosphere tint (cycled): RGB + alpha of a full-screen overlay.
 struct StageTint { unsigned char r, g, b, a; };
@@ -82,6 +84,14 @@ inline const char* kStrShieldIcon    = "S";
 inline const char* kStrTurboIcon     = "T";
 inline const char* kStrBlastIcon     = "B";
 inline const char* kStrJetpackIcon   = "J";
+inline const char* kStrRocketName    = "ROCKET";
+inline const char* kStrGunName       = "GUN";
+inline const char* kStrRocketIcon    = "R";
+inline const char* kStrGunIcon       = "G";
+inline const char* kStrRocket        = "ROCKET BIKE!";
+inline const char* kStrGun           = "GUN MODE!";
+inline const char* kStrReviveWait    = "GETTING YOU BACK IN...";
+inline const char* kStrGetReady      = "GET READY!";
 inline const char* kStrJetpack       = "JETPACK!";
 inline const char* kStrBigAir        = "BIG AIR! +%d";
 inline const char* kStrStartHint     = "TAP TO JUMP";
@@ -101,6 +111,24 @@ inline const char* kStrMissionTrack  = "MISSION";
 
 inline const char* kStrVideoNoAd     = "NO VIDEO RIGHT NOW";
 inline const char* kStrVideoRetry    = "TRY AGAIN";
+inline const char* kStrGiftsBtn      = "GIFTS";
+inline const char* kStrGiftsTitle    = "GIFT CENTER";
+inline const char* kStrGiftDaily     = "DAILY REWARD";
+inline const char* kStrGiftHourly    = "HOURLY GIFT";
+inline const char* kStrGiftSpin      = "LUCKY SPIN";
+inline const char* kStrGiftVideo     = "VIDEO GIFT";
+inline const char* kStrGiftChest     = "LEVEL CHEST";
+inline const char* kStrGiftMissions  = "MISSION CHEST";
+inline const char* kStrGiftReady     = "READY!";
+inline const char* kStrGiftIn        = "IN %s";
+inline const char* kStrGiftNextChest = "NEXT: LV %d";
+inline const char* kStrGiftMissionHint = "CLAIM 3 MISSIONS";
+inline const char* kStrGiftClaimed   = "CLAIMED";
+inline const char* kStrSpinBtn       = "SPIN!";
+inline const char* kStrSpinVideo     = "SPIN AGAIN: VIDEO";
+inline const char* kStrSpinTitle     = "LUCKY SPIN";
+inline const char* kStrComebackTitle = "WELCOME BACK!";
+inline const char* kStrComebackSub   = "YOU WERE AWAY %d DAYS";
 inline const char* kStrFreeCoinsBtn  = "FREE COINS";
 inline const char* kStrFreeCoinsTitle= "FREE COINS";
 inline const char* kStrFreeCoinsSub  = "+%d COINS";
@@ -139,6 +167,14 @@ inline const char* kStrResultsLevel  = "LEVEL %d";
 inline const char* kStrLevelUp       = "LEVEL UP!  +%d";
 inline const char* kStrMissionToast  = "MISSION COMPLETE!";
 inline const char* kStrLevelPlate    = "LV %d";
+inline const char* kStrXpFormat      = "%d / %d XP";
+inline const char* kStrNextUnlock    = "NEXT: %s  LV %d";
+inline const char* kStrAllUnlocked   = "ALL GADGETS UNLOCKED";
+inline const char* kStrNotifYes      = "YES, REMIND ME";
+inline const char* kStrNotifNo       = "NOT NOW";
+inline const char* kStrNotifOn       = "REMINDERS ON!";
+inline const char* kStrNotifBtn      = "REMINDERS";
+inline const char* kStrNotifDenied   = "TURN ON NOTIFICATIONS IN SETTINGS";
 inline const char* kStrVibration     = "VIBRATION";
 inline const char* kStrOn            = "ON";
 inline const char* kStrOff           = "OFF";
@@ -147,6 +183,7 @@ inline const char* kStrOff           = "OFF";
 // Feature switches
 // ---------------------------------------------------------------------------------------------
 inline bool kEnablePowerUps    = true;
+inline bool kEnableNotifications = true; // local reminders (gifts, daily reward, comeback); asked politely, never at first launch
 inline bool kEnableRevive      = true;
 inline bool kEnableReviveVideo = true;   // offer a rewarded video as a free revive (needs a rewarded ad unit in ads.plist)
 inline bool kEnableStages      = true;
@@ -157,12 +194,15 @@ inline bool kEnableMissions    = true;
 inline bool kEnableShake       = true;
 inline bool kEnableHaptics     = true;   // default for new installs; players can toggle it in the menu
 inline bool kEnableFx          = true;   // dust, trails, flashes, ambient motes, coin fly-to-HUD
+inline bool kEnableHazardBudget = true;  // guarantee a minimum number of hazard clusters per platform (grows with distance)
 inline bool kEnableFairPlacement = true; // obstacle safe zones / spacing / density ramp
 inline bool kEnableCoinArcs    = true;   // guide coins over obstacle clusters and gaps
 inline bool kEnableMercy       = true;   // free second chance for new players
 inline bool kEnableJumpBuffer  = true;   // forgiving jump input
 inline bool kEnableGadgets     = true;   // menu loadout of two passive perks
 inline bool kEnableJetpack     = true;   // fifth power-up: fly over the traffic
+inline bool kEnableRocket      = true;   // rocket bike: shield + magnet + extra speed
+inline bool kEnableGun         = true;   // auto-cannon: shoots the traffic ahead
 inline bool kEnableFreeCoins   = true;   // rewarded-video free coins on the menu
 inline bool kEnableDoubleCoins = true;   // rewarded-video coin doubler on the results screen
 inline bool kEnableBigAir      = true;   // bonus for long jumps
@@ -198,19 +238,35 @@ inline float kTurboDuration       = 5.0f;
 inline float kTurboSpeedMult      = 1.55f;
 inline float kTurboMagnetRadius   = 360.0f;
 inline float kBlastRadius         = 1500.0f;  // blast wipes every obstacle within this distance ahead
+inline int   kBlastMaxTargets     = 8;        // obstacles showcased by the cinematic Blast (the rest get the shockwave)
+inline float kBlastZoom           = 1.85f;    // camera zoom on each target
+inline float kBlastZoomIn         = 0.28f;    // seconds to push in on a target
+inline float kBlastHold           = 0.34f;    // lock-on + explosion beat
+inline float kBlastGap            = 0.08f;    // pause before the next target
+inline float kBlastZoomOut        = 0.4f;     // pull-back at the end
 inline float kBlastWaveSpeed      = 2200.0f;  // shockwave expansion speed (units / s): staggers the explosions
 inline float kHitGrace            = 1.4f;
 inline float kJetpackDuration     = 6.0f;
 inline float kJetpackHeight       = 250.0f;   // flight line above the ground (screen units, scaled per device)
+inline float kRocketDuration     = 6.0f;
+inline float kRocketSpeedMult    = 1.85f;
+inline float kGunDuration        = 7.0f;
+inline float kGunInterval        = 0.26f;    // seconds between shots
+inline float kGunRange           = 950.0f;   // furthest obstacle the cannon will target
+inline float kOrbWeightRocket    = 0.07f;    // relative spawn weight on top of the base five
+inline float kOrbWeightGun       = 0.07f;
 inline float kJetpackCoinEvery    = 0.30f;    // seconds between free coins while flying
 inline int   kJetpackCoinsPerTick = 1;
 inline float kWeightMagnet = 0.26f, kWeightShield = 0.26f, kWeightTurbo = 0.20f, kWeightBlast = 0.20f, kWeightJetpack = 0.08f;
 
 // Obstacle fairness & placement
-inline float kDensityStart        = 0.55f;    // fraction of lethal obstacles kept at distance 0 ...
+inline float kDensityStart        = 0.80f;    // fraction of lethal obstacles kept at distance 0 ...
 inline float kDensityFullDistance = 900.0f;   // ... rising to 100% by this distance
-inline float kSafeLanding         = 210.0f;   // no lethal obstacles this far after a platform starts
-inline float kSafeTakeoff         = 190.0f;   // ... nor this far before a platform ends (jump-off room)
+inline float kSafeLanding         = 120.0f;   // no lethal obstacles this far after a platform starts
+inline float kSafeTakeoff         = 110.0f;   // ... nor this far before a platform ends (jump-off room)
+inline float kBudget1Distance     = 120.0f;   // from here every platform carries at least 1 hazard cluster ...
+inline float kBudget2Distance     = 450.0f;   // ... 2 from here ...
+inline float kBudget3Distance     = 900.0f;   // ... 3 from here
 inline float kClusterMaxWidth     = 330.0f;   // widest lethal cluster a single jump can clear
 inline float kClusterGap          = 300.0f;   // landing room required between clusters
 inline int   kArcCoinCount        = 5;
@@ -220,6 +276,7 @@ inline float kArcHeight           = 150.0f;
 inline float kJumpBuffer          = 0.14f;    // seconds a too-early tap is remembered
 inline int   kMercyBestBelow      = 600;      // players whose best is below this get mercy saves ...
 inline int   kMercySaves          = 1;        // ... this many per run
+inline float kReadySeconds        = 0.6f;     // length of each 3-2-1 beat after a revive
 inline float kReviveTurbo         = 2.2f;     // turbo seconds granted on revive so the rider can't re-die at once
 inline float kStartGrace          = 1.2f;     // collision grace when a run begins
 inline float kBigAirMin           = 0.85f;    // seconds in the air that count as a trick
@@ -234,9 +291,23 @@ inline int   kGadgetHelmetSaves   = 1;
 
 // Revive
 inline int   kReviveCost          = 100;
-inline float kReviveCountdown     = 5.0f;
+inline float kReviveCountdown     = 8.0f;     // seconds the player has to choose on the CONTINUE? offer
 
 // Rewarded-video economy
+// Gifts
+inline bool kEnableGifts          = true;
+inline int  kHourlyCooldown       = 10800;     // seconds (3 h)
+inline int  kHourlyMin            = 20;
+inline int  kHourlyMax            = 60;
+inline int  kChestEveryLevels     = 3;         // a level chest unlocks every N levels ...
+inline int  kChestCoinsPerLevel   = 40;        // ... paying this many coins per level reached
+inline int  kMissionChestCoins    = 100;       // bonus for claiming all three daily missions
+inline int  kComebackMinHours     = 24;        // away at least this long to earn a welcome-back gift
+inline int  kComebackCoinsPerDay  = 40;
+inline int  kComebackMaxDays      = 7;
+inline std::vector<int> kSpinRewards = {25, 40, 50, 60, 75, 100, 150, 300};
+inline std::vector<int> kSpinWeights = {18, 16, 16, 14, 12, 10, 8, 3};
+
 inline int   kFreeCoinsAmount     = 100;
 inline int   kFreeCoinsCooldown   = 300;      // seconds between free-coin videos
 inline float kDoubleCoinsMultiplier = 2.0f;   // 2 = the run's coins paid again as a bonus
@@ -248,6 +319,7 @@ inline float kBannerReserve       = 104.0f;
 inline int   kSmashCoins          = 1;        // coins per obstacle destroyed by a power-up
 
 // FX
+inline float kPunchZoom           = 1.06f;    // camera zoom pulse on stage change / pickups (1.0 = off)
 inline float kHitStop             = 0.07f;    // brief freeze on big impacts
 inline int   kDustPuffs           = 1;        // 0 disables running dust
 inline float kHapticCoinInterval  = 0.09f;    // min seconds between coin ticks
@@ -258,6 +330,60 @@ inline int   kLevelUpCoins     = 25;
 inline float kXpPerDistance    = 0.1f;
 inline int   kXpPerCoin        = 2;
 inline int   kXpPerStage       = 40;
+
+// Notifications: soft-ask pacing. The OS permission is only requested after the player has shown interest.
+inline int   kNotifMinRuns        = 3;        // finished runs before the first reminder offer
+inline int   kNotifAskCooldownDays= 3;        // days between offers when the player says "not now"
+inline int   kNotifMaxAsks        = 6;        // give up after this many offers
+
+struct NotifMessage { std::string title; std::string body; };
+struct NotifSlot {
+    std::string id;
+    float hours = 3.f;          // fire no sooner than this many hours from now ...
+    int   localHour = -1;       // ... and (when >= 0) at the next occurrence of this local hour of day
+    int   minStreak = 0;        // only when the daily streak is at least this long
+    std::vector<NotifMessage> messages;
+};
+
+// Reminder schedule (rebuilt from scratch every time the app goes to the background). Standard gaps: 3h gift, next
+// morning daily reward, next evening missions, streak guard, then 3 / 7 / 14 / 30 day comebacks. One message per slot is
+// picked per day from its pool so the copy keeps changing.
+inline std::vector<NotifSlot> kNotifSlots = {
+    {"gift", 3.f, -1, 0, {
+        {"FREE GIFT READY!", "Your hourly gift is waiting. Come grab your coins!"},
+        {"COINS ON THE HOUSE", "A free gift just landed in your garage. Tap to collect."},
+        {"GIFT TIME!", "Your free reward is ready, before the dinos steal it!"}}},
+    {"daily", 8.f, 9, 0, {
+        {"DAILY REWARD READY", "Your daily reward is waiting. Keep your streak alive!"},
+        {"NEW DAY, NEW RIDE", "Claim today's bonus: up to 500 coins inside."},
+        {"GOOD MORNING, RIDER", "Your daily gift is ready and your bike is fuelled up."}}},
+    {"missions", 20.f, 18, 0, {
+        {"3 MISSIONS WAITING", "Smash obstacles, grab combos, earn bonus coins."},
+        {"FRESH DAILY MISSIONS", "Today's missions are live. Can you clear all three?"}}},
+    {"streak", 24.f, 20, 2, {
+        {"STREAK IN DANGER", "One quick run keeps your daily streak alive!"},
+        {"DON'T LOSE YOUR STREAK", "Claim your daily reward before the day ends."}}},
+    {"miss3", 72.f, 17, 0, {
+        {"THE DINOS MISS YOU", "Your bike is fuelled up. Ready to escape?"},
+        {"COME BACK, RIDER!", "A welcome-back gift is waiting for you."}}},
+    {"miss7", 168.f, 17, 0, {
+        {"A BIG GIFT IS WAITING", "It's been a week. Come back for a special comeback reward."},
+        {"NEW GADGETS TO TRY", "Level up and unlock gadgets. Your next run awaits."}}},
+    {"miss14", 336.f, 17, 0, {
+        {"YOUR BIKE IS LONELY", "Two weeks! A comeback gift is still waiting for you."}}},
+    {"miss30", 720.f, 17, 0, {
+        {"WE SAVED YOU A GIFT", "It's been a while. Jump back in and claim your free coins."}}},
+};
+
+// Pre-permission offers, rotated so each repeat ask reads differently.
+inline std::vector<NotifMessage> kNotifAsks = {
+    {"NEVER MISS A GIFT", "Want a reminder when your free gift and daily reward are ready?"},
+    {"DAILY STREAK ALERT", "Turn on reminders so you never lose your daily reward streak."},
+    {"FREE COINS WAITING", "Get a ping when your free coins are ready. Only rewards, never spam."},
+    {"DON'T MISS REWARDS", "We only remind you about gifts and missions you can actually claim."},
+    {"STILL THINKING?", "One tap and we'll tell you the moment your gifts are ready."},
+    {"LAST REMINDER OFFER", "Reminders help you collect every reward. Turn them on?"},
+};
 
 // Daily reward (index = streak day, wraps after the last entry)
 inline std::vector<int> kDailyRewards = {50, 75, 100, 150, 200, 300, 500};
@@ -323,5 +449,7 @@ inline const char* kArtOrbShield  = "powerup_shield.png";
 inline const char* kArtOrbTurbo   = "powerup_turbo.png";
 inline const char* kArtOrbBlast   = "powerup_blast.png";
 inline const char* kArtOrbJetpack = "powerup_jetpack.png";
+inline const char* kArtOrbRocket  = "powerup_rocket.png";
+inline const char* kArtOrbGun     = "powerup_gun.png";
 
 } // namespace PZCfg

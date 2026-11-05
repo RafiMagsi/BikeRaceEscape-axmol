@@ -20,6 +20,11 @@
 class PZGGamefieldBasicRunner : public PZGGameFieldScene{
 
     PZGGamefieldPlatforms* platform;
+
+    // Jump input forgiveness: a tap that lands slightly before touchdown is remembered for a few frames.
+    float _jumpBuffer = 0.0f;
+    bool  _touchHeld = false;
+    void applyJumpApex();     // tells the platform generator how high the rider can really jump on this device
     
 public:
     

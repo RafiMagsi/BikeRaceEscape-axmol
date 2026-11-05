@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "PZCrashReporter.h"
 #include "Ads/AdsController.h"
+#include "Features/PZNotifications.h"
 #include "Ads/AdsConfig.h"
 #include "Ads/Providers/AdsProviderAdMob.h"
 #include "Ads/Providers/AdsProviderChartboost.h"
@@ -298,6 +299,7 @@ void AppDelegate::scheduledLoading() {
 
 void AppDelegate::applicationDidEnterBackground() {
     AXLOGI("AppDelegate::applicationDidEnterBackground");
+    PZNotif::reschedule();     // rebuild the reminder schedule relative to the moment the player left
     Director::getInstance()->stopAnimation();
     AudioEngine::pauseAll();
 }

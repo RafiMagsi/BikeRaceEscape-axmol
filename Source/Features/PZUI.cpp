@@ -234,6 +234,38 @@ void burst(Node* parent, const Vec2& pos, const Color3B& color, int count, float
     }
 }
 
+void glitter(Node* parent, const Vec2& pos, const Color3B& color, int count, float radius, float duration, int z) {
+    if (!parent || !PZCfg::kEnableFx) return;
+    for (int i = 0; i < count; ++i) {
+        auto* star = DrawNode::create();
+        const float r = 5.f + 8.f * CCRANDOM_0_1();
+        Vec2 pts[8];
+        for (int k = 0; k < 8; ++k) {
+            const float a = CC_DEGREES_TO_RADIANS(45.f * k);
+            const float rr = (k % 2 == 0) ? r : r * 0.28f;
+            pts[k] = Vec2(std::cos(a), std::sin(a)) * rr;
+        }
+        // A warm core with a white heart reads as a glint.
+        star->drawSolidPoly(pts, 8, c4f(color, 0.95f), 0.f, Color4F(0, 0, 0, 0), false);
+        star->drawDot(Vec2::ZERO, r * 0.22f, Color4F(1.f, 1.f, 1.f, 1.f));
+        const float ang = CCRANDOM_0_1() * 6.2831853f;
+        const float dist = radius * (0.25f + 0.75f * CCRANDOM_0_1());
+        star->setPosition(pos + Vec2(std::cos(ang), std::sin(ang)) * dist);
+        star->setScale(0.f);
+        star->setRotation(CCRANDOM_0_1() * 90.f);
+        parent->addChild(star, z);
+        const float life = duration * (0.7f + 0.5f * CCRANDOM_0_1());
+        star->runAction(Sequence::create(
+            DelayTime::create(CCRANDOM_0_1() * duration * 0.5f),
+            Spawn::create(
+                Sequence::create(EaseOut::create(ScaleTo::create(life * 0.35f, 1.1f), 2.f), ScaleTo::create(life * 0.65f, 0.f), nullptr),
+                RotateBy::create(life, 120.f),
+                MoveBy::create(life, Vec2(0.f, 14.f)),
+                nullptr),
+            RemoveSelf::create(), nullptr));
+    }
+}
+
 void floatText(Node* parent, const std::string& text, const Vec2& pos, const Color3B& color, float size, int z) {
     if (!parent) return;
     auto* l = heading(text, size, color);

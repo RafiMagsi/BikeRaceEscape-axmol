@@ -393,17 +393,7 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
             coin->setScaleX( item->scale.x );
             coin->setScaleY( item->scale.y );
             
-            if (coins[ kMaxBasicRunnerCoins-1 ] != NULL) {
-                coins[ kMaxBasicRunnerCoins-1 ]->destroyPhysics( world );
-                this->removeChild(coins[ kMaxBasicRunnerCoins-1 ], true);
-            }
-            
-            for (int i = kMaxBasicRunnerCoins-1; i > 0; i--){
-                coins[ i ] = coins[ i-1 ];
-            }
-            
-            this->addChild( coin, 33 );
-            coins[ 0 ] = coin;
+            registerCoin( coin );
         }
         else if( item->infoObjKey->compare( "Obstacles" ) == 0){
             if (!obstacles_info) {
@@ -466,44 +456,59 @@ void PZGGamefieldPlatforms::addCoins( int typeId ){
         return;
     }
 
-    coin->setPosition( ccp(spritePosition.x + collisionPosition.x*kDeviceScale() + CCRANDOM_MINUS1_1()*collisionWidth*kDeviceScale(),
-                           spritePosition.y + collisionPosition.y*kDeviceScale() + coin->sprite->getContentSize().height*0.5) );
+    const float coinW = coin->sprite->getContentSize().width;
+    const float coinH = coin->sprite->getContentSize().height;
 
-    if (coin->getPosition().x < screen.width*1.1) {
-        printf("coin\n");
+    auto blockerAt = [&](float x, float y) -> PZGObstacle* {
+        const Rect rn = RectMake(x - coinW * 0.5f, y - coinH * 0.5f, coinW, coinH);
+        for (int i = 0; i < kMaxBasicRunnerObsctales; i++) {
+            PZGObstacle* o = obstacles[i];
+            if (!o || !o->sprite) continue;
+            const Size os = o->sprite->getContentSize();
+            const Rect r = RectMake(o->getPosition().x - os.width * o->obstacle_scale * 0.5f,
+                                    o->getPosition().y - os.height * o->obstacle_scale * 0.5f,
+                                    os.width * o->obstacle_scale,
+                                    os.height * o->obstacle_scale);
+            if (r.intersectsRect(rn)) return o;
+        }
+        return nullptr;
+    };
+
+    // The old code gave up (and leaked the coin) whenever the single random spot landed on an obstacle. Obstacle
+    // density ramps up with distance, so by ~500m almost every spot was blocked and the coins simply stopped
+    // appearing. Try a handful of spots along the platform and lift the coin into a reachable arc over the hazard.
+    const float baseX = spritePosition.x + collisionPosition.x * kDeviceScale();
+    const float baseY = spritePosition.y + collisionPosition.y * kDeviceScale() + coinH * 0.5f;
+    const float span = std::max(collisionWidth * kDeviceScale(), 60.f);
+
+    bool placed = false;
+    Vec2 spot(0.f, 0.f);
+    for (int attempt = 0; attempt < 8 && !placed; ++attempt) {
+        const float x = baseX + CCRANDOM_MINUS1_1() * span;
+        if (x < screen.width * 1.08f) continue;    // keep the spawn out of the visible area
+
+        float y = baseY;
+        if (PZGObstacle* blocker = blockerAt(x, y)) {
+            const float obsH = blocker->sprite->getContentSize().height * blocker->obstacle_scale;
+            y = blocker->getPosition().y + obsH * 0.5f + coinH + 18.f * kDeviceScale();
+            if (blockerAt(x, y)) continue;
+        }
+        if (y > screen.height - 90.f) continue;
+
+        spot = Vec2(x, y);
+        placed = true;
+    }
+
+    if (!placed) {
+        // Nothing free on this platform: drop the coin cleanly instead of leaking a physics body.
+        coin->destroyPhysics(world);
+        coin->release();
         return;
     }
 
-    //check for obstacle overlap
-    for (int i=0; i < kMaxBasicRunnerObsctales; i++) {
-        if (obstacles[ i ]) {
-            Rect r = RectMake(obstacles[ i ]->getPosition().x - obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale * 0.5,
-                                  obstacles[ i ]->getPosition().y - obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale * 0.5,
-                                  obstacles[ i ]->sprite->getContentSize().width * obstacles[ i ]->obstacle_scale,
-                                  obstacles[ i ]->sprite->getContentSize().height * obstacles[ i ]->obstacle_scale);
+    coin->setPosition(ccp(spot.x, spot.y));
 
-            Rect rn = RectMake(coin->getPosition().x - coin->sprite->getContentSize().width * 0.5,
-                                   coin->getPosition().y - coin->sprite->getContentSize().height * 0.5,
-                                   coin->sprite->getContentSize().width,
-                                   coin->sprite->getContentSize().height);
-
-            if (r.intersectsRect( rn )) {
-                return;
-            }
-        }
-    }
-
-    if (coins[ kMaxBasicRunnerCoins-1 ] != NULL) {
-        coins[ kMaxBasicRunnerCoins-1 ]->destroyPhysics( world );
-        this->removeChild(coins[ kMaxBasicRunnerCoins-1 ], true);
-    }
-
-    for (int i = kMaxBasicRunnerCoins-1; i > 0; i--){
-        coins[ i ] = coins[ i-1 ];
-    }
-
-    this->addChild( coin, 33 );
-    coins[ 0 ] = coin;
+            registerCoin( coin );
 }
 void PZGGamefieldPlatforms::addObstacle( int typeId ){
 
@@ -585,16 +590,7 @@ void PZGGamefieldPlatforms::addObstacle( int typeId ){
             }
         }
         
-        if (obstacles[ kMaxBasicRunnerObsctales-1 ] != NULL) {
-            obstacles[ kMaxBasicRunnerObsctales-1 ]->destroyPhysics( world );
-            this->removeChild(obstacles[ kMaxBasicRunnerObsctales-1 ], true);
-        }
-        for (int i = kMaxBasicRunnerObsctales-1; i > 0; i--){
-            obstacles[ i ] = obstacles[ i-1 ];
-        }
-        
-    this->addChild( obstacle,  32 - (obstacles_info->count() - typeId));
-    obstacles[ 0 ] = obstacle;
+    registerObstacle( obstacle, 32 - (int)(obstacles_info->count() - typeId) );
 }
 
 void PZGGamefieldPlatforms::update(float dt){
@@ -661,7 +657,8 @@ void PZGGamefieldPlatforms::update(float dt){
             obstacles[ i ]->setPosition( ccp(obstacles[ i ]->getPosition().x - s, obstacles[ i ]->getPosition().y) );
             obstacles[ i ]->update( dt );
             
-            if (obstacles[ i ]->deleteReady) {
+            // Passed objects are culled here (they used to be evicted by accident when the arrays overflowed).
+            if (obstacles[ i ]->deleteReady || obstacles[ i ]->getPosition().x < -420.0f * kDeviceScale()) {
                 obstacles[ i ]->removeFromParentAndCleanup( true );
                 obstacles[ i ]->destroyPhysics( world );
                 obstacles[ i ] = NULL;
@@ -675,7 +672,7 @@ void PZGGamefieldPlatforms::update(float dt){
             coins[ i ]->setPosition( ccp(coins[ i ]->getPosition().x - s, coins[ i ]->getPosition().y) );
             coins[ i ]->update( dt );
             
-            if (coins[ i ]->deleteReady) {
+            if (coins[ i ]->deleteReady || coins[ i ]->getPosition().x < -260.0f * kDeviceScale()) {
                 coins[ i ]->removeFromParentAndCleanup( true );
                 coins[ i ]->destroyPhysics( world );
                 coins[ i ] = NULL;
@@ -783,28 +780,56 @@ bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
 // Obstacle placement rules + guide coins (see Features/PZGameConfig.h, section "obstacle fairness")
 // ---------------------------------------------------------------------------------------------
 
-void PZGGamefieldPlatforms::registerObstacle( PZGObstacle* obstacle ){
-    if (obstacles[ kMaxBasicRunnerObsctales-1 ] != NULL) {
-        obstacles[ kMaxBasicRunnerObsctales-1 ]->destroyPhysics( world );
-        this->removeChild(obstacles[ kMaxBasicRunnerObsctales-1 ], true);
+void PZGGamefieldPlatforms::registerObstacle( PZGObstacle* obstacle, int zOrder ){
+    if (zOrder == INT_MIN) {
+        zOrder = 32 - (obstacles_info ? (int)obstacles_info->count() : 0);
     }
-    for (int i = kMaxBasicRunnerObsctales-1; i > 0; i--){
-        obstacles[ i ] = obstacles[ i-1 ];
+    int slot = -1;
+    for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
+        if (!obstacles[ i ]) {
+            slot = i;
+            break;
+        }
     }
-    this->addChild( obstacle,  32 - (obstacles_info ? (int)obstacles_info->count() : 0) );
-    obstacles[ 0 ] = obstacle;
+    if (slot < 0) {
+        // Truly full (should not happen with the capacity above): drop the object furthest behind the rider.
+        float leftmost = 1.0e9f;
+        for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
+            if (obstacles[ i ] && obstacles[ i ]->getPosition().x < leftmost) {
+                leftmost = obstacles[ i ]->getPosition().x;
+                slot = i;
+            }
+        }
+        obstacles[ slot ]->destroyPhysics( world );
+        this->removeChild( obstacles[ slot ], true );
+        obstacles[ slot ] = NULL;
+    }
+    this->addChild( obstacle, zOrder );
+    obstacles[ slot ] = obstacle;
 }
 
 void PZGGamefieldPlatforms::registerCoin( PZGCoin* coin ){
-    if (coins[ kMaxBasicRunnerCoins-1 ] != NULL) {
-        coins[ kMaxBasicRunnerCoins-1 ]->destroyPhysics( world );
-        this->removeChild(coins[ kMaxBasicRunnerCoins-1 ], true);
+    int slot = -1;
+    for (int i = 0; i < kMaxBasicRunnerCoins; ++i) {
+        if (!coins[ i ]) {
+            slot = i;
+            break;
+        }
     }
-    for (int i = kMaxBasicRunnerCoins-1; i > 0; i--){
-        coins[ i ] = coins[ i-1 ];
+    if (slot < 0) {
+        float leftmost = 1.0e9f;
+        for (int i = 0; i < kMaxBasicRunnerCoins; ++i) {
+            if (coins[ i ] && coins[ i ]->getPosition().x < leftmost) {
+                leftmost = coins[ i ]->getPosition().x;
+                slot = i;
+            }
+        }
+        coins[ slot ]->destroyPhysics( world );
+        this->removeChild( coins[ slot ], true );
+        coins[ slot ] = NULL;
     }
     this->addChild( coin, 33 );
-    coins[ 0 ] = coin;
+    coins[ slot ] = coin;
 }
 
 void PZGGamefieldPlatforms::addCoinArc( const Vec2& from, const Vec2& to, float peakRise, int count, const std::vector<Rect>& avoid ){
@@ -909,6 +934,7 @@ void PZGGamefieldPlatforms::finalizeChunk( std::vector<PZGObstacle*>& pending, P
                           (1.0f - PZCfg::kDensityStart) * std::max( 0.0f, distance ) / std::max( 1.0f, PZCfg::kDensityFullDistance ) );
     float lastMaxX = -1.0e9f;
     std::vector<Rect> kept;
+    std::vector<std::pair<float,float>> spans;      // x-range of every hazard cluster that survived
     for (Cluster& c : clusters) {
         // too wide to clear in one jump: shed obstacles from the right until it fits
         while (c.items.size() > 1 && (c.maxX - c.minX) > PZCfg::kClusterMaxWidth * k) {
@@ -925,6 +951,7 @@ void PZGGamefieldPlatforms::finalizeChunk( std::vector<PZGObstacle*>& pending, P
             continue;
         }
         lastMaxX = c.maxX;
+        spans.push_back( { c.minX, c.maxX } );
         for (PZGObstacle* o : c.items) {
             const Rect b = o->worldBox();
             kept.push_back( Rect( b.getMinX() - 8.0f, b.getMinY() - 8.0f, b.size.width + 16.0f, b.size.height + 16.0f ) );
@@ -936,6 +963,56 @@ void PZGGamefieldPlatforms::finalizeChunk( std::vector<PZGObstacle*>& pending, P
             const float rise = std::min( riderApex * 0.82f, std::max( PZCfg::kArcHeight * k, (c.topY - groundY) + 60.0f * k ) );
             addCoinArc( ccp( c.minX - 80.0f * k, groundY + 30.0f * k ), ccp( c.maxX + 80.0f * k, groundY + 30.0f * k ),
                         rise, PZCfg::kArcCoinCount, kept );
+        }
+    }
+
+    // 4b. Hazard budget. Chunks are hand-authored and the fairness rules above remove anything unjumpable, so a platform
+    // can end up with no hazard at all. The budget guarantees a minimum number of hazard clusters per platform that
+    // grows with distance, placed under the same rules (inside the safe zones, spaced, jumpable) and given guide coins.
+    if (PZCfg::kEnableHazardBudget && obstacles_info && obstacles_info->count() > 0) {
+        const int target = distance < PZCfg::kBudget1Distance ? 0
+                         : distance < PZCfg::kBudget2Distance ? 1
+                         : distance < PZCfg::kBudget3Distance ? 2 : 3;
+        std::vector<int> candidates;
+        for (int i = 0; i < (int)obstacles_info->count(); ++i) {
+            auto* info = (PZGArtObstacle*)obstacles_info->objectAtIndex( i );
+            if (info && info->destroyCharacter && !info->collideCharacter) candidates.push_back( i );
+        }
+        int have = (int)spans.size();
+        int attempts = 0;
+        const float lo = surfaceL + (PZCfg::kSafeLanding + 70.0f) * k;
+        const float hi = surfaceR - (PZCfg::kSafeTakeoff + 70.0f) * k;
+        while (have < target && attempts < 10 && !candidates.empty() && hi > lo) {
+            ++attempts;
+            const float x = lo + CCRANDOM_0_1() * (hi - lo);
+            bool clash = false;
+            for (const auto& sp : spans) {
+                if (x > sp.first - PZCfg::kClusterGap * k * 0.7f && x < sp.second + PZCfg::kClusterGap * k * 0.7f) {
+                    clash = true;
+                    break;
+                }
+            }
+            if (clash) continue;
+
+            auto* info = (PZGArtObstacle*)obstacles_info->objectAtIndex( candidates[ rand() % candidates.size() ] );
+            PZGObstacle* o = PZGObstacle::create( info, world );
+            if (!o) continue;
+            o->velocityLinear = ccp(0, 0);
+            o->setPosition( ccp( x, platform->body->GetPosition().y * inv + o->sprite->getContentSize().height * 0.5f * o->obstacle_scale ) );
+            const Rect b = o->worldBox();
+            if ((b.getMaxY() - groundY) > riderApex * 0.8f || b.size.width > PZCfg::kClusterMaxWidth * k) {
+                discard( o );
+                continue;
+            }
+            spans.push_back( { b.getMinX(), b.getMaxX() } );
+            kept.push_back( Rect( b.getMinX() - 8.0f, b.getMinY() - 8.0f, b.size.width + 16.0f, b.size.height + 16.0f ) );
+            registerObstacle( o );
+            ++have;
+            if (PZCfg::kEnableCoinArcs) {
+                const float rise = std::min( riderApex * 0.82f, std::max( PZCfg::kArcHeight * k, (b.getMaxY() - groundY) + 60.0f * k ) );
+                addCoinArc( ccp( b.getMinX() - 80.0f * k, groundY + 30.0f * k ), ccp( b.getMaxX() + 80.0f * k, groundY + 30.0f * k ),
+                            rise, PZCfg::kArcCoinCount, kept );
+            }
         }
     }
 

@@ -795,6 +795,11 @@ void PZGGameFieldScene::coinPickup( PZGCoin* _coin ){
 }
 
 void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
+    // A revive (popup, video, hover, countdown) owns the end of the run: further death signals are ignored until it
+    // resolves, otherwise a second call would stack a GAME OVER screen under the offer.
+    if (_isGameOver && run && run->deathPending()) {
+        return;
+    }
     // Revive offer: the director freezes the run and calls back here again if the player declines.
     if (_isGameOver && run && !gameOver && run->onDeath()) {
         return;

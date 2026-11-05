@@ -96,6 +96,7 @@ void ensureLoaded() {
     R(theme, ColText); R(theme, ColDim); R(theme, ColAccent); R(theme, ColAccent2); R(theme, ColGood); R(theme, ColBad);
     R(theme, ColPanel); R(theme, ColPanelEdge); R(theme, ColPanelEdge2); R(theme, ColButton); R(theme, ColButtonDark);
     R(theme, ColMagnet); R(theme, ColShield); R(theme, ColTurbo); R(theme, ColBlast); R(theme, ColJetpack);
+    R(theme, ColRocket); R(theme, ColGun);
     if (auto* t = find(theme, "StageTints"); t && t->getType() == Value::Type::VECTOR) {
         std::vector<StageTint> tints;
         for (const auto& row : t->asValueVector()) {
@@ -114,8 +115,10 @@ void ensureLoaded() {
     R(str, StrMagnet); R(str, StrShield); R(str, StrTurbo); R(str, StrBlastName); R(str, StrJetpackName);
     R(str, StrMagnetIcon); R(str, StrShieldIcon); R(str, StrTurboIcon); R(str, StrBlastIcon); R(str, StrJetpackIcon);
     R(str, StrJetpack); R(str, StrBigAir); R(str, StrStartHint); R(str, StrHeadStart); R(str, StrLuckyHelmet);
+    R(str, StrRocketName); R(str, StrGunName); R(str, StrRocketIcon); R(str, StrGunIcon); R(str, StrRocket); R(str, StrGun);
+    R(str, StrReviveWait); R(str, StrGetReady);
     R(str, StrReviveTitle); R(str, StrReviveBtn); R(str, StrReviveNoCoins); R(str, StrReviveSkip); R(str, StrReviveCoins); R(str, StrReviveVideo); R(str, StrReviveFree); R(str, StrReviveLoading); R(str, StrReviveSub); R(str, StrMissionTrack);
-    R(str, StrVideoNoAd); R(str, StrVideoRetry); R(str, StrFreeCoinsBtn); R(str, StrFreeCoinsTitle); R(str, StrFreeCoinsSub); R(str, StrFreeCoinsWait); R(str, StrFreeCoinsReady);
+    R(str, StrVideoNoAd); R(str, StrVideoRetry); R(str, StrGiftsBtn); R(str, StrGiftsTitle); R(str, StrGiftDaily); R(str, StrGiftHourly); R(str, StrGiftSpin); R(str, StrGiftVideo); R(str, StrGiftChest); R(str, StrGiftMissions); R(str, StrGiftReady); R(str, StrGiftIn); R(str, StrGiftNextChest); R(str, StrGiftMissionHint); R(str, StrGiftClaimed); R(str, StrSpinBtn); R(str, StrSpinVideo); R(str, StrSpinTitle); R(str, StrComebackTitle); R(str, StrComebackSub); R(str, StrFreeCoinsBtn); R(str, StrFreeCoinsTitle); R(str, StrFreeCoinsSub); R(str, StrFreeCoinsWait); R(str, StrFreeCoinsReady);
     R(str, StrDoubleCoins); R(str, StrDoubleClaimed); R(str, StrDoubleCoinsSub);
     R(str, StrGadgetsTitle); R(str, StrGadgetsSub); R(str, StrGadgetsBtn); R(str, StrGadgetLocked); R(str, StrGadgetEquipped);
     R(str, StrDailyTitle); R(str, StrDailyDay); R(str, StrDailyClaim); R(str, StrDailyStreak); R(str, StrDailyBtn);
@@ -123,14 +126,15 @@ void ensureLoaded() {
     R(str, StrMissionNew); R(str, StrClose);
     R(str, StrResultsBest); R(str, StrResultsCoins); R(str, StrResultsDistance); R(str, StrResultsLevel); R(str, StrLevelUp);
     R(str, StrStatsDistance); R(str, StrStatsCoins); R(str, StrStatsBest);
-    R(str, StrMissionToast); R(str, StrLevelPlate); R(str, StrVibration); R(str, StrOn); R(str, StrOff);
+    R(str, StrMissionToast); R(str, StrLevelPlate); R(str, StrXpFormat); R(str, StrNextUnlock); R(str, StrAllUnlocked); R(str, StrNotifYes); R(str, StrNotifNo); R(str, StrNotifOn); R(str, StrNotifBtn); R(str, StrNotifDenied); R(str, StrVibration); R(str, StrOn); R(str, StrOff);
 
     const ValueMap* feat = section(*root, "features");
-    R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
+    R(feat, EnableNotifications); R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
     R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
-    R(feat, EnableFairPlacement); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
+    R(feat, EnableFairPlacement); R(feat, EnableHazardBudget); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
     R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableDoubleCoins);
     R(feat, EnableBigAir); R(feat, EnableStartGrace);
+    R(feat, EnableRocket); R(feat, EnableGun);
 
     const ValueMap* tun = section(*root, "tuning");
     R(tun, StageLength); R(tun, StageCoinBonus);
@@ -140,20 +144,69 @@ void ensureLoaded() {
     R(tun, OrbHeightAboveGround); R(tun, OrbRadius);
     R(tun, MagnetDuration); R(tun, MagnetRadius); R(tun, ShieldDuration); R(tun, ShieldBreakRadius);
     R(tun, TurboDuration); R(tun, TurboSpeedMult); R(tun, TurboMagnetRadius);
-    R(tun, BlastRadius); R(tun, BlastWaveSpeed); R(tun, HitGrace);
+    R(tun, BlastRadius); R(tun, BlastMaxTargets); R(tun, BlastZoom); R(tun, BlastZoomIn); R(tun, BlastHold); R(tun, BlastGap); R(tun, BlastZoomOut); R(tun, BlastWaveSpeed); R(tun, HitGrace);
     R(tun, WeightMagnet); R(tun, WeightShield); R(tun, WeightTurbo); R(tun, WeightBlast);
     R(tun, DensityStart); R(tun, DensityFullDistance); R(tun, SafeLanding); R(tun, SafeTakeoff);
-    R(tun, ClusterMaxWidth); R(tun, ClusterGap); R(tun, ArcCoinCount); R(tun, ArcHeight);
-    R(tun, JumpBuffer); R(tun, MercyBestBelow); R(tun, MercySaves); R(tun, ReviveTurbo);
+    R(tun, Budget1Distance); R(tun, Budget2Distance); R(tun, Budget3Distance); R(tun, ClusterMaxWidth); R(tun, ClusterGap); R(tun, ArcCoinCount); R(tun, ArcHeight);
+    R(tun, NotifMinRuns); R(tun, NotifAskCooldownDays); R(tun, NotifMaxAsks); R(tun, JumpBuffer); R(tun, ReadySeconds); R(tun, MercyBestBelow); R(tun, MercySaves); R(tun, ReviveTurbo);
     R(tun, StartGrace); R(tun, BigAirMin); R(tun, BigAirCoins);
     R(tun, GadgetSlots); R(tun, GadgetMagnetSeconds); R(tun, GadgetShieldSeconds); R(tun, GadgetHeadStartM); R(tun, GadgetHelmetSaves);
     R(tun, JetpackDuration); R(tun, JetpackHeight); R(tun, JetpackCoinEvery); R(tun, JetpackCoinsPerTick); R(tun, WeightJetpack);
+    R(tun, RocketDuration); R(tun, RocketSpeedMult); R(tun, GunDuration); R(tun, GunInterval); R(tun, GunRange);
+    R(tun, OrbWeightRocket); R(tun, OrbWeightGun);
     R(tun, ReviveCost); R(tun, ReviveCountdown); R(tun, BannerReserve); R(tun, SmashCoins);
-    R(tun, HitStop); R(tun, DustPuffs); R(tun, HapticCoinInterval);
+    R(tun, HitStop); R(tun, PunchZoom); R(tun, DustPuffs); R(tun, HapticCoinInterval);
     R(tun, XpPerLevelUnit); R(tun, LevelUpCoins); R(tun, XpPerDistance); R(tun, XpPerCoin); R(tun, XpPerStage);
+
+    const ValueMap* gifts = section(*root, "gifts");
+    R(gifts, EnableGifts); R(gifts, HourlyCooldown); R(gifts, HourlyMin); R(gifts, HourlyMax);
+    R(gifts, ChestEveryLevels); R(gifts, ChestCoinsPerLevel); R(gifts, MissionChestCoins);
+    R(gifts, ComebackMinHours); R(gifts, ComebackCoinsPerDay); R(gifts, ComebackMaxDays);
+    auto readInts = [](const Value* v, std::vector<int>& out) {
+        if (!v || v->getType() != Value::Type::VECTOR) return;
+        std::vector<int> tmp;
+        for (const auto& e : v->asValueVector()) tmp.push_back(e.asInt());
+        if (!tmp.empty()) out = tmp;
+    };
+    readInts(find(gifts, "SpinRewards"), kSpinRewards);
+    readInts(find(gifts, "SpinWeights"), kSpinWeights);
+    if (kSpinWeights.size() != kSpinRewards.size()) kSpinWeights.assign(kSpinRewards.size(), 1);
 
     const ValueMap* rewards = section(*root, "rewards");
     R(rewards, FreeCoinsAmount); R(rewards, FreeCoinsCooldown); R(rewards, DoubleCoinsMultiplier);
+
+    const ValueMap* notif = section(*root, "notifications");
+    auto readMessages = [](const Value& v) {
+        std::vector<NotifMessage> out;
+        if (v.getType() != Value::Type::VECTOR) return out;
+        for (const auto& row : v.asValueVector()) {
+            if (row.getType() != Value::Type::MAP) continue;
+            const auto& m = row.asValueMap();
+            auto t = m.find("Title"), b = m.find("Body");
+            if (t == m.end() || b == m.end()) continue;
+            out.push_back({t->second.asString(), b->second.asString()});
+        }
+        return out;
+    };
+    if (auto* a = find(notif, "Asks")) {
+        auto v = readMessages(*a);
+        if (!v.empty()) kNotifAsks = v;
+    }
+    if (auto* sl = find(notif, "Slots"); sl && sl->getType() == Value::Type::VECTOR) {
+        std::vector<NotifSlot> slots;
+        for (const auto& row : sl->asValueVector()) {
+            if (row.getType() != Value::Type::MAP) continue;
+            const auto& m = row.asValueMap();
+            NotifSlot slot;
+            if (auto it = m.find("Id"); it != m.end()) slot.id = it->second.asString();
+            if (auto it = m.find("Hours"); it != m.end()) slot.hours = it->second.asFloat();
+            if (auto it = m.find("LocalHour"); it != m.end()) slot.localHour = it->second.asInt();
+            if (auto it = m.find("MinStreak"); it != m.end()) slot.minStreak = it->second.asInt();
+            if (auto it = m.find("Messages"); it != m.end()) slot.messages = readMessages(it->second);
+            if (!slot.id.empty() && slot.hours > 0.f && !slot.messages.empty()) slots.push_back(slot);
+        }
+        if (!slots.empty()) kNotifSlots = slots;
+    }
 
     const ValueMap* daily = section(*root, "daily");
     if (auto* r = find(daily, "Rewards"); r && r->getType() == Value::Type::VECTOR) {

@@ -5,6 +5,7 @@
 #include "PZUI.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
+#include "PZNotifications.h"
 #include "PZSettingsController.h"
 #include "Ads/AdsController.h"
 #include "SharedData/PZGSharedData.h"
@@ -284,7 +285,10 @@ Node* showDailyReward(Node* parent, std::function<void()> onClosed) {
             streak->setString(sb);
             return;
         }
-        dismiss(basePtr, onClosed);
+        dismiss(basePtr, [parent, onClosed, claimedNow]() {
+            if (onClosed) onClosed();
+            if (*claimedNow) PZNotif::maybeOffer(parent);       // a claimed reward is the best moment to ask
+        });
     };
     auto* btn = PZUI::Button::create(available ? PZCfg::kStrDailyClaim : PZCfg::kStrClose, 290.f, 58.f,
                                      available ? PZCfg::kColGood : PZCfg::kColButton, onTap, 17.f);
@@ -565,6 +569,15 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
         if (!PZ::AdsController::shared()->isRewardedAvailable()) PZ::AdsController::shared()->requestRewarded();
     }
 
+    // Reminder offer: only at a good moment (new best, level-up, mission done, or a decent haul), after the animations.
+    {
+        const bool happy = r.newBest || r.levelAfter > r.levelBefore || !r.completedMissions.empty() || stats.coins >= 25;
+        Node* host = gameOverLayer->getParent() ? gameOverLayer->getParent() : gameOverLayer;
+        if (happy && PZNotif::shouldOffer()) {
+            root->runAction(Sequence::create(DelayTime::create(3.2f), CallFunc::create([host]() { PZNotif::maybeOffer(host); }), nullptr));
+        }
+    }
+
     // Missions completed during this run.
     auto* pg = PZProgress::shared();
     float delay = 1.3f;
@@ -594,22 +607,24 @@ public:
         c->autorelease();
         c->_w = w; c->_h = h; c->_def = def; c->_unlocked = unlocked; c->_selected = selected;
         c->_onTap = std::move(onTap);
+        // Content is drawn centred on the node's local origin, so the origin must stay at the node's position
+        // (anchor 0,0). A (0.5,0.5) anchor shifted the whole card by half its size and offset the touch test.
         c->setContentSize(Size(w, h));
-        c->setAnchorPoint(Vec2(0.5f, 0.5f));
+        c->setAnchorPoint(Vec2::ZERO);
         c->rebuild();
 
         auto* l = EventListenerTouchOneByOne::create();
         l->setSwallowTouches(true);
         l->onTouchBegan = [c](Touch* t, Event*) {
             const Vec2 p = c->convertToNodeSpace(t->getLocation());
-            if (p.x < 0 || p.y < 0 || p.x > c->_w || p.y > c->_h) return false;
+            if (std::abs(p.x) > c->_w * 0.5f || std::abs(p.y) > c->_h * 0.5f) return false;
             c->setScale(0.97f);
             return true;
         };
         l->onTouchEnded = [c](Touch* t, Event*) {
             c->setScale(1.f);
             const Vec2 p = c->convertToNodeSpace(t->getLocation());
-            if (p.x < 0 || p.y < 0 || p.x > c->_w || p.y > c->_h) return;
+            if (std::abs(p.x) > c->_w * 0.5f || std::abs(p.y) > c->_h * 0.5f) return;
             if (c->_onTap) c->_onTap();
         };
         l->onTouchCancelled = [c](Touch*, Event*) { c->setScale(1.f); };
@@ -707,14 +722,20 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
     const int count = pg->gadgetPoolCount();
     const int cols = 2;
     const int rows = std::max(1, (count + cols - 1) / cols);
-    const float cardW = std::min(300.f, (panelW - 90.f) * 0.5f);
-    const float cardH = 92.f;
     const float gapX = 18.f;
     const float gapY = 12.f;
+    const float closeY = mid.y - panelH * 0.5f + 34.f;
+
+    // Cards are fitted to the panel's usable area (below the subtitle, above the CLOSE button) and centred in it, so
+    // they can never hang over the panel border on a shorter screen.
+    const float contentTop = mid.y + panelH * 0.5f - 96.f;
+    const float contentBottom = closeY + 42.f;
+    const float cardW = std::min(300.f, (panelW - 56.f - gapX) * 0.5f);
+    const float cardH = std::max(74.f, std::min(92.f, (contentTop - contentBottom - (rows - 1) * gapY) / rows));
     const float totalW = cols * cardW + (cols - 1) * gapX;
     const float totalH = rows * cardH + (rows - 1) * gapY;
     const float left = mid.x - totalW * 0.5f + cardW * 0.5f;
-    const float top = mid.y + 48.f;
+    const float top = contentTop - std::max(0.f, ((contentTop - contentBottom) - totalH) * 0.5f) - cardH * 0.5f;
 
     auto refreshCards = std::make_shared<std::function<void()>>();
     std::vector<GadgetCard*> cards;
@@ -758,12 +779,489 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
     };
 
     Node* basePtr = base;
-    float closeY = mid.y - panelH * 0.5f + 34.f;
     auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton,
                                        [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 12.f);
     close->setPosition(Vec2(mid.x, closeY));
     base->addChild(close);
 
+    return base;
+}
+
+// ================================================================================================
+// Gifts: Gift Center, Lucky Spin, Welcome Back
+// ================================================================================================
+
+namespace {
+
+std::string giftClock(int secs) {
+    char b[24];
+    if (secs >= 3600) std::snprintf(b, sizeof(b), "%d:%02d:%02d", secs / 3600, (secs / 60) % 60, secs % 60);
+    else std::snprintf(b, sizeof(b), "%d:%02d", secs / 60, secs % 60);
+    return b;
+}
+
+// Reward feedback shared by every gift: coin sound, glitter, burst, floating amount and a success haptic.
+void giftFx(Node* host, const Vec2& at, int amount) {
+    char t[32];
+    std::snprintf(t, sizeof(t), "+%d", amount);
+    PZUI::floatText(host, t, at + Vec2(0, 20), PZCfg::kColAccent, 24.f, 1800);
+    PZUI::burst(host, at, PZCfg::kColAccent, 20, 120.f, 0.7f, 1700);
+    PZUI::glitter(host, at, PZCfg::kColAccent, 14, 110.f, 0.9f, 1700);
+    playCoin();
+    PZHaptics::play(PZHaptics::Kind::Success);
+}
+
+enum class GiftKind { Daily, Hourly, Spin, Video, Chest, MissionChest };
+
+// Tappable card with a drawn icon, a name and a status line. Content is centred on the node origin (anchor 0,0).
+class GiftCard : public Node {
+public:
+    static GiftCard* make(GiftKind kind, float w, float h, std::function<void()> onTap) {
+        auto* c = new GiftCard();
+        if (!c->init()) { delete c; return nullptr; }
+        c->autorelease();
+        c->_kind = kind; c->_w = w; c->_h = h; c->_onTap = std::move(onTap);
+        c->setContentSize(Size(w, h));
+        c->setAnchorPoint(Vec2::ZERO);
+        auto* l = EventListenerTouchOneByOne::create();
+        l->setSwallowTouches(true);
+        l->onTouchBegan = [c](Touch* t, Event*) {
+            const Vec2 p = c->convertToNodeSpace(t->getLocation());
+            if (!c->isVisible() || std::abs(p.x) > c->_w * 0.5f || std::abs(p.y) > c->_h * 0.5f) return false;
+            c->setScale(0.96f);
+            return true;
+        };
+        l->onTouchEnded = [c](Touch* t, Event*) {
+            c->setScale(1.f);
+            const Vec2 p = c->convertToNodeSpace(t->getLocation());
+            if (std::abs(p.x) > c->_w * 0.5f || std::abs(p.y) > c->_h * 0.5f) return;
+            PZHaptics::play(PZHaptics::Kind::Selection);
+            if (c->_onTap) c->_onTap();
+        };
+        l->onTouchCancelled = [c](Touch*, Event*) { c->setScale(1.f); };
+        c->getEventDispatcher()->addEventListenerWithSceneGraphPriority(l, c);
+        return c;
+    }
+
+    void setState(const std::string& name, const std::string& status, bool ready) {
+        _name = name; _status = status; _ready = ready;
+        rebuild();
+    }
+
+private:
+    void drawIcon(DrawNode* d, const Vec2& c) {
+        const Color3B gold = PZCfg::kColAccent;
+        const Color3B edge(120, 80, 10);
+        switch (_kind) {
+        case GiftKind::Daily: {            // wrapped present
+            d->drawSolidRect(c + Vec2(-17, -15), c + Vec2(17, 8), PZUI::c4f(PZCfg::kColAccent2));
+            d->drawSolidRect(c + Vec2(-19, 8), c + Vec2(19, 17), PZUI::c4f(gold));
+            d->drawSolidRect(c + Vec2(-3, -15), c + Vec2(3, 17), PZUI::c4f(Color3B(255, 240, 200)));
+            d->drawSolidCircle(c + Vec2(-7, 22), 6.f, 0.f, 12, PZUI::c4f(gold));
+            d->drawSolidCircle(c + Vec2(7, 22), 6.f, 0.f, 12, PZUI::c4f(gold));
+            break;
+        }
+        case GiftKind::Hourly: {           // clock
+            d->drawSolidCircle(c, 21.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge));
+            d->drawSolidCircle(c, 17.f, 0.f, 28, PZUI::c4f(Color3B(240, 232, 210)));
+            d->drawSegment(c, c + Vec2(0, 11), 2.2f, PZUI::c4f(Color3B(40, 30, 20)));
+            d->drawSegment(c, c + Vec2(8, -3), 2.2f, PZUI::c4f(PZCfg::kColBad));
+            d->drawDot(c, 2.5f, PZUI::c4f(Color3B(40, 30, 20)));
+            break;
+        }
+        case GiftKind::Spin: {             // wheel
+            const Color3B cols[2] = {PZCfg::kColAccent2, Color3B(70, 150, 240)};
+            for (int i = 0; i < 8; ++i) {
+                const float a0 = CC_DEGREES_TO_RADIANS(45.f * i), a1 = CC_DEGREES_TO_RADIANS(45.f * (i + 1));
+                Vec2 tri[3] = {c, c + Vec2(std::cos(a0), std::sin(a0)) * 21.f, c + Vec2(std::cos(a1), std::sin(a1)) * 21.f};
+                d->drawSolidPoly(tri, 3, PZUI::c4f(cols[i % 2]), 0.f, Color4F(0, 0, 0, 0), true);
+            }
+            d->drawCircle(c, 21.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColPanelEdge2), 2.5f);
+            d->drawDot(c, 5.f, PZUI::c4f(gold));
+            break;
+        }
+        case GiftKind::Video: {            // screen + play triangle
+            d->drawSolidRect(c + Vec2(-22, -14), c + Vec2(22, 14), PZUI::c4f(PZCfg::kColPanelEdge));
+            d->drawSolidRect(c + Vec2(-19, -11), c + Vec2(19, 11), PZUI::c4f(Color3B(14, 18, 32)));
+            Vec2 tri[3] = {c + Vec2(-6, -8), c + Vec2(-6, 8), c + Vec2(9, 0)};
+            d->drawSolidPoly(tri, 3, PZUI::c4f(PZCfg::kColGood), 0.f, Color4F(0, 0, 0, 0), true);
+            break;
+        }
+        case GiftKind::Chest: {            // treasure chest
+            d->drawSolidRect(c + Vec2(-20, -15), c + Vec2(20, 3), PZUI::c4f(Color3B(150, 92, 40)));
+            Vec2 lid[6] = {c + Vec2(-20, 3), c + Vec2(-17, 12), c + Vec2(-8, 17), c + Vec2(8, 17), c + Vec2(17, 12), c + Vec2(20, 3)};
+            d->drawSolidPoly(lid, 6, PZUI::c4f(Color3B(190, 120, 55)), 0.f, Color4F(0, 0, 0, 0), true);
+            d->drawSolidRect(c + Vec2(-20, -3), c + Vec2(20, 1), PZUI::c4f(gold));
+            d->drawSolidRect(c + Vec2(-4, -8), c + Vec2(4, 4), PZUI::c4f(gold));
+            break;
+        }
+        case GiftKind::MissionChest: {     // star
+            Vec2 pts[10];
+            for (int i = 0; i < 10; ++i) {
+                const float a = CC_DEGREES_TO_RADIANS(90.f + 36.f * i);
+                const float r = (i % 2 == 0) ? 22.f : 9.f;
+                pts[i] = c + Vec2(std::cos(a), std::sin(a)) * r;
+            }
+            d->drawSolidPoly(pts, 10, PZUI::c4f(gold), 2.f, PZUI::c4f(edge), false);
+            break;
+        }
+        }
+    }
+
+    void rebuild() {
+        removeAllChildren();
+        const Color3B edge = _ready ? PZCfg::kColAccent : PZCfg::kColPanelEdge;
+        addChild(PZUI::roundedRect(_w, _h, 14.f, Color3B(24, 30, 50), 0.97f, edge, _ready ? 1.f : 0.75f, _ready ? 4.f : 3.f));
+        if (_ready) {
+            addChild(PZUI::roundedRect(_w - 8.f, _h - 8.f, 11.f, PZCfg::kColAccent, 0.09f, PZCfg::kColAccent, 0.3f, 1.f));
+        }
+        auto* icon = DrawNode::create();
+        drawIcon(icon, Vec2(0.f, _h * 0.5f - 46.f));
+        addChild(icon);
+        auto* name = PZUI::heading(_name, 8.f, PZCfg::kColText);
+        name->setPosition(Vec2(0.f, -_h * 0.5f + 40.f));
+        if (name->getContentSize().width > _w - 20.f) name->setScale((_w - 20.f) / name->getContentSize().width);
+        addChild(name);
+        auto* st = PZUI::heading(_status, 8.f, _ready ? PZCfg::kColGood : PZCfg::kColDim);
+        st->setPosition(Vec2(0.f, -_h * 0.5f + 20.f));
+        if (st->getContentSize().width > _w - 20.f) st->setScale((_w - 20.f) / st->getContentSize().width);
+        addChild(st);
+        if (_ready) {
+            auto* dot = DrawNode::create();
+            dot->drawSolidCircle(Vec2::ZERO, 6.f, 0.f, 14, PZUI::c4f(PZCfg::kColBad));
+            dot->drawCircle(Vec2::ZERO, 6.f, 0.f, 14, false, PZUI::c4f(Color3B(255, 255, 255)), 1.5f);
+            dot->setPosition(Vec2(_w * 0.5f - 14.f, _h * 0.5f - 14.f));
+            addChild(dot);
+            icon->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.6f, 1.08f), ScaleTo::create(0.6f, 1.f), nullptr)));
+        }
+    }
+
+    GiftKind _kind = GiftKind::Daily;
+    float _w = 0, _h = 0;
+    std::string _name, _status;
+    bool _ready = false;
+    std::function<void()> _onTap;
+};
+
+} // namespace
+
+Node* showGiftCenter(Node* parent, std::function<void()> onClosed, std::function<void()> onVideoGift) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    pg->refreshMissions();
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelW = std::min(700.f, PZLayout::safeRect().size.width - 40.f);
+    const float panelH = std::min(430.f, PZLayout::popupMaxHeight());
+    auto* base = openModal(parent, panelW, panelH, 330, 0.8f);
+
+    auto* title = PZUI::heading(PZCfg::kStrGiftsTitle, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, panelH * 0.5f - 40.f));
+    base->addChild(title);
+
+    const float gap = 14.f;
+    const float cardW = std::min(204.f, (panelW - 48.f - gap * 2.f) / 3.f);
+    const float cardH = std::min(136.f, (panelH - 150.f - gap) / 2.f);
+    const float gridTop = mid.y + panelH * 0.5f - 78.f;
+    const float x0 = mid.x - (cardW + gap);
+    std::vector<std::pair<GiftKind, GiftCard*>> cards;
+    Node* basePtr = base;
+
+    auto refresh = std::make_shared<std::function<void()>>();
+    auto claimFx = [basePtr, mid](int amount, const Vec2& at) { giftFx(basePtr, at, amount); (void)mid; };
+
+    auto makeCard = [&](GiftKind kind, int idx, std::function<void(const Vec2&)> action) {
+        const Vec2 pos(x0 + (idx % 3) * (cardW + gap), gridTop - cardH * 0.5f - (idx / 3) * (cardH + gap));
+        auto* card = GiftCard::make(kind, cardW, cardH, [action, pos]() { action(pos); });
+        if (!card) return;
+        card->setPosition(pos);
+        base->addChild(card);
+        cards.push_back({kind, card});
+    };
+
+    makeCard(GiftKind::Daily, 0, [parent, refresh](const Vec2&) {
+        PZPopups::showDailyReward(parent, [refresh]() { if (*refresh) (*refresh)(); });
+    });
+    makeCard(GiftKind::Hourly, 1, [pg, claimFx, refresh](const Vec2& at) {
+        const int got = pg->claimHourly();
+        if (got > 0) { claimFx(got, at); if (*refresh) (*refresh)(); }
+        else PZHaptics::play(PZHaptics::Kind::Warning);
+    });
+    makeCard(GiftKind::Spin, 2, [parent, refresh](const Vec2&) {
+        PZPopups::showLuckySpin(parent, [refresh]() { if (*refresh) (*refresh)(); });
+    });
+    makeCard(GiftKind::Video, 3, [basePtr, onVideoGift](const Vec2&) {
+        dismiss(basePtr, onVideoGift);
+    });
+    makeCard(GiftKind::Chest, 4, [pg, claimFx, refresh](const Vec2& at) {
+        const int got = pg->claimChest();
+        if (got > 0) { claimFx(got, at); if (*refresh) (*refresh)(); }
+        else PZHaptics::play(PZHaptics::Kind::Warning);
+    });
+    makeCard(GiftKind::MissionChest, 5, [pg, claimFx, refresh](const Vec2& at) {
+        const int got = pg->claimMissionChest();
+        if (got > 0) { claimFx(got, at); if (*refresh) (*refresh)(); }
+        else PZHaptics::play(PZHaptics::Kind::Warning);
+    });
+
+    *refresh = [pg, cards]() {
+        char b[48];
+        for (const auto& e : cards) {
+            switch (e.first) {
+            case GiftKind::Daily:
+                e.second->setState(PZCfg::kStrGiftDaily, pg->dailyAvailable() ? PZCfg::kStrGiftReady : PZCfg::kStrGiftClaimed, pg->dailyAvailable());
+                break;
+            case GiftKind::Hourly:
+                if (pg->hourlyAvailable()) e.second->setState(PZCfg::kStrGiftHourly, PZCfg::kStrGiftReady, true);
+                else { std::snprintf(b, sizeof(b), PZCfg::kStrGiftIn, giftClock(pg->hourlySecondsLeft()).c_str()); e.second->setState(PZCfg::kStrGiftHourly, b, false); }
+                break;
+            case GiftKind::Spin:
+                e.second->setState(PZCfg::kStrGiftSpin, pg->spinAvailable() ? PZCfg::kStrGiftReady : PZCfg::kStrSpinVideo, pg->spinAvailable());
+                break;
+            case GiftKind::Video:
+                if (pg->freeCoinsAvailable()) e.second->setState(PZCfg::kStrGiftVideo, PZCfg::kStrGiftReady, true);
+                else { std::snprintf(b, sizeof(b), PZCfg::kStrGiftIn, giftClock(pg->freeCoinsSecondsLeft()).c_str()); e.second->setState(PZCfg::kStrGiftVideo, b, false); }
+                break;
+            case GiftKind::Chest:
+                if (pg->chestLevelPending() > 0) e.second->setState(PZCfg::kStrGiftChest, PZCfg::kStrGiftReady, true);
+                else { std::snprintf(b, sizeof(b), PZCfg::kStrGiftNextChest, pg->nextChestLevel()); e.second->setState(PZCfg::kStrGiftChest, b, false); }
+                break;
+            case GiftKind::MissionChest:
+                e.second->setState(PZCfg::kStrGiftMissions, pg->missionChestAvailable() ? PZCfg::kStrGiftReady : PZCfg::kStrGiftMissionHint, pg->missionChestAvailable());
+                break;
+            }
+        }
+    };
+    (*refresh)();
+    base->schedule([refresh](float) { if (*refresh) (*refresh)(); }, 1.0f, "pz_gift_refresh");
+
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton, [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 12.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 34.f));
+    base->addChild(close);
+    return base;
+}
+
+Node* showLuckySpin(Node* parent, std::function<void()> onClosed) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelH = std::min(470.f, PZLayout::popupMaxHeight());
+    auto* base = openModal(parent, 560.f, panelH, 340, 0.82f);
+    Node* basePtr = base;
+
+    auto* title = PZUI::heading(PZCfg::kStrSpinTitle, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, panelH * 0.5f - 38.f));
+    base->addChild(title);
+
+    // Wheel: wedges + amounts, spinning as one node.
+    const int n = static_cast<int>(PZCfg::kSpinRewards.size());
+    const float R = std::min(128.f, (panelH - 200.f) * 0.5f);
+    auto* wheel = Node::create();
+    wheel->setPosition(mid + Vec2(0, 8));
+    base->addChild(wheel);
+    const float span = 360.f / n;
+    const Color3B wedgeCols[3] = {Color3B(235, 130, 40), Color3B(40, 60, 110), Color3B(200, 70, 60)};
+    for (int i = 0; i < n; ++i) {
+        const float a0 = 90.f + span * i - span * 0.5f;                  // wedge i is centred at 90 + span*i (math degrees)
+        auto* wedge = DrawNode::create();
+        std::vector<Vec2> pts;
+        pts.push_back(Vec2::ZERO);
+        for (int s = 0; s <= 6; ++s) {
+            const float a = CC_DEGREES_TO_RADIANS(a0 + span * s / 6.f);
+            pts.push_back(Vec2(std::cos(a), std::sin(a)) * R);
+        }
+        wedge->drawSolidPoly(pts.data(), static_cast<unsigned>(pts.size()), PZUI::c4f(wedgeCols[(i == n - 1 && n % 2) ? 2 : i % 2]),
+                             2.f, PZUI::c4f(PZCfg::kColPanelEdge2, 0.9f), true);
+        wheel->addChild(wedge);
+        const float am = CC_DEGREES_TO_RADIANS(90.f + span * i);
+        auto* lbl = PZUI::heading(std::to_string(PZCfg::kSpinRewards[i]), 10.f, Color3B(255, 255, 255));
+        lbl->setPosition(Vec2(std::cos(am), std::sin(am)) * (R * 0.66f));
+        lbl->setRotation(-(90.f + span * i - 90.f));                       // reads outward from the hub
+        wheel->addChild(lbl);
+    }
+    auto* rim = DrawNode::create();
+    rim->drawCircle(Vec2::ZERO, R, 0.f, 48, false, PZUI::c4f(PZCfg::kColPanelEdge), 6.f);
+    rim->drawSolidCircle(Vec2::ZERO, 16.f, 0.f, 24, PZUI::c4f(PZCfg::kColPanelEdge));
+    rim->drawSolidCircle(Vec2::ZERO, 11.f, 0.f, 24, PZUI::c4f(PZCfg::kColAccent));
+    wheel->addChild(rim);
+    // Pointer (fixed, top).
+    auto* ptr = DrawNode::create();
+    Vec2 tri[3] = {Vec2(-12, 0), Vec2(12, 0), Vec2(0, -24)};
+    ptr->drawSolidPoly(tri, 3, PZUI::c4f(PZCfg::kColAccent), 2.f, PZUI::c4f(Color3B(90, 50, 10)), true);
+    ptr->setPosition(mid + Vec2(0, 8 + R + 14.f));
+    base->addChild(ptr, 5);
+
+    auto spinning = std::make_shared<bool>(false);
+    auto spunToday = std::make_shared<bool>(!pg->spinAvailable());
+    auto doSpin = std::make_shared<std::function<void(bool)>>();
+
+    *doSpin = [=](bool freeSpin) {
+        if (*spinning) return;
+        *spinning = true;
+        const int idx = pg->pickSpinIndex();
+        const float jitter = (CCRANDOM_0_1() - 0.5f) * span * 0.6f;
+        // Wedge i is centred at 90+span*i; rotating clockwise by theta moves it to 90+span*i-theta: land it at 90.
+        const float theta = 360.f * 5.f + span * idx + jitter;
+        auto lastSeg = std::make_shared<int>(0);
+        auto* spin = ActionFloat::create(4.4f, 0.f, theta, [wheel, span, lastSeg](float v) {
+            wheel->setRotation(v);
+            const int seg = static_cast<int>(v / span);
+            if (seg != *lastSeg) { *lastSeg = seg; PZHaptics::play(PZHaptics::Kind::Tick); }
+        });
+        wheel->runAction(Sequence::create(
+            EaseCubicActionOut::create(spin),
+            CallFunc::create([=]() {
+                *spinning = false;
+                const int got = pg->claimSpin(idx, freeSpin);
+                giftFx(basePtr, mid + Vec2(0, 8), got);
+                if (freeSpin) *spunToday = true;
+            }),
+            nullptr));
+    };
+
+    // Primary button: free spin if available, otherwise a rewarded-video spin.
+    auto btnHolder = std::make_shared<PZUI::Button*>(nullptr);
+    auto onTap = [=]() {
+        if (*spinning) return;
+        if (!*spunToday) {
+            (*doSpin)(true);
+            if (*btnHolder) (*btnHolder)->setText(PZCfg::kStrSpinVideo);
+            return;
+        }
+        auto* ads = PZ::AdsController::shared();
+        if (!ads->isRewardedAvailable()) {
+            ads->requestRewarded();
+            PZUI::banner(basePtr, PZCfg::kStrSpinTitle, PZCfg::kStrReviveLoading, PZCfg::kColAccent2, mid.y - panelH * 0.5f + 100.f, 1.0f, 1800);
+            return;
+        }
+        ads->showRewardedWithCallback([=](bool earned) { if (earned) (*doSpin)(false); });
+    };
+    auto* spinBtn = PZUI::Button::create(pg->spinAvailable() ? PZCfg::kStrSpinBtn : PZCfg::kStrSpinVideo, 300.f, 52.f,
+                                         pg->spinAvailable() ? PZCfg::kColGood : PZCfg::kColButton, onTap, 15.f);
+    *btnHolder = spinBtn;
+    spinBtn->setPosition(mid + Vec2(0, -R - 34.f));
+    base->addChild(spinBtn);
+
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 180.f, 34.f, Color3B(120, 124, 134), [basePtr, onClosed, spinning]() {
+        if (*spinning) return;
+        dismiss(basePtr, onClosed);
+    }, 10.f);
+    close->setPosition(mid + Vec2(0, -panelH * 0.5f + 24.f));
+    base->addChild(close);
+    return base;
+}
+
+Node* showComebackGift(Node* parent, std::function<void()> onClosed) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    if (pg->comebackCoins() <= 0) return nullptr;
+    const Vec2 mid = PZLayout::popupCentre();
+    auto* base = openModal(parent, 520.f, 360.f, 340, 0.8f);
+    Node* basePtr = base;
+
+    auto* title = PZUI::heading(PZCfg::kStrComebackTitle, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, 134));
+    base->addChild(title);
+    char b[64];
+    std::snprintf(b, sizeof(b), PZCfg::kStrComebackSub, pg->comebackDays());
+    auto* sub = PZUI::heading(b, 9.f, PZCfg::kColDim);
+    sub->setPosition(mid + Vec2(0, 100));
+    base->addChild(sub);
+
+    // Big present with the amount.
+    auto* box = DrawNode::create();
+    box->drawSolidRect(Vec2(-42, -34), Vec2(42, 20), PZUI::c4f(PZCfg::kColAccent2));
+    box->drawSolidRect(Vec2(-48, 20), Vec2(48, 40), PZUI::c4f(PZCfg::kColAccent));
+    box->drawSolidRect(Vec2(-7, -34), Vec2(7, 40), PZUI::c4f(Color3B(255, 240, 200)));
+    box->drawSolidCircle(Vec2(-16, 50), 14.f, 0.f, 16, PZUI::c4f(PZCfg::kColAccent));
+    box->drawSolidCircle(Vec2(16, 50), 14.f, 0.f, 16, PZUI::c4f(PZCfg::kColAccent));
+    box->setPosition(mid + Vec2(0, 24));
+    base->addChild(box);
+    box->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.5f, 1.07f), ScaleTo::create(0.5f, 1.f), nullptr)));
+    PZUI::glitter(base, mid + Vec2(0, 30), PZCfg::kColAccent, 12, 120.f, 1.2f, 10);
+
+    std::snprintf(b, sizeof(b), "+%d", pg->comebackCoins());
+    auto* amt = PZUI::heading(b, 22.f, PZCfg::kColAccent);
+    amt->setPosition(mid + Vec2(0, -42));
+    base->addChild(amt);
+
+    auto claimed = std::make_shared<bool>(false);
+    auto* btn = PZUI::Button::create(PZCfg::kStrDailyClaim, 300.f, 54.f, PZCfg::kColGood, [=]() {
+        if (*claimed) return;
+        *claimed = true;
+        const int got = PZProgress::shared()->claimComeback();
+        giftFx(basePtr, mid + Vec2(0, 24), got);
+        basePtr->runAction(Sequence::create(DelayTime::create(0.9f), CallFunc::create([=]() { dismiss(basePtr, onClosed); }), nullptr));
+    }, 16.f);
+    btn->setPosition(mid + Vec2(0, -108));
+    base->addChild(btn);
+    btn->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.6f, 1.04f), ScaleTo::create(0.6f, 1.f), nullptr)));
+    PZHaptics::play(PZHaptics::Kind::Success);
+    return base;
+}
+
+// ================================================================================================
+// Reminder offer (pre-permission)
+// ================================================================================================
+
+Node* showNotificationOffer(Node* parent) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    const Vec2 mid = PZLayout::popupCentre();
+    const auto& asks = PZCfg::kNotifAsks;
+    const auto& text = asks[static_cast<size_t>(pg->notifAsks()) % asks.size()];
+    auto* base = openModal(parent, 560.f, 360.f, 330, 0.8f);
+
+    // Bell glyph in a bronze medallion.
+    auto* bell = DrawNode::create();
+    bell->drawSolidCircle(Vec2::ZERO, 38.f, 0.f, 32, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
+    bell->drawSolidCircle(Vec2::ZERO, 35.f, 0.f, 32, PZUI::c4f(PZCfg::kColPanelEdge));
+    bell->drawSolidCircle(Vec2::ZERO, 30.f, 0.f, 32, PZUI::c4f(Color3B(18, 22, 40)));
+    const Color3B gold = PZCfg::kColAccent;
+    Vec2 body[8] = {Vec2(-15, -8), Vec2(-12, 6), Vec2(-7, 14), Vec2(0, 17), Vec2(7, 14), Vec2(12, 6), Vec2(15, -8), Vec2(0, -8)};
+    bell->drawSolidPoly(body, 8, PZUI::c4f(gold), 1.5f, PZUI::c4f(Color3B(120, 80, 10)), false);
+    bell->drawSolidRect(Vec2(-18, -12), Vec2(18, -7), PZUI::c4f(gold));
+    bell->drawDot(Vec2(0, -17), 4.f, PZUI::c4f(gold));
+    bell->setPosition(mid + Vec2(0, 118));
+    base->addChild(bell);
+    bell->runAction(RepeatForever::create(Sequence::create(RotateTo::create(0.12f, 10.f), RotateTo::create(0.12f, -10.f),
+                                                           RotateTo::create(0.12f, 6.f), RotateTo::create(0.12f, 0.f),
+                                                           DelayTime::create(1.6f), nullptr)));
+
+    auto* title = PZUI::heading(text.title, 20.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, 62));
+    if (title->getContentSize().width > 480.f) title->setScale(480.f / title->getContentSize().width);
+    base->addChild(title);
+
+    auto* body2 = PZUI::heading(text.body, 9.f, PZCfg::kColText);
+    body2->setMaxLineWidth(440.f);
+    body2->setAlignment(TextHAlignment::CENTER);
+    body2->setPosition(mid + Vec2(0, 6));
+    base->addChild(body2);
+
+    Node* basePtr = base;
+    auto* yes = PZUI::Button::create(PZCfg::kStrNotifYes, 380.f, 52.f, PZCfg::kColGood, [basePtr, parent]() {
+        PZProgress::shared()->markNotifAsked();
+        PZProgress::shared()->setNotifEnabled(true);
+        dismiss(basePtr, [parent]() {
+            PZNotif::requestPermission([parent](bool granted) {
+                if (granted) {
+                    PZUI::banner(parent, PZCfg::kStrNotifOn, "", PZCfg::kColGood, winSize().height * 0.55f, 1.2f, 1200);
+                    PZHaptics::play(PZHaptics::Kind::Success);
+                }
+            });
+        });
+    }, 14.f);
+    yes->setPosition(mid + Vec2(0, -78));
+    base->addChild(yes);
+    yes->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.6f, 1.04f), ScaleTo::create(0.6f, 1.f), nullptr)));
+
+    auto* no = PZUI::Button::create(PZCfg::kStrNotifNo, 230.f, 38.f, Color3B(120, 124, 134), [basePtr]() {
+        PZProgress::shared()->markNotifAsked();
+        dismiss(basePtr, nullptr);
+    }, 10.f);
+    no->setPosition(mid + Vec2(0, -138));
+    base->addChild(no);
+    PZHaptics::play(PZHaptics::Kind::Light);
     return base;
 }
 
@@ -796,13 +1294,21 @@ public:
     void refresh() {
         auto* pg = PZProgress::shared();
         pg->refreshMissions();
+        if (_remind) {
+            char rb[48];
+            std::snprintf(rb, sizeof(rb), "%s %s", PZCfg::kStrNotifBtn, (pg->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted) ? PZCfg::kStrOn : PZCfg::kStrOff);
+            _remind->setText(rb);
+        }
         char b[48];
-        std::snprintf(b, sizeof(b), PZCfg::kStrLevelPlate, pg->level());
-        _lv->setString(b);
-        PZUI::redrawBar(_xp, 160.f, 10.f, pg->levelFraction(), PZCfg::kColAccent2);
+        _lv->setString(std::to_string(pg->level()));
+        _lv->setScale(pg->level() >= 100 ? 0.6f : (pg->level() >= 10 ? 0.8f : 1.f));
+        std::snprintf(b, sizeof(b), PZCfg::kStrXpFormat, pg->xpIntoLevel(), pg->xpSpanOfLevel());
+        _xpText->setString(b);
         std::snprintf(b, sizeof(b), PZCfg::kStrBest, pg->bestScore());
         _best->setString(b);
-        if (_daily) _daily->setBadge(pg->dailyAvailable() ? 1 : 0);
+        updateNextUnlock(pg);
+        animateXpBar(pg);
+        if (_daily) _daily->setBadge(PZCfg::kEnableGifts ? pg->giftsReady() : (pg->dailyAvailable() ? 1 : 0));
         if (_missions) _missions->setBadge(pg->unclaimedMissions());
         if (_gadgets) _gadgets->setBadge(pg->selectedGadgetCount());
         if (_vibe) {
@@ -813,6 +1319,49 @@ public:
     }
 
 private:
+    // The next gadget the player has not unlocked yet ("what am I levelling towards?").
+    void updateNextUnlock(PZProgress* pg) {
+        const PZCfg::GadgetTemplate* next = nullptr;
+        for (const auto& g : PZCfg::kGadgetPool) {
+            if (g.unlockLevel > pg->level() && (!next || g.unlockLevel < next->unlockLevel)) next = &g;
+        }
+        char b[64];
+        if (next) std::snprintf(b, sizeof(b), PZCfg::kStrNextUnlock, next->name.c_str(), next->unlockLevel);
+        else std::snprintf(b, sizeof(b), "%s", PZCfg::kStrAllUnlocked);
+        _next->setString(b);
+        _next->setScale(1.f);
+        if (_next->getContentSize().width > _nextMaxW) _next->setScale(_nextMaxW / _next->getContentSize().width);
+    }
+
+    // Animates the bar from what the player last saw to the current XP; a level-up fills the bar, flashes the
+    // badge, then restarts from empty.
+    void animateXpBar(PZProgress* pg) {
+        const float target = pg->levelFraction();
+        const int level = pg->level();
+        if (level == _xpLevel && std::abs(target - _shownFrac) < 0.002f) {
+            PZUI::redrawBar(_xp, _xpBarW, 12.f, target, PZCfg::kColAccent2);
+            return;
+        }
+        _xp->stopAllActions();
+        const bool levelledUp = level > _xpLevel;
+        const float from = _shownFrac;
+        _xpLevel = level;
+        _shownFrac = target;
+        auto draw = [this](float v) { PZUI::redrawBar(_xp, _xpBarW, 12.f, v, PZCfg::kColAccent2); };
+        if (levelledUp) {
+            _xp->runAction(Sequence::create(
+                ActionFloat::create(0.5f, from, 1.f, draw),
+                CallFunc::create([this]() {
+                    PZUI::burst(this, _xp->getParent()->convertToWorldSpace(_xp->getPosition()), PZCfg::kColAccent, 18, 80.f, 0.7f, 1200);
+                    PZHaptics::play(PZHaptics::Kind::Success);
+                    _lv->runAction(Sequence::create(ScaleTo::create(0.12f, 1.4f), EaseBackOut::create(ScaleTo::create(0.25f, 1.f)), nullptr));
+                }),
+                ActionFloat::create(0.5f, 0.f, target, draw), nullptr));
+        } else {
+            _xp->runAction(ActionFloat::create(0.6f, from, target, draw));
+        }
+    }
+
     void build() {
         auto* pg = PZProgress::shared();
         const Size win = winSize();
@@ -824,35 +1373,70 @@ private:
         // notification badge at the right edge without ever covering the label.
         const float colW = 224.f;
         const float colX = safe.getMaxX() - 14.f - colW * 0.5f;
-        const float btnH = 32.f, gapY = 5.f;
+        const float btnH = 30.f, gapY = 4.f;
         float y = safe.getMaxY() - 8.f;
 
-        // Player plate (level, XP, best).
+        // Player plate: round level badge on the left; best score, XP counter, framed XP bar and the next
+        // unlock on the right. The bar animates when XP changes (see refresh()).
+        const float plateH = 66.f;
         auto* plate = Node::create();
-        plate->addChild(PZUI::panel(colW, 50.f, 12.f));
-        plate->setPosition(Vec2(colX, y - 25.f));
+        plate->addChild(PZUI::panel(colW, plateH, 12.f));
+        plate->setPosition(Vec2(colX, y - plateH * 0.5f));
         addChild(plate);
-        _lv = PZUI::heading("", 11.f, PZCfg::kColAccent);
-        _lv->setAnchorPoint(Vec2(0.f, 0.5f));
-        _lv->setPosition(Vec2(-colW * 0.5f + 16.f, 10.f));
+
+        const float badgeX = -colW * 0.5f + 33.f;
+        auto* badge = DrawNode::create();
+        badge->drawSolidCircle(Vec2::ZERO, 27.f, 0.f, 28, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
+        badge->drawSolidCircle(Vec2::ZERO, 25.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge));
+        badge->drawSolidCircle(Vec2::ZERO, 21.f, 0.f, 28, PZUI::c4f(Color3B(14, 18, 32)));
+        badge->drawCircle(Vec2::ZERO, 21.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColAccent, 0.9f), 2.f);
+        badge->drawCircle(Vec2::ZERO, 25.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColPanelEdge2, 0.8f), 1.2f);
+        badge->setPosition(Vec2(badgeX, 0.f));
+        plate->addChild(badge);
+        auto* lvTag = PZUI::heading("LV", 6.f, PZCfg::kColDim);
+        lvTag->setPosition(Vec2(badgeX, 11.f));
+        plate->addChild(lvTag);
+        _lv = PZUI::heading("", 15.f, PZCfg::kColAccent);
+        _lv->setPosition(Vec2(badgeX, -3.f));
         plate->addChild(_lv);
-        _best = PZUI::heading("", 8.f, PZCfg::kColDim);
+
+        const float rx = -colW * 0.5f + 68.f;                 // left edge of the right-hand block
+        const float rw = colW * 0.5f - 12.f - rx;             // its width
+        _xpText = PZUI::heading("", 6.f, PZCfg::kColAccent);
+        _xpText->setAnchorPoint(Vec2(0.f, 0.5f));
+        _xpText->setPosition(Vec2(rx, 20.f));
+        plate->addChild(_xpText);
+        _best = PZUI::heading("", 6.f, PZCfg::kColDim);
         _best->setAnchorPoint(Vec2(1.f, 0.5f));
-        _best->setPosition(Vec2(colW * 0.5f - 14.f, 10.f));
+        _best->setPosition(Vec2(rx + rw, 20.f));
         plate->addChild(_best);
-        _xp = PZUI::bar(160.f, 8.f, pg->levelFraction(), PZCfg::kColAccent2);
-        _xp->setPosition(Vec2(0.f, -9.f));
+
+        _xpBarW = rw - 6.f;
+        _xp = PZUI::bar(_xpBarW, 12.f, pg->levelFraction(), PZCfg::kColAccent2);
+        _xp->setPosition(Vec2(rx + rw * 0.5f, 3.f));
         plate->addChild(_xp);
-        y -= 50.f + gapY;
+        _shownFrac = pg->levelFraction();
+        _xpLevel = pg->level();
+
+        _next = PZUI::heading("", 6.f, PZCfg::kColDim);
+        _next->setAnchorPoint(Vec2(0.f, 0.5f));
+        _next->setPosition(Vec2(rx, -19.f));
+        _nextMaxW = rw;
+        plate->addChild(_next);
+        y -= plateH + gapY;
 
         Node* host = _host;
 
         // Pills are laid out as they are created, so disabling a feature in the plist closes the gap instead of
         // leaving a hole in the corner.
         std::vector<PZUI::Button*> grid;
-        if (PZCfg::kEnableDailyReward) {
-            _daily = PZUI::Button::create(PZCfg::kStrDailyBtn, colW, btnH, PZCfg::kColButton, [this, host]() {
-                PZPopups::showDailyReward(host, [this]() { refresh(); });
+        if (PZCfg::kEnableDailyReward || PZCfg::kEnableGifts) {
+            _daily = PZUI::Button::create(PZCfg::kEnableGifts ? PZCfg::kStrGiftsBtn : PZCfg::kStrDailyBtn, colW, btnH, PZCfg::kColButton, [this, host]() {
+                if (PZCfg::kEnableGifts) {
+                    PZPopups::showGiftCenter(host, [this]() { refresh(); }, [this]() { onFreeCoins(); });
+                } else {
+                    PZPopups::showDailyReward(host, [this]() { refresh(); });
+                }
             }, 11.f);
             grid.push_back(_daily);
         }
@@ -888,6 +1472,19 @@ private:
         }, 8.f);
         _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 32.f));
         addChild(_vibe);
+
+        if (PZCfg::kEnableNotifications) {
+            Node* hostNode = _host;
+            _remind = PZUI::Button::create("", 176.f, 30.f, Color3B(120, 124, 134), [this, hostNode]() {
+                const bool on = !(PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted);
+                PZNotif::setEnabledByPlayer(hostNode, on);
+                runAction(Sequence::create(DelayTime::create(0.4f), CallFunc::create([this]() { refresh(); }), nullptr));
+            }, 8.f);
+            _remind->setPosition(Vec2(safe.getMaxX() - 16.f - 126.f - 8.f - 88.f, safe.getMinY() + 32.f));
+            addChild(_remind);
+            PZNotif::refreshStatus();
+            runAction(Sequence::create(DelayTime::create(1.2f), CallFunc::create([this]() { PZNotif::reschedule(); refresh(); }), nullptr));
+        }
 
         refresh();
         schedule([this, win](float dt) {
@@ -972,12 +1569,19 @@ private:
     Node* _host = nullptr;
     Label* _lv = nullptr;
     Label* _best = nullptr;
+    Label* _xpText = nullptr;
+    Label* _next = nullptr;
+    float _nextMaxW = 140.f;
     DrawNode* _xp = nullptr;
+    float _xpBarW = 140.f;
+    float _shownFrac = 0.f;
+    int _xpLevel = 1;
     PZUI::Button* _daily = nullptr;
     PZUI::Button* _missions = nullptr;
     PZUI::Button* _gadgets = nullptr;
     PZUI::Button* _free = nullptr;
     PZUI::Button* _vibe = nullptr;
+    PZUI::Button* _remind = nullptr;
     std::string _freeText;
     bool _freePending = false;
     float _freeWait = 0.f;
@@ -1001,6 +1605,13 @@ void refreshMenuWidgets(Node* menuLayer, bool allowDailyPopup) {
         w = dynamic_cast<MenuWidgets*>(menuLayer->getChildByTag(kTagMenuWidgets));
     }
     if (w) w->refresh();
+    // A welcome-back gift (player was away) takes the first slot; the daily reward follows.
+    if (allowDailyPopup && PZProgress::shared()->comebackCoins() > 0) {
+        menuLayer->runAction(Sequence::create(DelayTime::create(0.7f), CallFunc::create([menuLayer]() {
+            showComebackGift(menuLayer, [menuLayer]() { refreshMenuWidgets(menuLayer, true); });
+        }), nullptr));
+        return;
+    }
     if (allowDailyPopup && PZProgress::shared()->dailyAvailable()) {
         menuLayer->runAction(Sequence::create(DelayTime::create(0.7f), CallFunc::create([menuLayer]() {
             if (PZProgress::shared()->dailyAvailable()) {

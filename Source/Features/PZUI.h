@@ -65,6 +65,10 @@ private:
 void burst(ax::Node* parent, const ax::Vec2& pos, const ax::Color3B& color, int count, float radius, float duration,
            int z = 900);
 
+// Twinkling four-point sparkles (gold glitter): used for rewards, pickups and celebrations.
+void glitter(ax::Node* parent, const ax::Vec2& pos, const ax::Color3B& color, int count, float radius, float duration = 0.7f,
+             int z = 900);
+
 // Text that floats up and fades away.
 void floatText(ax::Node* parent, const std::string& text, const ax::Vec2& pos, const ax::Color3B& color,
                float size = 14.f, int z = 950);
