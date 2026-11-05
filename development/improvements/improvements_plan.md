@@ -160,6 +160,7 @@ Real AdMob rewarded unit IDs are still needed for end-to-end video revive / spin
 30. Reduce the frequency of coins by 50% exept some predefined set of coins like BIKE shape of coins group.
 31. Another bug, when player falls down and revives i see some coins or power ups get's generated at some y postion as the player position when fall in pit
 32. Make start/death scenes dramatic, like when start scene zoomed in to left side bike entry, the bike should enter from the left side of the screen, and message with voice, "Get Ready, 3, 2, 1 Go!" during 3,2,1 the other items of the screen, coin and counter, buttons, powerup top horizontal list will comes animated in the screen, and at Go! the game starts with cheers sounds "wooo" from audience. Death scene same, the zoom in to collion animation, fire and disappointed people "haaaa" sounds, zoom out, show game over animated.
+33. Revive should end when next platfrom starts not at the time of pit, it falls down as soon as the revive grace period ends, also make available the tap immediately at powerup end and platform start.
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control
@@ -167,3 +168,19 @@ returned. Revive/mercy/shield/helmet rescues and powered-ride landings now explo
 reward), the rider is untouchable during the hover and the 3-2-1 countdown, duplicate death signals are ignored while a revive
 is pending, the hover has a 2.5 s cap, and the CONTINUE? offer lasts 8 s (`tuning/ReviveCountdown`). Full matrix in
 docs/META_FEATURES.md ("Death / revive use cases").
+
+
+ADMOB:
+
+IOS
+Reward ID: 
+ca-app-pub-8966545526103390~4717282854
+ca-app-pub-8966545526103390/5633843231
+
+Game over intertitial:
+ca-app-pub-8966545526103390~4717282854
+ca-app-pub-8966545526103390/3450330423
+
+MainMenu Banner:
+ca-app-pub-8966545526103390~4717282854
+ca-app-pub-8966545526103390/6076493765
