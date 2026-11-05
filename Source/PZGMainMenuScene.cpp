@@ -7,6 +7,7 @@
 #include "PZGGameFieldScene.h"
 #include "MyObject-C-Interface.h"
 #include "2d/Label.h"
+#include "Features/PZPopups.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
     #include <Foundation/Foundation.h>
@@ -161,7 +162,9 @@ void PZGMainMenuScene::load(const char* keyName){
     pMenu->setTag(400);
     
     this->addChild(pMenu,400);
-    
+
+    // Level plate, DAILY reward and MISSIONS buttons (code-drawn; see Source/Features).
+    PZPopups::attachMenuWidgets(this);
     
 }
 
@@ -184,6 +187,9 @@ void PZGMainMenuScene::onEnter(){
     fprintf(stderr, "\n[MAINMENU-LIFECYCLE] onEnter called\n");
     fflush(stderr);
     AXLOGI("[MAINMENU-LIFECYCLE] onEnter called");
+
+    // Refresh badges / best score and offer the daily reward when it is ready.
+    PZPopups::refreshMenuWidgets(this, true);
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     AXLOGI("[DEBUG] CC_TARGET_PLATFORM != MAC, calling Neocortex");

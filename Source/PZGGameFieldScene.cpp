@@ -13,6 +13,8 @@
 #include "PZGPauseMenuScene.h"
 
 #include "PZGContactListener.h"
+#include "Features/PZRunDirector.h"
+#include "Features/PZPopups.h"
 
 #include "PZLegacyCompat.h"
 #include "constants.h"
@@ -579,6 +581,10 @@ void PZGGameFieldScene::load(const char* keyName){
     coins_label->setString( c );
 
     gfScene = this;
+
+    if (run) {
+        run->onLoaded();
+    }
     
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     PZ::Neocortex::shared()->onPlaying();
@@ -713,7 +719,32 @@ void PZGGameFieldScene::gameRestart(){
     
     gamePause = false;
     gf_distance = 0;
+    if (run) {
+        run->startRun();
+    }
     this->gameOverCallBack( false );
+}
+
+float PZGGameFieldScene::speedMultiplier() const{
+    return run ? run->speedMultiplier() : 1.0f;
+}
+
+void PZGGameFieldScene::addBonusCoins( int amount ){
+    if (amount <= 0) {
+        return;
+    }
+    PZSettingsController* sc = PZSettingsController::shared();
+    sc->coins += amount;
+    gf_coins += amount;
+    if (coins_label) {
+        char c[16];
+        sprintf( c, "%d", (int)gf_coins );
+        coins_label->setString( c );
+    }
+}
+
+bool PZGGameFieldScene::onObstacleHit( PZGObstacle* obstacle ){
+    return run ? run->onObstacleHit( obstacle ) : false;
 }
 
 void PZGGameFieldScene::coinPickup( PZGCoin* _coin ){
@@ -752,6 +783,10 @@ void PZGGameFieldScene::coinPickup( PZGCoin* _coin ){
     
     coins_add_counter = 1;
     coins_add_velocity = 1;
+
+    if (run) {
+        run->onCoin( _coin );
+    }
     
 //#if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
 //    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect( coins_picup_sound );
@@ -760,6 +795,10 @@ void PZGGameFieldScene::coinPickup( PZGCoin* _coin ){
 }
 
 void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
+    // Revive offer: the director freezes the run and calls back here again if the player declines.
+    if (_isGameOver && run && !gameOver && run->onDeath()) {
+        return;
+    }
     gameOver = _isGameOver;
     
     MenuItemSprite *pauseButton = NULL;
@@ -797,6 +836,9 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
         gameOverScene->baseScene = this;
         gameOverScene->load("InterfaceGO");
         gameOverScene->setDistance(gf_distance);
+        if (run) {
+            run->presentResults(gameOverScene, gameOverScene->font);
+        }
         
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
         if (menu) {

@@ -27,6 +27,9 @@
 #include "SharedData/PZGGameInfoGeneral.h"
 #include "SharedData/PZGArtBackgroundPlay.h"
 
+class PZRunDirector;          // Source/Features: stages, power-ups, revive, results
+class PZGGamefieldPlatforms;  // runner platform layer (only BasicRunner has one)
+
 #define kCoinType 16
 #define kEnemyType 16
 #define kCoinMax 40
@@ -88,6 +91,13 @@ public:
     
     virtual void kidModePurchased();
     virtual void upgradeComplete();
+
+    // --- meta features (Source/Features) ---
+    PZRunDirector*  run = nullptr;                    // per-run action layer; owned by the scene graph
+    virtual PZGGamefieldPlatforms* platformLayer() { return nullptr; }
+    float speedMultiplier() const;                    // turbo boost (1.0 when idle)
+    void  addBonusCoins( int amount );                // bonus coins (stage, combo, ...) added to wallet + HUD
+    bool  onObstacleHit( PZGObstacle* obstacle );     // true = absorbed by shield / turbo, no death
     
     
     float                     tip_counter;

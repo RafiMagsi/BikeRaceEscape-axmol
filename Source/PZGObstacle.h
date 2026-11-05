@@ -68,6 +68,7 @@ public:
     
     bool dead;
     bool deleteReady;
+    bool nearMissDone = false;   // set by PZRunDirector once the near-miss check for this obstacle ran
     
     float speed;
     float gameSpeed;

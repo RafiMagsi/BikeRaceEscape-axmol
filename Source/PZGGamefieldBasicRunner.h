@@ -30,6 +30,8 @@ public:
     virtual void update(float dt);
 
     virtual void reset();
+
+    virtual PZGGamefieldPlatforms* platformLayer() { return platform; }
     
     virtual void ccTouchesBegan(__Set *pTouch, Event *pEvent);
     virtual void ccTouchesEnded(__Set *pTouch, Event *pEvent);

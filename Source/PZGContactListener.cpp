@@ -109,7 +109,10 @@ void PZGContactListener::BeginContact( b2Contact* contact){
         }
         else{
             if (e->dead == false && e->destroyCharacter == true) {
-                PZGGameFieldScene::shared()->gameOverCallBack( true );
+                // Shield / turbo / post-hit grace may absorb the hit (see PZRunDirector).
+                if (!PZGGameFieldScene::shared()->onObstacleHit( e )) {
+                    PZGGameFieldScene::shared()->gameOverCallBack( true );
+                }
             }
         }
     }
@@ -124,7 +127,10 @@ void PZGContactListener::BeginContact( b2Contact* contact){
         }
         else{
             if (e->dead == false && e->destroyCharacter == true) {
-                PZGGameFieldScene::shared()->gameOverCallBack( true );
+                // Shield / turbo / post-hit grace may absorb the hit (see PZRunDirector).
+                if (!PZGGameFieldScene::shared()->onObstacleHit( e )) {
+                    PZGGameFieldScene::shared()->gameOverCallBack( true );
+                }
             }
         }
     }

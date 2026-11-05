@@ -700,3 +700,84 @@ void PZGGamefieldPlatforms::update(float dt){
     }
 
 }
+
+// ---------------------------------------------------------------------------------------------
+// Meta-feature helpers (revive / turbo landing)
+// ---------------------------------------------------------------------------------------------
+
+bool PZGGamefieldPlatforms::groundYAt(float x, float& outY) const {
+    const float k = kDeviceScale();
+    const float inv = 1.0f / kPhysicsWorldScale();
+    bool found = false;
+    float best = 0.0f;
+    for (int i = 0; i < kMaxPlatfroms; ++i) {
+        const PZGPlatfrom* p = platforms[i];
+        if (!p || !p->body) continue;
+        const float cx = p->body->GetPosition().x * inv;
+        const float hw = p->width * k;
+        if (x < cx - hw || x > cx + hw) continue;
+        const float top = p->body->GetPosition().y * inv + 20.0f * k;
+        if (!found || top > best) {
+            best = top;
+            found = true;
+        }
+    }
+    outY = best;
+    return found;
+}
+
+bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
+    const float k = kDeviceScale();
+    const float inv = 1.0f / kPhysicsWorldScale();
+
+    // Nearest platform (smallest left edge) that still gives some runway ahead of the rider.
+    const PZGPlatfrom* best = nullptr;
+    float bestLeft = 0.0f;
+    for (int i = 0; i < kMaxPlatfroms; ++i) {
+        const PZGPlatfrom* p = platforms[i];
+        if (!p || !p->body) continue;
+        const float cx = p->body->GetPosition().x * inv;
+        const float hw = p->width * k;
+        if (cx + hw < x + 140.0f * k) continue;
+        if (!best || cx - hw < bestLeft) {
+            best = p;
+            bestLeft = cx - hw;
+        }
+    }
+    if (!best) {
+        return false;
+    }
+
+    const float want = x - 70.0f * k;
+    const float dx = (bestLeft <= want) ? 0.0f : (bestLeft - want);
+    if (dx > 0.0f) {
+        for (int i = 0; i < kMaxPlatfroms; ++i) {
+            PZGPlatfrom* p = platforms[i];
+            if (!p || !p->body || !p->sprite) continue;
+            p->sprite->setPosition(ccp(p->sprite->getPosition().x - dx, p->sprite->getPosition().y));
+            p->body->SetTransform(b2Vec2(p->body->GetPosition().x - dx * kPhysicsWorldScale(), p->body->GetPosition().y), 0);
+        }
+        for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
+            if (obstacles[i]) obstacles[i]->setPosition(ccp(obstacles[i]->getPosition().x - dx, obstacles[i]->getPosition().y));
+        }
+        for (int i = 0; i < kMaxBasicRunnerCoins; ++i) {
+            if (coins[i]) coins[i]->setPosition(ccp(coins[i]->getPosition().x - dx, coins[i]->getPosition().y));
+        }
+        length -= dx;
+    }
+
+    // Fair restart: wipe hazards around the rider (removed by the regular update loop).
+    for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
+        PZGObstacle* o = obstacles[i];
+        if (!o || o->dead) continue;
+        const float ox = o->getPosition().x;
+        if (ox > x - 160.0f * k && ox < x + 520.0f * k) {
+            // Flag only; the regular update loop removes it (safe: keeps sprite pointers valid this frame).
+            o->dead = true;
+            o->deleteReady = true;
+        }
+    }
+
+    outGroundY = best->body->GetPosition().y * inv + 20.0f * k;
+    return true;
+}

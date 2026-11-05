@@ -80,7 +80,19 @@ public:
     PZGGameInfoLevel* getLevelInfo(float distance, int platform_type_id);
     
     void destoryPhysics();
-    
+
+    // --- read access for the meta features (power-ups, near-miss, revive); see Source/Features ---
+    int coinSlots() const { return kMaxBasicRunnerCoins; }
+    PZGCoin* coinAt(int i) const { return (i >= 0 && i < kMaxBasicRunnerCoins) ? coins[i] : nullptr; }
+    int obstacleSlots() const { return kMaxBasicRunnerObsctales; }
+    PZGObstacle* obstacleAt(int i) const { return (i >= 0 && i < kMaxBasicRunnerObsctales) ? obstacles[i] : nullptr; }
+
+    // Surface height of the platform under `x` (scene units). Returns false when `x` is over a gap.
+    bool groundYAt(float x, float& outY) const;
+    // Slides the world left (never right) so a platform lies under `x`, clears obstacles around it, and
+    // returns the surface height there. Used to put the rider back on solid ground after a revive / turbo.
+    bool alignForRevive(float x, float& outGroundY);
+
     LAYER_CREATE_FUNC( PZGGamefieldPlatforms );
 };
 

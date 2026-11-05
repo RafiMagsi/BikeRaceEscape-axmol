@@ -11,6 +11,7 @@
 #include "PZGGamefieldPlatforms.h"
 #include "SharedData/PZGGameplayBasicRunner.h"
 #include "constants.h"
+#include "Features/PZRunDirector.h"
 
 USING_NS_AX;
 
@@ -153,6 +154,13 @@ bool PZGGamefieldBasicRunner::init()
     
     this->setTouchEnabled(true);
 
+    // Meta features (stages, power-ups, revive, results): see Source/Features/PZGameConfig.h.
+    run = PZRunDirector::create(this);
+    if (run) {
+        this->addChild(run, 0);
+        run->startRun();
+    }
+
     AXLOGI("PZGGamefieldBasicRunner::init end");
     
     return true;
@@ -195,7 +203,9 @@ void PZGGamefieldBasicRunner::update(float dt){
         if (gf_speed > gf_speed_max) {
             gf_speed = gf_speed_max;
         }
-        gf_distance += gf_speed * dt;
+        // Effective speed includes the turbo boost (1.0 normally).
+        const float effSpeed = gf_speed * speedMultiplier();
+        gf_distance += effSpeed * dt;
                 
         char c[16];
         sprintf( c, "%d", (int)gf_distance);
@@ -204,15 +214,19 @@ void PZGGamefieldBasicRunner::update(float dt){
         
         for (int i=0; i < parallax_n; i++) {
             if (parallax[ i ]) {
-                parallax[ i ]->updateWithVelocity(ccp(-gf_speed,0), dt*kDeviceScale()*2*(1/parallax[i]->getScale()));
+                parallax[ i ]->updateWithVelocity(ccp(-effSpeed,0), dt*kDeviceScale()*2*(1/parallax[i]->getScale()));
             }
         }
          Size size = Director::getInstance()->getWinSize();
         character->setLoc( ccp(size.width/5.0, character->loc.y) );
         
-        platform->speed = gf_speed;
+        platform->speed = effSpeed;
         platform->distance = gf_distance;
         platform->update( dt );
+
+        if (run) {
+            run->update( dt );
+        }
         
         if (character->loc.y < -20.0) {
             gameOverCallBack( true );
