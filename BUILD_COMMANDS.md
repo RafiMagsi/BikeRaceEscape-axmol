@@ -30,7 +30,7 @@ cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol
 | Android signing key | `proj.android/dino-bike-upload.keystore` |
 | Android signing settings | `proj.android/keystore.properties` (both files are git-ignored; **back them up**) |
 | Test iPhone ID | `9EABB48C-7555-51D7-8014-E04CD3B2ED01` (Rafi iPhone 15) |
-| Current version | 1.3.0: iOS build 8, Android versionCode 3 |
+| Current version | 1.3.0: iOS build 9, Android versionCode 5 |
 
 ---
 
