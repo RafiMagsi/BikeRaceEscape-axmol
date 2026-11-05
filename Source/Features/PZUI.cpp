@@ -211,7 +211,7 @@ void Button::setBadge(int count) {
     _badge->addChild(dot);
     auto* n = label(std::to_string(count), 11.f);
     _badge->addChild(n);
-    _badge->setPosition(Vec2(_w - 6.f, _h - 4.f));
+    _badge->setPosition(Vec2(_w - 15.f, _h - 13.f));
     addChild(_badge, 5);
     _badge->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.5f, 1.15f), ScaleTo::create(0.5f, 1.f), nullptr)));
 }
@@ -254,12 +254,20 @@ void banner(Node* parent, const std::string& title, const std::string& sub, cons
     box->setPosition(Vec2(win.width * 0.5f, y));
     auto* t = heading(title, 30.f, color);
     t->setPositionY(sub.empty() ? 0.f : 12.f);
-    box->addChild(t);
+    box->addChild(t, 1);
+    float w = t->getContentSize().width;
+    float h = 44.f;
     if (!sub.empty()) {
         auto* s = heading(sub, 13.f, PZCfg::kColText);
         s->setPositionY(-22.f);
-        box->addChild(s);
+        box->addChild(s, 1);
+        w = std::max(w, s->getContentSize().width);
+        h = 74.f;
     }
+    // Dark plate behind the text: banners sit over busy gameplay art and the menu logo, where bare text is unreadable.
+    auto* plate = roundedRect(w + 56.f, h, h * 0.5f, PZCfg::kColPanel, 0.88f, color, 0.85f, 3.f);
+    plate->setPosition(Vec2(0.f, sub.empty() ? 0.f : -5.f));
+    box->addChild(plate, 0);
     box->setScale(0.2f);
     box->setOpacity(0);
     parent->addChild(box, z);

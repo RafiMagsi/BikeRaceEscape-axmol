@@ -825,7 +825,13 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
             AXLOGW("gameOverCallBack: character is null");
         }
         
-        // Overlay game-over as a layer (avoid nesting a Scene as a child node).
+        // The game-over screen is an overlay layer. Never build a second one: the first copy owns the results
+        // panel (presentResults only commits once), so a replacement would show GAME OVER with no stats.
+        if (this->getChildByTag(10)) {
+            gameOver = true;
+            if (pauseButton) pauseButton->setEnabled(false);
+            return;
+        }
         auto* gameOverScene = PZGGameOverScene::create();
         if (!gameOverScene) {
             AXLOGE("gameOverCallBack: failed to create PZGGameOverScene layer (init returned false)");

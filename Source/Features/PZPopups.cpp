@@ -44,10 +44,16 @@ void dismiss(Node* layer, std::function<void()> after) {
     });
 }
 
+// Every popup must sit above the in-run HUD (power-up chips, mission tracker, labels are at z ~1000) and above
+// the main-menu meta widgets (z 450), otherwise its panel is drawn underneath live read-outs.
+constexpr int kZModal = 1500;
+
 // Modal scaffold: dim base + original-style panel, popping in.
 LayerColor* openModal(Node* parent, float w, float h, int z, float dim) {
+    // `z` is kept for readability at the call sites; popups always take the reserved top layer.
+    (void)z;
     auto* base = PZUI::modalBase(dim);
-    parent->addChild(base, z);
+    parent->addChild(base, kZModal);
     const Vec2 mid = PZLayout::popupCentre();
     h = std::min(h, PZLayout::popupMaxHeight());
     auto* panel = PZUI::panel(w, h);
@@ -485,8 +491,12 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     root->addChild(lv);
 
     const bool hasDouble = PZCfg::kEnableDoubleCoins && claimDoubleCoins && stats.coins > 0;
-    const float barW = hasDouble ? std::min(190.f, panelW * 0.30f) : std::min(panelW - 150.f, 360.f);
-    const float barX = hasDouble ? (cx - panelW * 0.5f + 70.f + barW * 0.5f) : (cx + 10.f);
+    const float doubleW = std::min(210.f, panelW * 0.38f);
+    // XP bar fills the row from the LEVEL label up to the DOUBLE COINS button (or the panel edge).
+    const float barLeft = cx - panelW * 0.5f + 88.f;
+    const float barRight = hasDouble ? (cx + panelW * 0.5f - 22.f - doubleW - 16.f) : (cx + panelW * 0.5f - 24.f);
+    const float barW = std::max(80.f, std::min(420.f, barRight - barLeft));
+    const float barX = barLeft + barW * 0.5f;
     auto* xpBar = PZUI::bar(barW, 10.f, r.fracBefore, PZCfg::kColAccent2);
     xpBar->setPosition(Vec2(barX, panelY - 36.f));
     root->addChild(xpBar);
@@ -516,7 +526,6 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     if (hasDouble) {
         auto claimed = std::make_shared<bool>(false);
         auto btnRef = std::make_shared<PZUI::Button*>(nullptr);
-        const float doubleW = std::min(210.f, panelW * 0.38f);
         *btnRef = PZUI::Button::create(PZCfg::kStrDoubleCoins, doubleW, 38.f, PZCfg::kColButton, [=]() {
             auto* btn = *btnRef;
             if (!btn || *claimed) return;
@@ -551,7 +560,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
             });
         }, 9.f);
         auto* btn = *btnRef;
-        btn->setPosition(Vec2(cx + panelW * 0.5f - 16.f - doubleW * 0.5f, panelY - 36.f));
+        btn->setPosition(Vec2(cx + panelW * 0.5f - 22.f - doubleW * 0.5f, panelY - 36.f));
         root->addChild(btn);
         if (!PZ::AdsController::shared()->isRewardedAvailable()) PZ::AdsController::shared()->requestRewarded();
     }
@@ -759,7 +768,6 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
 }
 
 // ================================================================================================
-// Main-menu widgets// ================================================================================================
 // Main-menu widgets
 // ================================================================================================
 
@@ -809,76 +817,76 @@ private:
         auto* pg = PZProgress::shared();
         const Size win = winSize();
         const Rect safe = PZLayout::safeRect();
-        const float colX = safe.getMaxX() - 14.f - 110.f;        // column centre (buttons are 220 wide)
-        float y = safe.getMaxY() - 12.f;
+
+        // Compact meta column in the top-right corner: a small level plate plus a stack of full-width pills. The
+        // big START button lives in the same corner further down, so the column is sized to end well above it
+        // (measured from the safe rect, never from hard-coded pixels). Full-width pills also leave room for the
+        // notification badge at the right edge without ever covering the label.
+        const float colW = 224.f;
+        const float colX = safe.getMaxX() - 14.f - colW * 0.5f;
+        const float btnH = 32.f, gapY = 5.f;
+        float y = safe.getMaxY() - 8.f;
 
         // Player plate (level, XP, best).
         auto* plate = Node::create();
-        plate->addChild(PZUI::panel(220.f, 76.f, 14.f));
-        plate->setPosition(Vec2(colX, y - 38.f));
+        plate->addChild(PZUI::panel(colW, 50.f, 12.f));
+        plate->setPosition(Vec2(colX, y - 25.f));
         addChild(plate);
-        _lv = PZUI::heading("", 12.f, PZCfg::kColAccent);
+        _lv = PZUI::heading("", 11.f, PZCfg::kColAccent);
         _lv->setAnchorPoint(Vec2(0.f, 0.5f));
-        _lv->setPosition(Vec2(-94.f, 17.f));
+        _lv->setPosition(Vec2(-colW * 0.5f + 16.f, 10.f));
         plate->addChild(_lv);
         _best = PZUI::heading("", 8.f, PZCfg::kColDim);
         _best->setAnchorPoint(Vec2(1.f, 0.5f));
-        _best->setPosition(Vec2(94.f, 17.f));
+        _best->setPosition(Vec2(colW * 0.5f - 14.f, 10.f));
         plate->addChild(_best);
-        _xp = PZUI::bar(160.f, 10.f, pg->levelFraction(), PZCfg::kColAccent2);
-        _xp->setPosition(Vec2(0.f, -15.f));
+        _xp = PZUI::bar(160.f, 8.f, pg->levelFraction(), PZCfg::kColAccent2);
+        _xp->setPosition(Vec2(0.f, -9.f));
         plate->addChild(_xp);
-        y -= 76.f + 14.f;
+        y -= 50.f + gapY;
 
         Node* host = _host;
+
+        // Pills are laid out as they are created, so disabling a feature in the plist closes the gap instead of
+        // leaving a hole in the corner.
+        std::vector<PZUI::Button*> grid;
         if (PZCfg::kEnableDailyReward) {
-            _daily = PZUI::Button::create(PZCfg::kStrDailyBtn, 220.f, 42.f, PZCfg::kColButton, [this, host]() {
+            _daily = PZUI::Button::create(PZCfg::kStrDailyBtn, colW, btnH, PZCfg::kColButton, [this, host]() {
                 PZPopups::showDailyReward(host, [this]() { refresh(); });
-            }, 12.f);
-            _daily->setPosition(Vec2(colX, y - 21.f));
-            addChild(_daily);
-            y -= 42.f + 10.f;
+            }, 11.f);
+            grid.push_back(_daily);
         }
         if (PZCfg::kEnableMissions) {
-            _missions = PZUI::Button::create(PZCfg::kStrMissionsBtn, 220.f, 42.f, Color3B(70, 150, 240), [this, host]() {
+            _missions = PZUI::Button::create(PZCfg::kStrMissionsBtn, colW, btnH, Color3B(70, 150, 240), [this, host]() {
                 PZPopups::showMissions(host, [this]() { refresh(); });
-            }, 12.f);
-            _missions->setPosition(Vec2(colX, y - 21.f));
-            addChild(_missions);
-            y -= 42.f + 10.f;
-        }
-
-        // Secondary 2-up row: compact, and nudged inwards on island phones so nothing hides under the cutout.
-        const bool islandPhone = win.width / std::max(1.f, win.height) > 2.0f;
-        float rowRight = safe.getMaxX() - 14.f - (islandPhone ? 90.f : 0.f);
-        const float secW = 104.f, secH = 36.f, secGap = 10.f;
-        const float rowY = y - 8.f - secH * 0.5f;
-        if (PZCfg::kEnableFreeCoins) {
-            rowRight -= secW;
-            _free = PZUI::Button::create(PZCfg::kStrFreeCoinsBtn, secW, secH, PZCfg::kColButton, [this]() {
-                onFreeCoins();
-            }, 7.f);
-            _free->setPosition(Vec2(rowRight + secW * 0.5f, rowY));
-            addChild(_free);
-            rowRight -= secGap;
+            }, 11.f);
+            grid.push_back(_missions);
         }
         if (PZCfg::kEnableGadgets) {
-            rowRight -= secW;
-            _gadgets = PZUI::Button::create(PZCfg::kStrGadgetsBtn, secW, secH, Color3B(150, 105, 220), [this, host]() {
+            _gadgets = PZUI::Button::create(PZCfg::kStrGadgetsBtn, colW, btnH, Color3B(150, 105, 220), [this, host]() {
                 PZPopups::showGadgets(host, [this]() { refresh(); });
-            }, 7.f);
-            _gadgets->setPosition(Vec2(rowRight + secW * 0.5f, rowY));
-            addChild(_gadgets);
+            }, 11.f);
+            grid.push_back(_gadgets);
+        }
+        if (PZCfg::kEnableFreeCoins) {
+            _free = PZUI::Button::create(PZCfg::kStrFreeCoinsBtn, colW, btnH, PZCfg::kColButton, [this]() {
+                onFreeCoins();
+            }, 11.f);
+            grid.push_back(_free);
+        }
+        for (size_t i = 0; i < grid.size(); ++i) {
+            grid[i]->setPosition(Vec2(colX, y - btnH * 0.5f - static_cast<float>(i) * (btnH + gapY)));
+            addChild(grid[i]);
         }
 
         // Vibration lives in the bottom-right corner: out of the meta cluster, above the banner, below the cutout.
-        _vibe = PZUI::Button::create("", 126.f, 32.f, Color3B(120, 124, 134), [this]() {
+        _vibe = PZUI::Button::create("", 126.f, 30.f, Color3B(120, 124, 134), [this]() {
             auto* p = PZProgress::shared();
             p->setHapticsEnabled(!p->hapticsEnabled());
             PZHaptics::play(PZHaptics::Kind::Medium);   // instant preview when turning on
             refresh();
         }, 8.f);
-        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 34.f));
+        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 32.f));
         addChild(_vibe);
 
         refresh();
@@ -892,7 +900,7 @@ private:
             } else if (_freeWait > 8.f) {
                 _freePending = false;
                 PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrVideoNoAd, PZCfg::kColBad,
-                             win.height * 0.55f, 1.0f, 30);
+                             win.height * 0.55f, 1.0f, 1200);
             } else {
                 PZ::AdsController::shared()->requestRewarded();
             }
@@ -923,7 +931,7 @@ private:
         if (!pg->freeCoinsAvailable()) {
             char b[48];
             std::snprintf(b, sizeof(b), PZCfg::kStrFreeCoinsWait, clockText(pg->freeCoinsSecondsLeft()).c_str());
-            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColAccent2, winSize().height * 0.55f, 1.2f, 30);
+            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColAccent2, winSize().height * 0.55f, 1.2f, 1200);
             return;
         }
         showFreeCoinsAd();
@@ -936,24 +944,24 @@ private:
             _freePending = true;
             _freeWait = 0.f;
             PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrReviveLoading, PZCfg::kColAccent2,
-                         winSize().height * 0.55f, 1.0f, 30);
+                         winSize().height * 0.55f, 1.0f, 1200);
             return;
         }
         ads->showRewardedWithCallback([this](bool earned) {
             _freePending = false;
             if (!earned) {
                 PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, PZCfg::kStrVideoNoAd, PZCfg::kColBad,
-                             winSize().height * 0.55f, 1.0f, 30);
+                             winSize().height * 0.55f, 1.0f, 1200);
                 return;
             }
             const int got = PZProgress::shared()->claimFreeCoins(PZCfg::kFreeCoinsAmount);
             if (got <= 0) return;
             char b[64];
             std::snprintf(b, sizeof(b), PZCfg::kStrFreeCoinsSub, got);
-            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColGood, winSize().height * 0.55f, 1.3f, 30);
+            PZUI::banner(_host, PZCfg::kStrFreeCoinsTitle, b, PZCfg::kColGood, winSize().height * 0.55f, 1.3f, 1200);
             if (_free) {
                 const Vec2 world = _free->convertToWorldSpace(Vec2::ZERO);
-                PZUI::burst(_host, _host->convertToNodeSpace(world), PZCfg::kColAccent, 20, 100.f, 0.7f, 30);
+                PZUI::burst(_host, _host->convertToNodeSpace(world), PZCfg::kColAccent, 20, 100.f, 0.7f, 1200);
             }
             playCoin();
             PZHaptics::play(PZHaptics::Kind::Success);
