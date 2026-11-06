@@ -34,15 +34,15 @@
 		</data>
 		<key>Frameworks/soft_oal.framework/Info.plist</key>
 		<data>
-		LGgb8oJcBaw1sAA+tTYYZe0ZWpo=
+		r4IOpXgom2OgOjGplt6i/BJ8QIc=
 		</data>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<data>
-		Nfoy14GpRhIZPC7g5pnAAdEt3jk=
+		O0T/jnvu4sz718z49NxTtKB00es=
 		</data>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<data>
-		yT/7HxDS8gsZg5C/IKYm0zTJoAY=
+		mtVOfAD8UYcikK3gEgYuQ+hFrh0=
 		</data>
 		<key>Images/HD/GeneralApplicationSplashScreen.png</key>
 		<data>
@@ -684,21 +684,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			n24Hsdxhn8THhDhueV4QXqD0UBL3yJHDgfOJRIJrdJI=
+			N2VsBxUDpbuOhNMNGEi1qHVZh7DIvy+wYleLpCQL0lc=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			z2+/wQWL21OuHBRLDImtETTXfLRQeCs5DOpyxQUs36c=
+			SjB7IoQQYt6DC7CF45WfkeZWmEL0GZCBuNUMXT+cLtY=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Z6B185wyjQdNq/N4ShD7JHIH3OlPPUUraoz3yF4nkFc=
+			nnqZIngZsYnAcR1OvnqyEPWa+Rd5ji+TUapKmk3DMqg=
 			</data>
 		</dict>
 		<key>Images/HD/GeneralApplicationSplashScreen.png</key>

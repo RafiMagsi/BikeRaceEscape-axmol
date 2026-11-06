@@ -55,15 +55,8 @@ const std::vector<Binding>& bindings() {
     add(PZCfg::kStrSaved, "vo_second_chance");
     add(PZCfg::kStrGetReady, "vo_get_ready");
     add(PZCfg::kStrShieldBreak, "vo_shield");
-    add(PZCfg::kStrBlast, "vo_blast");
-    add(PZCfg::kStrJetpack, "vo_jetpack");
-    add(PZCfg::kStrRocket, "vo_rocket");
-    add(PZCfg::kStrGun, "vo_gun");
-    add(PZCfg::kStrLuckyHelmet, "vo_helmet");
     add(PZCfg::kStrNewBest, "vo_new_best");
     add(PZCfg::kStrStage, "vo_stage");
-    add(PZCfg::kStrBigAir, "vo_big_air");
-    add(PZCfg::kStrCloseCall, "vo_close_call");
     add(PZCfg::kStrSmash, "vo_smash");
     add(PZCfg::kStrMissionToast, "vo_mission");
     add(PZCfg::kStrComebackTitle, "vo_welcome");

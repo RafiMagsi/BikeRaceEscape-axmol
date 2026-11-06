@@ -65,7 +65,7 @@ You do not switch anything by hand. The build type decides:
 | Android signing key | `proj.android/dino-bike-upload.keystore` |
 | Android signing settings | `proj.android/keystore.properties` (both files are git-ignored; **back them up**) |
 | Test iPhone | Rafi iPhone 15 (found automatically by `tools/run.sh`; no id needed) |
-| Current version | 1.4.0: iOS build 10, Android versionCode 6 |
+| Current version | 1.4.0: iOS build 10, Android versionCode 7 |
 
 ---
 

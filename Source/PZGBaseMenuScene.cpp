@@ -91,25 +91,46 @@ static void arrangeInterface(const char* key, ax::Node* layer, ax::Menu* menu) {
 
     if (std::strcmp(key, "InterfaceMM") == 0) {
         // Restore / kids bike / coin store stack down the left edge; the logo takes the middle of the screen.
-        const float colX = safe.getMinX() + 108.f;
+        const float S = PZLayout::uiScale();
+        const float colX = safe.getMinX() + 108.f * S;
         const float ys[3] = {win.height * 0.80f, win.height * 0.595f, win.height * 0.39f};
         const int tags[3][2] = {{kUIIDMainMenuRestoreIAP, -1}, {kUIIDMainMenuKidModeIAP, kUIIDMainMenuKidModeOff}, {kUIIDMainMenuCoinShop, -1}};
         for (int i = 0; i < 3; ++i) {
             for (int t : tags[i]) {
                 if (t < 0) continue;
                 if (auto* it = item(t)) {
-                    it->setScale(0.92f);
+                    it->setScale(0.92f * S);
                     it->setPosition(ax::Vec2(colX, ys[i]));
                 }
             }
         }
         // PLAY is centred under the XP plate and pills (same column), and sits a little lower.
-        if (auto* play = item(3)) play->setPosition(ax::Vec2(safe.getMaxX() - 12.f - 145.f, play->getPositionY() - 26.f));
+        if (auto* play = item(3)) {
+            play->setPosition(ax::Vec2(safe.getMaxX() - 12.f - 145.f * S, play->getPositionY() - 26.f));
+            play->setScale(play->getScale() * S);
+        }
+        if (auto* gc = item(kUIIDMainMenuGameCenter)) gc->setScale(gc->getScale() * S);
         if (auto* logo = layer ? layer->getChildByTag(1) : nullptr) {
-            logo->setPosition(ax::Vec2(win.width * 0.45f, win.height * 0.69f));
+            logo->setPosition(ax::Vec2(win.width * (S < 0.995f ? 0.38f : 0.45f), win.height * 0.69f));
+            logo->setScale(logo->getScale() * std::min(1.f, S * 1.05f));
+        }
+    } else if (std::strcmp(key, "InterfaceGF") == 0) {
+        // Gameplay HUD art (pause button, coin icon) shrinks on narrow screens; done here so the entrance animation
+        // records the final scale.
+        const float S = PZLayout::uiScale();
+        if (S < 0.995f) {
+            if (auto* pause = item(kUIIDGameFieldPauseButton)) pause->setScale(pause->getScale() * S);
+            if (auto* coin = layer ? layer->getChildByTag(1) : nullptr) coin->setScale(coin->getScale() * S);
         }
     } else if (std::strcmp(key, "InterfaceCS") == 0) {
         // BACK sits on the same row as PLAY (it used to hang lower than the big button).
+        // Narrow screens: the extra buttons shrink (the COIN STORE art was far too big on iPad).
+        const float S = PZLayout::uiScale();
+        if (S < 0.995f) {
+            for (int t : {11, 12, 13}) {
+                if (auto* it = item(t)) it->setScale(it->getScale() * S);
+            }
+        }
         auto* play = item(4);
         if (play) {
             for (int t : {5}) {

@@ -13,6 +13,10 @@ namespace PZLayout {
 // Design units reserved along the bottom edge for the banner ad (0 once ads are removed).
 float bannerReserve();
 
+// 1.0 on phones (design space ~1390 wide); smaller on narrower screens (4:3 tablets give only ~850 units of width at the
+// fixed 640 height), so HUD and menu furniture shrink instead of overlapping.
+float uiScale();
+
 // Usable rectangle in design coordinates: safe area minus the banner strip.
 ax::Rect safeRect();
 

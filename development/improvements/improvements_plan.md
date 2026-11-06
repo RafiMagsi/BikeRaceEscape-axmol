@@ -225,6 +225,10 @@ ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads st
 54. Gadgets button icon: zig-zag lightning bolt with a glow (pulsing), replaces the 2x2 icon board.
 55. Test vs live ads is now automatic: debug builds force Google sample units, release builds use the live ids (see BUILD_COMMANDS.md "Ads: test vs live").
 
+56. iPad layout pass (menus + HUD)
+    > Feedback: DONE (iPad Pro 13 simulator). Added PZLayout::uiScale() (1.0 on phones, 0.66 on 4:3 tablets where the design width is only ~850 units). Menus: right column, chip row, left art buttons, logo, Play, bike and coins shrink and re-space; REMOVE ADS now sits alone in the top-left corner. Character screen: COIN STORE / kid / upgrade buttons shrink. Gameplay HUD: coin icon + counter, distance, BEST, pause, gadget button, power-up chips, mission tracker and combo all scale; the gadget button sits left of the pause button and the tracker below both (no overlaps). Shop grid uses 4 columns. The earlier FIXED_WIDTH experiment (world positioning, floating debris / bushes, empty top) was reverted: gameplay keeps the original 640-high design space.
+57. Voices removed: big air, power-up pickups (magnet / shield / turbo / jetpack / rocket / gun / blast / helmet), close call. "MISSION COMPLETE" is now announced once: missions already announced live in the run are not repeated on the game-over screen.
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control

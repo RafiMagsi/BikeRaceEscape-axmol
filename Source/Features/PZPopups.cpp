@@ -842,7 +842,7 @@ std::vector<GadgetCard*> buildGadgetGrid(Node* host, Node* noticeHost, const Vec
                                          bool showEquip, std::function<void()> onChanged) {
     auto* pg = PZProgress::shared();
     const int count = pg->gadgetPoolCount();
-    const int cols = std::max(1, std::min(4, static_cast<int>((width + 14.f) / 190.f)));
+    const int cols = std::max(1, std::min(4, static_cast<int>((width + 14.f) / 165.f)));
     const int rows = std::max(1, (count + cols - 1) / cols);
     const float gapX = 14.f, gapY = 12.f;
     const float cardW = (width - (cols - 1) * gapX) / cols;
@@ -2130,7 +2130,6 @@ private:
         _removeAds = PZUI::Button::create(PZCfg::kStrRemoveAds, 150.f, chipH, Color3B(214, 120, 40), [host]() {
             if (auto* scene = dynamic_cast<PZGBaseMenuScene*>(host)) scene->menuUpgradeCallback(nullptr);
         }, 8.f);
-        chips.push_back(_removeAds);
 
         if (PZCfg::kEnableNotifications) {
             Node* hostNode = _host;
@@ -2158,9 +2157,26 @@ private:
             addChild(c);
             cx += w + chipGap;
         }
+        // REMOVE ADS sits alone in the top-left corner (clear of the bike lane, the chip row and the left button column).
+        _removeAds->setPosition(Vec2(safe.getMinX() + 20.f + 75.f, safe.getMaxY() - 24.f));
+        addChild(_removeAds);
         updateRemoveChip();
         schedule([this](float) { updateRemoveChip(); }, 1.f, "pz_remove_chip");
 
+        // Narrow screens (iPad 4:3): shrink the furniture around its own anchor so nothing overlaps. The right-hand
+        // column scales toward the top-right corner, the chip row toward its own centre.
+        const float S = PZLayout::uiScale();
+        if (S < 0.995f) {
+            const Vec2 corner(safe.getMaxX() - 12.f, safe.getMaxY() - 8.f);
+            for (Node* c : getChildren()) {
+                if (!c) continue;
+                const Vec2 p = c->getPosition();
+                const Vec2 pivot = p.y > 300.f ? (p.x < safe.getMidX() ? Vec2(safe.getMinX() + 20.f, safe.getMaxY() - 8.f) : corner)
+                                               : Vec2(safe.getMidX(), 212.f);
+                c->setPosition(pivot + (p - pivot) * S);
+                c->setScale(c->getScale() * S);
+            }
+        }
         refresh();
         // The plate and the pills slide in one after the other when the menu opens.
         PZUI::stagger(this, 0.05f, 0.12f);
@@ -2627,7 +2643,7 @@ private:
         if (bike) {
             const float h = std::max(1.f, bike->getContentSize().height);
             bike->setAnchorPoint(Vec2(0.5f, 0.15f));
-            bike->setScale(PZCfg::kMenuBikeHeight / h);
+            bike->setScale(PZCfg::kMenuBikeHeight * PZLayout::uiScale() / h);
             _rider->addChild(bike);
         } else {
             // Fallback when the art is missing: a simple drawn bike.
@@ -2646,8 +2662,8 @@ private:
         for (int i = 0; i < 6; ++i) {
             CoinTrail c;
             c.dx = i * _coinStep;
-            c.dy = PZCfg::kMenuCoinLift + PZCfg::kMenuCoinArc * std::sin(static_cast<float>(M_PI) * i / 5.f);
-            c.node = PZUI::coinIcon(PZCfg::kMenuCoinSize);
+            c.dy = (PZCfg::kMenuCoinLift + PZCfg::kMenuCoinArc * std::sin(static_cast<float>(M_PI) * i / 5.f)) * PZLayout::uiScale();
+            c.node = PZUI::coinIcon(PZCfg::kMenuCoinSize * PZLayout::uiScale());
             c.spin = true;
             addChild(c.node, 2);
             c.node->setPosition(Vec2(_x + 330.f + c.dx, floorY(_x + 330.f + c.dx) + c.dy));

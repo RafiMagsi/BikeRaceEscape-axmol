@@ -233,15 +233,32 @@ void PZRunDirector::freezeFor(float seconds) {
 
 void PZRunDirector::layoutHud() {
     const Rect safe = PZLayout::safeRect();
+    const float S = PZLayout::uiScale();        // < 1 on narrow (tablet) screens: every HUD piece shrinks with it
     // Chips sit centred just under the distance / best read-outs; the combo counter hangs under the coin counter and
     // the mission tracker under the pause button, so nothing overlaps the original HUD.
     for (int i = 0; i < kChipCount; ++i) {
-        _rows[i].root->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 126.f));
+        _rows[i].root->setScale(S);
+        _rows[i].root->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 126.f * S));
     }
-    _comboLabel->setPosition(Vec2(safe.getMinX() + 24.f, safe.getMaxY() - 162.f));
-    if (_tracker) _tracker->setPosition(Vec2(safe.getMaxX() - 156.f, safe.getMaxY() - 138.f));
-    // Right edge of the gadget bar: just left of the pause button, on the top row.
-    if (_gadgetStrip) _gadgetStrip->setPosition(Vec2(safe.getMaxX() - 96.f, safe.getMaxY() - 44.f));
+    _comboLabel->setScale(S);
+    _comboLabel->setPosition(Vec2(safe.getMinX() + 24.f * S, safe.getMaxY() - 162.f * S));
+    if (_tracker) {
+        _tracker->setScale(S);
+        // below the gadget button / pause row: center at least (50 + 74 S) units under the top edge
+        _tracker->setPosition(Vec2(safe.getMaxX() - 156.f * S, safe.getMaxY() - std::max(138.f * S, 50.f + 74.f * S)));
+    }
+    // The gadget button sits immediately left of the pause button (wherever the art put it), on the same row.
+    if (_gadgetStrip) {
+        _gadgetStrip->setScale(S);
+        Vec2 at(safe.getMaxX() - 96.f * S, safe.getMaxY() - 44.f);
+        if (_scene && _scene->pauseButton) {
+            // x from the pause art; y fixed (the art is mid entrance-animation at this point, so its y is offset)
+            const Rect pb = _scene->pauseButton->getBoundingBox();
+            if (pb.size.width > 1.f) at = Vec2(pb.getMinX() - 12.f * S, safe.getMaxY() - 44.f);
+        }
+        _gadgetStrip->setPosition(at);
+    }
+    if (_bestLabel) _bestLabel->setScale(S);
 }
 
 void PZRunDirector::onLoaded() {
@@ -262,6 +279,13 @@ void PZRunDirector::onLoaded() {
         _bestLabel->setPosition(Vec2(PZLayout::safeRect().getMidX() - 240.f, Director::getInstance()->getWinSize().height - 60.f));
     }
     _hud->addChild(_bestLabel);
+    // Plist HUD pieces (coin icon + counter, distance counter, pause button) shrink in place on narrow screens.
+    if (const float S = PZLayout::uiScale(); S < 0.995f && _scene) {
+        // (the pause button and coin icon are scaled in PZGBaseMenuScene::load, before the entrance animation records them)
+        for (Node* n : {static_cast<Node*>(_scene->coins_label), static_cast<Node*>(_scene->distance_label)}) {
+            if (n) n->setScale(n->getScale() * S);
+        }
+    }
     layoutHud();
     refreshHud();
     refreshGadgetStrip();
@@ -889,7 +913,6 @@ void PZRunDirector::updateNearMiss() {
             ring(Vec2(rb.getMidX(), rb.getMinY()), PZCfg::kColGood, 90.f, 0.35f);
             PZHaptics::play(PZHaptics::Kind::Medium);
             PZAudio::play("fx_nearmiss");
-            PZAudio::say("vo_close_call", 0);
         }
     }
 }
@@ -1080,9 +1103,9 @@ void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride
     {   // pickup sounds: a generic chime + the power-up's own effect, and the announcer for those without a banner
         if (!bonus) PZAudio::play("fx_powerup");
         switch (kind) {
-        case PowerUp::Magnet:  PZAudio::play("fx_magnet", 0.9f, 0.1f);  if (!bonus) PZAudio::say("vo_magnet"); break;
-        case PowerUp::Shield:  PZAudio::play("fx_shield", 0.9f, 0.1f);  if (!bonus) PZAudio::say("vo_shield"); break;
-        case PowerUp::Turbo:   PZAudio::play("fx_turbo", 0.9f, 0.1f);   if (!bonus) PZAudio::say("vo_turbo"); break;
+        case PowerUp::Magnet:  PZAudio::play("fx_magnet", 0.9f, 0.1f); break;
+        case PowerUp::Shield:  PZAudio::play("fx_shield", 0.9f, 0.1f); break;
+        case PowerUp::Turbo:   PZAudio::play("fx_turbo", 0.9f, 0.1f); break;
         case PowerUp::Blast:   PZAudio::play("fx_blast", 1.0f, 0.1f);   break;
         case PowerUp::Jetpack: PZAudio::play("fx_jetpack", 0.9f, 0.1f); break;
         case PowerUp::Rocket:  PZAudio::play("fx_rocket", 0.9f, 0.1f);  break;
@@ -2539,7 +2562,7 @@ void PZRunDirector::updateFx(float dt, float scroll) {
                 PZUI::burst(_scene, riderPos(), PZCfg::kColAccent, 16, 100.f, 0.55f, kZFx);
                 PZUI::glitter(_scene, riderPos(), PZCfg::kColAccent, 12, 90.f, 0.8f, kZFx + 5);
                 PZAudio::play("fx_bigair");
-                PZAudio::say("vo_big_air", 0);
+                
                 cameraPunch(1.0f + (PZCfg::kPunchZoom - 1.0f) * 0.6f, 0.1f, 0.3f);
                 PZHaptics::play(PZHaptics::Kind::Success);
             }
@@ -2887,7 +2910,13 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         onCoins = [this]() { reviveFromGameOver(true); };
         onVideo = [this]() { reviveFromGameOver(false); };
     }
-    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, result, claimDoubleCoins, onCoins, onVideo);
+    // A mission that was already announced live during the run ("MISSION COMPLETE!" + voice) must not be announced a second
+    // time on the results screen.
+    PZRunResult shown = result;
+    shown.completedMissions.erase(std::remove_if(shown.completedMissions.begin(), shown.completedMissions.end(),
+                                                 [this](int slot) { return slot >= 0 && slot < 3 && _trackerDone[slot]; }),
+                                  shown.completedMissions.end());
+    PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, shown, claimDoubleCoins, onCoins, onVideo);
 }
 
 void PZRunDirector::reviveFromGameOver(bool withCoins) {

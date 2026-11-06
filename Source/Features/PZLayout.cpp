@@ -16,6 +16,11 @@ float bannerReserve() {
     return PZCfg::kBannerReserve;
 }
 
+float uiScale() {
+    const float w = Director::getInstance()->getWinSize().width;
+    return std::max(0.66f, std::min(1.f, w / 1391.f));
+}
+
 Rect safeRect() {
     auto* dir = Director::getInstance();
     const Size win = dir->getWinSize();
