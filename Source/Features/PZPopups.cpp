@@ -1743,7 +1743,7 @@ private:
         const float target = pg->levelFraction();
         const int level = pg->level();
         if (level == _xpLevel && std::abs(target - _shownFrac) < 0.002f) {
-            PZUI::redrawBar(_xp, _xpBarW, 12.f, target, PZCfg::kColAccent2);
+            PZUI::redrawBar(_xp, _xpBarW, 16.f, target, PZCfg::kColAccent2);
             return;
         }
         _xp->stopAllActions();
@@ -1751,7 +1751,7 @@ private:
         const float from = _shownFrac;
         _xpLevel = level;
         _shownFrac = target;
-        auto draw = [this](float v) { PZUI::redrawBar(_xp, _xpBarW, 12.f, v, PZCfg::kColAccent2); };
+        auto draw = [this](float v) { PZUI::redrawBar(_xp, _xpBarW, 16.f, v, PZCfg::kColAccent2); };
         if (levelledUp) {
             _xp->runAction(Sequence::create(
                 ActionFloat::create(0.5f, from, 1.f, draw),
@@ -1775,58 +1775,58 @@ private:
         // big START button lives in the same corner further down, so the column is sized to end well above it
         // (measured from the safe rect, never from hard-coded pixels). Full-width pills also leave room for the
         // notification badge at the right edge without ever covering the label.
-        const float colW = 224.f;
-        const float colX = safe.getMaxX() - 14.f - colW * 0.5f;
-        const float btnH = 30.f, gapY = 4.f;
+        const float colW = 290.f;
+        const float colX = safe.getMaxX() - 12.f - colW * 0.5f;
+        const float btnH = 28.f, gapY = 3.f;
         float y = safe.getMaxY() - 8.f;
 
-        // Player plate: round level badge on the left; best score, XP counter, framed XP bar and the next
-        // unlock on the right. The bar animates when XP changes (see refresh()).
-        const float plateH = 74.f;
+        // Player plate: round level badge on the left; XP counter, best score, framed XP bar and the next unlock on
+        // the right. All of it is sized for a phone held at arm's length (the first version used 14 px text and was
+        // unreadable). The bar animates when XP changes (see refresh()).
+        const float plateH = 100.f;
         auto* plate = Node::create();
-        plate->addChild(PZUI::panel(colW, plateH, 12.f));
+        plate->addChild(PZUI::panel(colW, plateH, 14.f));
         plate->setPosition(Vec2(colX, y - plateH * 0.5f));
         addChild(plate);
 
-        const float badgeX = -colW * 0.5f + 34.f;
+        const float badgeX = -colW * 0.5f + 46.f;
         auto* badge = DrawNode::create();
-        badge->drawSolidCircle(Vec2::ZERO, 26.f, 0.f, 28, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
-        badge->drawSolidCircle(Vec2::ZERO, 24.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge));
-        badge->drawSolidCircle(Vec2::ZERO, 20.f, 0.f, 28, PZUI::c4f(Color3B(14, 18, 32)));
-        badge->drawCircle(Vec2::ZERO, 20.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColAccent, 0.9f), 2.f);
-        badge->drawCircle(Vec2::ZERO, 24.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColPanelEdge2, 0.8f), 1.2f);
+        badge->drawSolidCircle(Vec2::ZERO, 36.f, 0.f, 32, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
+        badge->drawSolidCircle(Vec2::ZERO, 34.f, 0.f, 32, PZUI::c4f(PZCfg::kColPanelEdge));
+        badge->drawSolidCircle(Vec2::ZERO, 29.f, 0.f, 32, PZUI::c4f(Color3B(14, 18, 32)));
+        badge->drawCircle(Vec2::ZERO, 29.f, 0.f, 32, false, PZUI::c4f(PZCfg::kColAccent, 0.95f), 2.5f);
+        badge->drawCircle(Vec2::ZERO, 34.f, 0.f, 32, false, PZUI::c4f(PZCfg::kColPanelEdge2, 0.8f), 1.5f);
         badge->setPosition(Vec2(badgeX, 0.f));
         plate->addChild(badge);
-        auto* lvTag = PZUI::heading("LV", 5.5f, PZCfg::kColDim);
-        lvTag->setPosition(Vec2(badgeX, 12.f));
+        auto* lvTag = PZUI::heading("LEVEL", 7.f, PZCfg::kColDim);
+        lvTag->setPosition(Vec2(badgeX, 17.f));
         plate->addChild(lvTag);
-        _lv = PZUI::heading("", 14.f, PZCfg::kColAccent);
-        _lv->setPosition(Vec2(badgeX, -3.f));
+        _lv = PZUI::heading("", 20.f, PZCfg::kColAccent);
+        _lv->setPosition(Vec2(badgeX, -7.f));
         plate->addChild(_lv);
 
-        // Right block inside the inner frame: XP counter + best on the top line, the progress bar under it, and what
-        // the level is working towards at the bottom. Everything is inset from the bronze inner ring.
-        const float rx = -colW * 0.5f + 72.f;                 // left edge of the right-hand block
+        // Right block: XP counter + best on the top line, the progress bar under it, the next unlock at the bottom.
+        const float rx = -colW * 0.5f + 92.f;                 // left edge of the right-hand block
         const float rw = colW * 0.5f - 16.f - rx;             // its width
-        _xpText = PZUI::heading("", 6.f, PZCfg::kColAccent);
+        _xpText = PZUI::heading("", 12.f, PZCfg::kColAccent);
         _xpText->setAnchorPoint(Vec2(0.f, 0.5f));
-        _xpText->setPosition(Vec2(rx, 22.f));
+        _xpText->setPosition(Vec2(rx, 28.f));
         plate->addChild(_xpText);
-        _best = PZUI::heading("", 6.f, PZCfg::kColDim);
+        _best = PZUI::heading("", 9.5f, PZCfg::kColText);
         _best->setAnchorPoint(Vec2(1.f, 0.5f));
-        _best->setPosition(Vec2(rx + rw, 22.f));
+        _best->setPosition(Vec2(rx + rw, 28.f));
         plate->addChild(_best);
 
         _xpBarW = rw;
-        _xp = PZUI::bar(_xpBarW, 12.f, pg->levelFraction(), PZCfg::kColAccent2);
-        _xp->setPosition(Vec2(rx + rw * 0.5f, 2.f));
+        _xp = PZUI::bar(_xpBarW, 16.f, pg->levelFraction(), PZCfg::kColAccent2);
+        _xp->setPosition(Vec2(rx + rw * 0.5f, 5.f));
         plate->addChild(_xp);
         _shownFrac = pg->levelFraction();
         _xpLevel = pg->level();
 
-        _next = PZUI::heading("", 6.f, PZCfg::kColDim);
+        _next = PZUI::heading("", 9.5f, PZCfg::kColDim);
         _next->setAnchorPoint(Vec2(0.f, 0.5f));
-        _next->setPosition(Vec2(rx, -22.f));
+        _next->setPosition(Vec2(rx, -26.f));
         _nextMaxW = rw;
         plate->addChild(_next);
         y -= plateH + gapY;
@@ -1843,25 +1843,25 @@ private:
                 } else {
                     PZPopups::showDailyReward(host, [this]() { refresh(); });
                 }
-            }, 11.f);
+            }, 14.f);
             grid.push_back(_daily);
         }
         if (PZCfg::kEnableMissions) {
             _missions = PZUI::Button::create(PZCfg::kStrMissionsBtn, colW, btnH, Color3B(70, 150, 240), [this, host]() {
                 PZPopups::showMissions(host, [this]() { refresh(); });
-            }, 11.f);
+            }, 14.f);
             grid.push_back(_missions);
         }
         if (PZCfg::kEnableGadgets) {
             _gadgets = PZUI::Button::create(PZCfg::kStrGadgetsBtn, colW, btnH, Color3B(150, 105, 220), [this, host]() {
                 PZPopups::showGadgets(host, [this]() { refresh(); });
-            }, 11.f);
+            }, 14.f);
             grid.push_back(_gadgets);
         }
         if (PZCfg::kEnableFreeCoins) {
             _free = PZUI::Button::create(PZCfg::kStrShopBtn, colW, btnH, PZCfg::kColButton, [this, host]() {
                 PZPopups::showShop(host, [this]() { refresh(); }, false);
-            }, 11.f);
+            }, 14.f);
             grid.push_back(_free);
         }
         for (size_t i = 0; i < grid.size(); ++i) {
@@ -1985,6 +1985,228 @@ private:
 };
 
 // ------------------------------------------------------------------------------------------------
+// Menu parallax: the flat backdrop is cut along its natural horizon lines (sky / wall / water / road) and each strip
+// sways left and right at its own pace, with clouds, stars, a shooting star, lamp glow, water glints and fireflies on
+// top, so the first screen a player sees is alive instead of a still picture.
+// ------------------------------------------------------------------------------------------------
+constexpr int kTagMenuParallax = 0x4D50;
+
+class MenuParallax : public Node {
+public:
+    static MenuParallax* make(Node* menu) {
+        auto* m = new MenuParallax();
+        if (m->init() && m->build(menu)) {
+            m->autorelease();
+            return m;
+        }
+        delete m;
+        return nullptr;
+    }
+
+    void update(float dt) override {
+        _clock += dt;
+        for (auto& l : _layers) {
+            const float w = 2.f * static_cast<float>(M_PI) / l.period;
+            l.node->setPosition(_centre + Vec2(l.amp * std::sin(_clock * w + l.phase), l.bob * std::sin(_clock * w * 1.7f + l.phase)));
+        }
+        // Clouds drift slowly to the right and wrap around.
+        for (auto& c : _clouds) {
+            c.x += c.speed * dt;
+            if (c.x > _spanR) c.x = _spanL;
+            c.node->setPositionX(c.x);
+        }
+        // Lamp glow breathes and flickers a little.
+        for (size_t i = 0; i < _lamps.size(); ++i) {
+            const float f = 0.78f + 0.16f * std::sin(_clock * 2.3f + i * 1.9f) + 0.06f * std::sin(_clock * 11.f + i * 4.f);
+            _lamps[i]->setOpacity(static_cast<uint8_t>(255.f * std::min(1.f, f)));
+        }
+        // Water glints: slide and twinkle.
+        for (auto& g : _glints) {
+            g.x += g.speed * dt;
+            if (g.x > _spanR) g.x = _spanL;
+            g.node->setPositionX(g.x);
+            g.node->setOpacity(static_cast<uint8_t>(255.f * (0.35f + 0.65f * std::max(0.f, std::sin(_clock * g.rate + g.phase)))));
+        }
+        for (size_t i = 0; i < _reflect.size(); ++i) {
+            _reflect[i]->setOpacity(static_cast<uint8_t>(255.f * (0.5f + 0.5f * std::sin(_clock * 3.1f + i * 0.9f))));
+        }
+        // Fireflies wander.
+        for (auto& f : _flies) {
+            f.node->setPosition(f.home + Vec2(std::sin(_clock * f.sx + f.phase) * f.rx, std::sin(_clock * f.sy + f.phase * 1.7f) * f.ry));
+            f.node->setOpacity(static_cast<uint8_t>(255.f * (0.25f + 0.75f * std::max(0.f, std::sin(_clock * f.rate + f.phase)))));
+        }
+        // Shooting star every so often.
+        _starClock -= dt;
+        if (_starClock <= 0.f) {
+            _starClock = 6.f + CCRANDOM_0_1() * 7.f;
+            shootingStar();
+        }
+    }
+
+private:
+    struct Layer { Node* node; float amp, period, phase, bob; };
+    struct Drifter { Node* node; float x, speed, rate, phase; };
+    struct Fly { Node* node; Vec2 home; float rx, ry, sx, sy, phase, rate; };
+
+    Vec2 P(float fx, float fyTop) const {
+        return Vec2(_win.width * fx - _centre.x, _win.height * (1.f - fyTop) - _centre.y);
+    }
+
+    static DrawNode* glow(float r, const Color3B& c, float a, int rings) {
+        auto* d = DrawNode::create();
+        for (int i = 0; i < rings; ++i) {
+            const float k = 1.f - static_cast<float>(i) / rings;
+            d->drawSolidCircle(Vec2::ZERO, r * k, 0.f, 28, PZUI::c4f(c, a * (0.35f + 0.65f * (1.f - k))));
+        }
+        d->setBlendFunc(BlendFunc::ADDITIVE);
+        return d;
+    }
+
+    bool build(Node* menu) {
+        Sprite* bg = dynamic_cast<Sprite*>(menu->getChildByTag(0));
+        if (!bg || !bg->getTexture() || bg->isTextureRectRotated()) return false;
+        const Rect tr = bg->getTextureRect();
+        if (tr.size.width < 8.f || tr.size.height < 8.f) return false;
+        _win = Director::getInstance()->getWinSize();
+        _centre = bg->getPosition();
+        const float scale = std::max(bg->getScaleX(), bg->getScaleY()) * 1.07f;   // overscan so a sway never shows an edge
+        const float W = tr.size.width, H = tr.size.height;
+        _spanL = -_win.width * 0.6f;
+        _spanR = _win.width * 0.6f;
+
+        static const float cuts[5] = {0.f, 0.46f, 0.655f, 0.80f, 1.f};
+        static const float amps[4] = {6.f, 11.f, 17.f, 25.f};
+        static const float periods[4] = {13.f, 10.f, 8.f, 6.5f};
+        static const float bobs[4] = {0.f, 0.8f, 2.2f, 1.4f};
+        Node* carriers[4];
+        for (int i = 0; i < 4; ++i) {
+            auto* carrier = Node::create();
+            carrier->setPosition(_centre);
+            addChild(carrier, i);
+            carriers[i] = carrier;
+            const float top = cuts[i];
+            const float bot = cuts[i + 1] + (i < 3 ? 0.006f : 0.f);
+            auto* sp = Sprite::createWithTexture(bg->getTexture(), Rect(tr.origin.x, tr.origin.y + top * H, W, (bot - top) * H));
+            sp->setAnchorPoint(Vec2(0.5f, 1.f));
+            sp->setScale(scale);
+            sp->setPosition(Vec2(0.f, (0.5f - top) * H * scale));
+            carrier->addChild(sp, 0);
+            _layers.push_back({carrier, amps[i], periods[i], static_cast<float>(i) * 1.3f, bobs[i]});
+        }
+        bg->setVisible(false);
+
+        // --- sky: stars, clouds ---
+        for (int i = 0; i < 30; ++i) {
+            auto* d = DrawNode::create();
+            d->drawDot(Vec2::ZERO, 0.9f + CCRANDOM_0_1() * 1.5f, PZUI::c4f(Color3B(235, 240, 255), 0.9f));
+            d->setBlendFunc(BlendFunc::ADDITIVE);
+            d->setPosition(P(0.02f + CCRANDOM_0_1() * 0.96f, 0.02f + CCRANDOM_0_1() * 0.30f));
+            carriers[0]->addChild(d, 1);
+            const float t = 0.6f + CCRANDOM_0_1() * 1.6f;
+            d->runAction(RepeatForever::create(Sequence::create(FadeTo::create(t, 60), FadeTo::create(t, 255), nullptr)));
+        }
+        for (int i = 0; i < 4; ++i) {
+            auto* d = DrawNode::create();
+            const float sc = 0.8f + CCRANDOM_0_1() * 0.9f;
+            const Color3B col(150, 172, 220);
+            d->drawSolidCircle(Vec2(-70.f * sc, -4.f * sc), 30.f * sc, 0.f, 24, PZUI::c4f(col, 0.075f));
+            d->drawSolidCircle(Vec2(-24.f * sc, 8.f * sc), 40.f * sc, 0.f, 24, PZUI::c4f(col, 0.075f));
+            d->drawSolidCircle(Vec2(26.f * sc, 4.f * sc), 36.f * sc, 0.f, 24, PZUI::c4f(col, 0.075f));
+            d->drawSolidCircle(Vec2(72.f * sc, -6.f * sc), 28.f * sc, 0.f, 24, PZUI::c4f(col, 0.075f));
+            d->setScaleY(0.55f);
+            Vec2 pos = P(0.f, 0.07f + 0.075f * i + CCRANDOM_0_1() * 0.03f);
+            const float x = _spanL + (_spanR - _spanL) * (static_cast<float>(i) + CCRANDOM_0_1() * 0.6f) / 4.f;
+            d->setPosition(Vec2(x, pos.y));
+            carriers[0]->addChild(d, 2);
+            _clouds.push_back({d, x, 6.f + CCRANDOM_0_1() * 9.f});
+        }
+
+        // --- wall: lamp glow ---
+        static const float lampX[2] = {0.2036f, 0.5593f};
+        for (int i = 0; i < 2; ++i) {
+            auto* g = glow(78.f, Color3B(255, 186, 86), 0.075f, 7);
+            g->setPosition(P(lampX[i], 0.509f));
+            carriers[1]->addChild(g, 1);
+            _lamps.push_back(g);
+        }
+
+        // --- water: lamp reflections and drifting glints ---
+        for (int i = 0; i < 2; ++i) {
+            for (int k = 0; k < 5; ++k) {
+                auto* d = DrawNode::create();
+                const float w = 44.f - k * 7.f;
+                d->drawSegment(Vec2(-w, 0.f), Vec2(w, 0.f), 2.4f, PZUI::c4f(Color3B(255, 200, 110), 0.55f));
+                d->setBlendFunc(BlendFunc::ADDITIVE);
+                d->setPosition(P(lampX[i], 0.685f + k * 0.026f));
+                carriers[2]->addChild(d, 1);
+                _reflect.push_back(d);
+            }
+        }
+        for (int i = 0; i < 12; ++i) {
+            auto* d = DrawNode::create();
+            const float w = 14.f + CCRANDOM_0_1() * 30.f;
+            d->drawSegment(Vec2(-w, 0.f), Vec2(w, 0.f), 1.6f, PZUI::c4f(Color3B(170, 220, 240), 0.55f));
+            d->setBlendFunc(BlendFunc::ADDITIVE);
+            const Vec2 pos = P(0.5f, 0.672f + CCRANDOM_0_1() * 0.12f);
+            const float x = _spanL + (_spanR - _spanL) * CCRANDOM_0_1();
+            d->setPosition(Vec2(x, pos.y));
+            carriers[2]->addChild(d, 2);
+            _glints.push_back({d, x, 8.f + CCRANDOM_0_1() * 16.f, 1.2f + CCRANDOM_0_1() * 1.8f, CCRANDOM_0_1() * 6.f});
+        }
+
+        // --- fireflies over the whole scene ---
+        for (int i = 0; i < 14; ++i) {
+            auto* d = glow(7.f, Color3B(255, 226, 120), 0.5f, 3);
+            auto* core = DrawNode::create();
+            core->drawDot(Vec2::ZERO, 1.8f, PZUI::c4f(Color3B(255, 250, 200), 1.f));
+            d->addChild(core);
+            const Vec2 home = P(0.03f + CCRANDOM_0_1() * 0.94f, 0.30f + CCRANDOM_0_1() * 0.45f) + _centre;
+            d->setPosition(home);
+            addChild(d, 10);
+            _flies.push_back({d, home, 14.f + CCRANDOM_0_1() * 26.f, 8.f + CCRANDOM_0_1() * 16.f,
+                              0.4f + CCRANDOM_0_1() * 0.7f, 0.5f + CCRANDOM_0_1() * 0.8f, CCRANDOM_0_1() * 6.f,
+                              0.8f + CCRANDOM_0_1() * 1.6f});
+        }
+
+        // The logo floats a little.
+        if (auto* logo = menu->getChildByTag(1)) {
+            logo->runAction(RepeatForever::create(Sequence::create(
+                EaseSineInOut::create(MoveBy::create(1.9f, Vec2(0.f, 7.f))),
+                EaseSineInOut::create(MoveBy::create(1.9f, Vec2(0.f, -7.f))), nullptr)));
+            logo->runAction(RepeatForever::create(Sequence::create(
+                EaseSineInOut::create(RotateBy::create(2.6f, 0.8f)),
+                EaseSineInOut::create(RotateBy::create(2.6f, -0.8f)), nullptr)));
+        }
+        _starClock = 2.5f;
+        scheduleUpdate();
+        return true;
+    }
+
+    void shootingStar() {
+        auto* d = DrawNode::create();
+        for (int i = 0; i < 6; ++i) {
+            d->drawSegment(Vec2(i * 11.f, i * 4.6f), Vec2((i + 1) * 11.f, (i + 1) * 4.6f), 2.6f - i * 0.35f,
+                           PZUI::c4f(Color3B(255, 255, 255), 0.9f - i * 0.14f));
+        }
+        d->setBlendFunc(BlendFunc::ADDITIVE);
+        const Vec2 from = Vec2(_win.width * (0.45f + CCRANDOM_0_1() * 0.5f), _win.height * (0.80f + CCRANDOM_0_1() * 0.15f));
+        d->setPosition(from);
+        addChild(d, 5);
+        d->runAction(Sequence::create(Spawn::create(MoveBy::create(0.75f, Vec2(-330.f, -140.f)),
+                                                    Sequence::create(DelayTime::create(0.35f), FadeOut::create(0.4f), nullptr), nullptr),
+                                      RemoveSelf::create(), nullptr));
+    }
+
+    Size _win;
+    Vec2 _centre;
+    float _clock = 0.f, _spanL = 0.f, _spanR = 0.f, _starClock = 3.f;
+    std::vector<Layer> _layers;
+    std::vector<Drifter> _clouds, _glints;
+    std::vector<DrawNode*> _lamps, _reflect;
+    std::vector<Fly> _flies;
+};
+
+// ------------------------------------------------------------------------------------------------
 // Menu showcase: the player's bike runs along the bottom lane of the menu screens, so the first screen a
 // new player sees is never a still image. Tapping the lane makes it hop (main menu only).
 // ------------------------------------------------------------------------------------------------
@@ -2008,51 +2230,73 @@ public:
         _x += _speed * dt;
         if (_x > _right) _x = _left;
 
-        float y = _groundY + 2.f + std::sin(_clock * 9.f) * 1.6f;
+        float y = _groundY + 2.f + std::sin(_clock * 9.f) * 1.8f;
         if (_jumpT > 0.f) {
             _jumpT -= dt;
             const float p = 1.f - std::max(0.f, _jumpT) / _jumpDur;   // 0 -> 1 over the hop
             y += std::sin(p * static_cast<float>(M_PI)) * _jumpH;
         }
-        if (_rider) _rider->setPosition(Vec2(_x, y));
+        if (_rider) {
+            _rider->setPosition(Vec2(_x, y));
+            // A little lean into the speed, and a nose-up pitch while hopping.
+            const float lift = std::max(0.f, y - _groundY);
+            _rider->setRotation(-1.2f - (_jumpT > 0.f ? 7.f * std::sin((1.f - _jumpT / _jumpDur) * static_cast<float>(M_PI) * 2.f) : 0.f) + lift * 0.f);
+        }
         if (_shadow) {
             const float lift = std::max(0.f, y - _groundY);
-            _shadow->setPosition(Vec2(_x, _groundY - 2.f));
-            _shadow->setScale(std::max(0.45f, 1.f - lift / (_jumpH + 30.f)));
-            _shadow->setOpacity(static_cast<uint8_t>(std::max(40.f, 120.f - lift)));
+            _shadow->setPosition(Vec2(_x, _groundY - 3.f));
+            _shadow->setScale(std::max(0.5f, 1.f - lift / (_jumpH + 40.f)) * 2.1f, std::max(0.5f, 1.f - lift / (_jumpH + 40.f)));
+            _shadow->setOpacity(static_cast<uint8_t>(std::max(40.f, 130.f - lift)));
         }
+
+        // The road dashes stream past: the world is moving under the bike.
+        if (_dashes) _dashes->setPositionX(-std::fmod(_clock * _speed * 1.6f, 64.f));
 
         // Dust behind the rear wheel while the bike is on the road.
         if (_jumpT <= 0.f) {
             _dustClock += dt;
-            if (_dustClock > 0.11f) {
+            if (_dustClock > 0.08f) {
                 _dustClock = 0.f;
                 auto* d = DrawNode::create();
-                d->drawDot(Vec2::ZERO, 2.4f, PZUI::c4f(Color3B(214, 196, 168), 0.55f));
-                d->setPosition(Vec2(_x - 26.f, _groundY + 4.f));
+                d->drawDot(Vec2::ZERO, 3.4f, PZUI::c4f(Color3B(214, 196, 168), 0.55f));
+                d->setPosition(Vec2(_x - 50.f, _groundY + 6.f));
                 addChild(d, 2);
-                d->runAction(Sequence::create(Spawn::create(MoveBy::create(0.5f, Vec2(-34.f, 12.f)), FadeOut::create(0.5f),
-                                                            ScaleTo::create(0.5f, 2.2f), nullptr),
+                d->runAction(Sequence::create(Spawn::create(MoveBy::create(0.55f, Vec2(-52.f, 16.f)), FadeOut::create(0.55f),
+                                                            ScaleTo::create(0.55f, 2.6f), nullptr),
                                               RemoveSelf::create(), nullptr));
             }
         }
 
-        // Coins the bike sweeps up (they are decorative: nothing is credited here).
+        // A trail of coins in a gentle arc. They are decorative: nothing is credited here.
+        _groupX -= _speed * 0.5f * dt;
+        bool anyLeft = false;
         for (auto& c : _coins) {
-            if (!c.node) continue;
-            c.x -= _speed * dt;
-            if (c.x < _left) {
-                c.x = _right + 120.f + CCRANDOM_0_1() * 260.f;
+            const float cx = _groupX + c.dx;
+            const float cy = c.dy + std::sin(_clock * 3.f + c.dx * 0.02f) * 3.f;
+            if (c.alive) {
+                c.node->setPosition(Vec2(cx, cy));
+                c.node->setScaleX(c.spin ? std::max(0.18f, std::abs(std::cos(_clock * 4.2f + c.dx * 0.03f))) : 1.f);
+                if (cx > _left) anyLeft = true;
+                const float riderY = _rider ? _rider->getPositionY() : _groundY;
+                if (std::abs(cx - _x) < 46.f && std::abs(cy - (riderY + 70.f)) < 90.f) {
+                    c.alive = false;
+                    PZUI::glitter(this, Vec2(cx, cy), PZCfg::kColAccent, 6, 34.f, 0.5f, 6);
+                    PZUI::burst(this, Vec2(cx, cy), PZCfg::kColAccent, 6, 36.f, 0.35f, 6);
+                    c.node->runAction(Sequence::create(Spawn::create(ScaleTo::create(0.14f, 1.6f, 1.6f), FadeOut::create(0.14f), nullptr),
+                                                       Hide::create(), nullptr));
+                }
             }
-            c.node->setPosition(Vec2(c.x, c.y + std::sin(_clock * 3.f + c.x * 0.01f) * 4.f));
-            if (std::abs(c.x - _x) < 34.f && std::abs((c.y) - (_rider ? _rider->getPositionY() : _groundY) - 30.f) < 70.f) {
-                PZUI::glitter(this, Vec2(c.x, c.y), PZCfg::kColAccent, 5, 26.f, 0.5f, 6);
+        }
+        if (!anyLeft || _groupX + 5 * _coinStep < _left) {
+            _groupX = _right + 120.f + CCRANDOM_0_1() * 320.f;
+            for (auto& c : _coins) {
+                c.alive = true;
                 c.node->stopAllActions();
-                c.x = _right + 200.f + CCRANDOM_0_1() * 320.f;
-                c.node->setPosition(Vec2(c.x, c.y));
+                c.node->setVisible(true);
+                c.node->setOpacity(255);
                 c.node->setScale(0.f);
-                c.node->runAction(Sequence::create(DelayTime::create(0.08f),
-                                                   EaseBackOut::create(ScaleTo::create(0.18f, 1.f)), nullptr));
+                c.node->runAction(Sequence::create(DelayTime::create(CCRANDOM_0_1() * 0.2f),
+                                                   EaseBackOut::create(ScaleTo::create(0.2f, 1.f)), nullptr));
             }
         }
 
@@ -2070,24 +2314,27 @@ private:
         const Rect safe = PZLayout::safeRect();
         // The lane hugs the bottom edge: it runs UNDER the art buttons (restore / kids / coin store) instead of
         // through them, and stays above the banner strip on ad-supported builds.
-        _groundY = safe.getMinY() + 20.f;
-        _left = safe.getMinX() - 70.f;
-        _right = safe.getMaxX() + 70.f;
-        _x = safe.getMinX() + safe.size.width * 0.28f;
+        // The bike rides the pavement edge in the artwork (about 82% down the screen), above the ad banner.
+        _groundY = std::max(safe.getMinY() + 14.f, Director::getInstance()->getWinSize().height * 0.185f);
+        _left = safe.getMinX() - 100.f;
+        _right = safe.getMaxX() + 100.f;
+        _x = safe.getMinX() + safe.size.width * 0.30f;
 
-        // The lane: a soft dark strip with a dashed gold edge, which reads as road without fighting the art.
+        // The lane: a soft dark strip with streaming dashes, which reads as road without fighting the art.
         auto* road = DrawNode::create();
-        road->drawSolidRect(Vec2(safe.getMinX(), _groundY - 9.f), Vec2(safe.getMaxX(), _groundY + 2.f),
+        road->drawSolidRect(Vec2(safe.getMinX(), _groundY - 11.f), Vec2(safe.getMaxX(), _groundY + 2.f),
                             PZUI::c4f(Color3B(20, 16, 14), 0.42f));
-        for (float x = safe.getMinX(); x < safe.getMaxX(); x += 52.f) {
-            road->drawSegment(Vec2(x, _groundY - 4.f), Vec2(x + 24.f, _groundY - 4.f), 2.f,
-                              PZUI::c4f(PZCfg::kColAccent, 0.28f));
-        }
         addChild(road, 0);
+        // The dashes live in their own node so they can stream; the strip is clipped by drawing only inside the lane.
+        _dashes = DrawNode::create();
+        for (float x = safe.getMinX() - 64.f; x < safe.getMaxX() + 64.f; x += 64.f) {
+            _dashes->drawSegment(Vec2(x, _groundY - 5.f), Vec2(x + 30.f, _groundY - 5.f), 2.6f,
+                                 PZUI::c4f(PZCfg::kColAccent, 0.34f));
+        }
+        addChild(_dashes, 0);
 
         _shadow = DrawNode::create();
-        _shadow->drawSolidCircle(Vec2::ZERO, 26.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.45f));
-        _shadow->setScaleX(1.6f);
+        _shadow->drawSolidCircle(Vec2::ZERO, 24.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.5f));
         addChild(_shadow, 1);
 
         // The bike is the player's own sprite (already animated when the art has frames).
@@ -2104,12 +2351,13 @@ private:
         }
         if (bike) {
             const float h = std::max(1.f, bike->getContentSize().height);
-            bike->setAnchorPoint(Vec2(0.5f, 0.08f));
+            bike->setAnchorPoint(Vec2(0.5f, 0.15f));
             bike->setScale(_bikeHeight / h);
             _rider->addChild(bike);
         } else {
             // Fallback when the art is missing: a simple drawn bike.
             auto* d = DrawNode::create();
+            d->setScale(1.6f);
             d->drawSolidCircle(Vec2(-22.f, 8.f), 9.f, 0.f, 16, PZUI::c4f(Color3B(30, 30, 36)));
             d->drawSolidCircle(Vec2(22.f, 8.f), 9.f, 0.f, 16, PZUI::c4f(Color3B(30, 30, 36)));
             d->drawSegment(Vec2(-22.f, 8.f), Vec2(0.f, 22.f), 3.f, PZUI::c4f(PZCfg::kColButton));
@@ -2119,23 +2367,25 @@ private:
         }
         _rider->setPosition(Vec2(_x, _groundY + 2.f));
 
-        // A trail of coins ahead of the bike.
-        for (int i = 0; i < 3; ++i) {
+        // Six big coins in a gentle arc ahead of the bike.
+        for (int i = 0; i < 6; ++i) {
             CoinTrail c;
-            c.x = _x + 240.f + i * 58.f;
-            c.y = _groundY + 34.f;
-            c.node = PZUI::coinIcon(30.f);
+            c.dx = i * _coinStep;
+            c.dy = _groundY + 78.f + 46.f * std::sin(static_cast<float>(M_PI) * i / 5.f);
+            c.node = PZUI::coinIcon(66.f);
+            c.spin = true;
             addChild(c.node, 2);
-            c.node->setPosition(Vec2(c.x, c.y));
+            c.node->setPosition(Vec2(_x + 330.f + c.dx, c.dy));
             _coins.push_back(c);
         }
+        _groupX = _x + 330.f;
 
         if (interactive) {
             auto* l = EventListenerTouchOneByOne::create();
             l->setSwallowTouches(false);
             l->onTouchBegan = [this](Touch* t, Event*) {
                 const Vec2 p = convertToNodeSpace(t->getLocation());
-                if (p.y < _groundY - 46.f || p.y > _groundY + 120.f) return false;   // only the lane band
+                if (p.y < _groundY - 60.f || p.y > _groundY + 200.f) return false;   // only the lane band
                 hop();
                 return true;
             };
@@ -2143,8 +2393,8 @@ private:
 
             // New players get a one-line hint over the lane for the first seconds.
             if (PZProgress::shared()->totalRuns() < 3) {
-                auto* hint = PZUI::heading(PZCfg::kStrStartHint, 8.f, PZCfg::kColAccent);
-                hint->setPosition(Vec2(_x, _groundY + 78.f));
+                auto* hint = PZUI::heading(PZCfg::kStrStartHint, 10.f, PZCfg::kColAccent);
+                hint->setPosition(Vec2(_x, _groundY + 200.f));
                 addChild(hint, 5);
                 hint->runAction(Sequence::create(Spawn::create(MoveBy::create(4.f, Vec2(90.f, 0.f)), nullptr),
                                                  FadeOut::create(0.6f), RemoveSelf::create(), nullptr));
@@ -2155,25 +2405,29 @@ private:
 
     void hop() {
         if (_jumpT > 0.f) return;
-        _jumpT = _jumpDur = 0.52f;
-        _jumpH = 30.f;
+        _jumpT = _jumpDur = 0.56f;
+        _jumpH = 40.f;
         PZHaptics::play(PZHaptics::Kind::Light);
         PZAudio::play("fx_jump", 0.5f, 0.15f);
-        PZUI::burst(this, Vec2(_x, _groundY + 4.f), PZCfg::kColAccent2, 6, 34.f, 0.4f, 2);
+        PZUI::burst(this, Vec2(_x, _groundY + 4.f), PZCfg::kColAccent2, 8, 44.f, 0.4f, 2);
     }
 
     struct CoinTrail {
         ax::Node* node = nullptr;
-        float x = 0.f, y = 0.f;
+        float dx = 0.f, dy = 0.f;
+        bool alive = true;
+        bool spin = false;
     };
 
     Node* _rider = nullptr;
     DrawNode* _shadow = nullptr;
+    DrawNode* _dashes = nullptr;
     std::vector<CoinTrail> _coins;
-    float _groundY = 0.f, _left = 0.f, _right = 0.f, _x = 0.f;
+    float _groundY = 0.f, _left = 0.f, _right = 0.f, _x = 0.f, _groupX = 0.f;
     float _speed = 250.f, _clock = 0.f, _dustClock = 0.f, _autoHop = 1.6f;
-    static constexpr float _bikeHeight = 74.f;
-    float _jumpT = 0.f, _jumpDur = 0.52f, _jumpH = 30.f;
+    static constexpr float _bikeHeight = 172.f;
+    static constexpr float _coinStep = 84.f;
+    float _jumpT = 0.f, _jumpDur = 0.56f, _jumpH = 40.f;
     bool _interactive = false;
 };
 } // namespace
@@ -2196,6 +2450,14 @@ void attachMenuShowcase(Node* menuLayer, bool interactive) {
     if (!s) return;
     s->setTag(kTagMenuShowcase);
     menuLayer->addChild(s, 448);
+    // The layered, swaying backdrop belongs to the main menu only (the pause overlay keeps its dimmed art).
+    if (interactive) {
+        menuLayer->removeChildByTag(kTagMenuParallax);
+        if (auto* par = MenuParallax::make(menuLayer)) {
+            par->setTag(kTagMenuParallax);
+            menuLayer->addChild(par, 299);
+        }
+    }
 }
 
 void refreshMenuWidgets(Node* menuLayer, bool allowDailyPopup) {

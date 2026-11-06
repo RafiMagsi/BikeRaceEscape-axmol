@@ -42,6 +42,11 @@ static GADBannerView* g_banner = nil;
 
 // AdMob policy: no ad request before the Google UMP consent flow says ads may be requested (EEA / UK / US states).
 static BOOL g_adsStarted = NO;
+// A banner / interstitial asked for while the consent flow was still open is remembered and sent as soon as ads are
+// allowed (the menu asks once, ~2 s after launch; dropping that request meant no banner until the next menu visit).
+static NSString* g_pendingBannerUnit = nil;
+static NSString* g_pendingInterstitialUnit = nil;
+namespace PZ { namespace { void pzPresentBanner(NSString* unitId); void pzLoadInterstitial(NSString* unitId); } }
 static BOOL pzCanRequestAds() {
 #if PZ_HAS_UMP
     return UMPConsentInformation.sharedInstance.canRequestAds;
@@ -55,6 +60,10 @@ static void pzStartAdsIfAllowed() {
     [GADMobileAds sharedInstance].audioVideoManager.audioSessionIsApplicationManaged = YES;
     [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
     AXLOGI("AdsProviderAdMob(iOS): Google Mobile Ads started");
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (g_pendingBannerUnit) { NSString* u = g_pendingBannerUnit; g_pendingBannerUnit = nil; PZ::pzPresentBanner(u); }
+        if (g_pendingInterstitialUnit) { NSString* u = g_pendingInterstitialUnit; g_pendingInterstitialUnit = nil; PZ::pzLoadInterstitial(u); }
+    });
 }
 static UIViewController* pzRootViewController() {
     UIWindow* window = nil;
@@ -199,6 +208,56 @@ static NSString* _nsString(const std::string& s) {
 
 } // namespace
 
+#if PZ_HAS_GMA
+namespace {
+void pzPresentBanner(NSString* unitId) {
+    UIViewController* vc = _topMostViewController();
+    if (!vc || !vc.view) {
+        AXLOGW("AdsProviderAdMob(iOS): no view controller to present banner");
+        return;
+    }
+    if (!g_banner) {
+        // Use adaptive anchored banner size.
+        const CGFloat width = vc.view.bounds.size.width;
+        const GADAdSize adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(width);
+        g_banner = [[GADBannerView alloc] initWithAdSize:adSize];
+        g_banner.rootViewController = vc;
+        if (!g_bannerDelegate) g_bannerDelegate = [[PZAdMobBannerDelegate alloc] init];
+        g_banner.delegate = g_bannerDelegate;
+        g_banner.translatesAutoresizingMaskIntoConstraints = NO;
+        [vc.view addSubview:g_banner];
+        [NSLayoutConstraint activateConstraints:@[
+            [g_banner.centerXAnchor constraintEqualToAnchor:vc.view.centerXAnchor],
+            [g_banner.bottomAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.bottomAnchor],
+        ]];
+    }
+    g_banner.adUnitID = unitId;
+    [g_banner loadRequest:[GADRequest request]];
+    g_banner.hidden = NO;
+}
+
+void pzLoadInterstitial(NSString* unitId) {
+    // Keep an already cached ad, and never start a second request while one is in flight.
+    if (g_interstitial || g_interstitialLoading || !pzCanRequestAds()) return;
+    g_interstitialLoading = YES;
+    [GADInterstitialAd loadWithAdUnitID:unitId
+                                request:[GADRequest request]
+                      completionHandler:^(GADInterstitialAd* ad, NSError* error) {
+                          g_interstitialLoading = NO;
+                          if (error || !ad) {
+                              AXLOGW("AdsProviderAdMob(iOS): interstitial load failed: {}", error.localizedDescription.UTF8String ?: "no ad");
+                              g_interstitialReady = false;
+                              return;
+                          }
+                          ad.fullScreenContentDelegate = _fullScreenDelegate();
+                          g_interstitial = ad;
+                          g_interstitialReady = true;
+                          AXLOGI("AdsProviderAdMob(iOS): interstitial loaded");
+                      }];
+}
+} // namespace
+#endif
+
 bool AdsProviderAdMob::initialize(const std::string& appIdOrKey) {
     (void)appIdOrKey;
     initialized_ = true;
@@ -244,32 +303,12 @@ void AdsProviderAdMob::showBanner() {
     }
     NSString* unitId = _nsString(lastBannerPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!pzCanRequestAds()) return;     // consent flow still open: no banner request yet
-        UIViewController* vc = _topMostViewController();
-        if (!vc || !vc.view) {
-            AXLOGW("AdsProviderAdMob(iOS): no view controller to present banner");
+        if (!pzCanRequestAds()) {           // consent flow still open: remember the request instead of dropping it
+            g_pendingBannerUnit = unitId;
+            AXLOGI("AdsProviderAdMob(iOS): banner deferred until consent allows ads");
             return;
         }
-
-        if (!g_banner) {
-            // Use adaptive anchored banner size.
-            const CGFloat width = vc.view.bounds.size.width;
-            const GADAdSize adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(width);
-            g_banner = [[GADBannerView alloc] initWithAdSize:adSize];
-            g_banner.rootViewController = vc;
-            if (!g_bannerDelegate) g_bannerDelegate = [[PZAdMobBannerDelegate alloc] init];
-            g_banner.delegate = g_bannerDelegate;
-            g_banner.translatesAutoresizingMaskIntoConstraints = NO;
-            [vc.view addSubview:g_banner];
-            [NSLayoutConstraint activateConstraints:@[
-                [g_banner.centerXAnchor constraintEqualToAnchor:vc.view.centerXAnchor],
-                [g_banner.bottomAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.bottomAnchor],
-            ]];
-        }
-
-        g_banner.adUnitID = unitId;
-        [g_banner loadRequest:[GADRequest request]];
-        g_banner.hidden = NO;
+        pzPresentBanner(unitId);
     });
 #else
     AXLOGI("AdsProviderAdMob(iOS)::showBanner (stub)");
@@ -279,6 +318,7 @@ void AdsProviderAdMob::showBanner() {
 void AdsProviderAdMob::hideBanner() {
 #if PZ_HAS_GMA
     dispatch_async(dispatch_get_main_queue(), ^{
+        g_pendingBannerUnit = nil;
         if (g_banner) g_banner.hidden = YES;
     });
 #else
@@ -301,23 +341,8 @@ void AdsProviderAdMob::loadInterstitial(const AdRequest& request) {
     if (lastInterstitialPlacement_.empty()) return;
     NSString* unitId = _nsString(lastInterstitialPlacement_);
     dispatch_async(dispatch_get_main_queue(), ^{
-        // Keep an already cached ad, and never start a second request while one is in flight.
-        if (g_interstitial || g_interstitialLoading || !pzCanRequestAds()) return;
-        g_interstitialLoading = YES;
-        [GADInterstitialAd loadWithAdUnitID:unitId
-                                    request:[GADRequest request]
-                          completionHandler:^(GADInterstitialAd* ad, NSError* error) {
-                              g_interstitialLoading = NO;
-                              if (error || !ad) {
-                                  AXLOGW("AdsProviderAdMob(iOS): interstitial load failed: {}", error.localizedDescription.UTF8String ?: "no ad");
-                                  g_interstitialReady = false;
-                                  return;
-                              }
-                              ad.fullScreenContentDelegate = _fullScreenDelegate();
-                              g_interstitial = ad;
-                              g_interstitialReady = true;
-                              AXLOGI("AdsProviderAdMob(iOS): interstitial loaded");
-                          }];
+        if (!pzCanRequestAds()) { g_pendingInterstitialUnit = unitId; return; }   // sent once consent allows ads
+        pzLoadInterstitial(unitId);
     });
 #else
     interstitialReady_ = !lastInterstitialPlacement_.empty();

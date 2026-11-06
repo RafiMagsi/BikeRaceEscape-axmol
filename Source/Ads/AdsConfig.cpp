@@ -77,6 +77,8 @@ AdsConfig AdsConfig::loadFromAdsPlist() {
             // Google's documented sample ad units: https://developers.google.com/admob/ios/test-ads
             cfg.admob.bannerIdIOS = "ca-app-pub-3940256099942544/2435281174";
             cfg.admob.interstitialIdIOS = "ca-app-pub-3940256099942544/4411468910";
+            cfg.admob.rewardedIdIOS = "ca-app-pub-3940256099942544/1712485313";
+            cfg.admob.rewardedIdAndroid = "ca-app-pub-3940256099942544/5224354917";
             cfg.admob.bannerIdAndroid = "ca-app-pub-3940256099942544/9214589741";
             cfg.admob.interstitialIdAndroid = "ca-app-pub-3940256099942544/1033173712";
             AXLOGW("AdsConfig: AdMob testMode is ON (sample ad units). Turn it off before release.");

@@ -51,6 +51,7 @@ public:
     void grant(PowerUp kind);
     void grantByName(const std::string& name);
     int  coinsEarned() const { return _stats.coins; }
+    void extendGrace(float seconds) { _graceT = std::max(_graceT, seconds); }   // untouchable (blinking) for at least this long
 
     void reviveAccepted(bool paidWithCoins);
     void reviveFromVideo();
@@ -102,6 +103,10 @@ private:
     void updateRocketRide(float dt);
     void updateGun(float dt);
     void updateReviveWait(float dt);
+    void updateGraceBridge(float dt);   // blinking (protected) rider never sinks into a pit
+    bool _graceHover = false;
+    float _graceRoadY = 0.f;            // rider height on the last road it rode (where the bridge holds it)
+    bool  _haveRoadY = false;
     void beginBlastCinematic();          // freeze, zoom on every obstacle in turn, destroy, zoom back
     void cameraTo(const ax::Vec2& focus, float scale, float duration, const ax::Vec2* screenAnchor = nullptr);
     void cameraPunch(float scale, float inSeconds, float outSeconds);   // quick zoom pulse about the rider
@@ -250,7 +255,23 @@ private:
     }
     HudRow _rows[kChipCount];
     ax::Node* _gadgetStrip = nullptr;
-    std::vector<std::string> _activeGadgets;   // gadgets whose charge was used for this run
+    // In-run gadget bar: big round tappable buttons along the top. Nothing is equipped at the start of a run; the
+    // player taps a gadget when they want it (one stored charge per tap).
+    struct GadgetBtn {
+        std::string id;
+        int pool = -1;
+        ax::Vec2 pos;                 // centre, in the strip's space
+        float r = 30.f;
+        ax::DrawNode* ring = nullptr; // progress / ready ring
+        ax::Label* count = nullptr;   // charges left
+        ax::Node* root = nullptr;
+    };
+    std::vector<GadgetBtn> _gadgetBtns;
+    int   _gadgetPress = -1;
+    float _headstartFlash = 0.f;
+    void  activateGadget(int btn);
+    void  updateGadgetStrip(float dt);
+    bool  gadgetState(const std::string& id, float& frac) const;   // true while the gadget's effect is running
     static constexpr int kGadgetStartTag = 7711;
     ax::Node* _tracker = nullptr;
     ax::Label* _trackerText = nullptr;

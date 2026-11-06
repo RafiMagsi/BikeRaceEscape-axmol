@@ -144,7 +144,7 @@ inline const char* kStrDoubleClaimed = "DOUBLED! +%d";
 inline const char* kStrDoubleCoinsSub= "+%d BONUS COINS";
 
 inline const char* kStrGadgetsTitle  = "GADGETS";
-inline const char* kStrGadgetsSub    = "EQUIP UP TO %d";
+inline const char* kStrGadgetsSub    = "PICK UP TO %d - TAP THEM DURING A RUN";
 inline const char* kStrGadgetsBtn    = "GADGETS";
 inline const char* kStrGadgetLocked  = "UNLOCKS AT LV %d";
 inline const char* kStrGadgetEquipped= "EQUIPPED";

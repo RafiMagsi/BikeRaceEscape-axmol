@@ -8385,7 +8385,7 @@
 			<key>StrGadgetsBtn</key>
 			<string>GADGETS</string>
 			<key>StrGadgetsSub</key>
-			<string>EQUIP UP TO %d</string>
+			<string>PICK UP TO %d - TAP THEM DURING A RUN</string>
 			<key>StrGadgetsTitle</key>
 			<string>GADGETS</string>
 			<key>StrGetReady</key>
