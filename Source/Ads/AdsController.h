@@ -60,6 +60,11 @@ public:
     // Called by the platform providers (game thread) when a rewarded ad finishes.
     void handleRewardedFinished(bool earned);
 
+    // Google UMP privacy choices (Settings entry point). `privacyOptionsRequired()` is true where the player's region
+    // requires the entry point (EEA / UK / some US states); `showPrivacyOptions()` re-opens the consent form.
+    bool privacyOptionsRequired() const;
+    void showPrivacyOptions();
+
     // Policy pacing (AdMob "disruptive ads" rules): interstitials only at natural breaks, never in a player's first runs,
     // never back to back, and never straight after a rewarded video. Revive / gift taps call cancelPendingInterstitial().
     void cancelPendingInterstitial();

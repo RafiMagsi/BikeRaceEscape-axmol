@@ -350,14 +350,28 @@ void Button::rebuild() {
         _glow = nullptr;
     }
     _label = heading(_text, _fontSize, _active ? PZCfg::kColText : PZCfg::kColDim);
-    _label->setPosition(Vec2(_w * 0.5f, _h * 0.5f + 1.f));
+    _label->setPosition(Vec2(_w * 0.5f + (_video ? 12.f : 0.f), _h * 0.5f + 1.f));
+    if (_video) {
+        auto* tri = DrawNode::create();
+        Vec2 pts[3] = {Vec2(-7, -9), Vec2(-7, 9), Vec2(9, 0)};
+        tri->drawSolidPoly(pts, 3, c4f(Color3B(255, 255, 255)), 2.f, c4f(Color3B(90, 30, 0)), true);
+        tri->setScale(0.85f);
+        tri->setPosition(Vec2(24.f, _h * 0.5f));
+        addChild(tri, 5);
+    }
     // Shrink long captions to fit.
-    const float maxW = _w - 28.f;
+    const float maxW = _w - (_video ? 64.f : 28.f);
     if (_label->getContentSize().width > maxW) _label->setScale(maxW / _label->getContentSize().width);
     addChild(_label, 1);
 }
 
 void Button::setText(const std::string& text) { _text = text; rebuild(); }
+
+void Button::setVideoIcon(bool on) {
+    if (_video == on) return;
+    _video = on;
+    rebuild();
+}
 
 void Button::setActive(bool active) {
     if (_active == active) return;

@@ -3,7 +3,35 @@
 #include "Ads/Providers/AdsProviderMux.h"
 #include "PZLegacyCompat.h"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "platform/android/jni/JniHelper.h"
+#endif
+
 namespace PZ {
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+// Implemented in Providers/AdsProviderAdMobApple.mm (Google UMP).
+bool pzPrivacyOptionsRequired();
+void pzShowPrivacyOptions();
+#endif
+
+bool AdsController::privacyOptionsRequired() const {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    return pzPrivacyOptionsRequired();
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    return ax::JniHelper::callStaticBooleanMethod("dev/axmol/app/AdsBridge", "privacyOptionsRequired");
+#else
+    return false;
+#endif
+}
+
+void AdsController::showPrivacyOptions() {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    pzShowPrivacyOptions();
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    ax::JniHelper::callStaticVoidMethod("dev/axmol/app/AdsBridge", "showPrivacyOptions");
+#endif
+}
 
 AdsController* AdsController::shared() {
     static AdsController instance;

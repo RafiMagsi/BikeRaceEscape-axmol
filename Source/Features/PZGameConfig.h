@@ -108,8 +108,8 @@ inline const char* kStrReviveNoCoins = "NEED %d COINS";
 inline const char* kStrReviveNoCoinsShort = "NOT ENOUGH COINS";
 inline const char* kStrReviveSkip    = "NO THANKS";
 inline const char* kStrReviveCoins   = "YOU HAVE %d";
-inline const char* kStrReviveVideo   = "WATCH VIDEO";
-inline const char* kStrReviveFree    = "FREE";
+inline const char* kStrReviveVideo   = "WATCH AD: CONTINUE";
+inline const char* kStrReviveFree    = "";
 inline const char* kStrReviveLoading = "VIDEO LOADING...";
 inline const char* kStrReviveSub     = "KEEP YOUR RUN + TURBO";
 inline const char* kStrMissionTrack  = "MISSION";
@@ -121,7 +121,7 @@ inline const char* kStrGiftsTitle    = "GIFT CENTER";
 inline const char* kStrGiftDaily     = "DAILY REWARD";
 inline const char* kStrGiftHourly    = "HOURLY GIFT";
 inline const char* kStrGiftSpin      = "LUCKY SPIN";
-inline const char* kStrGiftVideo     = "VIDEO GIFT";
+inline const char* kStrGiftVideo     = "WATCH AD: GIFT";
 inline const char* kStrGiftChest     = "LEVEL CHEST";
 inline const char* kStrGiftMissions  = "MISSION CHEST";
 inline const char* kStrGiftReady     = "READY!";
@@ -130,7 +130,7 @@ inline const char* kStrGiftNextChest = "NEXT: LV %d";
 inline const char* kStrGiftMissionHint = "CLAIM 3 MISSIONS";
 inline const char* kStrGiftClaimed   = "CLAIMED";
 inline const char* kStrSpinBtn       = "SPIN!";
-inline const char* kStrSpinVideo     = "SPIN AGAIN: VIDEO";
+inline const char* kStrSpinVideo     = "WATCH AD: SPIN AGAIN";
 inline const char* kStrSpinTitle     = "LUCKY SPIN";
 inline const char* kStrComebackTitle = "WELCOME BACK!";
 inline const char* kStrComebackSub   = "YOU WERE AWAY %d DAYS";
@@ -139,7 +139,7 @@ inline const char* kStrFreeCoinsTitle= "FREE COINS";
 inline const char* kStrFreeCoinsSub  = "+%d COINS";
 inline const char* kStrFreeCoinsWait = "READY IN %s";
 inline const char* kStrFreeCoinsReady= "FREE IN %s";
-inline const char* kStrDoubleCoins   = "DOUBLE COINS";
+inline const char* kStrDoubleCoins   = "WATCH AD: 2X COINS";
 inline const char* kStrDoubleClaimed = "DOUBLED! +%d";
 inline const char* kStrDoubleCoinsSub= "+%d BONUS COINS";
 
@@ -191,6 +191,10 @@ inline const char* kStrNotifOn       = "REMINDERS ON!";
 inline const char* kStrNotifBtn      = "REMINDERS";
 inline const char* kStrNotifDenied   = "TURN ON NOTIFICATIONS IN SETTINGS";
 inline const char* kStrVibration     = "VIBRATION";
+inline const char* kStrRemoveAds     = "REMOVE ADS";
+inline const char* kStrSettingsBtn   = "SETTINGS";
+inline const char* kStrPrivacyPolicy = "PRIVACY POLICY";
+inline const char* kPrivacyPolicyUrl  = "https://nextfictiongames.com/privacy-policy";        // https page opened inside the game (Settings > Privacy policy); set strings/PrivacyPolicyUrl
 inline const char* kStrOn            = "ON";
 inline const char* kStrOff           = "OFF";
 
@@ -342,7 +346,18 @@ inline int   kFreeCoinsCooldown   = 300;      // seconds between free-coin video
 inline float kDoubleCoinsMultiplier = 2.0f;   // 2 = the run's coins paid again as a bonus
 
 // UI layout: design units reserved along the bottom edge for the AdMob banner (nothing is placed there).
-inline float kBannerReserve       = 104.0f;
+inline float kBannerReserve       = 128.0f;   // adaptive banner (~96 units) + home-indicator inset on tall phones
+
+// Main-menu bike lane (tuning/Menu*). Everything about how the menu bike and its coins sit and move:
+inline float kMenuBikeHeight      = 172.f;    // bike sprite height in design units
+inline float kMenuBikeTilt        = 1.4f;     // lean in degrees: + = left side up / right side down, - = the opposite, 0 = flat
+inline float kMenuBikeSlope       = 0.004f;   // how much the ride line climbs toward the left (units per unit of x): keep tiny
+inline float kMenuBikeLift        = 0.f;      // raise (+) or lower (-) the whole lane, design units
+inline float kMenuBikeSpeed       = 250.f;    // units per second
+inline float kMenuBikeHop         = 40.f;     // hop height
+inline float kMenuCoinSize        = 66.f;     // coin size
+inline float kMenuCoinLift        = 70.f;     // coin trail height above the ride line
+inline float kMenuCoinArc         = 44.f;     // extra height of the coin arc's middle
 
 // Smashing obstacles
 inline int   kSmashCoins          = 1;        // coins per obstacle destroyed by a power-up

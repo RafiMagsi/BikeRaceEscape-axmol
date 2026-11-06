@@ -256,6 +256,14 @@ if(IOS AND XCODE)
   target_link_libraries(${APP_NAME} "-framework StoreKit")
   # Local reminder notifications (PZNotificationsApple.mm uses UNUserNotificationCenter)
   target_link_libraries(${APP_NAME} "-framework UserNotifications")
+  # In-app privacy policy page (SFSafariViewController)
+  target_link_libraries(${APP_NAME} "-framework SafariServices")
+  # Apple privacy manifest (required-reason APIs + tracking declaration) must sit in the app bundle root
+  set(_PZ_PRIVACY_MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/PrivacyInfo.xcprivacy")
+  if(EXISTS "${_PZ_PRIVACY_MANIFEST}")
+    target_sources(${APP_NAME} PRIVATE "${_PZ_PRIVACY_MANIFEST}")
+    set_source_files_properties("${_PZ_PRIVACY_MANIFEST}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  endif()
 
   # ---- CocoaPods Setup for iOS ----
   # Create Podfile for CocoaPods dependency management (pods installed via build script)

@@ -105,6 +105,7 @@ private:
     void updateReviveWait(float dt);
     void updateGraceBridge(float dt);   // blinking (protected) rider never sinks into a pit
     bool _graceHover = false;
+    bool _startGrace = false;           // the invisible start-of-run protection (no blinking / transparency)
     float _graceRoadY = 0.f;            // rider height on the last road it rode (where the bridge holds it)
     bool  _haveRoadY = false;
     void beginBlastCinematic();          // freeze, zoom on every obstacle in turn, destroy, zoom back

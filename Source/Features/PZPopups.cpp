@@ -3,6 +3,8 @@
 //
 #include "PZPopups.h"
 #include "PZUI.h"
+#include "PZGBaseMenuScene.h"
+#include "PZLinks.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
 #include "PZAudio.h"
@@ -30,6 +32,18 @@ namespace {
 constexpr int kTagMenuWidgets = 0x4D57;
 
 Size winSize() { return Director::getInstance()->getWinSize(); }
+
+// Small white "play" triangle on the left of a button that starts a rewarded video: the player can always tell that a tap
+// plays an ad (AdMob rewarded-ad policy: the entry point must say what happens and what the reward is).
+void addVideoMark(Node* btn, float h, float x = 18.f) {
+    if (!btn) return;
+    auto* tri = DrawNode::create();
+    Vec2 pts[3] = {Vec2(-7, -9), Vec2(-7, 9), Vec2(9, 0)};
+    tri->drawSolidPoly(pts, 3, PZUI::c4f(Color3B(255, 255, 255)), 2.f, PZUI::c4f(Color3B(90, 30, 0)), true);
+    tri->setScale(0.8f);
+    tri->setPosition(Vec2(x, h * 0.5f));
+    btn->addChild(tri, 5);
+}
 
 void playSound(int index) {
     auto* gsd = PZGSharedData::sharedInstanse();
@@ -447,7 +461,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     // Bottom row: BACK and RETRY (standard, smaller round art buttons) with the two revive options between them.
     // The revive options are always both offered while this run has not been revived: spend coins, or watch an ad.
     if (auto* menu = dynamic_cast<Menu*>(gameOverLayer->getChildByTag(kBaseMenuItemTag))) {
-        const float buttonY = safe.getMinY() + (PZLayout::bannerReserve() > 0.f ? 50.f : 66.f);
+        const float buttonY = safe.getMinY() + (PZLayout::bannerReserve() > 0.f ? 62.f : 66.f);   // clear of the banner strip
         const bool revive = onReviveCoins && onReviveVideo;
         const float pillW = 236.f, pillH = 46.f, gap = 12.f;
         const float roundX = revive ? (pillW + gap * 0.5f + 44.f + gap) : 74.f;
@@ -542,7 +556,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
 
     // Stats panel: three large values on top, level/XP + rewarded double coins on the bottom row.
     const float panelW = std::max(360.f, std::min(560.f, safe.size.width - 460.f));
-    const float panelY = PZLayout::mapY(225.f);
+    const float panelY = PZLayout::mapY(240.f);
     auto* panel = PZUI::panel(panelW, 146.f, 16.f);
     panel->setPosition(Vec2(cx, panelY));
     root->addChild(panel);
@@ -569,7 +583,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
     root->addChild(lv);
 
     const bool hasDouble = PZCfg::kEnableDoubleCoins && claimDoubleCoins && stats.coins > 0;
-    const float doubleW = std::min(210.f, panelW * 0.38f);
+    const float doubleW = std::min(250.f, panelW * 0.42f);
     // XP bar fills the row from the LEVEL label up to the DOUBLE COINS button (or the panel edge).
     const float barLeft = cx - panelW * 0.5f + 88.f;
     const float barRight = hasDouble ? (cx + panelW * 0.5f - 22.f - doubleW - 16.f) : (cx + panelW * 0.5f - 24.f);
@@ -639,6 +653,7 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
             });
         }, 9.f);
         auto* btn = *btnRef;
+        btn->setVideoIcon(true);
         btn->setPosition(Vec2(cx + panelW * 0.5f - 22.f - doubleW * 0.5f, panelY - 36.f));
         root->addChild(btn);
         if (!PZ::AdsController::shared()->isRewardedAvailable()) PZ::AdsController::shared()->requestRewarded();
@@ -938,6 +953,120 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
     auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton,
                                        [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 12.f);
     close->setPosition(Vec2(mid.x, closeY));
+    base->addChild(close);
+    return base;
+}
+
+// ================================================================================================
+// Settings: sound, music, vibration, reminders and privacy choices
+// ================================================================================================
+
+Node* showSettings(Node* parent, std::function<void()> onClosed) {
+    if (!parent) return nullptr;
+    const Vec2 mid = PZLayout::popupCentre();
+    const float rowH = 56.f;
+    const int rows = 6;
+    // Google only wants the privacy-choices entry where the player's region requires it (EEA / UK / some US states).
+    const bool showPrivacyOptions = PZ::AdsController::shared()->privacyOptionsRequired();
+    const int shownRows = rows - (showPrivacyOptions ? 0 : 1);
+    const float panelW = std::min(620.f, PZLayout::safeRect().size.width - 40.f);
+    const float panelH = std::min(PZLayout::popupMaxHeight(), 150.f + shownRows * rowH);
+    auto* base = openModal(parent, panelW, panelH, 345, 0.82f);
+
+    auto* title = PZUI::heading(PZCfg::kStrSettingsBtn, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, panelH * 0.5f - 40.f));
+    base->addChild(title);
+
+    struct Row {
+        Node* holder = nullptr;
+        std::function<bool()> isOn;
+        std::function<void()> toggle;
+    };
+    auto rowsV = std::make_shared<std::vector<Row>>();
+    rowsV->resize(rows);
+    auto* audio = CocosDenshion::SimpleAudioEngine::sharedEngine();
+    const char* names[rows] = {"SOUND EFFECTS", "MUSIC", "VIBRATION", "REMINDERS", "PRIVACY OPTIONS", PZCfg::kStrPrivacyPolicy};
+
+    (*rowsV)[0].isOn = [audio]() { return audio->soundEnabled(); };
+    (*rowsV)[0].toggle = [audio]() { audio->setSoundEnabled(!audio->soundEnabled()); if (audio->soundEnabled()) PZAudio::play("fx_open"); };
+    (*rowsV)[1].isOn = [audio]() { return audio->musicEnabled(); };
+    (*rowsV)[1].toggle = [audio]() { audio->setMusicEnabled(!audio->musicEnabled()); };
+    (*rowsV)[2].isOn = []() { return PZProgress::shared()->hapticsEnabled(); };
+    (*rowsV)[2].toggle = []() {
+        auto* p = PZProgress::shared();
+        p->setHapticsEnabled(!p->hapticsEnabled());
+        PZHaptics::play(PZHaptics::Kind::Medium);
+    };
+    (*rowsV)[3].isOn = []() { return PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted; };
+    Node* parentPtr = parent;
+    (*rowsV)[3].toggle = [parentPtr]() {
+        const bool on = !(PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted);
+        PZNotif::setEnabledByPlayer(parentPtr, on);
+    };
+
+    auto build = std::make_shared<std::function<void(int)>>();
+    *build = [rowsV, build](int i) {
+        Row& r = (*rowsV)[i];
+        if (!r.holder) return;
+        r.holder->removeAllChildren();
+        if (i == 5) {
+            auto* b = PZUI::Button::create("OPEN", 150.f, 38.f, Color3B(96, 106, 130), []() {
+                if (!PZLinks::openUrl(PZCfg::kPrivacyPolicyUrl)) {
+                    PZUI::banner(Director::getInstance()->getRunningScene(), PZCfg::kStrPrivacyPolicy, "LINK NOT AVAILABLE YET",
+                                 PZCfg::kColBad, Director::getInstance()->getWinSize().height * 0.78f, 1.0f, 1700);
+                }
+            }, 11.f);
+            r.holder->addChild(b);
+            return;
+        }
+        if (i == 4) {
+            auto* b = PZUI::Button::create("OPEN", 150.f, 38.f, Color3B(96, 106, 130), [r]() {
+                auto* ads = PZ::AdsController::shared();
+                if (ads->privacyOptionsRequired()) {
+                    ads->showPrivacyOptions();
+                } else {
+                    PZUI::banner(Director::getInstance()->getRunningScene(), "PRIVACY OPTIONS", "NOT REQUIRED IN YOUR REGION",
+                                 PZCfg::kColAccent2, Director::getInstance()->getWinSize().height * 0.78f, 1.0f, 1700);
+                }
+            }, 11.f);
+            r.holder->addChild(b);
+            return;
+        }
+        const bool on = r.isOn();
+        auto* b = PZUI::Button::create(on ? PZCfg::kStrOn : PZCfg::kStrOff, 150.f, 38.f,
+                                       on ? PZCfg::kColGood : Color3B(120, 124, 134), [rowsV, build, i]() {
+            (*rowsV)[i].toggle();
+            if (i == 3) {   // the OS permission prompt answers later
+                Director::getInstance()->getRunningScene()->runAction(Sequence::create(DelayTime::create(0.5f),
+                    CallFunc::create([build, i]() { (*build)(i); }), nullptr));
+            }
+            (*build)(i);
+        }, 11.f);
+        r.holder->addChild(b);
+    };
+
+    const float top = mid.y + panelH * 0.5f - 96.f;
+    int slot = 0;
+    for (int i = 0; i < rows; ++i) {
+        if (i == 4 && !showPrivacyOptions) continue;
+        const float y = top - slot++ * rowH;
+        auto* line = PZUI::roundedRect(panelW - 60.f, rowH - 8.f, 12.f, PZCfg::kColPanelEdge, 0.12f, PZCfg::kColPanelEdge, 0.5f, 1.5f);
+        line->setPosition(Vec2(mid.x, y));
+        base->addChild(line);
+        auto* name = PZUI::heading(names[i], 12.f, PZCfg::kColText);
+        name->setAnchorPoint(Vec2(0.f, 0.5f));
+        name->setPosition(Vec2(mid.x - panelW * 0.5f + 52.f, y));
+        base->addChild(name);
+        (*rowsV)[i].holder = Node::create();
+        (*rowsV)[i].holder->setPosition(Vec2(mid.x + panelW * 0.5f - 52.f - 75.f, y));
+        base->addChild((*rowsV)[i].holder);
+        (*build)(i);
+    }
+
+    Node* basePtr = base;
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton,
+                                       [basePtr, onClosed, rowsV, build]() { *build = nullptr; dismiss(basePtr, onClosed); }, 12.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 34.f));
     base->addChild(close);
     return base;
 }
@@ -1528,7 +1657,7 @@ Node* showLuckySpin(Node* parent, std::function<void()> onClosed) {
         if (*spinning) return;
         if (!*spunToday) {
             (*doSpin)(true);
-            if (*btnHolder) (*btnHolder)->setText(PZCfg::kStrSpinVideo);
+            if (*btnHolder) { (*btnHolder)->setText(PZCfg::kStrSpinVideo); (*btnHolder)->setVideoIcon(true); }
             return;
         }
         auto* ads = PZ::AdsController::shared();
@@ -1542,6 +1671,7 @@ Node* showLuckySpin(Node* parent, std::function<void()> onClosed) {
     auto* spinBtn = PZUI::Button::create(pg->spinAvailable() ? PZCfg::kStrSpinBtn : PZCfg::kStrSpinVideo, 300.f, 52.f,
                                          pg->spinAvailable() ? PZCfg::kColGood : PZCfg::kColButton, onTap, 15.f);
     *btnHolder = spinBtn;
+    spinBtn->setVideoIcon(!pg->spinAvailable());
     spinBtn->setPosition(mid + Vec2(0, -R - 34.f));
     base->addChild(spinBtn);
 
@@ -1723,6 +1853,20 @@ public:
     }
 
 private:
+    // REMOVE ADS disappears once it has been bought (or when the store product is switched off).
+    void updateRemoveChip() {
+        if (!_removeAds) return;
+        bool offered = !PZSettingsController::shared()->removeAds;
+        if (offered) {
+            if (auto* sd = PZGSharedData::sharedInstanse(); sd && sd->gameInfoResource) {
+                if (auto* arr = static_cast<__Array*>(sd->gameInfoResource->objectForKey("IAPSettings")); arr && arr->count() > 0) {
+                    if (auto* iap = dynamic_cast<PZGGameInfoIAP*>(arr->objectAtIndex(0))) offered = iap->removeAd_enabled;
+                }
+            }
+        }
+        _removeAds->setVisible(offered);
+    }
+
     // The next gadget the player has not unlocked yet ("what am I levelling towards?").
     void updateNextUnlock(PZProgress* pg) {
         const PZCfg::GadgetTemplate* next = nullptr;
@@ -1869,29 +2013,46 @@ private:
             addChild(grid[i]);
         }
 
-        // Vibration lives in the bottom-right corner: out of the meta cluster, above the banner, below the cutout.
-        _vibe = PZUI::Button::create("", 126.f, 30.f, Color3B(120, 124, 134), [this]() {
-            auto* p = PZProgress::shared();
-            p->setHapticsEnabled(!p->hapticsEnabled());
-            PZHaptics::play(PZHaptics::Kind::Medium);   // instant preview when turning on
-            refresh();
+        // One centred row above the bike lane: REMOVE ADS | REMINDERS | SETTINGS. (Vibration lives in SETTINGS; the bike
+        // runs behind the row.) All three share the same chip style.
+        const float chipY = 212.f;
+        const float chipH = 28.f;
+        const float chipGap = 10.f;
+        std::vector<PZUI::Button*> chips;
+
+        _removeAds = PZUI::Button::create(PZCfg::kStrRemoveAds, 150.f, chipH, Color3B(214, 120, 40), [host]() {
+            if (auto* scene = dynamic_cast<PZGBaseMenuScene*>(host)) scene->menuUpgradeCallback(nullptr);
         }, 8.f);
-        // Chips sit above the menu bike lane (see MenuShowcase) so the bike never rides through them.
-        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 96.f));
-        addChild(_vibe);
+        chips.push_back(_removeAds);
 
         if (PZCfg::kEnableNotifications) {
             Node* hostNode = _host;
-            _remind = PZUI::Button::create("", 176.f, 30.f, Color3B(120, 124, 134), [this, hostNode]() {
+            _remind = PZUI::Button::create("", 176.f, chipH, Color3B(120, 124, 134), [this, hostNode]() {
                 const bool on = !(PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted);
                 PZNotif::setEnabledByPlayer(hostNode, on);
                 runAction(Sequence::create(DelayTime::create(0.4f), CallFunc::create([this]() { refresh(); }), nullptr));
             }, 8.f);
-            _remind->setPosition(Vec2(safe.getMaxX() - 16.f - 126.f - 8.f - 88.f, safe.getMinY() + 96.f));
-            addChild(_remind);
+            chips.push_back(_remind);
             PZNotif::refreshStatus();
             runAction(Sequence::create(DelayTime::create(1.2f), CallFunc::create([this]() { PZNotif::reschedule(); refresh(); }), nullptr));
         }
+
+        _settings = PZUI::Button::create(PZCfg::kStrSettingsBtn, 150.f, chipH, Color3B(96, 106, 130), [this, host]() {
+            PZPopups::showSettings(host, [this]() { refresh(); });
+        }, 8.f);
+        chips.push_back(_settings);
+
+        float rowW = chipGap * (static_cast<float>(chips.size()) - 1.f);
+        for (auto* c : chips) rowW += c->getContentSize().width;
+        float cx = safe.getMidX() - rowW * 0.5f;
+        for (auto* c : chips) {
+            const float w = c->getContentSize().width;
+            c->setPosition(Vec2(cx + w * 0.5f, chipY));
+            addChild(c);
+            cx += w + chipGap;
+        }
+        updateRemoveChip();
+        schedule([this](float) { updateRemoveChip(); }, 1.f, "pz_remove_chip");
 
         refresh();
         // The plate and the pills slide in one after the other when the menu opens.
@@ -1979,6 +2140,8 @@ private:
     PZUI::Button* _free = nullptr;
     PZUI::Button* _vibe = nullptr;
     PZUI::Button* _remind = nullptr;
+    PZUI::Button* _removeAds = nullptr;
+    PZUI::Button* _settings = nullptr;
     std::string _freeText;
     bool _freePending = false;
     float _freeWait = 0.f;
@@ -2074,7 +2237,7 @@ private:
         _spanL = -_win.width * 0.6f;
         _spanR = _win.width * 0.6f;
 
-        static const float cuts[5] = {0.f, 0.46f, 0.655f, 0.80f, 1.f};
+        static const float cuts[5] = {0.f, 0.46f, 0.64f, 0.755f, 1.f};   // sky | wall | water | curb + pavement
         static const float amps[4] = {6.f, 11.f, 17.f, 25.f};
         static const float periods[4] = {13.f, 10.f, 8.f, 6.5f};
         static const float bobs[4] = {0.f, 0.8f, 2.2f, 1.4f};
@@ -2090,6 +2253,14 @@ private:
             sp->setAnchorPoint(Vec2(0.5f, 1.f));
             sp->setScale(scale);
             sp->setPosition(Vec2(0.f, (0.5f - top) * H * scale));
+            if (i == 3) {
+                // The pavement band is lifted and stretched so a strip of it stays visible above the ad banner: the
+                // bike rides on that, not on the water.
+                const float bandH = (bot - top) * H * scale;
+                const float lift = 58.f;
+                sp->setScale(scale, scale * (bandH + lift) / bandH);
+                sp->setPosition(Vec2(0.f, (0.5f - top) * H * scale + lift));
+            }
             carrier->addChild(sp, 0);
             _layers.push_back({carrier, amps[i], periods[i], static_cast<float>(i) * 1.3f, bobs[i]});
         }
@@ -2137,7 +2308,7 @@ private:
                 const float w = 44.f - k * 7.f;
                 d->drawSegment(Vec2(-w, 0.f), Vec2(w, 0.f), 2.4f, PZUI::c4f(Color3B(255, 200, 110), 0.55f));
                 d->setBlendFunc(BlendFunc::ADDITIVE);
-                d->setPosition(P(lampX[i], 0.685f + k * 0.026f));
+                d->setPosition(P(lampX[i], 0.655f + k * 0.012f));
                 carriers[2]->addChild(d, 1);
                 _reflect.push_back(d);
             }
@@ -2147,7 +2318,7 @@ private:
             const float w = 14.f + CCRANDOM_0_1() * 30.f;
             d->drawSegment(Vec2(-w, 0.f), Vec2(w, 0.f), 1.6f, PZUI::c4f(Color3B(170, 220, 240), 0.55f));
             d->setBlendFunc(BlendFunc::ADDITIVE);
-            const Vec2 pos = P(0.5f, 0.672f + CCRANDOM_0_1() * 0.12f);
+            const Vec2 pos = P(0.5f, 0.655f + CCRANDOM_0_1() * 0.05f);
             const float x = _spanL + (_spanR - _spanL) * CCRANDOM_0_1();
             d->setPosition(Vec2(x, pos.y));
             carriers[2]->addChild(d, 2);
@@ -2230,7 +2401,8 @@ public:
         _x += _speed * dt;
         if (_x > _right) _x = _left;
 
-        float y = _groundY + 2.f + std::sin(_clock * 9.f) * 1.8f;
+        const float fy = floorY(_x);
+        float y = fy + 2.f + std::sin(_clock * 9.f) * 1.8f;
         if (_jumpT > 0.f) {
             _jumpT -= dt;
             const float p = 1.f - std::max(0.f, _jumpT) / _jumpDur;   // 0 -> 1 over the hop
@@ -2239,12 +2411,12 @@ public:
         if (_rider) {
             _rider->setPosition(Vec2(_x, y));
             // A little lean into the speed, and a nose-up pitch while hopping.
-            const float lift = std::max(0.f, y - _groundY);
-            _rider->setRotation(-1.2f - (_jumpT > 0.f ? 7.f * std::sin((1.f - _jumpT / _jumpDur) * static_cast<float>(M_PI) * 2.f) : 0.f) + lift * 0.f);
+            // The floor runs uphill to the left and downhill to the right; the bike follows it (clockwise = right side down).
+            _rider->setRotation(_floorAngle - (_jumpT > 0.f ? 7.f * std::sin((1.f - _jumpT / _jumpDur) * static_cast<float>(M_PI) * 2.f) : 0.f));
         }
         if (_shadow) {
-            const float lift = std::max(0.f, y - _groundY);
-            _shadow->setPosition(Vec2(_x, _groundY - 3.f));
+            const float lift = std::max(0.f, y - fy);
+            _shadow->setPosition(Vec2(_x, fy - 3.f));
             _shadow->setScale(std::max(0.5f, 1.f - lift / (_jumpH + 40.f)) * 2.1f, std::max(0.5f, 1.f - lift / (_jumpH + 40.f)));
             _shadow->setOpacity(static_cast<uint8_t>(std::max(40.f, 130.f - lift)));
         }
@@ -2259,7 +2431,7 @@ public:
                 _dustClock = 0.f;
                 auto* d = DrawNode::create();
                 d->drawDot(Vec2::ZERO, 3.4f, PZUI::c4f(Color3B(214, 196, 168), 0.55f));
-                d->setPosition(Vec2(_x - 50.f, _groundY + 6.f));
+                d->setPosition(Vec2(_x - 50.f, floorY(_x - 50.f) + 6.f));
                 addChild(d, 2);
                 d->runAction(Sequence::create(Spawn::create(MoveBy::create(0.55f, Vec2(-52.f, 16.f)), FadeOut::create(0.55f),
                                                             ScaleTo::create(0.55f, 2.6f), nullptr),
@@ -2272,12 +2444,12 @@ public:
         bool anyLeft = false;
         for (auto& c : _coins) {
             const float cx = _groupX + c.dx;
-            const float cy = c.dy + std::sin(_clock * 3.f + c.dx * 0.02f) * 3.f;
+            const float cy = floorY(cx) + c.dy + std::sin(_clock * 3.f + c.dx * 0.02f) * 3.f;
             if (c.alive) {
                 c.node->setPosition(Vec2(cx, cy));
                 c.node->setScaleX(c.spin ? std::max(0.18f, std::abs(std::cos(_clock * 4.2f + c.dx * 0.03f))) : 1.f);
                 if (cx > _left) anyLeft = true;
-                const float riderY = _rider ? _rider->getPositionY() : _groundY;
+                const float riderY = _rider ? _rider->getPositionY() : floorY(_x);
                 if (std::abs(cx - _x) < 46.f && std::abs(cy - (riderY + 70.f)) < 90.f) {
                     c.alive = false;
                     PZUI::glitter(this, Vec2(cx, cy), PZCfg::kColAccent, 6, 34.f, 0.5f, 6);
@@ -2314,24 +2486,19 @@ private:
         const Rect safe = PZLayout::safeRect();
         // The lane hugs the bottom edge: it runs UNDER the art buttons (restore / kids / coin store) instead of
         // through them, and stays above the banner strip on ad-supported builds.
-        // The bike rides the pavement edge in the artwork (about 82% down the screen), above the ad banner.
-        _groundY = std::max(safe.getMinY() + 14.f, Director::getInstance()->getWinSize().height * 0.185f);
+        // The bike rides on the pavement strip (the parallax raises the road band so it sits above the ad banner), never on the water.
+        // Lowest point of the floor (right end), just above the banner; it climbs toward the left.
+        _groundY = std::max(safe.getMinY() + 2.f, Director::getInstance()->getWinSize().height * 0.185f) + PZCfg::kMenuBikeLift;
+        _floorRef = safe.getMaxX();
+        _floorAngle = PZCfg::kMenuBikeTilt;   // visual lean (tuning/MenuBikeTilt)
+        _slope = PZCfg::kMenuBikeSlope;
+        _speed = PZCfg::kMenuBikeSpeed;
+        _jumpH = PZCfg::kMenuBikeHop;
         _left = safe.getMinX() - 100.f;
         _right = safe.getMaxX() + 100.f;
         _x = safe.getMinX() + safe.size.width * 0.30f;
 
-        // The lane: a soft dark strip with streaming dashes, which reads as road without fighting the art.
-        auto* road = DrawNode::create();
-        road->drawSolidRect(Vec2(safe.getMinX(), _groundY - 11.f), Vec2(safe.getMaxX(), _groundY + 2.f),
-                            PZUI::c4f(Color3B(20, 16, 14), 0.42f));
-        addChild(road, 0);
-        // The dashes live in their own node so they can stream; the strip is clipped by drawing only inside the lane.
-        _dashes = DrawNode::create();
-        for (float x = safe.getMinX() - 64.f; x < safe.getMaxX() + 64.f; x += 64.f) {
-            _dashes->drawSegment(Vec2(x, _groundY - 5.f), Vec2(x + 30.f, _groundY - 5.f), 2.6f,
-                                 PZUI::c4f(PZCfg::kColAccent, 0.34f));
-        }
-        addChild(_dashes, 0);
+        // No lane strip or dashes: the bike rides on the artwork's own pavement.
 
         _shadow = DrawNode::create();
         _shadow->drawSolidCircle(Vec2::ZERO, 24.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.5f));
@@ -2352,7 +2519,7 @@ private:
         if (bike) {
             const float h = std::max(1.f, bike->getContentSize().height);
             bike->setAnchorPoint(Vec2(0.5f, 0.15f));
-            bike->setScale(_bikeHeight / h);
+            bike->setScale(PZCfg::kMenuBikeHeight / h);
             _rider->addChild(bike);
         } else {
             // Fallback when the art is missing: a simple drawn bike.
@@ -2365,17 +2532,17 @@ private:
             d->drawSegment(Vec2(0.f, 22.f), Vec2(-6.f, 32.f), 3.f, PZUI::c4f(PZCfg::kColButton));
             _rider->addChild(d);
         }
-        _rider->setPosition(Vec2(_x, _groundY + 2.f));
+        _rider->setPosition(Vec2(_x, floorY(_x) + 2.f));
 
         // Six big coins in a gentle arc ahead of the bike.
         for (int i = 0; i < 6; ++i) {
             CoinTrail c;
             c.dx = i * _coinStep;
-            c.dy = _groundY + 78.f + 46.f * std::sin(static_cast<float>(M_PI) * i / 5.f);
-            c.node = PZUI::coinIcon(66.f);
+            c.dy = PZCfg::kMenuCoinLift + PZCfg::kMenuCoinArc * std::sin(static_cast<float>(M_PI) * i / 5.f);
+            c.node = PZUI::coinIcon(PZCfg::kMenuCoinSize);
             c.spin = true;
             addChild(c.node, 2);
-            c.node->setPosition(Vec2(_x + 330.f + c.dx, c.dy));
+            c.node->setPosition(Vec2(_x + 330.f + c.dx, floorY(_x + 330.f + c.dx) + c.dy));
             _coins.push_back(c);
         }
         _groupX = _x + 330.f;
@@ -2385,7 +2552,7 @@ private:
             l->setSwallowTouches(false);
             l->onTouchBegan = [this](Touch* t, Event*) {
                 const Vec2 p = convertToNodeSpace(t->getLocation());
-                if (p.y < _groundY - 60.f || p.y > _groundY + 200.f) return false;   // only the lane band
+                if (p.y < _groundY - 60.f || p.y > _groundY + 260.f) return false;   // only the lane band
                 hop();
                 return true;
             };
@@ -2406,10 +2573,10 @@ private:
     void hop() {
         if (_jumpT > 0.f) return;
         _jumpT = _jumpDur = 0.56f;
-        _jumpH = 40.f;
+        _jumpH = PZCfg::kMenuBikeHop;
         PZHaptics::play(PZHaptics::Kind::Light);
         PZAudio::play("fx_jump", 0.5f, 0.15f);
-        PZUI::burst(this, Vec2(_x, _groundY + 4.f), PZCfg::kColAccent2, 8, 44.f, 0.4f, 2);
+        PZUI::burst(this, Vec2(_x, floorY(_x) + 4.f), PZCfg::kColAccent2, 8, 44.f, 0.4f, 2);
     }
 
     struct CoinTrail {
@@ -2423,10 +2590,11 @@ private:
     DrawNode* _shadow = nullptr;
     DrawNode* _dashes = nullptr;
     std::vector<CoinTrail> _coins;
+    float floorY(float x) const { return _groundY + (_floorRef - std::min(x, _floorRef)) * _slope; }
+    float _slope = 0.012f, _floorRef = 0.f, _floorAngle = 3.4f;
     float _groundY = 0.f, _left = 0.f, _right = 0.f, _x = 0.f, _groupX = 0.f;
     float _speed = 250.f, _clock = 0.f, _dustClock = 0.f, _autoHop = 1.6f;
-    static constexpr float _bikeHeight = 172.f;
-    static constexpr float _coinStep = 84.f;
+        static constexpr float _coinStep = 84.f;
     float _jumpT = 0.f, _jumpDur = 0.56f, _jumpH = 40.f;
     bool _interactive = false;
 };
@@ -2449,7 +2617,7 @@ void attachMenuShowcase(Node* menuLayer, bool interactive) {
     auto* s = MenuShowcase::make(interactive);
     if (!s) return;
     s->setTag(kTagMenuShowcase);
-    menuLayer->addChild(s, 448);
+    menuLayer->addChild(s, 301);   // the bike runs behind the buttons and chips (above the backdrop, below the menu)
     // The layered, swaying backdrop belongs to the main menu only (the pause overlay keeps its dimmed art).
     if (interactive) {
         menuLayer->removeChildByTag(kTagMenuParallax);

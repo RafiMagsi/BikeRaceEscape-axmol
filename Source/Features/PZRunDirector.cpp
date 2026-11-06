@@ -458,6 +458,7 @@ void PZRunDirector::startRun() {
     if (_scene && _scene->character && _scene->character->p_body) {
         _scene->character->p_body->SetGravityScale(1.f);
     }
+    _startGrace = PZCfg::kEnableStartGrace;
     if (PZCfg::kEnableStartGrace) _graceT = PZCfg::kStartGrace;
     applyGadgets();
     refreshGadgetStrip();
@@ -708,7 +709,10 @@ void PZRunDirector::update(float dt) {
     updateFx(dt, scroll);
     updateMissionTracker(dt);
 
-    if (_graceT > 0.f) _graceT -= dt;
+    if (_graceT > 0.f) {
+        _graceT -= dt;
+        if (_graceT <= 0.f) _startGrace = false;
+    }
 
     { float g = 0.f; nearestSurface(g); }    // keeps _lastGroundY fresh for powered rides started over a gap
 
@@ -1100,6 +1104,7 @@ void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride
             PZHaptics::play(PZHaptics::Kind::Heavy);
         }
         _jetpackT = _jetpackMax = bonus ? durationOverride : PZCfg::kJetpackDuration;
+        _magnetT = std::max(_magnetT, _jetpackT);      // the jetpack also pulls coins in, like the rocket bike
         _jetpackCoinClock = 0.f;
         break;
     }
@@ -2431,7 +2436,8 @@ void PZRunDirector::updateAuras(float dt) {
     const Vec2 rp = riderPos();
     // Blink the rider while untouchable (after a save / revive) so the protection is visible.
     if (_scene->character && _scene->character->s_body) {
-        const bool protectedNow = _graceT > 0.f;
+        // The start-of-run protection is invisible: a fresh run never starts semi-transparent or blinking.
+        const bool protectedNow = _graceT > 0.f && !_startGrace;
         const uint8_t op = protectedNow && std::fmod(_auraClock, 0.22f) < 0.11f ? 110 : 255;
         _scene->character->s_body->setOpacity(op);
     }

@@ -3924,17 +3924,17 @@
 			<key>className</key>
 			<string>PZGameInfoIAP</string>
 			<key>coinShop1_value</key>
-			<integer>1500</integer>
+			<integer>5000</integer>
 			<key>coinShop2_value</key>
-			<integer>3500</integer>
+			<integer>15000</integer>
 			<key>coinShop3_value</key>
-			<integer>6000</integer>
+			<integer>40000</integer>
 			<key>coinShop4_value</key>
-			<integer>12000</integer>
+			<integer>100000</integer>
 			<key>coinShop5_value</key>
-			<integer>25000</integer>
+			<integer>250000</integer>
 			<key>coinShop6_value</key>
-			<integer>50000</integer>
+			<integer>500000</integer>
 			<key>coinShop_enabled</key>
 			<false/>
 			<key>key</key>
@@ -7663,27 +7663,27 @@
 			<key>coinShop1_id</key>
 			<string>com.nextfiction.dinobikeescape.coin1</string>
 			<key>coinShop1_value</key>
-			<integer>1500</integer>
+			<integer>5000</integer>
 			<key>coinShop2_id</key>
 			<string>com.nextfiction.dinobikeescape.coin2</string>
 			<key>coinShop2_value</key>
-			<integer>3500</integer>
+			<integer>15000</integer>
 			<key>coinShop3_id</key>
 			<string>com.nextfiction.dinobikeescape.coin3</string>
 			<key>coinShop3_value</key>
-			<integer>6000</integer>
+			<integer>40000</integer>
 			<key>coinShop4_id</key>
 			<string>com.nextfiction.dinobikeescape.coin4</string>
 			<key>coinShop4_value</key>
-			<integer>12000</integer>
+			<integer>100000</integer>
 			<key>coinShop5_id</key>
 			<string>com.nextfiction.dinobikeescape.coin5</string>
 			<key>coinShop5_value</key>
-			<integer>25000</integer>
+			<integer>250000</integer>
 			<key>coinShop6_id</key>
 			<string>com.nextfiction.dinobikeescape.coin6</string>
 			<key>coinShop6_value</key>
-			<integer>50000</integer>
+			<integer>500000</integer>
 			<key>coinShop_enabled</key>
 			<true/>
 			<key>key</key>
@@ -8365,7 +8365,7 @@
 			<key>StrDoubleClaimed</key>
 			<string>DOUBLED! +%d</string>
 			<key>StrDoubleCoins</key>
-			<string>DOUBLE COINS</string>
+			<string>WATCH AD: 2X COINS</string>
 			<key>StrDoubleCoinsSub</key>
 			<string>+%d BONUS COINS</string>
 			<key>StrFreeCoinsBtn</key>
@@ -8411,7 +8411,7 @@
 			<key>StrGiftSpin</key>
 			<string>LUCKY SPIN</string>
 			<key>StrGiftVideo</key>
-			<string>VIDEO GIFT</string>
+			<string>WATCH AD: GIFT</string>
 			<key>StrGiftsBtn</key>
 			<string>GIFTS</string>
 			<key>StrGiftsTitle</key>
@@ -8487,7 +8487,7 @@
 			<key>StrReviveCoins</key>
 			<string>YOU HAVE %d</string>
 			<key>StrReviveFree</key>
-			<string>FREE</string>
+			<string></string>
 			<key>StrReviveLoading</key>
 			<string>VIDEO LOADING...</string>
 			<key>StrReviveNoCoins</key>
@@ -8498,8 +8498,12 @@
 			<string>KEEP YOUR RUN + TURBO</string>
 			<key>StrReviveTitle</key>
 			<string>CONTINUE?</string>
+			<key>PrivacyPolicyUrl</key>
+			<string>https://nextfictiongames.com/privacy-policy</string>
+			<key>StrPrivacyPolicy</key>
+			<string>PRIVACY POLICY</string>
 			<key>StrReviveVideo</key>
-			<string>WATCH VIDEO</string>
+			<string>WATCH AD: CONTINUE</string>
 			<key>StrReviveWait</key>
 			<string>GETTING YOU BACK IN...</string>
 			<key>StrRocket</key>
@@ -8523,7 +8527,7 @@
 			<key>StrSpinTitle</key>
 			<string>LUCKY SPIN</string>
 			<key>StrSpinVideo</key>
-			<string>SPIN AGAIN: VIDEO</string>
+			<string>WATCH AD: SPIN AGAIN</string>
 			<key>StrStage</key>
 			<string>STAGE %d</string>
 			<key>StrStageSub</key>
@@ -8706,7 +8710,25 @@
 			<key>ArcHeight</key>
 			<real>150.0</real>
 			<key>BannerReserve</key>
-			<real>104.0</real>
+			<real>128.0</real>
+			<key>MenuBikeHeight</key>
+			<real>172.0</real>
+			<key>MenuBikeTilt</key>
+			<real>1.4</real>
+			<key>MenuBikeSlope</key>
+			<real>0.004</real>
+			<key>MenuBikeLift</key>
+			<real>-10.0</real>
+			<key>MenuBikeSpeed</key>
+			<real>250.0</real>
+			<key>MenuBikeHop</key>
+			<real>40.0</real>
+			<key>MenuCoinSize</key>
+			<real>66.0</real>
+			<key>MenuCoinLift</key>
+			<real>70.0</real>
+			<key>MenuCoinArc</key>
+			<real>44.0</real>
 			<key>BigAirCoins</key>
 			<integer>5</integer>
 			<key>BigAirMin</key>

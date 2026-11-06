@@ -76,13 +76,8 @@ void PZGMainMenuScene::load(const char* keyName){
         
         item = (MenuItemSprite*)menu->getChildByTag( kUIIDMainMenuUpgradeIAP );
         if (item) {
-            if (sc->removeAds || iapInfo->removeAd_enabled == false) {
-                item->setVisible( false );
-            }
-            else{
-                item->setVisible( true );
-                item->setCallback(AX_CALLBACK_1(PZGMainMenuScene::menuUpgradeCallback, this));
-            }
+            // REMOVE ADS is a code-drawn chip next to REMINDERS now (see PZPopups MenuWidgets); the art banner stays hidden.
+            item->setVisible( false );
         }
         
         item = (MenuItemSprite*)menu->getChildByTag( kUIIDMainMenuCoinShop );

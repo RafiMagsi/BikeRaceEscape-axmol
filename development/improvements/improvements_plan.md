@@ -186,6 +186,22 @@ Re-check of 24-33 (this pass): 24 six packs and Android's six consumables confir
 ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads start, rewarded ad loaded, interstitial loaded, banner loaded (956x66, 'Test mode' badge because the simulator is a test device). Fixed on the way: a banner/interstitial requested while the consent flow was still open was dropped and never retried (no banner on first launch); now deferred and sent once consent allows ads. Content/ads.plist now has the iOS rewarded unit (ca-app-pub-8966545526103390/5633843231) and testMode also covers rewarded. Chartboost returned 'no ad found' in the simulator (expected; AdMob is the fallback).
     > Still needed before store submission: (a) Android rewarded unit ID (rewardedIdAndroid is empty, so video revive / spin / free coins have no ad on Android), (b) AdMob Privacy & messaging: the UMP consent form is not configured for the app ('no form(s) configured for the input app ID'), required for EEA/UK users, (c) a real-device check of Android banner/interstitial (not run here), (d) Privacy Options button still has no UI.
 
+## Testing Round 4
+38. Remove Ads / Reminders chips; settings; menu arrangement
+    > Feedback: DONE (simulator). Main menu: Restore / Kids Bike / Coin Store stacked down the left, logo centred, Play moved a little lower, and one centred chip row REMOVE ADS | REMINDERS | SETTINGS (vibration moved into Settings; the art 'REMOVE ADS' banner is hidden on the main menu, still art on pause/game over). New SETTINGS popup: sound effects, music, vibration, reminders, privacy options (persisted: PZ_SoundOn / PZ_MusicOn; the audio switches live in the SimpleAudioEngine shim and PZAudio).
+39. Pause / game over / character screens vs the banner
+    > Feedback: DONE. Root cause: the layout reserved 104 units for the banner but a real adaptive banner plus the home-indicator inset is ~126 (tuning/BannerReserve is now 128), so buttons overlapped it. Game-over buttons and stats panel moved up; character screen BACK now sits on the same row as PLAY; pause lane bike runs behind the buttons.
+40. Main menu bike on the pavement, tilted with the floor, no black/yellow lane line; coins lower
+    > Feedback: DONE. The pavement band of the backdrop is lifted so a strip of it shows above the banner; the bike rides there (no water), leans with the slope, and the dashed lane strip is gone.
+41. Round buttons (play / back / restart / continue / pause) had a ragged outer edge
+    > Feedback: DONE. The 9 button frames in animation_s0/1/2.png were clipped 2.5 px inside their circle with a feathered edge (tools: clip script kept out of the repo; originals are in git).
+42. Jetpack also pulls coins in (magnet) for its whole duration. No blinking / transparency at the start of a run (start protection is now invisible). Coin packs are 5,000 / 15,000 / 40,000 / 100,000 / 250,000 / 500,000 (store prices to be set in the consoles).
+43. AdMob policy wording on rewarded entry points
+    > Feedback: DONE. Every rewarded button now says WATCH AD and carries a play icon: 'WATCH AD: 2X COINS', 'WATCH AD: CONTINUE', 'WATCH AD REVIVE', 'WATCH AD +N COINS', 'WATCH AD: SPIN AGAIN', 'WATCH AD: GIFT'. Privacy options entry exists in Settings (Google UMP, iOS + Android). The UMP consent FORM itself still has to be created in the AdMob console (Privacy & messaging) - it cannot be done from code.
+
+44. PLAY button centred on the XP plate / pill column; menu bike tilted left-up / right-down and as low as the banner allows
+    > Feedback: DONE (simulator). PLAY shares the column centre; the bike tilts 3.4 degrees (wheels stay on the pavement, lowest point sits right above the ad banner).
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control
@@ -209,3 +225,16 @@ ca-app-pub-8966545526103390/3450330423
 MainMenu Banner:
 ca-app-pub-8966545526103390~4717282854
 ca-app-pub-8966545526103390/6076493765
+
+Android
+Banner
+ca-app-pub-8966545526103390~3276839875
+ca-app-pub-8966545526103390/1144454373
+
+Intertitial:
+ca-app-pub-8966545526103390~3276839875
+ca-app-pub-8966545526103390/3534813999
+
+Reward:
+ca-app-pub-8966545526103390~3276839875
+ca-app-pub-8966545526103390/5655160008

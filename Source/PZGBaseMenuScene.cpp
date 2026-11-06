@@ -80,6 +80,45 @@ PZGArtInterface* PZGBaseMenuScene::getItemByName( const char* name, const char* 
     return nullptr;
 }
 
+
+// Re-arranges the plist-driven buttons of a screen. Runs before the entrance animation is built (the stagger remembers
+// each item's position as its "home"), so the new spots are the ones the buttons animate to.
+static void arrangeInterface(const char* key, ax::Node* layer, ax::Menu* menu) {
+    if (!key || !menu) return;
+    const ax::Size win = ax::Director::getInstance()->getWinSize();
+    const ax::Rect safe = PZLayout::safeRect();
+    auto item = [menu](int tag) { return dynamic_cast<ax::MenuItem*>(menu->getChildByTag(tag)); };
+
+    if (std::strcmp(key, "InterfaceMM") == 0) {
+        // Restore / kids bike / coin store stack down the left edge; the logo takes the middle of the screen.
+        const float colX = safe.getMinX() + 108.f;
+        const float ys[3] = {win.height * 0.80f, win.height * 0.595f, win.height * 0.39f};
+        const int tags[3][2] = {{kUIIDMainMenuRestoreIAP, -1}, {kUIIDMainMenuKidModeIAP, kUIIDMainMenuKidModeOff}, {kUIIDMainMenuCoinShop, -1}};
+        for (int i = 0; i < 3; ++i) {
+            for (int t : tags[i]) {
+                if (t < 0) continue;
+                if (auto* it = item(t)) {
+                    it->setScale(0.92f);
+                    it->setPosition(ax::Vec2(colX, ys[i]));
+                }
+            }
+        }
+        // PLAY is centred under the XP plate and pills (same column), and sits a little lower.
+        if (auto* play = item(3)) play->setPosition(ax::Vec2(safe.getMaxX() - 12.f - 145.f, play->getPositionY() - 26.f));
+        if (auto* logo = layer ? layer->getChildByTag(1) : nullptr) {
+            logo->setPosition(ax::Vec2(win.width * 0.45f, win.height * 0.69f));
+        }
+    } else if (std::strcmp(key, "InterfaceCS") == 0) {
+        // BACK sits on the same row as PLAY (it used to hang lower than the big button).
+        auto* play = item(4);
+        if (play) {
+            for (int t : {5}) {
+                if (auto* it = item(t)) it->setPositionY(play->getPositionY());
+            }
+        }
+    }
+}
+
 void PZGBaseMenuScene::load(const char* keyName){
     AXLOGI("PZGBaseMenuScene::load begin - keyName: {}", keyName ? keyName : "(null)");
 
@@ -185,6 +224,7 @@ void PZGBaseMenuScene::load(const char* keyName){
         }
     }
     
+    arrangeInterface(keyName, this, pMenu);
     if (!pMenu->getChildren().empty()) {
         this->addChild(pMenu, 302);
         AXLOGI("PZGBaseMenuScene::load - Added menu with {} items", pMenu->getChildren().size());

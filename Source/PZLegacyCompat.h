@@ -451,11 +451,35 @@ public:
         static SimpleAudioEngine instance;
         return &instance;
     }
-    unsigned int playEffect(const char* file, bool loop = false) { return ax::AudioEngine::play2d(file ? file : "", loop); }
+    // Player switches (Settings screen). SOUND covers every effect and announcer line, MUSIC the background loop.
+    bool soundEnabled() const { return _sound; }
+    bool musicEnabled() const { return _music; }
+    void setSoundEnabled(bool on) {
+        _sound = on;
+        ax::UserDefault::getInstance()->setBoolForKey("PZ_SoundOn", on);
+        ax::UserDefault::getInstance()->flush();
+    }
+    void setMusicEnabled(bool on) {
+        _music = on;
+        ax::UserDefault::getInstance()->setBoolForKey("PZ_MusicOn", on);
+        ax::UserDefault::getInstance()->flush();
+        if (!on) {
+            if (_bgmId >= 0) { ax::AudioEngine::stop(_bgmId); _bgmId = -1; }
+        } else if (_bgmId < 0 && !_lastBgm.empty()) {
+            _bgmId = ax::AudioEngine::play2d(_lastBgm, _lastLoop);
+        }
+    }
+    unsigned int playEffect(const char* file, bool loop = false) {
+        if (!_sound) return 0;
+        return ax::AudioEngine::play2d(file ? file : "", loop);
+    }
     void stopEffect(unsigned int audioID) { ax::AudioEngine::stop((int)audioID); }
     void playBackgroundMusic(const char* file, bool loop = false) {
         stopBackgroundMusic();
-        _bgmId = ax::AudioEngine::play2d(file ? file : "", loop);
+        _lastBgm = file ? file : "";
+        _lastLoop = loop;
+        if (!_music) return;
+        _bgmId = ax::AudioEngine::play2d(_lastBgm, loop);
     }
     void stopBackgroundMusic(bool release = false) { (void)release; if (_bgmId >= 0) { ax::AudioEngine::stop(_bgmId); _bgmId = -1; } }
     void pauseBackgroundMusic() { if (_bgmId >= 0) ax::AudioEngine::pause(_bgmId); }
@@ -464,7 +488,13 @@ public:
     void preloadEffect(const char*) {}
     void preloadBackgroundMusic(const char*) {}
 private:
+    SimpleAudioEngine() {
+        _sound = ax::UserDefault::getInstance()->getBoolForKey("PZ_SoundOn", true);
+        _music = ax::UserDefault::getInstance()->getBoolForKey("PZ_MusicOn", true);
+    }
     int _bgmId = -1;
+    bool _sound = true, _music = true, _lastLoop = false;
+    std::string _lastBgm;
 };
 }
 

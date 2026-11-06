@@ -34,6 +34,9 @@ void attachResults(ax::Node* gameOverLayer, ax::Label* distanceLabel, const PZRu
 // Gadget loadout: pick up to kGadgetSlots unlocked gadgets. `onChanged` fires after every equip/unequip.
 ax::Node* showGadgets(ax::Node* parent, std::function<void()> onClosed = nullptr);
 
+// Settings: sound effects, music, vibration, reminders and the Google privacy-choices form.
+ax::Node* showSettings(ax::Node* parent, std::function<void()> onClosed = nullptr);
+
 // Main-menu additions (level plate, DAILY / MISSIONS buttons, vibration toggle). Safe to call again to refresh.
 void attachMenuWidgets(ax::Node* menuLayer);
 void refreshMenuWidgets(ax::Node* menuLayer, bool allowDailyPopup);

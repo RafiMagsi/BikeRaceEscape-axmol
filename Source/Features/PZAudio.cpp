@@ -74,7 +74,7 @@ const std::vector<Binding>& bindings() {
 } // namespace
 
 void play(const std::string& name, float volume, float minGapSeconds) {
-    if (!PZCfg::kEnableSfx || name.empty()) return;
+    if (!PZCfg::kEnableSfx || name.empty() || !CocosDenshion::SimpleAudioEngine::sharedEngine()->soundEnabled()) return;
     const std::string path = pathFor(name);
     if (!exists(path)) return;
     const auto now = Clock::now();
@@ -85,7 +85,7 @@ void play(const std::string& name, float volume, float minGapSeconds) {
 }
 
 void say(const std::string& name, int priority) {
-    if (!PZCfg::kEnableVoice || name.empty()) return;
+    if (!PZCfg::kEnableVoice || name.empty() || !CocosDenshion::SimpleAudioEngine::sharedEngine()->soundEnabled()) return;
     const std::string path = pathFor(name);
     if (!exists(path)) return;
     if (g_voiceId >= 0 && ax::AudioEngine::getState(g_voiceId) == ax::AudioEngine::AudioState::PLAYING) {

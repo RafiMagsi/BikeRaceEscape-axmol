@@ -110,6 +110,7 @@ void ensureLoaded() {
     }
 
     const ValueMap* str = section(*root, "strings");
+    R(str, PrivacyPolicyUrl); R(str, StrPrivacyPolicy);
     R(str, StrBest); R(str, StrNewBest); R(str, StrStage); R(str, StrStageSub); R(str, StrCloseCall); R(str, StrCombo);
     R(str, StrComboBonus); R(str, StrSmash); R(str, StrShieldBreak); R(str, StrBlast); R(str, StrSaved); R(str, StrGo);
     R(str, StrMagnet); R(str, StrShield); R(str, StrTurbo); R(str, StrBlastName); R(str, StrJetpackName);
@@ -157,6 +158,8 @@ void ensureLoaded() {
     R(tun, OrbWeightRocket); R(tun, OrbWeightGun);
     R(tun, ReviveCost); R(tun, ReviveCountdown); R(tun, BannerReserve); R(tun, SmashCoins);
     R(tun, HitStop); R(tun, PunchZoom); R(tun, DustPuffs); R(tun, HapticCoinInterval);
+    R(tun, MenuBikeHeight); R(tun, MenuBikeTilt); R(tun, MenuBikeSlope); R(tun, MenuBikeLift); R(tun, MenuBikeSpeed); R(tun, MenuBikeHop);
+    R(tun, MenuCoinSize); R(tun, MenuCoinLift); R(tun, MenuCoinArc);
     R(tun, XpPerLevelUnit); R(tun, LevelUpCoins); R(tun, XpPerDistance); R(tun, XpPerCoin); R(tun, XpPerStage);
 
     const ValueMap* gifts = section(*root, "gifts");

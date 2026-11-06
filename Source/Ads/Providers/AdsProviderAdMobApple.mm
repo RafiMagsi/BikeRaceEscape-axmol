@@ -78,6 +78,9 @@ static UIViewController* pzRootViewController() {
     while (vc.presentedViewController) vc = vc.presentedViewController;
     return vc;
 }
+// No App Tracking Transparency prompt: the game does not track players across other companies' apps, so Apple does not
+// require one. Without the permission the advertising identifier stays zeroed and AdMob serves non-personalised ads.
+static void pzStartAfterTracking() { pzStartAdsIfAllowed(); }
 static void pzRunConsentFlow() {
 #if PZ_HAS_UMP
     UMPRequestParameters* params = [[UMPRequestParameters alloc] init];
@@ -86,15 +89,15 @@ static void pzRunConsentFlow() {
         if (error) AXLOGW("AdsProviderAdMob(iOS): consent info update failed: {}", error.localizedDescription.UTF8String);
         dispatch_async(dispatch_get_main_queue(), ^{
             UIViewController* vc = pzRootViewController();
-            if (!vc) { pzStartAdsIfAllowed(); return; }
+            if (!vc) { pzStartAfterTracking(); return; }
             [UMPConsentForm loadAndPresentIfRequiredFromViewController:vc completionHandler:^(NSError* _Nullable formError) {
                 if (formError) AXLOGW("AdsProviderAdMob(iOS): consent form: {}", formError.localizedDescription.UTF8String);
-                pzStartAdsIfAllowed();
+                pzStartAfterTracking();
             }];
         });
     }];
 #endif
-    pzStartAdsIfAllowed();   // consent from an earlier session may already allow ads
+    pzStartAfterTracking();   // consent from an earlier session may already allow ads
 }
 
 static GADInterstitialAd* g_interstitial = nil;          // loaded, not shown yet
@@ -486,6 +489,28 @@ void AdsProviderAdMob::showRewarded() {
     }
     AXLOGI("AdsProviderAdMob(iOS)::showRewarded (stub) placementId='{}'", lastRewardedPlacement_);
     rewardedReady_ = false;
+#endif
+}
+
+
+// ---- Google UMP privacy choices (Settings > Privacy options) ---------------------------------------------------------
+bool pzPrivacyOptionsRequired() {
+#if PZ_HAS_GMA && PZ_HAS_UMP
+    return UMPConsentInformation.sharedInstance.privacyOptionsRequirementStatus == UMPPrivacyOptionsRequirementStatusRequired;
+#else
+    return false;
+#endif
+}
+
+void pzShowPrivacyOptions() {
+#if PZ_HAS_GMA && PZ_HAS_UMP
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController* vc = _topMostViewController();
+        if (!vc) return;
+        [UMPConsentForm presentPrivacyOptionsFormFromViewController:vc completionHandler:^(NSError* _Nullable error) {
+            if (error) AXLOGW("AdsProviderAdMob(iOS): privacy options form: {}", error.localizedDescription.UTF8String);
+        }];
+    });
 #endif
 }
 

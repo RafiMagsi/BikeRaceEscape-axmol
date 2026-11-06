@@ -48,6 +48,7 @@ public:
     void setSwallow(bool swallow);
     void setBadge(int count);             // small red counter bubble (0 hides it)
     bool active() const { return _active; }
+    void setVideoIcon(bool on);           // white play triangle on the left: this button starts a rewarded video
 
 private:
     bool initButton(const std::string& text, float w, float h, const ax::Color3B& color,
@@ -64,6 +65,7 @@ private:
     ax::Node* _badge = nullptr;
     bool _active = true;
     bool _pressed = false;
+    bool _video = false;
 };
 
 // Radial spark burst (fades out and removes itself).
