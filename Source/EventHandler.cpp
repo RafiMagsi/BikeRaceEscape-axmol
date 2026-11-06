@@ -149,24 +149,20 @@ void EventHandler::marketPurchase(string& productId) {
         return;
     }
 
-    //check for CoinPacks
+    //check for CoinPacks (all six packs from IAPSettings)
     PZSettingsController *sc = PZSettingsController::shared();
-    const char* coin1 = (iapInfo->coinShop1_id ? iapInfo->coinShop1_id->getCString() : "");
-    const char* coin2 = (iapInfo->coinShop2_id ? iapInfo->coinShop2_id->getCString() : "");
-    const char* coin3 = (iapInfo->coinShop3_id ? iapInfo->coinShop3_id->getCString() : "");
-    if (coin1[0] != '\0' && strcmp(coin1, productId.c_str()) == 0) {
-        sc->coins += iapInfo->coinShop1_value;
-        sc->save();
-    }
-    else
-    if (coin2[0] != '\0' && strcmp(coin2, productId.c_str()) == 0) {
-        sc->coins += iapInfo->coinShop2_value;
-        sc->save();
-    }
-    else
-    if (coin3[0] != '\0' && strcmp(coin3, productId.c_str()) == 0) {
-        sc->coins += iapInfo->coinShop3_value;
-        sc->save();
+    ax::__String* packIds[6] = {iapInfo->coinShop1_id, iapInfo->coinShop2_id, iapInfo->coinShop3_id,
+                                iapInfo->coinShop4_id, iapInfo->coinShop5_id, iapInfo->coinShop6_id};
+    const int packValues[6] = {iapInfo->coinShop1_value, iapInfo->coinShop2_value, iapInfo->coinShop3_value,
+                               iapInfo->coinShop4_value, iapInfo->coinShop5_value, iapInfo->coinShop6_value};
+    for (int i = 0; i < 6; ++i) {
+        const char* packId = (packIds[i] ? packIds[i]->getCString() : "");
+        if (packId[0] != '\0' && strcmp(packId, productId.c_str()) == 0) {
+            sc->coins += packValues[i];
+            sc->save();
+            AXLOGI("[IAP] coin pack {} credited with {} coins", i + 1, packValues[i]);
+            break;
+        }
     }
 //    else
 //    PZSettingsController *sc = PZSettingsController::shared();

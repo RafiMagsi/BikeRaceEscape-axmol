@@ -11,6 +11,7 @@
 #include "constants.h"
 #include "Features/PZGameConfig.h"
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 
 USING_NS_AX;
@@ -361,6 +362,25 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
     Vec2 spritePosition = platforms[ 0 ]->sprite->getPosition();
     std::vector<PZGObstacle*> pendingObstacles;
 
+    // Coin density: the chunk's coin items are authored in groups; a contiguous run of `kCoinShapeMinCoins` or more is a
+    // deliberate shape (BOOST / BIKE / arrow ...) and is kept whole, while loose single coins are thinned out so the
+    // track stops looking like a carpet of gold.
+    const int itemCount = levelInfo->objects->count();
+    std::vector<int> coinRunLen(itemCount, 0);
+    for (int i = 0; i < itemCount; ) {
+        auto* it = (PZGGameInfoLevelItem*)levelInfo->objects->objectAtIndex(i);
+        const bool isCoin = it && it->infoObjKey && it->infoObjKey->compare("Coins") == 0;
+        if (!isCoin) { ++i; continue; }
+        int j = i;
+        while (j < itemCount) {
+            auto* jt = (PZGGameInfoLevelItem*)levelInfo->objects->objectAtIndex(j);
+            if (!jt || !jt->infoObjKey || jt->infoObjKey->compare("Coins") != 0) break;
+            ++j;
+        }
+        for (int k = i; k < j; ++k) coinRunLen[k] = j - i;
+        i = j;
+    }
+
     for (int i=0;  i < levelInfo->objects->count(); i++) {
         PZGGameInfoLevelItem *item = (PZGGameInfoLevelItem*)levelInfo->objects->objectAtIndex( i );
         if (!item || !item->infoObjKey) {
@@ -371,6 +391,12 @@ void PZGGamefieldPlatforms::addLevel( int platform_type_id ){
         if (item->infoObjKey->compare( "Coins" ) == 0) {
             if (!coins_info) {
                 AXLOGW("PZGGamefieldPlatforms::addLevel: coins_info is null, skipping coin");
+                continue;
+            }
+
+            // Thin out loose coins (keep every shape intact).
+            if (coinRunLen[i] < std::max(1, PZCfg::kCoinShapeMinCoins) &&
+                CCRANDOM_0_1() >= std::max(0.f, std::min(1.f, PZCfg::kCoinDensity))) {
                 continue;
             }
 
@@ -640,9 +666,11 @@ void PZGGamefieldPlatforms::update(float dt){
     }
     
     if (coins_info && gameplayInfo->randomLevelGeneration) {
+        // Half the spawn rate (tuning/CoinDensity): random mode used to drop a coin on every comingRatio tick.
+        const float coinRate = std::max(0.05f, std::min(1.f, PZCfg::kCoinDensity));
         for (int i=0; i < coins_info->count(); i++) {
             PZGArtCoins *info = (PZGArtCoins*)coins_info->objectAtIndex( i );
-            coins_spawn_counter[ i ] += dt;
+            coins_spawn_counter[ i ] += dt * coinRate;
             
             if (info->comingRatio <= coins_spawn_counter[ i ] && info->comingRatio > 0) {
                 addCoins( i );
@@ -841,6 +869,8 @@ void PZGGamefieldPlatforms::addCoinArc( const Vec2& from, const Vec2& to, float 
     if (!coins_info || coins_info->count() == 0 || count < 2) {
         return;
     }
+    // Guide coins follow the same density rule, but never drop below 3 so the jump hint stays readable.
+    count = std::max(3, static_cast<int>(std::lround(count * std::max(0.05f, std::min(1.f, PZCfg::kCoinDensity)))));
     for (int i = 0; i < count; ++i) {
         const float t = (float)i / (float)(count - 1);
         Vec2 centre = from + (to - from) * t;

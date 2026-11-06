@@ -63,6 +63,15 @@ PZGGameInfoIAP*  PZGGameInfoIAP::createWithDictionary(ax::__Dictionary * diction
         obj->coinShop3_value = 0;
     }
 
+    cstring = (ax::__String*)dictionary->objectForKey("coinShop4_value");
+    obj->coinShop4_value = cstring ? cstring->intValue() : 0;
+
+    cstring = (ax::__String*)dictionary->objectForKey("coinShop5_value");
+    obj->coinShop5_value = cstring ? cstring->intValue() : 0;
+
+    cstring = (ax::__String*)dictionary->objectForKey("coinShop6_value");
+    obj->coinShop6_value = cstring ? cstring->intValue() : 0;
+
     obj->coinShop1_id = (ax::__String*)dictionary->objectForKey("coinShop1_id");
     if (obj->coinShop1_id) {
     }
@@ -73,6 +82,10 @@ PZGGameInfoIAP*  PZGGameInfoIAP::createWithDictionary(ax::__Dictionary * diction
     obj->coinShop3_id = (ax::__String*)dictionary->objectForKey("coinShop3_id");
     if (obj->coinShop3_id) {
     }
+
+    obj->coinShop4_id = (ax::__String*)dictionary->objectForKey("coinShop4_id");
+    obj->coinShop5_id = (ax::__String*)dictionary->objectForKey("coinShop5_id");
+    obj->coinShop6_id = (ax::__String*)dictionary->objectForKey("coinShop6_id");
 
     obj->storeKey = (ax::__String*)dictionary->objectForKey("storeKey");
     if (obj->storeKey) {

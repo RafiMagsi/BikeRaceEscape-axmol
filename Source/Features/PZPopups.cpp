@@ -3,7 +3,6 @@
 //
 #include "PZPopups.h"
 #include "PZUI.h"
-#include "PZQA.h"   // TEMP-QA
 #include "PZLayout.h"
 #include "PZHaptics.h"
 #include "PZAudio.h"
@@ -11,6 +10,7 @@
 #include "PZSettingsController.h"
 #include "Ads/AdsController.h"
 #include "SharedData/PZGSharedData.h"
+#include "SharedData/PZGArtCharacter.h"
 #include "SharedData/PZGSoundData.h"
 #include "constants.h"
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
@@ -69,6 +69,10 @@ LayerColor* openModal(Node* parent, float w, float h, int z, float dim) {
     base->addChild(panel);
     panel->setScale(0.75f);
     panel->runAction(EaseBackOut::create(ScaleTo::create(0.26f, 1.f)));
+    // Everything the popup adds after the panel slides in one item after the other (the panel itself pops).
+    base->runAction(Sequence::create(DelayTime::create(0.03f), CallFunc::create([base]() {
+        PZUI::stagger(base, 0.032f, 0.05f, 1);
+    }), nullptr));
     return base;
 }
 } // namespace
@@ -447,8 +451,17 @@ void attachResults(Node* gameOverLayer, Label* distanceLabel, const PZRunStats& 
         const bool revive = onReviveCoins && onReviveVideo;
         const float pillW = 236.f, pillH = 46.f, gap = 12.f;
         const float roundX = revive ? (pillW + gap * 0.5f + 44.f + gap) : 74.f;
-        if (auto* back = menu->getChildByTag(1)) { back->setPosition(Vec2(cx - roundX, buttonY)); }
-        if (auto* restart = menu->getChildByTag(2)) { restart->setPosition(Vec2(cx + roundX, buttonY)); }
+        auto positionNavigationButton = [buttonY](Node* button, float x) {
+            if (!button) return;
+            button->stopAllActions();
+            const Size size = button->getContentSize();
+            const float naturalSize = std::max(size.width, size.height);
+            if (naturalSize > 1.f) button->setScale(PZCfg::kStdRoundButtonPx / naturalSize);
+            button->setPosition(Vec2(x, buttonY));
+            PZUI::enterIn(button, 0.05f, false, 18.f);
+        };
+        positionNavigationButton(menu->getChildByTag(1), cx - roundX);
+        positionNavigationButton(menu->getChildByTag(2), cx + roundX);
         if (revive) {
             auto* sc = PZSettingsController::shared();
             char b[48];
@@ -936,6 +949,7 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
 namespace {
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+// Six coin packs; `pack` is 1-based. A pack without a product id is not sellable yet (the shop greys its BUY button).
 void buyStorePack(int pack) {
     PZGSharedData* sd = PZGSharedData::sharedInstanse();
     if (!sd || !sd->gameInfoResource) return;
@@ -943,10 +957,26 @@ void buyStorePack(int pack) {
     if (!array || array->count() <= 0) return;
     auto* iap = (PZGGameInfoIAP*)array->objectAtIndex(0);
     if (!iap) return;
-    __String* id = pack == 1 ? iap->coinShop1_id : (pack == 2 ? iap->coinShop2_id : iap->coinShop3_id);
-    if (id) cocos2dx_StoreController::buyMarketItem(id->getCString());
+    __String* ids[6] = {iap->coinShop1_id, iap->coinShop2_id, iap->coinShop3_id,
+                        iap->coinShop4_id, iap->coinShop5_id, iap->coinShop6_id};
+    if (pack < 1 || pack > 6) return;
+    __String* id = ids[pack - 1];
+    const char* pid = id ? id->getCString() : "";
+    if (pid && pid[0] != '\0') cocos2dx_StoreController::buyMarketItem(pid);
 }
 #endif
+
+std::string formatCoinPackValue(int amount) {
+    char value[24];
+    if (amount >= 1000 && amount % 1000 != 0) {
+        std::snprintf(value, sizeof(value), "%.1fK", amount / 1000.f);
+    } else if (amount >= 1000) {
+        std::snprintf(value, sizeof(value), "%dK", amount / 1000);
+    } else {
+        std::snprintf(value, sizeof(value), "%d", amount);
+    }
+    return value;
+}
 
 } // namespace
 
@@ -1052,20 +1082,20 @@ Node* showShop(Node* parent, std::function<void()> onClosed, bool startOnCoins) 
                 updateBal();
             });
         };
-        auto* vidReal = PZUI::Button::create("", rowW, 64.f, Color3B(255, 140, 20), onVideo, 15.f);
-        vidReal->setPosition(Vec2(mid.x, top - 56.f));
+        auto* vidReal = PZUI::Button::create("", rowW, 60.f, Color3B(255, 140, 20), onVideo, 15.f);
+        vidReal->setPosition(Vec2(mid.x, top - 54.f));
         content->addChild(vidReal);
         *vidHolder = vidReal;
         auto* tri = DrawNode::create();
         Vec2 pts[3] = {Vec2(-9, -12), Vec2(-9, 12), Vec2(12, 0)};
         tri->drawSolidPoly(pts, 3, PZUI::c4f(Color3B(255, 255, 255)), 2.f, PZUI::c4f(Color3B(90, 30, 0)), true);
-        tri->setPosition(Vec2(38.f, 32.f));
+        tri->setPosition(Vec2(38.f, 30.f));
         vidReal->addChild(tri, 5);
         auto* vcoin = PZUI::coinIcon(30.f);
-        vcoin->setPosition(Vec2(rowW - 40.f, 32.f));
+        vcoin->setPosition(Vec2(rowW - 40.f, 30.f));
         vidReal->addChild(vcoin, 5);
         auto* note = PZUI::heading(PZCfg::kStrShopAdNote, 6.f, PZCfg::kColDim);
-        note->setPosition(Vec2(mid.x, top - 102.f));
+        note->setPosition(Vec2(mid.x, top - 90.f));
         content->addChild(note);
 
         *rowRefresh = [=]() {
@@ -1085,6 +1115,9 @@ Node* showShop(Node* parent, std::function<void()> onClosed, bool startOnCoins) 
         (*rowRefresh)();
 
         // Store packs (real money, via the platform billing already wired for the legacy coin store).
+        // Six packs in two rows so the ladder from a small top-up to the biggest bundle is one glance.
+        int values[6] = {0, 0, 0, 0, 0, 0};
+        bool packIds[6] = {false, false, false, false, false, false};
         bool packs = false;
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
         if (PZGSharedData* sd = PZGSharedData::sharedInstanse(); sd && sd->gameInfoResource) {
@@ -1092,35 +1125,56 @@ Node* showShop(Node* parent, std::function<void()> onClosed, bool startOnCoins) 
                 auto* iap = (PZGGameInfoIAP*)array->objectAtIndex(0);
                 packs = iap && iap->coinShop_enabled;
                 if (packs) {
-                    const int values[3] = {iap->coinShop1_value, iap->coinShop2_value, iap->coinShop3_value};
-                    const float cw = (rowW - 2 * 14.f) / 3.f;
-                    const float cy = top - 208.f;
-                    auto* hd = PZUI::heading(PZCfg::kStrShopPacks, 8.f, PZCfg::kColDim);
-                    hd->setPosition(Vec2(mid.x, top - 140.f));
-                    content->addChild(hd);
-                    for (int i = 0; i < 3; ++i) {
-                        const float cx = mid.x - rowW * 0.5f + cw * 0.5f + i * (cw + 14.f);
-                        auto* card = PZUI::roundedRect(cw, 104.f, 14.f, PZCfg::kColPanel, 0.96f, PZCfg::kColPanelEdge, 1.f, 2.f);
+                    const int vals[6] = {iap->coinShop1_value, iap->coinShop2_value, iap->coinShop3_value,
+                                         iap->coinShop4_value, iap->coinShop5_value, iap->coinShop6_value};
+                    __String* ids[6] = {iap->coinShop1_id, iap->coinShop2_id, iap->coinShop3_id,
+                                        iap->coinShop4_id, iap->coinShop5_id, iap->coinShop6_id};
+                    for (int i = 0; i < 6; ++i) {
+                        values[i] = vals[i];
+                        const char* pid = ids[i] ? ids[i]->getCString() : "";
+                        packIds[i] = pid && pid[0] != '\0';
+                    }
+                    for (int i = 0; i < 6; ++i) {
+                        const int row = i / 3, col = i % 3;
+                        const float cw = (rowW - 2 * 12.f) / 3.f;
+                        const float cx = mid.x - rowW * 0.5f + cw * 0.5f + col * (cw + 12.f);
+                        const float cy = top - 160.f - row * 92.f;
+                        const bool best = (i == 5);
+                        auto* card = PZUI::roundedRect(cw, 84.f, 14.f, PZCfg::kColPanel, 0.96f,
+                                                       best ? PZCfg::kColAccent : PZCfg::kColPanelEdge, 1.f, best ? 3.f : 2.f);
                         card->setPosition(Vec2(cx, cy));
                         content->addChild(card);
-                        auto* ci = PZUI::coinIcon(30.f);
-                        ci->setPosition(Vec2(cx - 36.f, cy + 20.f));
+                        auto* ci = PZUI::coinIcon(26.f);
+                        ci->setPosition(Vec2(cx - cw * 0.5f + 26.f, cy + 18.f));
                         content->addChild(ci);
-                        char b[24];
-                        std::snprintf(b, sizeof(b), "%d", values[i]);
-                        auto* amt = PZUI::heading(b, 15.f, PZCfg::kColAccent);
+                        auto* amt = PZUI::heading(formatCoinPackValue(values[i]), 16.f, PZCfg::kColAccent);
                         amt->setAnchorPoint(Vec2(0.f, 0.5f));
-                        amt->setPosition(Vec2(cx - 14.f, cy + 20.f));
+                        amt->setPosition(Vec2(cx - cw * 0.5f + 44.f, cy + 18.f));
                         content->addChild(amt);
+                        if (best) {
+                            auto* tag = PZUI::heading("BEST", 6.f, PZCfg::kColAccent2);
+                            tag->setAnchorPoint(Vec2(1.f, 0.5f));
+                            tag->setPosition(Vec2(cx + cw * 0.5f - 8.f, cy + 30.f));
+                            content->addChild(tag);
+                        }
                         const int pack = i + 1;
-                        auto* buy = PZUI::Button::create(PZCfg::kStrShopBuy, cw - 30.f, 34.f, PZCfg::kColGood, [pack]() { buyStorePack(pack); }, 11.f);
-                        buy->setPosition(Vec2(cx, cy - 26.f));
+                        const bool sellable = packIds[i] && values[i] > 0;
+                        auto* buy = PZUI::Button::create(sellable ? PZCfg::kStrShopBuy : PZCfg::kStrShopSoon,
+                                                         cw - 26.f, 30.f, PZCfg::kColGood,
+                                                         [pack]() { buyStorePack(pack); }, 11.f);
+                        buy->setPosition(Vec2(cx, cy - 22.f));
+                        buy->setActive(sellable);
                         content->addChild(buy);
                     }
+                    auto* hd = PZUI::heading(PZCfg::kStrShopPacks, 8.f, PZCfg::kColDim);
+                    hd->setPosition(Vec2(mid.x, top - 108.f));
+                    content->addChild(hd);
                 }
             }
         }
 #endif
+        (void)packIds;
+        (void)values;
         (void)packs;
     };
     (*showTab)();
@@ -1728,49 +1782,51 @@ private:
 
         // Player plate: round level badge on the left; best score, XP counter, framed XP bar and the next
         // unlock on the right. The bar animates when XP changes (see refresh()).
-        const float plateH = 66.f;
+        const float plateH = 74.f;
         auto* plate = Node::create();
         plate->addChild(PZUI::panel(colW, plateH, 12.f));
         plate->setPosition(Vec2(colX, y - plateH * 0.5f));
         addChild(plate);
 
-        const float badgeX = -colW * 0.5f + 33.f;
+        const float badgeX = -colW * 0.5f + 34.f;
         auto* badge = DrawNode::create();
-        badge->drawSolidCircle(Vec2::ZERO, 27.f, 0.f, 28, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
-        badge->drawSolidCircle(Vec2::ZERO, 25.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge));
-        badge->drawSolidCircle(Vec2::ZERO, 21.f, 0.f, 28, PZUI::c4f(Color3B(14, 18, 32)));
-        badge->drawCircle(Vec2::ZERO, 21.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColAccent, 0.9f), 2.f);
-        badge->drawCircle(Vec2::ZERO, 25.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColPanelEdge2, 0.8f), 1.2f);
+        badge->drawSolidCircle(Vec2::ZERO, 26.f, 0.f, 28, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
+        badge->drawSolidCircle(Vec2::ZERO, 24.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge));
+        badge->drawSolidCircle(Vec2::ZERO, 20.f, 0.f, 28, PZUI::c4f(Color3B(14, 18, 32)));
+        badge->drawCircle(Vec2::ZERO, 20.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColAccent, 0.9f), 2.f);
+        badge->drawCircle(Vec2::ZERO, 24.f, 0.f, 28, false, PZUI::c4f(PZCfg::kColPanelEdge2, 0.8f), 1.2f);
         badge->setPosition(Vec2(badgeX, 0.f));
         plate->addChild(badge);
-        auto* lvTag = PZUI::heading("LV", 6.f, PZCfg::kColDim);
-        lvTag->setPosition(Vec2(badgeX, 11.f));
+        auto* lvTag = PZUI::heading("LV", 5.5f, PZCfg::kColDim);
+        lvTag->setPosition(Vec2(badgeX, 12.f));
         plate->addChild(lvTag);
-        _lv = PZUI::heading("", 15.f, PZCfg::kColAccent);
+        _lv = PZUI::heading("", 14.f, PZCfg::kColAccent);
         _lv->setPosition(Vec2(badgeX, -3.f));
         plate->addChild(_lv);
 
-        const float rx = -colW * 0.5f + 68.f;                 // left edge of the right-hand block
-        const float rw = colW * 0.5f - 12.f - rx;             // its width
+        // Right block inside the inner frame: XP counter + best on the top line, the progress bar under it, and what
+        // the level is working towards at the bottom. Everything is inset from the bronze inner ring.
+        const float rx = -colW * 0.5f + 72.f;                 // left edge of the right-hand block
+        const float rw = colW * 0.5f - 16.f - rx;             // its width
         _xpText = PZUI::heading("", 6.f, PZCfg::kColAccent);
         _xpText->setAnchorPoint(Vec2(0.f, 0.5f));
-        _xpText->setPosition(Vec2(rx, 20.f));
+        _xpText->setPosition(Vec2(rx, 22.f));
         plate->addChild(_xpText);
         _best = PZUI::heading("", 6.f, PZCfg::kColDim);
         _best->setAnchorPoint(Vec2(1.f, 0.5f));
-        _best->setPosition(Vec2(rx + rw, 20.f));
+        _best->setPosition(Vec2(rx + rw, 22.f));
         plate->addChild(_best);
 
-        _xpBarW = rw - 6.f;
+        _xpBarW = rw;
         _xp = PZUI::bar(_xpBarW, 12.f, pg->levelFraction(), PZCfg::kColAccent2);
-        _xp->setPosition(Vec2(rx + rw * 0.5f, 3.f));
+        _xp->setPosition(Vec2(rx + rw * 0.5f, 2.f));
         plate->addChild(_xp);
         _shownFrac = pg->levelFraction();
         _xpLevel = pg->level();
 
         _next = PZUI::heading("", 6.f, PZCfg::kColDim);
         _next->setAnchorPoint(Vec2(0.f, 0.5f));
-        _next->setPosition(Vec2(rx, -19.f));
+        _next->setPosition(Vec2(rx, -22.f));
         _nextMaxW = rw;
         plate->addChild(_next);
         y -= plateH + gapY;
@@ -1820,7 +1876,8 @@ private:
             PZHaptics::play(PZHaptics::Kind::Medium);   // instant preview when turning on
             refresh();
         }, 8.f);
-        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 32.f));
+        // Chips sit above the menu bike lane (see MenuShowcase) so the bike never rides through them.
+        _vibe->setPosition(Vec2(safe.getMaxX() - 16.f - 63.f, safe.getMinY() + 96.f));
         addChild(_vibe);
 
         if (PZCfg::kEnableNotifications) {
@@ -1830,13 +1887,15 @@ private:
                 PZNotif::setEnabledByPlayer(hostNode, on);
                 runAction(Sequence::create(DelayTime::create(0.4f), CallFunc::create([this]() { refresh(); }), nullptr));
             }, 8.f);
-            _remind->setPosition(Vec2(safe.getMaxX() - 16.f - 126.f - 8.f - 88.f, safe.getMinY() + 32.f));
+            _remind->setPosition(Vec2(safe.getMaxX() - 16.f - 126.f - 8.f - 88.f, safe.getMinY() + 96.f));
             addChild(_remind);
             PZNotif::refreshStatus();
             runAction(Sequence::create(DelayTime::create(1.2f), CallFunc::create([this]() { PZNotif::reschedule(); refresh(); }), nullptr));
         }
 
         refresh();
+        // The plate and the pills slide in one after the other when the menu opens.
+        PZUI::stagger(this, 0.05f, 0.12f);
         schedule([this, win](float dt) {
             updateFreeLabel();
             if (!_freePending) return;
@@ -1924,16 +1983,219 @@ private:
     bool _freePending = false;
     float _freeWait = 0.f;
 };
+
+// ------------------------------------------------------------------------------------------------
+// Menu showcase: the player's bike runs along the bottom lane of the menu screens, so the first screen a
+// new player sees is never a still image. Tapping the lane makes it hop (main menu only).
+// ------------------------------------------------------------------------------------------------
+constexpr int kTagMenuShowcase = 0x4D53;
+
+class MenuShowcase : public Node {
+public:
+    static MenuShowcase* make(bool interactive) {
+        auto* s = new MenuShowcase();
+        if (!s->init()) {
+            delete s;
+            return nullptr;
+        }
+        s->autorelease();
+        s->build(interactive);
+        return s;
+    }
+
+    void update(float dt) override {
+        _clock += dt;
+        _x += _speed * dt;
+        if (_x > _right) _x = _left;
+
+        float y = _groundY + 2.f + std::sin(_clock * 9.f) * 1.6f;
+        if (_jumpT > 0.f) {
+            _jumpT -= dt;
+            const float p = 1.f - std::max(0.f, _jumpT) / _jumpDur;   // 0 -> 1 over the hop
+            y += std::sin(p * static_cast<float>(M_PI)) * _jumpH;
+        }
+        if (_rider) _rider->setPosition(Vec2(_x, y));
+        if (_shadow) {
+            const float lift = std::max(0.f, y - _groundY);
+            _shadow->setPosition(Vec2(_x, _groundY - 2.f));
+            _shadow->setScale(std::max(0.45f, 1.f - lift / (_jumpH + 30.f)));
+            _shadow->setOpacity(static_cast<uint8_t>(std::max(40.f, 120.f - lift)));
+        }
+
+        // Dust behind the rear wheel while the bike is on the road.
+        if (_jumpT <= 0.f) {
+            _dustClock += dt;
+            if (_dustClock > 0.11f) {
+                _dustClock = 0.f;
+                auto* d = DrawNode::create();
+                d->drawDot(Vec2::ZERO, 2.4f, PZUI::c4f(Color3B(214, 196, 168), 0.55f));
+                d->setPosition(Vec2(_x - 26.f, _groundY + 4.f));
+                addChild(d, 2);
+                d->runAction(Sequence::create(Spawn::create(MoveBy::create(0.5f, Vec2(-34.f, 12.f)), FadeOut::create(0.5f),
+                                                            ScaleTo::create(0.5f, 2.2f), nullptr),
+                                              RemoveSelf::create(), nullptr));
+            }
+        }
+
+        // Coins the bike sweeps up (they are decorative: nothing is credited here).
+        for (auto& c : _coins) {
+            if (!c.node) continue;
+            c.x -= _speed * dt;
+            if (c.x < _left) {
+                c.x = _right + 120.f + CCRANDOM_0_1() * 260.f;
+            }
+            c.node->setPosition(Vec2(c.x, c.y + std::sin(_clock * 3.f + c.x * 0.01f) * 4.f));
+            if (std::abs(c.x - _x) < 34.f && std::abs((c.y) - (_rider ? _rider->getPositionY() : _groundY) - 30.f) < 70.f) {
+                PZUI::glitter(this, Vec2(c.x, c.y), PZCfg::kColAccent, 5, 26.f, 0.5f, 6);
+                c.node->stopAllActions();
+                c.x = _right + 200.f + CCRANDOM_0_1() * 320.f;
+                c.node->setPosition(Vec2(c.x, c.y));
+                c.node->setScale(0.f);
+                c.node->runAction(Sequence::create(DelayTime::create(0.08f),
+                                                   EaseBackOut::create(ScaleTo::create(0.18f, 1.f)), nullptr));
+            }
+        }
+
+        // An occasional hop keeps the lane alive even when nobody touches it.
+        _autoHop -= dt;
+        if (_autoHop <= 0.f) {
+            hop();
+            _autoHop = 2.8f + CCRANDOM_0_1() * 2.6f;
+        }
+    }
+
+private:
+    void build(bool interactive) {
+        _interactive = interactive;
+        const Rect safe = PZLayout::safeRect();
+        // The lane hugs the bottom edge: it runs UNDER the art buttons (restore / kids / coin store) instead of
+        // through them, and stays above the banner strip on ad-supported builds.
+        _groundY = safe.getMinY() + 20.f;
+        _left = safe.getMinX() - 70.f;
+        _right = safe.getMaxX() + 70.f;
+        _x = safe.getMinX() + safe.size.width * 0.28f;
+
+        // The lane: a soft dark strip with a dashed gold edge, which reads as road without fighting the art.
+        auto* road = DrawNode::create();
+        road->drawSolidRect(Vec2(safe.getMinX(), _groundY - 9.f), Vec2(safe.getMaxX(), _groundY + 2.f),
+                            PZUI::c4f(Color3B(20, 16, 14), 0.42f));
+        for (float x = safe.getMinX(); x < safe.getMaxX(); x += 52.f) {
+            road->drawSegment(Vec2(x, _groundY - 4.f), Vec2(x + 24.f, _groundY - 4.f), 2.f,
+                              PZUI::c4f(PZCfg::kColAccent, 0.28f));
+        }
+        addChild(road, 0);
+
+        _shadow = DrawNode::create();
+        _shadow->drawSolidCircle(Vec2::ZERO, 26.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.45f));
+        _shadow->setScaleX(1.6f);
+        addChild(_shadow, 1);
+
+        // The bike is the player's own sprite (already animated when the art has frames).
+        _rider = Node::create();
+        addChild(_rider, 3);
+        Sprite* bike = nullptr;
+        auto* gsd = PZGSharedData::sharedInstanse();
+        const int characterId = PZSettingsController::shared()->characterId;
+        if (gsd && gsd->artResource) {
+            if (auto* characters = static_cast<__Array*>(gsd->artResource->objectForKey("Characters")); characters && characters->count() > 0) {
+                const int idx = std::min(std::max(0, characterId), static_cast<int>(characters->count()) - 1);
+                if (auto* art = dynamic_cast<PZGArtCharacter*>(characters->objectAtIndex(idx))) bike = art->getResource();
+            }
+        }
+        if (bike) {
+            const float h = std::max(1.f, bike->getContentSize().height);
+            bike->setAnchorPoint(Vec2(0.5f, 0.08f));
+            bike->setScale(_bikeHeight / h);
+            _rider->addChild(bike);
+        } else {
+            // Fallback when the art is missing: a simple drawn bike.
+            auto* d = DrawNode::create();
+            d->drawSolidCircle(Vec2(-22.f, 8.f), 9.f, 0.f, 16, PZUI::c4f(Color3B(30, 30, 36)));
+            d->drawSolidCircle(Vec2(22.f, 8.f), 9.f, 0.f, 16, PZUI::c4f(Color3B(30, 30, 36)));
+            d->drawSegment(Vec2(-22.f, 8.f), Vec2(0.f, 22.f), 3.f, PZUI::c4f(PZCfg::kColButton));
+            d->drawSegment(Vec2(0.f, 22.f), Vec2(22.f, 8.f), 3.f, PZUI::c4f(PZCfg::kColButton));
+            d->drawSegment(Vec2(0.f, 22.f), Vec2(-6.f, 32.f), 3.f, PZUI::c4f(PZCfg::kColButton));
+            _rider->addChild(d);
+        }
+        _rider->setPosition(Vec2(_x, _groundY + 2.f));
+
+        // A trail of coins ahead of the bike.
+        for (int i = 0; i < 3; ++i) {
+            CoinTrail c;
+            c.x = _x + 240.f + i * 58.f;
+            c.y = _groundY + 34.f;
+            c.node = PZUI::coinIcon(30.f);
+            addChild(c.node, 2);
+            c.node->setPosition(Vec2(c.x, c.y));
+            _coins.push_back(c);
+        }
+
+        if (interactive) {
+            auto* l = EventListenerTouchOneByOne::create();
+            l->setSwallowTouches(false);
+            l->onTouchBegan = [this](Touch* t, Event*) {
+                const Vec2 p = convertToNodeSpace(t->getLocation());
+                if (p.y < _groundY - 46.f || p.y > _groundY + 120.f) return false;   // only the lane band
+                hop();
+                return true;
+            };
+            getEventDispatcher()->addEventListenerWithSceneGraphPriority(l, this);
+
+            // New players get a one-line hint over the lane for the first seconds.
+            if (PZProgress::shared()->totalRuns() < 3) {
+                auto* hint = PZUI::heading(PZCfg::kStrStartHint, 8.f, PZCfg::kColAccent);
+                hint->setPosition(Vec2(_x, _groundY + 78.f));
+                addChild(hint, 5);
+                hint->runAction(Sequence::create(Spawn::create(MoveBy::create(4.f, Vec2(90.f, 0.f)), nullptr),
+                                                 FadeOut::create(0.6f), RemoveSelf::create(), nullptr));
+            }
+        }
+        scheduleUpdate();
+    }
+
+    void hop() {
+        if (_jumpT > 0.f) return;
+        _jumpT = _jumpDur = 0.52f;
+        _jumpH = 30.f;
+        PZHaptics::play(PZHaptics::Kind::Light);
+        PZAudio::play("fx_jump", 0.5f, 0.15f);
+        PZUI::burst(this, Vec2(_x, _groundY + 4.f), PZCfg::kColAccent2, 6, 34.f, 0.4f, 2);
+    }
+
+    struct CoinTrail {
+        ax::Node* node = nullptr;
+        float x = 0.f, y = 0.f;
+    };
+
+    Node* _rider = nullptr;
+    DrawNode* _shadow = nullptr;
+    std::vector<CoinTrail> _coins;
+    float _groundY = 0.f, _left = 0.f, _right = 0.f, _x = 0.f;
+    float _speed = 250.f, _clock = 0.f, _dustClock = 0.f, _autoHop = 1.6f;
+    static constexpr float _bikeHeight = 74.f;
+    float _jumpT = 0.f, _jumpDur = 0.52f, _jumpH = 30.f;
+    bool _interactive = false;
+};
 } // namespace
 
 void attachMenuWidgets(Node* menuLayer) {
     if (!menuLayer) return;
-    PZQA::install();   // TEMP-QA
     menuLayer->removeChildByTag(kTagMenuWidgets);
     auto* w = MenuWidgets::make(menuLayer);
     if (!w) return;
     w->setTag(kTagMenuWidgets);
     menuLayer->addChild(w, 450);
+    attachMenuShowcase(menuLayer, true);
+}
+
+void attachMenuShowcase(Node* menuLayer, bool interactive) {
+    if (!menuLayer) return;
+    PZCfg::ensureLoaded();
+    menuLayer->removeChildByTag(kTagMenuShowcase);
+    auto* s = MenuShowcase::make(interactive);
+    if (!s) return;
+    s->setTag(kTagMenuShowcase);
+    menuLayer->addChild(s, 448);
 }
 
 void refreshMenuWidgets(Node* menuLayer, bool allowDailyPopup) {

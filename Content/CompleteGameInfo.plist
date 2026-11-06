@@ -3924,11 +3924,17 @@
 			<key>className</key>
 			<string>PZGameInfoIAP</string>
 			<key>coinShop1_value</key>
-			<integer>100</integer>
+			<integer>1500</integer>
 			<key>coinShop2_value</key>
-			<integer>1000</integer>
+			<integer>3500</integer>
 			<key>coinShop3_value</key>
-			<integer>10000</integer>
+			<integer>6000</integer>
+			<key>coinShop4_value</key>
+			<integer>12000</integer>
+			<key>coinShop5_value</key>
+			<integer>25000</integer>
+			<key>coinShop6_value</key>
+			<integer>50000</integer>
 			<key>coinShop_enabled</key>
 			<false/>
 			<key>key</key>
@@ -7657,15 +7663,27 @@
 			<key>coinShop1_id</key>
 			<string>com.nextfiction.dinobikeescape.coin1</string>
 			<key>coinShop1_value</key>
-			<integer>1000</integer>
+			<integer>1500</integer>
 			<key>coinShop2_id</key>
 			<string>com.nextfiction.dinobikeescape.coin2</string>
 			<key>coinShop2_value</key>
-			<integer>2000</integer>
+			<integer>3500</integer>
 			<key>coinShop3_id</key>
 			<string>com.nextfiction.dinobikeescape.coin3</string>
 			<key>coinShop3_value</key>
-			<integer>3000</integer>
+			<integer>6000</integer>
+			<key>coinShop4_id</key>
+			<string>com.nextfiction.dinobikeescape.coin4</string>
+			<key>coinShop4_value</key>
+			<integer>12000</integer>
+			<key>coinShop5_id</key>
+			<string>com.nextfiction.dinobikeescape.coin5</string>
+			<key>coinShop5_value</key>
+			<integer>25000</integer>
+			<key>coinShop6_id</key>
+			<string>com.nextfiction.dinobikeescape.coin6</string>
+			<key>coinShop6_value</key>
+			<integer>50000</integer>
 			<key>coinShop_enabled</key>
 			<true/>
 			<key>key</key>
@@ -7783,7 +7801,7 @@
 					<key>Name</key>
 					<string>COIN MAGNET</string>
 					<key>Price</key>
-					<integer>60</integer>
+					<integer>1000</integer>
 					<key>UnlockLevel</key>
 					<integer>1</integer>
 					<key>Value</key>
@@ -7799,7 +7817,7 @@
 					<key>Name</key>
 					<string>TURBO START</string>
 					<key>Price</key>
-					<integer>90</integer>
+					<integer>1500</integer>
 					<key>UnlockLevel</key>
 					<integer>2</integer>
 					<key>Value</key>
@@ -7815,7 +7833,7 @@
 					<key>Name</key>
 					<string>FORCE SHIELD</string>
 					<key>Price</key>
-					<integer>120</integer>
+					<integer>2500</integer>
 					<key>UnlockLevel</key>
 					<integer>3</integer>
 					<key>Value</key>
@@ -7831,7 +7849,7 @@
 					<key>Name</key>
 					<string>JETPACK</string>
 					<key>Price</key>
-					<integer>160</integer>
+					<integer>4000</integer>
 					<key>UnlockLevel</key>
 					<integer>4</integer>
 					<key>Value</key>
@@ -7847,7 +7865,7 @@
 					<key>Name</key>
 					<string>HEAD START</string>
 					<key>Price</key>
-					<integer>100</integer>
+					<integer>6000</integer>
 					<key>UnlockLevel</key>
 					<integer>5</integer>
 					<key>Value</key>
@@ -7863,7 +7881,7 @@
 					<key>Name</key>
 					<string>ROCKET</string>
 					<key>Price</key>
-					<integer>180</integer>
+					<integer>9000</integer>
 					<key>UnlockLevel</key>
 					<integer>6</integer>
 					<key>Value</key>
@@ -7879,7 +7897,7 @@
 					<key>Name</key>
 					<string>LUCKY HELMET</string>
 					<key>Price</key>
-					<integer>150</integer>
+					<integer>13000</integer>
 					<key>UnlockLevel</key>
 					<integer>7</integer>
 					<key>Value</key>
@@ -7895,7 +7913,7 @@
 					<key>Name</key>
 					<string>BIKE CANNON</string>
 					<key>Price</key>
-					<integer>200</integer>
+					<integer>20000</integer>
 					<key>UnlockLevel</key>
 					<integer>8</integer>
 					<key>Value</key>
@@ -8719,6 +8737,10 @@
 			<real>300.0</real>
 			<key>ClusterMaxWidth</key>
 			<real>330.0</real>
+			<key>CoinDensity</key>
+			<real>0.5</real>
+			<key>CoinShapeMinCoins</key>
+			<integer>5</integer>
 			<key>ComboBonusCoins</key>
 			<integer>3</integer>
 			<key>ComboBonusEvery</key>

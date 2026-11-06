@@ -38,6 +38,11 @@ ax::Node* showGadgets(ax::Node* parent, std::function<void()> onClosed = nullptr
 void attachMenuWidgets(ax::Node* menuLayer);
 void refreshMenuWidgets(ax::Node* menuLayer, bool allowDailyPopup);
 
+// Live gameplay furniture for the menu screens: the player's bike runs along the bottom of the screen, hops, kicks up
+// dust and sweeps up coins. `interactive` also lets a tap on the lane make it jump (main menu); other screens get the
+// same running bike without stealing touches. Never used on the game-over screen.
+void attachMenuShowcase(ax::Node* menuLayer, bool interactive = false);
+
 // Shop: power-up charges for coins (tab 1) and coins from a rewarded video / store packs (tab 2).
 ax::Node* showShop(ax::Node* parent, std::function<void()> onClosed = nullptr, bool startOnCoins = false);
 

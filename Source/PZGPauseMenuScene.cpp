@@ -11,6 +11,7 @@
 #include "PZLegacyCompat.h"
 #include "SharedData/PZGSharedData.h"
 #include "PZGCoinShopScene.h"
+#include "Features/PZPopups.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     #include "Neocortex.h"
@@ -56,6 +57,7 @@ bool PZGPauseMenuScene::init()
 
 void PZGPauseMenuScene::load(const char* keyName){
     PZGBaseMenuScene::load( keyName );
+    PZPopups::attachMenuShowcase(this, false);
     
     PZSettingsController* sc = PZSettingsController::shared();
     

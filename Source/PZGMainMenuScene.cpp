@@ -8,6 +8,7 @@
 #include "MyObject-C-Interface.h"
 #include "2d/Label.h"
 #include "Features/PZPopups.h"
+#include "Features/PZUI.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
     #include <Foundation/Foundation.h>
@@ -189,6 +190,8 @@ void PZGMainMenuScene::onEnter(){
 
     // Refresh badges / best score and offer the daily reward when it is ready.
     PZPopups::refreshMenuWidgets(this, true);
+    // Coming back from a run: fade the menu in instead of cutting to it.
+    PZUI::fadeInScreen(this, 0.22f);
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
     AXLOGI("[DEBUG] CC_TARGET_PLATFORM != MAC, calling Neocortex");
@@ -397,8 +400,14 @@ void PZGMainMenuScene::menuStartGameCallback(Object* pSender) {
 
     if (pScene) {
         AXLOGI("menuStartGameCallback: About to call pDirector->pushScene()");
-        pDirector->pushScene(pScene);
-        AXLOGI("menuStartGameCallback: Scene pushed successfully");
+        // Fade the menu out before the run starts so the transition is a cut, not a pop. The scene is autoreleased, so
+        // hold a reference across the fade (the engine drains its pool every frame) and hand it to pushScene.
+        pScene->retain();
+        PZUI::fadeOutScreen(this, 0.18f, [pDirector, pScene]() {
+            pDirector->pushScene(pScene);
+            pScene->release();
+        });
+        AXLOGI("menuStartGameCallback: Scene push scheduled");
     } else {
         AXLOGE("menuStartGameCallback: pScene is null, cannot push scene");
     }

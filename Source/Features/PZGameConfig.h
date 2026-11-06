@@ -157,6 +157,7 @@ inline const char* kStrShopWatchAd   = "WATCH AD    +%d COINS";
 inline const char* kStrShopAdNote    = "OPTIONAL VIDEO - ONLY STARTS WHEN YOU TAP IT";
 inline const char* kStrShopPacks     = "COIN PACKS";
 inline const char* kStrShopBuy       = "BUY";
+inline const char* kStrShopSoon      = "SOON";   // pack whose store product id is not configured yet
 
 inline const char* kStrDailyTitle    = "DAILY REWARD";
 inline const char* kStrDailyDay      = "DAY %d";
@@ -224,6 +225,7 @@ inline bool kEnableFreeCoins   = true;   // rewarded-video free coins on the men
 inline bool kEnableDoubleCoins = true;   // rewarded-video coin doubler on the results screen
 inline bool kEnableBigAir      = true;   // bonus for long jumps
 inline bool kEnableStartGrace  = true;   // short safe window when a run starts
+inline bool kEnableCinematics  = true;   // bike entry + 3-2-1 start show, crash zoom + crowd on death
 
 // ---------------------------------------------------------------------------------------------
 // Tuning
@@ -288,12 +290,18 @@ inline float kClusterMaxWidth     = 330.0f;   // widest lethal cluster a single 
 inline float kClusterGap          = 300.0f;   // landing room required between clusters
 inline int   kArcCoinCount        = 5;
 inline float kArcHeight           = 150.0f;
+// Coin economy: only this fraction of the loose (single) coins is kept, so the track is not a carpet of gold. Hand-authored
+// shapes (a run of at least CoinShapeMinCoins coins, e.g. the BIKE-shaped group) always stay complete.
+inline float kCoinDensity         = 0.5f;
+inline int   kCoinShapeMinCoins   = 5;
 
 // Gameplay feel
 inline float kJumpBuffer          = 0.14f;    // seconds a too-early tap is remembered
 inline int   kMercyBestBelow      = 600;      // players whose best is below this get mercy saves ...
 inline int   kMercySaves          = 1;        // ... this many per run
-inline float kReadySeconds        = 0.6f;     // length of each 3-2-1 beat after a revive
+inline float kReadySeconds        = 0.78f;    // legible spoken/visual 3-2-1 beats for starts and revives
+inline float kReadyLeadSeconds    = 1.65f;    // keep the GET READY line on-screen for its full spoken clip
+inline float kIntroEntrySeconds   = 0.95f;    // bike entry duration; included in the world-freeze budget
 inline float kReviveTurbo         = 2.2f;     // turbo seconds granted on revive so the rider can't re-die at once
 inline float kStartGrace          = 1.2f;     // collision grace when a run begins
 inline float kBigAirMin           = 0.85f;    // seconds in the air that count as a trick
@@ -421,15 +429,16 @@ struct GadgetTemplate {
     int price = 100;       // coins per charge in the shop; every equipped gadget uses one charge at the start of a run
 };
 
+// Prices climb with the unlock level, from 1,000 coins for the first gadget to 20,000 for the last one.
 inline std::vector<GadgetTemplate> kGadgetPool = {
-    {"magnet",    "COIN MAGNET",  "PULLS COINS IN FOR 8 SECONDS",  "M", 1, 8.f,   60},
-    {"turbo",     "TURBO START",  "SMASH THROUGH EVERYTHING",      "T", 2, 5.f,   90},
-    {"shield",    "FORCE SHIELD", "BLOCKS ONE HIT OR FALL",        "S", 3, 12.f, 120},
-    {"jetpack",   "JETPACK",      "FLY OVER THE FIRST GAPS",       "J", 4, 6.f,  160},
-    {"headstart", "HEAD START",   "BEGIN 150M AHEAD",              "H", 5, 150.f, 100},
-    {"rocket",    "ROCKET",       "BLAST A PATH AHEAD",            "R", 6, 6.f,  180},
-    {"helmet",    "LUCKY HELMET", "ONE FREE HIT PER RUN",          "L", 7, 1.f,  150},
-    {"gun",       "BIKE CANNON",  "SHOOT OBSTACLES DOWN",          "G", 8, 7.f,  200},
+    {"magnet",    "COIN MAGNET",  "PULLS COINS IN FOR 8 SECONDS",  "M", 1, 8.f,   1000},
+    {"turbo",     "TURBO START",  "SMASH THROUGH EVERYTHING",      "T", 2, 5.f,   1500},
+    {"shield",    "FORCE SHIELD", "BLOCKS ONE HIT OR FALL",        "S", 3, 12.f,  2500},
+    {"jetpack",   "JETPACK",      "FLY OVER THE FIRST GAPS",       "J", 4, 6.f,   4000},
+    {"headstart", "HEAD START",   "BEGIN 150M AHEAD",              "H", 5, 150.f, 6000},
+    {"rocket",    "ROCKET",       "BLAST A PATH AHEAD",            "R", 6, 6.f,   9000},
+    {"helmet",    "LUCKY HELMET", "ONE FREE HIT PER RUN",          "L", 7, 1.f,  13000},
+    {"gun",       "BIKE CANNON",  "SHOOT OBSTACLES DOWN",          "G", 8, 7.f,  20000},
 };
 
 // Missions ------------------------------------------------------------------------------------

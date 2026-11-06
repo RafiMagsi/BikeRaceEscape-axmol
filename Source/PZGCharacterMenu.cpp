@@ -8,6 +8,7 @@
 
 #include "PZGCharacterMenu.h"
 #include "Features/PZGameConfig.h"
+#include "Features/PZPopups.h"
 #include "PZGGameFieldScene.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
@@ -108,6 +109,9 @@ void PZGCharacterMenu::load(const char* keyName){
 
     PZGBaseMenuScene::load( keyName );
     AXLOGI("PZGCharacterMenu::load: PZGBaseMenuScene::load completed");
+
+    // No bike lane here: the bike on this screen is the big preview the arrows switch, a second running copy under it
+    // just reads as a stray bike.
 
     PZSettingsController* sc = PZSettingsController::shared();
     if (!sc) {

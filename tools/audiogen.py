@@ -74,6 +74,28 @@ fx['fx_error']=mix(tone(150,0.25,0.002,1.5,(1,0.7,0.5)),tone(160,0.25,0.002,1.5,
 fx['fx_claim']=msum(at(chime(f,0.4),i*0.08) for i,f in enumerate([659,880,1175,1568]))
 fx['fx_helmet']=mix(tone(520,0.3,0.001,3.5,(1,0.7,0.5,0.4)), hp(noise(0.06),2000)*env(int(SR*0.06),0.001)*0.5)
 fx['fx_swoosh']=mix(hp(noise(0.3),1500)*tri(0.3,0.33)*0.5, sweep(300,900,0.3)*0.1)
+# crowd reactions + fire (start / death cinematics)
+# cheer: a band-limited crowd swell with whoops on top and a scatter of claps
+def crowdd(d, swell, fc=5200):
+    n=int(SR*d); tt=np.arange(n)/SR
+    e=np.minimum(1, tt*swell)*np.exp(-1.8*tt)
+    return hp(lp(noise(d),fc),380)*e
+cheer=crowdd(1.5,5.0)
+for i,off in enumerate([0.02,0.13,0.26,0.41,0.58,0.74]):
+    f0=520+170*i
+    cheer=mix(cheer, at(sweep(f0,f0*1.9,0.32)*env(int(SR*0.32),0.02,power=1.6)*0.26, off))
+for i in range(14):
+    cheer=mix(cheer, at(hp(noise(0.05),2500)*env(int(SR*0.05),0.0,power=3)*0.5, 0.02+0.095*i+rng.uniform(0,0.05)))
+fx['fx_crowd_cheer']=norm(cheer,0.85)
+# disappointed crowd: a low "booo" with vibrato plus a muffled murmur
+d=1.25
+boo=mix(sweep(195,108,d,True)*(1+0.02*np.sin(2*np.pi*6*t(d)))*np.linspace(0.30,1,int(SR*d))*env(int(SR*d),0.05,power=1.5),
+        lp(noise(d),650)*env(int(SR*d),0.04,power=1.8)*0.6)
+fx['fx_crowd_boo']=boo
+# fire / impact whoosh with crackle
+fx['fx_fire']=mix(lp(noise(0.9),1500)*tri(0.9,0.2)*0.9,
+                  sweep(170,60,0.8,True)*env(int(SR*0.8),0.01,power=1.6)*0.5,
+                  *[at(hp(noise(0.04),3000)*env(int(SR*0.04),0.0,power=3)*0.4, 0.10+i*0.07) for i in range(8)])
 # legacy indices the game already references but never shipped: 4 = shot, 5/6/7 = obstacle deaths
 legacy={'Sounds_4':fx['fx_shot'],'Sounds_5':boom(220,0.5,2200),'Sounds_6':mix(boom(160,0.55,1500),hp(noise(0.2),900)*env(int(SR*0.2),0.001,power=3)*0.4),'Sounds_7':boom(260,0.45,2800)}
 if len(sys.argv)<2 or sys.argv[1]!='voice':
@@ -85,10 +107,12 @@ lines={'vo_go':'Go!','vo_second_chance':'Second chance!','vo_get_ready':'Get rea
  'vo_jetpack':'Jetpack!','vo_rocket':'Rocket bike!','vo_gun':'Gun mode!','vo_turbo':'Turbo!','vo_magnet':'Magnet!','vo_helmet':'Lucky helmet!',
  'vo_new_best':'New best!','vo_stage':'Stage up!','vo_mission':'Mission complete!','vo_big_air':'Big air!','vo_close_call':'Close call!',
  'vo_smash':'Smash!','vo_welcome':'Welcome back!','vo_revived':"Let's go!",'vo_3':'Three','vo_2':'Two','vo_1':'One','vo_combo':'Combo!','vo_game_over':'Game over'}
-for name,text in lines.items():
-    aiff=f'{TMP}/{name}.aiff'
-    subprocess.run(['say','-v',VOICE,'-r','150','-o',aiff,text],check=True)
-    # deep trailer-voice grade: pitch down ~12%, low shelf boost, compress, slight slap echo
-    af='asetrate=22050*0.88,aresample=22050,atempo=1.1,equalizer=f=140:t=q:w=1.0:g=6,equalizer=f=3200:t=q:w=1.5:g=3,acompressor=threshold=-18dB:ratio=4:makeup=6,aecho=0.6:0.5:70:0.25,alimiter=limit=0.9'
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-i',aiff,'-af',af,'-ac','1','-ar','22050','-b:a','56k',f'{OUT}/{name}.mp3'],check=True)
+# `python3 tools/audiogen.py fx` regenerates the effects only (no macOS `say` voices).
+if len(sys.argv)<2 or sys.argv[1] not in ('fx','effects'):
+    for name,text in lines.items():
+        aiff=f'{TMP}/{name}.aiff'
+        subprocess.run(['say','-v',VOICE,'-r','150','-o',aiff,text],check=True)
+        # deep trailer-voice grade: pitch down ~12%, low shelf boost, compress, slight slap echo
+        af='asetrate=22050*0.88,aresample=22050,atempo=1.1,equalizer=f=140:t=q:w=1.0:g=6,equalizer=f=3200:t=q:w=1.5:g=3,acompressor=threshold=-18dB:ratio=4:makeup=6,aecho=0.6:0.5:70:0.25,alimiter=limit=0.9'
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',aiff,'-af',af,'-ac','1','-ar','22050','-b:a','56k',f'{OUT}/{name}.mp3'],check=True)
 print('done')

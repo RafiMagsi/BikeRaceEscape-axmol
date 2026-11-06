@@ -14,6 +14,7 @@
 #include "PZGameConfig.h"
 #include "PZProgress.h"
 #include <chrono>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -107,13 +108,25 @@ private:
     void cameraReset(float duration);
     void shakeScene(float amplitude, float duration);   // shake that respects the current camera position
     void setHudVisible(bool visible);
-    void beginReadyCountdown();          // 3-2-1 with the world held, then the run resumes
+    // 3-2-1 with the world held, then the run resumes. `revive` also grants the revive turbo + clear.
+    void beginReadyCountdown(bool revive = true);
+    // Start-of-run show: the bike rides in from the left while the camera is pushed in on it, the HUD arrives with
+    // the countdown and the crowd cheers on GO.
+    void beginIntro();
+    void startIntroNow();
+    void animateHudIn();
+    // Death show: hold, push in on the wreck, fire + disappointed crowd, pull back (then the revive offer).
+    void beginDeathCinematic(std::function<void()> completion);
+    void openCinematicFrame();
+    void closeCinematicFrame(float duration);
+    bool groundRiderNow();               // snap the rider onto the platform under it and re-enable taps
     void startRocket();
     void endRocket();
     void fireAt(PZGObstacle* target);
     bool safeLandHere(float& outY);      // true when there is platform under the rider
     float cruiseLine();                  // y a powered ride should hold (ground-relative, never in a pit)
     bool  nearestSurface(float& outY);   // surface height under the rider, else the closest platform ahead/behind
+    bool  runwayAhead(float need);       // solid ground under the rider that keeps going for `need` units
     float _lastGroundY = 0.f;            // last known platform surface (fallback while over a gap)
     bool  _haveGroundY = false;
     void applyGadgets();
@@ -190,6 +203,10 @@ private:
     int   _mercyUsed = 0;
     bool  _readyCountdown = false;
     bool  _cinematic = false;
+    bool  _introActive = false;          // start-of-run show is running
+    bool  _introTip1Visible = false;
+    bool  _introTip2Visible = false;
+    ax::Node* _cinematicFrame = nullptr;
     ax::Vec2 _camPos = ax::Vec2::ZERO;
     float _camScale = 1.f;
     std::vector<std::pair<ax::Node*, bool>> _hiddenHud;   // nodes hidden during a cinematic (restored afterwards)

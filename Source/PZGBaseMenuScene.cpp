@@ -12,7 +12,10 @@
 #include "Features/PZLayout.h"
 #include "PZSettingsController.h"
 #include "PZGCoinShopScene.h"
+#include "Features/PZPopups.h"
+#include "Features/PZUI.h"
 #include "constants.h"
+#include <cstring>
 #include "Ads/AdsController.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
@@ -185,8 +188,16 @@ void PZGBaseMenuScene::load(const char* keyName){
     if (!pMenu->getChildren().empty()) {
         this->addChild(pMenu, 302);
         AXLOGI("PZGBaseMenuScene::load - Added menu with {} items", pMenu->getChildren().size());
+        // Buttons arrive one after the other instead of all appearing at once.
+        PZUI::stagger(pMenu, 0.055f, 0.12f);
     } else {
         AXLOGI("PZGBaseMenuScene::load - Menu is empty, no items added");
+    }
+
+    // The main menu fades in from onEnter; the game field has its own cinematic intro.
+    // Avoid stacking a second black overlay on either screen.
+    if (!keyName || (std::strcmp(keyName, "InterfaceGF") != 0 && std::strcmp(keyName, "InterfaceMM") != 0)) {
+        PZUI::fadeInScreen(this);
     }
 
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
@@ -249,20 +260,10 @@ void PZGBaseMenuScene::coinShopCallback(Object* pSender) {
     if(buttonClickedSound){
         buttonClickedSound->playAsSound( false );
     }
-    
-    auto* pDirector = Director::getInstance();
 
-    // Avoid assuming scene()->children[0] exists. Build explicitly so failures are handled.
-    auto* pScene = Scene::create();
-    auto* layer = PZGCoinShopScene::create();
-    if (!pScene || !layer) {
-        AXLOGE("coinShopCallback: failed to create coin shop (scene={}, layer={})", (void*)pScene, (void*)layer);
-        return;
-    }
-    pScene->addChild(layer);
-    layer->load("InterfaceCoinShop");
-    pDirector->pushScene(pScene);
-    
+    // The coin store is the SHOP overlay's COINS tab now: same six packs, plus the rewarded-video top-up, in the
+    // code-drawn style the rest of the meta UI uses (the old three-pack InterfaceCoinShop scene is retired).
+    PZPopups::showShop(this, [this]() { PZPopups::refreshMenuWidgets(this, false); }, true);
 }
 
 void PZGBaseMenuScene::offKidModeCallback(Object* pSender){

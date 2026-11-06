@@ -59,6 +59,7 @@ private:
     ax::Color3B _color;
     std::function<void()> _onTap;
     ax::DrawNode* _bg = nullptr;
+    ax::DrawNode* _glow = nullptr;   // animated frame: a warm ring that breathes around the pill
     ax::Label* _label = nullptr;
     ax::Node* _badge = nullptr;
     bool _active = true;
@@ -77,9 +78,22 @@ void glitter(ax::Node* parent, const ax::Vec2& pos, const ax::Color3B& color, in
 void floatText(ax::Node* parent, const std::string& text, const ax::Vec2& pos, const ax::Color3B& color,
                float size = 14.f, int z = 950);
 
-// Big banner that slides in, holds, and slides out (stage changes, new best, ...).
+// Big banner that slides in, holds, and slides out (stage changes, new best, ...). Banners are QUEUED: only one is on
+// screen at a time, the next one waits `kGap` seconds after the previous one starts to leave, so a burst of events
+// (mission complete + stage up + get ready ...) is never stacked on top of itself. Duplicate requests are merged.
 void banner(ax::Node* parent, const std::string& title, const std::string& sub, const ax::Color3B& color,
             float y, float hold = 1.2f, int z = 960);
+
+// Entrance animation: the node slides in from the side (or from below) while scaling up and fading in. The node keeps
+// its own scale/position as the target, so it is safe on laid-out widgets and labels with custom scales.
+void enterIn(ax::Node* node, float delay = 0.f, bool fromRight = false, float distance = 40.f);
+
+// Runs enterIn() over the children of `parent` one after the other (menus, popup content, HUD rows).
+void stagger(ax::Node* parent, float step = 0.05f, float startDelay = 0.03f, int skipFirst = 0);
+
+// Screen transition helpers: fade from / to black. `then` runs when the fade-out has finished.
+void fadeInScreen(ax::Node* layer, float duration = 0.28f);
+void fadeOutScreen(ax::Node* layer, float duration, std::function<void()> then = nullptr);
 
 // Decaying positional shake that restores `node` to `home`.
 void shake(ax::Node* node, const ax::Vec2& home, float amplitude, float duration);

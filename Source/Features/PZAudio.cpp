@@ -108,7 +108,8 @@ void sayLabel(const std::string& text) {
 
 void preload() {
     static const char* names[] = {"fx_jump", "fx_land", "fx_powerup", "fx_explosion", "fx_smash", "fx_tick", "fx_open",
-                                  "fx_buy", "fx_blast", "fx_crash", "vo_go", "vo_second_chance", "vo_get_ready"};
+                                  "fx_buy", "fx_blast", "fx_crash", "fx_go_hit", "fx_crowd_cheer", "fx_crowd_boo",
+                                  "fx_fire", "vo_go", "vo_second_chance", "vo_get_ready", "vo_3", "vo_2", "vo_1"};
     for (const char* n : names) {
         const std::string p = pathFor(n);
         if (exists(p)) ax::AudioEngine::preload(p);

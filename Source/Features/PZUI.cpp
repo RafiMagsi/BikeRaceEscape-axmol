@@ -6,7 +6,9 @@
 #include "PZAudio.h"
 #include "SharedData/PZGSharedData.h"
 #include "SharedData/PZGArtCoins.h"
+#include <algorithm>
 #include <cmath>
+#include <deque>
 #include <unordered_map>
 #include <vector>
 
@@ -16,6 +18,67 @@ namespace PZUI {
 
 namespace {
 constexpr int kShakeTag = 7731;
+constexpr int kEnterTag = 7734;
+constexpr float kBannerGap = 0.6f;    // leave a readable beat between consecutive notifications
+constexpr size_t kBannerQueueMax = 6;
+
+struct BannerReq {
+    Node* parent = nullptr;
+    std::string title, sub;
+    Color3B color;
+    float y = 0.f, hold = 1.f;
+    int z = 960;
+};
+
+std::deque<BannerReq>& bannerQueue() {
+    static std::deque<BannerReq> q;
+    return q;
+}
+float& bannerBusy() { static float v = 0.f; return v; }
+float& bannerGap()  { static float v = 0.f; return v; }
+
+void playBanner(const BannerReq& r);      // defined next to banner() below
+
+void pumpBanners(float dt) {
+    if (bannerBusy() > 0.f) {
+        bannerBusy() -= dt;
+        return;
+    }
+    if (bannerGap() > 0.f) {
+        bannerGap() -= dt;
+        return;
+    }
+    auto& q = bannerQueue();
+    while (!q.empty()) {
+        BannerReq r = q.front();
+        q.pop_front();
+        if (!r.parent) continue;
+        if (!r.parent->getScene()) {
+            r.parent->release();
+            continue;
+        }
+        playBanner(r);
+        r.parent->release();
+        return;
+    }
+}
+
+// One driver node, re-parented to whatever scene is running, that drains the banner queue.
+void ensureBannerDriver() {
+    static Node* driver = nullptr;
+    Scene* scene = Director::getInstance()->getRunningScene();
+    if (!scene) return;
+    if (!driver) {
+        driver = Node::create();
+        driver->retain();
+    }
+    if (driver->getParent() != scene) {
+        driver->removeFromParent();
+        driver->unschedule("pz_banner_pump");
+        scene->addChild(driver, 5000);
+        driver->schedule([](float d) { pumpBanners(d); }, "pz_banner_pump");
+    }
+}
 
 void roundedPoints(std::vector<Vec2>& pts, float w, float h, float r) {
     r = std::min(r, std::min(w, h) * 0.5f);
@@ -260,6 +323,7 @@ bool Button::initButton(const std::string& text, float w, float h, const Color3B
 
 void Button::rebuild() {
     if (_bg) _bg->removeFromParent();
+    if (_glow) _glow->removeFromParent();
     if (_label) _label->removeFromParent();
     // Orange-pill look from the original UI: drop shadow, white outline, glossy two-tone body.
     const Color3B base = _active ? _color : Color3B(96, 98, 108);
@@ -276,6 +340,15 @@ void Button::rebuild() {
     add(roundedRect(_w - 22.f, _h * 0.26f, r * 0.4f, light, 0.55f, light, 0.f, 0.f), Vec2(0, _h * 0.22f));
     _bg->setPosition(Vec2(_w * 0.5f, _h * 0.5f));
     addChild(_bg, 0);
+    // Animated button frame: a gold ring that quietly breathes around the outline so idle buttons never look static.
+    if (_active) {
+        _glow = roundedRect(_w + 11.f, _h + 11.f, r + 5.f, Color3B(0, 0, 0), 0.f, PZCfg::kColAccent, 0.55f, 2.f);
+        _glow->setPosition(Vec2(_w * 0.5f, _h * 0.5f));
+        addChild(_glow, -1);
+        _glow->runAction(RepeatForever::create(Sequence::create(FadeTo::create(0.9f, 70.f), FadeTo::create(0.9f, 255.f), nullptr)));
+    } else {
+        _glow = nullptr;
+    }
     _label = heading(_text, _fontSize, _active ? PZCfg::kColText : PZCfg::kColDim);
     _label->setPosition(Vec2(_w * 0.5f, _h * 0.5f + 1.f));
     // Shrink long captions to fit.
@@ -371,37 +444,114 @@ void floatText(Node* parent, const std::string& text, const Vec2& pos, const Col
         RemoveSelf::create(), nullptr));
 }
 
-void banner(Node* parent, const std::string& title, const std::string& sub, const Color3B& color, float y, float hold, int z) {
-    if (!parent) return;
-    PZAudio::sayLabel(title);       // every banner announces itself (see PZAudio bindings)
+namespace {
+
+// Builds and plays one banner (only the queue calls this).
+void playBanner(const BannerReq& r) {
+    Node* parent = r.parent;
+    if (!parent || !parent->getScene()) return;
+    PZAudio::sayLabel(r.title);       // every banner announces itself (see PZAudio bindings)
     const Size win = Director::getInstance()->getWinSize();
     auto* box = Node::create();
     box->setCascadeOpacityEnabled(true);
-    box->setPosition(Vec2(win.width * 0.5f, y));
-    auto* t = heading(title, 30.f, color);
-    t->setPositionY(sub.empty() ? 0.f : 12.f);
+    box->setPosition(Vec2(win.width * 0.5f, r.y));
+    auto* t = heading(r.title, 30.f, r.color);
+    t->setPositionY(r.sub.empty() ? 0.f : 12.f);
     box->addChild(t, 1);
     float w = t->getContentSize().width;
     float h = 44.f;
-    if (!sub.empty()) {
-        auto* s = heading(sub, 13.f, PZCfg::kColText);
+    if (!r.sub.empty()) {
+        auto* s = heading(r.sub, 13.f, PZCfg::kColText);
         s->setPositionY(-22.f);
         box->addChild(s, 1);
         w = std::max(w, s->getContentSize().width);
         h = 74.f;
     }
     // Dark plate behind the text: banners sit over busy gameplay art and the menu logo, where bare text is unreadable.
-    auto* plate = roundedRect(w + 56.f, h, h * 0.5f, PZCfg::kColPanel, 0.88f, color, 0.85f, 3.f);
-    plate->setPosition(Vec2(0.f, sub.empty() ? 0.f : -5.f));
+    auto* plate = roundedRect(w + 56.f, h, h * 0.5f, PZCfg::kColPanel, 0.88f, r.color, 0.85f, 3.f);
+    plate->setPosition(Vec2(0.f, r.sub.empty() ? 0.f : -5.f));
     box->addChild(plate, 0);
     box->setScale(0.2f);
     box->setOpacity(0);
-    parent->addChild(box, z);
+    parent->addChild(box, r.z);
     box->runAction(Sequence::create(
         Spawn::create(EaseBackOut::create(ScaleTo::create(0.32f, 1.f)), FadeIn::create(0.2f), nullptr),
-        DelayTime::create(hold),
+        DelayTime::create(r.hold),
         Spawn::create(MoveBy::create(0.3f, Vec2(0, 30)), FadeOut::create(0.3f), nullptr),
         RemoveSelf::create(), nullptr));
+    bannerBusy() = 0.32f + r.hold + 0.30f;
+    bannerGap() = kBannerGap;
+}
+
+} // namespace
+
+void banner(Node* parent, const std::string& title, const std::string& sub, const Color3B& color, float y, float hold, int z) {
+    if (!parent) return;
+    auto& q = bannerQueue();
+    // Merge a request that is already waiting (the same label twice in a frame is noise, not two messages).
+    for (const auto& e : q) {
+        if (e.parent == parent && e.title == title && e.sub == sub) return;
+    }
+    if (q.size() >= kBannerQueueMax) {
+        q.front().parent->release();
+        q.pop_front();                                   // never let a burst pile up
+    }
+    parent->retain();
+    q.push_back({parent, title, sub, color, y, hold, z});
+    ensureBannerDriver();
+}
+
+// ---- entrance animations ---------------------------------------------------------------------
+
+void enterIn(Node* node, float delay, bool fromRight, float distance) {
+    if (!node) return;
+    const Vec2 home = node->getPosition();
+    const Vec2 targetScale(node->getScaleX(), node->getScaleY());
+    const Vec2 offset = fromRight ? Vec2(distance, 0.f) : Vec2(0.f, -distance);
+    node->stopActionByTag(kEnterTag);
+    node->setPosition(home + offset);
+    node->setScale(targetScale.x * 0.86f, targetScale.y * 0.86f);
+    node->setOpacity(0);
+    node->setCascadeOpacityEnabled(true);
+    auto* act = Sequence::create(
+        DelayTime::create(std::max(0.f, delay)),
+        Spawn::create(MoveTo::create(0.26f, home), EaseBackOut::create(ScaleTo::create(0.26f, targetScale.x, targetScale.y)),
+                      FadeIn::create(0.2f), nullptr),
+        nullptr);
+    act->setTag(kEnterTag);
+    node->runAction(act);
+}
+
+void stagger(Node* parent, float step, float startDelay, int skipFirst) {
+    if (!parent) return;
+    const auto& kids = parent->getChildren();
+    for (size_t i = 0; i < kids.size(); ++i) {
+        if (static_cast<int>(i) < skipFirst) continue;
+        auto* c = kids.at(i);
+        if (!c || !c->isVisible()) continue;
+        enterIn(c, startDelay + step * static_cast<float>(i - std::max(0, skipFirst)), false, 18.f);
+    }
+}
+
+void fadeInScreen(Node* layer, float duration) {
+    if (!layer) return;
+    const Size win = Director::getInstance()->getWinSize();
+    auto* black = LayerColor::create(Color4B(0, 0, 0, 255), win.width, win.height);
+    layer->addChild(black, 6000);
+    black->runAction(Sequence::create(FadeOut::create(std::max(0.05f, duration)), RemoveSelf::create(), nullptr));
+}
+
+void fadeOutScreen(Node* layer, float duration, std::function<void()> then) {
+    if (!layer) { if (then) then(); return; }
+    const Size win = Director::getInstance()->getWinSize();
+    auto* black = LayerColor::create(Color4B(0, 0, 0, 0), win.width, win.height);
+    layer->addChild(black, 6000);
+    auto* seq = Sequence::create(FadeIn::create(std::max(0.05f, duration)),
+                                 CallFunc::create([black, then]() {
+                                     if (then) then();
+                                     black->removeFromParent();
+                                 }), nullptr);
+    black->runAction(seq);
 }
 
 void shake(Node* node, const Vec2& home, float amplitude, float duration) {

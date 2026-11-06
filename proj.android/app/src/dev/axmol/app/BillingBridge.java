@@ -34,7 +34,7 @@ public class BillingBridge {
     private static boolean connecting;
     private static Runnable pendingAction;
 
-    private static final String[] CONSUMABLE_SUFFIXES = {".coin1", ".coin2", ".coin3"};
+    private static final String[] CONSUMABLE_SUFFIXES = {".coin1", ".coin2", ".coin3", ".coin4", ".coin5", ".coin6"};
 
     public static void init(Activity a) {
         UI.post(() -> {

@@ -123,7 +123,17 @@ JNIEXPORT jstring Java_com_kayabit_store_PZStoreAssetsHelper_nvGetCoinPackStoreI
             return NULL;
         }
     }
+    else if (pack_id == 4){
+        return iapInfo->coinShop4_id ? (jstring)env->NewStringUTF(iapInfo->coinShop4_id->getCString()) : NULL;
+    }
+    else if (pack_id == 5){
+        return iapInfo->coinShop5_id ? (jstring)env->NewStringUTF(iapInfo->coinShop5_id->getCString()) : NULL;
+    }
+    else if (pack_id == 6){
+        return iapInfo->coinShop6_id ? (jstring)env->NewStringUTF(iapInfo->coinShop6_id->getCString()) : NULL;
+    }
 
+    return NULL;
 } 
 
 JNIEXPORT jint Java_com_kayabit_store_PZStoreAssetsHelper_nvGetCoinPackValue(JNIEnv *env, jobject thiz, jint pack_id ){
@@ -144,6 +154,16 @@ JNIEXPORT jint Java_com_kayabit_store_PZStoreAssetsHelper_nvGetCoinPackValue(JNI
     else if (pack_id == 3){
         return iapInfo->coinShop3_value;
     }
+    else if (pack_id == 4){
+        return iapInfo->coinShop4_value;
+    }
+    else if (pack_id == 5){
+        return iapInfo->coinShop5_value;
+    }
+    else if (pack_id == 6){
+        return iapInfo->coinShop6_value;
+    }
+    return 0;
 }
 
 #ifdef __cplusplus

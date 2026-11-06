@@ -31,13 +31,20 @@ public:
     ax::__String*      kidMode_id;
 
     bool                    coinShop_enabled;
+    // Six coin packs (the shop lists all six; a pack whose product id is empty is shown as not yet available).
     int                     coinShop1_value;
     int                     coinShop2_value;
     int                     coinShop3_value;
-    
+    int                     coinShop4_value;
+    int                     coinShop5_value;
+    int                     coinShop6_value;
+
     ax::__String*      coinShop1_id;
     ax::__String*      coinShop2_id;
     ax::__String*      coinShop3_id;
+    ax::__String*      coinShop4_id;
+    ax::__String*      coinShop5_id;
+    ax::__String*      coinShop6_id;
     
     ax::__String*      storeKey;
     

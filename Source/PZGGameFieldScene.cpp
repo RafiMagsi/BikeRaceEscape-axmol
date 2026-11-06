@@ -853,6 +853,12 @@ void PZGGameFieldScene::gameOverCallBack(bool _isGameOver){
         if (run) {
             run->presentResults(gameOverScene, gameOverScene->font);
         }
+        // The screen itself arrives with a beat (the stats were already animated by presentResults).
+        gameOverScene->setCascadeOpacityEnabled(true);
+        gameOverScene->setOpacity(0);
+        gameOverScene->setScale(0.94f);
+        gameOverScene->runAction(Spawn::create(EaseBackOut::create(ScaleTo::create(0.3f, 1.f)),
+                                               FadeIn::create(0.24f), nullptr));
         
         Menu *menu = (Menu*)this->getChildByTag( kBaseMenuItemTag );
         if (menu) {

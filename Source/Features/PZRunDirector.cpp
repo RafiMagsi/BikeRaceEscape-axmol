@@ -29,6 +29,13 @@ constexpr int kZOrb   = 125;
 constexpr int kZHud   = 1001;
 constexpr int kZFx    = 900;
 constexpr int kZFlash = 940;
+constexpr int kIntroDelayTag = 7740;
+constexpr int kIntroRideTag = 7741;
+constexpr int kCountdownTag = 7742;
+constexpr int kDeathShowTag = 7743;
+constexpr int kCameraActionTag = 7732;
+constexpr int kCameraSnapTag = 7744;
+constexpr int kCrowdCueTag = 7745;
 
 float rnd(float lo, float hi) { return lo + (hi - lo) * CCRANDOM_0_1(); }
 } // namespace
@@ -259,6 +266,7 @@ void PZRunDirector::refreshGadgetStrip() {
 }
 
 void PZRunDirector::clearRunVisuals() {
+    if (_cinematicFrame) closeCinematicFrame(0.08f);
     for (auto& o : _orbs) {
         if (o.node) o.node->removeFromParent();
     }
@@ -285,6 +293,21 @@ void PZRunDirector::clearRunVisuals() {
 // ---- run lifecycle ---------------------------------------------------------------------------
 
 void PZRunDirector::startRun() {
+    for (int tag : {kIntroDelayTag, kIntroRideTag, kCountdownTag, kDeathShowTag, kCrowdCueTag}) stopActionByTag(tag);
+    if (_cinematicFrame) {
+        _cinematicFrame->removeFromParent();
+        _cinematicFrame = nullptr;
+    }
+    _cinematic = false;
+    _readyCountdown = false;
+    _introActive = false;
+    _scene->stopActionByTag(kCameraActionTag);
+    _scene->stopActionByTag(kCameraSnapTag);
+    _camScale = 1.f;
+    _camPos = Vec2::ZERO;
+    _scene->setScale(1.f);
+    _scene->setPosition(Vec2::ZERO);
+    setHudVisible(true);
     clearRunVisuals();
     PZProgress::shared()->refreshMissions();
     { static bool audioReady = false; if (!audioReady) { audioReady = true; PZAudio::preload(); } }
@@ -325,10 +348,147 @@ void PZRunDirector::startRun() {
     refreshGadgetStrip();
     refreshHud();
 
-    const float winH = Director::getInstance()->getWinSize().height;
-    const bool newcomer = PZProgress::shared()->bestScore() <= 0;
-    PZUI::banner(_scene, PZCfg::kStrGo, newcomer ? PZCfg::kStrStartHint : "", PZCfg::kColGood, winH * 0.62f, 1.15f);
+    _introActive = false;
+    _introTip1Visible = _scene->tip1 && _scene->tip1->isVisible();
+    _introTip2Visible = _scene->tip2 && _scene->tip2->isVisible();
+    beginIntro();
     PZHaptics::play(PZHaptics::Kind::Selection);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Start-of-run show: hold the world, ride the bike in from the left while the camera is pushed in, then
+// "GET READY ... 3 2 1 GO!" while the HUD drops in, and the crowd cheers as the run starts.
+// ------------------------------------------------------------------------------------------------
+void PZRunDirector::beginIntro() {
+    if (!_scene || !_scene->character || !_scene->character->p_body) return;
+    if (!PZCfg::kEnableCinematics) {   // reskin switch: no start show, just the classic GO banner
+        const float winH = Director::getInstance()->getWinSize().height;
+        PZUI::banner(_scene, PZCfg::kStrGo, PZCfg::kStrStartHint, PZCfg::kColGood, winH * 0.62f, 1.0f);
+        return;
+    }
+    _introActive = true;
+    // The platform generator fills the world in its first update, so start the show one beat later.
+    auto* intro = Sequence::create(DelayTime::create(0.30f),
+                                   CallFunc::create([this]() { startIntroNow(); }), nullptr);
+    intro->setTag(kIntroDelayTag);
+    runAction(intro);
+}
+
+void PZRunDirector::openCinematicFrame() {
+    Node* host = _scene && _scene->getParent() ? _scene->getParent() : _scene;
+    if (!host) return;
+    if (_cinematicFrame) _cinematicFrame->removeFromParent();
+
+    const Size win = Director::getInstance()->getWinSize();
+    const float barHeight = std::max(28.f, win.height * 0.075f);
+    auto* frame = Node::create();
+    _cinematicFrame = frame;
+    host->addChild(frame, 5000);
+
+    auto makeBar = [frame, win, barHeight](float y, float fromY, float toY) {
+        auto* bar = LayerColor::create(Color4B(7, 10, 20, 236), win.width, barHeight);
+        bar->setPosition(Vec2(0.f, fromY));
+        frame->addChild(bar);
+        auto* edge = LayerColor::create(Color4B(255, 188, 74, 170), win.width, 2.f);
+        edge->setPosition(Vec2(0.f, y < win.height * 0.5f ? barHeight - 2.f : 0.f));
+        bar->addChild(edge);
+        bar->runAction(EaseOut::create(MoveTo::create(0.28f, Vec2(0.f, toY)), 2.f));
+    };
+    makeBar(0.f, -barHeight, 0.f);
+    makeBar(win.height, win.height, win.height - barHeight);
+}
+
+void PZRunDirector::closeCinematicFrame(float duration) {
+    Node* frame = _cinematicFrame;
+    _cinematicFrame = nullptr;
+    if (!frame) return;
+    const Size win = Director::getInstance()->getWinSize();
+    const float barHeight = std::max(28.f, win.height * 0.075f);
+    const auto& children = frame->getChildren();
+    for (auto* child : children) {
+        if (!child) continue;
+        const float targetY = child->getPositionY() < win.height * 0.5f ? -barHeight : win.height;
+        child->runAction(Sequence::create(
+            Spawn::create(EaseIn::create(MoveTo::create(std::max(0.08f, duration), Vec2(0.f, targetY)), 2.f),
+                          FadeOut::create(std::max(0.08f, duration)), nullptr),
+            nullptr));
+    }
+    frame->runAction(Sequence::create(DelayTime::create(std::max(0.08f, duration) + 0.03f),
+                                      RemoveSelf::create(), nullptr));
+}
+
+void PZRunDirector::startIntroNow() {
+    if (!_introActive || !_scene || !_scene->character || !_scene->character->p_body) return;
+    PZGCharacter* ch = _scene->character;
+    const Size win = Director::getInstance()->getWinSize();
+
+    // The bike enters on the first real platform (never at the bottom of a pit).
+    float gy = win.height * 0.30f;
+    if (!nearestSurface(gy)) gy = win.height * 0.30f;
+    const float offset = _haveOffset ? _riderOffset : 30.f;
+    const float restX = win.width / 5.f;
+    const float startX = -win.width * 0.12f;
+
+    _cinematic = true;                       // no taps, no kicks while the show runs
+    freezeFor(PZCfg::kIntroEntrySeconds + PZCfg::kReadyLeadSeconds +
+              PZCfg::kReadySeconds * 3.f + 0.9f);   // released explicitly at GO
+    openCinematicFrame();
+    setHudVisible(false);
+    if (_scene->tip1) _scene->tip1->setVisible(false);
+    if (_scene->tip2) _scene->tip2->setVisible(false);
+
+    ch->p_body->SetGravityScale(0.f);
+    ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+    ch->setLoc(Vec2(startX, gy + offset + 8.f));
+    ch->jump_counter = 1;
+
+    // Camera pushed in on the left where the bike comes to a stop.
+    const Vec2 rest(restX, gy + offset + 24.f);
+    const Vec2 anchor(win.width * 0.32f, win.height * 0.52f);
+    cameraTo(rest, 1.32f, 0.45f, &anchor);
+
+    auto* slide = ActionFloat::create(PZCfg::kIntroEntrySeconds, 0.f, 1.f, [this, startX, restX, gy, offset](float t) {
+        if (!_scene || !_scene->character) return;
+        const float e = 1.f - std::pow(1.f - t, 3.f);
+        const float hop = std::sin(t * static_cast<float>(M_PI)) * 10.f;
+        const float settle = t > 0.82f ? std::sin((t - 0.82f) * static_cast<float>(M_PI) / 0.18f) * 2.5f : 0.f;
+        _scene->character->setLoc(Vec2(startX + (restX - startX) * e, gy + offset + 8.f + hop + settle));
+        _scene->character->update(0.f);   // the world is held: the sprite only follows the body through this
+    });
+    auto* entrance = Sequence::create(slide,
+        CallFunc::create([this, offset, gy]() {
+            if (!_scene || !_scene->character || !_scene->character->p_body) return;
+            PZGCharacter* ch = _scene->character;
+            // Park on the surface the camera is already looking at (never at the bottom of a pit under it).
+            ch->setLoc(Vec2(ch->loc.x, gy + offset + 6.f));
+            ch->update(0.f);
+            ch->p_body->SetGravityScale(1.f);
+            ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+            dustPuff(ch->loc + Vec2(-30.f, -10.f), 5, 60.f);
+            PZUI::burst(_scene, ch->loc, PZCfg::kColAccent2, 8, 50.f, 0.4f, kZFx);
+            PZHaptics::play(PZHaptics::Kind::Light);
+        }),
+        CallFunc::create([this]() { beginReadyCountdown(false); }), nullptr);
+    entrance->setTag(kIntroRideTag);
+    runAction(entrance);
+}
+
+// HUD read-outs drop in one after the other instead of all being there at frame one.
+void PZRunDirector::animateHudIn() {
+    if (!_scene) return;
+    int i = 0;
+    auto in = [&i](Node* n) {
+        if (!n || !n->isVisible()) return;
+        PZUI::enterIn(n, 0.05f * static_cast<float>(i++), false, 22.f);
+    };
+    in(_scene->distance_label);
+    in(_scene->coins_label);
+    in(_bestLabel);
+    in(_gadgetStrip);
+    // The plist buttons (pause, IAP) arrive last.
+    if (Menu* menu = dynamic_cast<Menu*>(_scene->getChildByTag(kBaseMenuItemTag))) {
+        PZUI::stagger(menu, 0.05f, 0.05f + 0.05f * static_cast<float>(i));
+    }
 }
 
 void PZRunDirector::applyGadgets() {
@@ -620,13 +780,24 @@ void PZRunDirector::spawnOrb() {
     const Size win = Director::getInstance()->getWinSize();
     const float k = kDeviceScale();
     const float x = win.width + 80.f;
+
+    // Height is always measured from a real platform surface ahead of the player. It used to fall back to the rider's
+    // own height, so a power-up collected while falling into a pit spawned the next orb down at pit level (an orb that
+    // then flew inside the wall of the following platform).
     float gy = 0.f;
-    if (!platform() || !platform()->groundYAt(x - 200.f, gy)) {
-        gy = riderPos().y - (_haveOffset ? _riderOffset : 30.f);
+    bool solid = false;
+    if (PZGGamefieldPlatforms* p = platform()) {
+        static const float probes[] = {200.f, 0.f, 420.f, 640.f, 860.f, -180.f};
+        for (float dx : probes) {
+            if (p->groundYAt(x - dx, gy)) { solid = true; break; }
+        }
     }
+    if (!solid) solid = nearestSurface(gy);
+    if (!solid) gy = win.height * 0.42f;         // no platform anywhere near: pick a screen-relative line
+
     // Always reachable with a jump, on every platform's physics scale.
     const float lift = std::min(PZCfg::kOrbHeightAboveGround * k, apex() * 0.78f);
-    const float y = std::min(win.height - 120.f, gy + lift + CCRANDOM_0_1() * 30.f);
+    const float y = std::max(90.f, std::min(win.height - 120.f, gy + lift + CCRANDOM_0_1() * 30.f));
 
     const float wM = PZCfg::kWeightMagnet, wS = PZCfg::kWeightShield, wT = PZCfg::kWeightTurbo, wB = PZCfg::kWeightBlast;
     const float wJ = PZCfg::kEnableJetpack ? PZCfg::kWeightJetpack : 0.f;
@@ -664,6 +835,15 @@ void PZRunDirector::updateOrbs(float dt, float scroll) {
         o.node->setPositionX(o.node->getPositionX() - scroll);
         const Vec2 p = o.node->getPosition();
         const bool offscreen = p.x < -80.f;
+        // Orb sitting below the road (spawned while the rider was dropping into a pit): unreachable, so drop it.
+        float orbGround = 0.f;
+        if (!offscreen && platform() && platform()->groundYAt(p.x, orbGround) &&
+            p.y < orbGround + 24.f * kDeviceScale()) {
+            o.node->removeFromParent();
+            _orbs.erase(_orbs.begin() + i);
+            _nextOrbAt = _time + 0.6f;      // re-roll the spawn a moment later instead of every frame
+            continue;
+        }
         const float pick = PZCfg::kOrbRadius + 34.f * kDeviceScale();
         if (!offscreen && p.distance(rp) < pick) {
             const PowerUp kind = o.kind;
@@ -920,7 +1100,8 @@ void PZRunDirector::endTurbo() {
         ch->setLoc(Vec2(ch->loc.x, y));
         ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
     }
-    ch->jump_counter = 1;   // airborne until the platform contact re-grounds the rider
+    // Grounded again the instant the ride ends, so the next tap is a jump (it used to be swallowed as a buffered tap).
+    if (!groundRiderNow()) ch->jump_counter = 1;
     clearHazards(120.f * kDeviceScale(), 520.f * kDeviceScale());
     PZUI::burst(_scene, ch->loc, PZCfg::kColTurbo, 14, 80.f, 0.5f, kZFx);
     ring(ch->loc, PZCfg::kColTurbo, 150.f, 0.45f);
@@ -1150,6 +1331,25 @@ bool PZRunDirector::safeLandHere(float& outY) {
     return p && p->groundYAt(riderPos().x, outY);
 }
 
+// True when the surface under the rider continues for `need` units ahead at the same height. Revive and the powered
+// rides use it so the run never resumes on the last metres of a platform (the rider used to be dropped straight into
+// the gap that followed as soon as the grace window ended).
+bool PZRunDirector::runwayAhead(float need) {
+    PZGGamefieldPlatforms* p = platform();
+    if (!p || !_scene || !_scene->character) return false;
+    const float x = riderPos().x;
+    float gy = 0.f;
+    if (!p->groundYAt(x, gy)) return false;
+    const float step = 60.f;
+    float reached = 0.f;
+    for (float dx = 0.f; dx <= need; dx += step) {
+        float g2 = 0.f;
+        if (!p->groundYAt(x + dx, g2) || std::abs(g2 - gy) > 8.f) break;
+        reached = dx;
+    }
+    return reached >= need;
+}
+
 // Revive used to teleport the rider onto the nearest platform edge. Now the world keeps scrolling while the rider
 // hovers, and the run resumes the moment a real platform has slid underneath: no instant second crash.
 void PZRunDirector::updateReviveWait(float dt) {
@@ -1161,19 +1361,22 @@ void PZRunDirector::updateReviveWait(float dt) {
     }
     _reviveWaitT += dt;
 
+    // Wait for a platform that actually STARTS under the rider and keeps going, not for the last few units of one:
+    // resuming there meant the next gap arrived before the player could react.
     float gy = 0.f;
     const bool solid = safeLandHere(gy);
+    const bool runway = solid && runwayAhead(360.f * kDeviceScale());
     const Size win = Director::getInstance()->getWinSize();
     const float hover = std::max(210.f, win.height * 0.58f);
-    const float targetY = solid ? gy + (_haveOffset ? _riderOffset : 30.f) + 10.f : hover;
+    const float targetY = runway ? gy + (_haveOffset ? _riderOffset : 30.f) + 10.f : hover;
     const float dy = targetY - ch->loc.y;
 
     ch->p_body->SetGravityScale(0.f);
     ch->p_body->SetLinearVelocity(b2Vec2(0.f, dy * 7.f * kPhysicsWorldScale()));
     ch->jump_counter = 1;
 
-    // After 2.5 s without a platform under the rider, stop waiting and slide the world instead (never hover forever).
-    if ((solid && _reviveWaitT > 0.3f && std::abs(dy) < 34.f) || _reviveWaitT > 2.5f) {
+    // After 2.5 s without a usable platform, stop waiting and slide the world instead (never hover forever).
+    if ((runway && _reviveWaitT > 0.3f && std::abs(dy) < 34.f) || _reviveWaitT > 2.5f) {
         _reviveWait = false;
         rescueRider();
 
@@ -1185,61 +1388,203 @@ void PZRunDirector::updateReviveWait(float dt) {
             return;
         }
 
-        beginReadyCountdown();
+        beginReadyCountdown(true);
     }
 }
 
 // After a revive the rider is parked on the platform and the world is held while "3 - 2 - 1" counts down, so the
 // player's thumb is ready before the run resumes (an instant restart killed revived riders on the very next gap).
-void PZRunDirector::beginReadyCountdown() {
+void PZRunDirector::beginReadyCountdown(bool revive) {
     PZGCharacter* ch = _scene->character;
     if (!ch || !ch->p_body) return;
     _readyCountdown = true;
     ch->p_body->SetGravityScale(1.f);
     ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
     ch->jump_counter = 1;
-    freezeFor(PZCfg::kReadySeconds * 3.f + 0.8f);          // held; released explicitly below
+    const float readyLead = PZCfg::kReadyLeadSeconds;
+    freezeFor(readyLead + PZCfg::kReadySeconds * 3.f + 0.9f); // held; released explicitly below
 
     const Size win = Director::getInstance()->getWinSize();
     const Rect safe = PZLayout::safeRect();
     const Vec2 centre(safe.getMidX(), win.height * 0.56f);
 
-    auto tick = [this, centre](const char* text, const Color3B& col, bool go) {
+    // The countdown is a screen-space overlay: the camera is zoomed in during the intro, and anything parented to the
+    // field layer would slide off centre with it.
+    Node* fx = _scene->getParent() ? _scene->getParent() : _scene;
+    auto tick = [this, centre, fx](const char* text, const Color3B& col, bool go) {
         auto* l = PZUI::heading(text, go ? 54.f : 84.f, col);
         l->setPosition(centre);
         l->setScale(2.4f);
         l->setOpacity(0);
-        _scene->addChild(l, kZFx + 40);
+        fx->addChild(l, kZFx + 40);
         l->runAction(Sequence::create(
             Spawn::create(EaseBackOut::create(ScaleTo::create(0.22f, 1.f)), FadeIn::create(0.12f), nullptr),
             DelayTime::create(go ? 0.25f : 0.2f),
             Spawn::create(ScaleTo::create(0.16f, 0.6f), FadeOut::create(0.16f), nullptr),
             RemoveSelf::create(), nullptr));
-        ring(centre, col, 150.f, 0.5f);
+        auto* d = DrawNode::create();
+        d->drawCircle(Vec2::ZERO, 30.f, 0.f, 36, false, PZUI::c4f(col, 0.95f), 4.f);
+        d->setPosition(centre);
+        d->setScale(0.3f);
+        fx->addChild(d, kZFx + 39);
+        d->runAction(Sequence::create(Spawn::create(EaseOut::create(ScaleTo::create(0.5f, 5.f), 2.f),
+                                                    FadeOut::create(0.5f), nullptr),
+                                      RemoveSelf::create(), nullptr));
         PZHaptics::play(go ? PZHaptics::Kind::Success : PZHaptics::Kind::Light);
         PZAudio::play(go ? "fx_go_hit" : "fx_tick", 1.f, 0.05f);
         if (go) PZAudio::say("vo_go", 2);
     };
 
     const float step = PZCfg::kReadySeconds;
-    runAction(Sequence::create(
+    auto* countdown = Sequence::create(
         CallFunc::create([=]() {
-            PZUI::banner(_scene, PZCfg::kStrGetReady, "", PZCfg::kColAccent, win.height * 0.7f, step * 3.f, kZFx + 30);
-            tick("3", PZCfg::kColAccent, false);
+            Node* fx = _scene->getParent() ? _scene->getParent() : _scene;
+            auto* ready = PZUI::heading(PZCfg::kStrGetReady, 26.f, PZCfg::kColAccent);
+            ready->setPosition(Vec2(safe.getMidX(), win.height * 0.72f));
+            ready->setScale(0.5f);
+            ready->setOpacity(0);
+            fx->addChild(ready, kZFx + 30);
+            ready->runAction(Sequence::create(
+                Spawn::create(EaseBackOut::create(ScaleTo::create(0.22f, 1.f)), FadeIn::create(0.18f), nullptr),
+                DelayTime::create(std::max(0.f, readyLead - 0.42f)),
+                Spawn::create(MoveBy::create(0.2f, Vec2(0.f, 18.f)), FadeOut::create(0.2f), nullptr),
+                RemoveSelf::create(), nullptr));
+            PZAudio::say("vo_get_ready", 2);
         }),
-        DelayTime::create(step), CallFunc::create([=]() { tick("2", PZCfg::kColAccent2, false); }),
-        DelayTime::create(step), CallFunc::create([=]() { tick("1", PZCfg::kColBad, false); }),
+        DelayTime::create(readyLead),
+        CallFunc::create([=]() { tick("3", PZCfg::kColAccent, false); PZAudio::say("vo_3", 2); }),
+        DelayTime::create(step), CallFunc::create([=]() {
+            tick("2", PZCfg::kColAccent2, false);
+            PZAudio::say("vo_2", 2);
+            if (!revive) {
+                cameraReset(0.8f);
+                setHudVisible(true);
+                animateHudIn();
+            }
+        }),
+        DelayTime::create(step), CallFunc::create([=]() { tick("1", PZCfg::kColBad, false); PZAudio::say("vo_1", 2); }),
         DelayTime::create(step), CallFunc::create([=]() {
             tick(PZCfg::kStrGo, PZCfg::kColGood, true);
             _readyCountdown = false;
+            _cinematic = false;
+            _introActive = false;
             _freezeUntil = std::chrono::steady_clock::time_point{};   // release the world
             _graceT = std::max(_graceT, PZCfg::kHitGrace + 0.6f);
-            if (PZCfg::kReviveTurbo > 0.f && PZCfg::kEnablePowerUps) {
+            closeCinematicFrame(0.28f);
+            if (revive && PZCfg::kReviveTurbo > 0.f && PZCfg::kEnablePowerUps) {
                 collect(PowerUp::Turbo, riderPos(), PZCfg::kReviveTurbo);
+            } else {
+                groundRiderNow();                                      // taps work on the very first frame
             }
             PZUI::burst(_scene, riderPos(), PZCfg::kColGood, 14, 90.f, 0.5f, kZFx);
+            if (!revive) {
+                // The crowd answers GO after the camera and HUD have finished their reveal.
+                if (_scene->tip1 && _introTip1Visible) {
+                    _scene->tip1->setVisible(true);
+                    PZUI::enterIn(_scene->tip1, 0.18f, false, 14.f);
+                }
+                if (_scene->tip2 && _introTip2Visible) {
+                    _scene->tip2->setVisible(true);
+                    PZUI::enterIn(_scene->tip2, 0.28f, false, 14.f);
+                }
+                auto* cheer = Sequence::create(
+                    DelayTime::create(0.36f),
+                    CallFunc::create([]() { PZAudio::play("fx_crowd_cheer", 0.9f, 0.5f); }),
+                    nullptr);
+                cheer->setTag(kCrowdCueTag);
+                runAction(cheer);
+                flash(Color3B(255, 255, 255), 0.18f, 0.3f);
+            }
         }),
-        nullptr));
+        nullptr);
+    countdown->setTag(kCountdownTag);
+    runAction(countdown);
+}
+
+// Puts the rider flat on the platform under it and clears the "airborne" flag so the next tap is a real jump.
+// Powered rides and revives end here: the player never has to wait for a landing they cannot see.
+bool PZRunDirector::groundRiderNow() {
+    PZGCharacter* ch = _scene ? _scene->character : nullptr;
+    if (!ch || !ch->p_body) return false;
+    float gy = 0.f;
+    if (!safeLandHere(gy)) return false;
+    const float offset = _haveOffset ? _riderOffset : 30.f;
+    ch->setLoc(Vec2(ch->loc.x, gy + offset + 4.f));
+    ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+    ch->p_body->SetGravityScale(1.f);
+    ch->jump_counter = 0;
+    ch->jump_enabled = false;
+    return true;
+}
+
+// Death show: the world holds, the camera pushes in on the wreck with fire and the disappointed crowd, then pulls
+// back out before the revive offer / game-over screen arrives.
+void PZRunDirector::beginDeathCinematic(std::function<void()> completion) {
+    if (!_scene || !_scene->character) {
+        if (completion) completion();
+        return;
+    }
+    stopActionByTag(kCrowdCueTag);
+    if (_introActive || _readyCountdown || _cinematic) {
+        stopActionByTag(kIntroDelayTag);
+        stopActionByTag(kIntroRideTag);
+        stopActionByTag(kCountdownTag);
+        _scene->stopActionByTag(kCameraSnapTag);
+        _introActive = false;
+        _readyCountdown = false;
+        _cinematic = false;
+    }
+    if (!PZCfg::kEnableCinematics) {
+        if (completion) completion();
+        return;
+    }
+    _cinematic = true;
+    freezeFor(1.45f);
+    setHudVisible(false);
+    const Vec2 at = riderPos();
+    openCinematicFrame();
+    cameraTo(at, 1.62f, 0.42f, &at);
+    PZAudio::play("fx_fire", 0.9f, 0.3f);
+    PZAudio::play("fx_crowd_boo", 0.8f, 0.6f);
+    flash(Color3B(255, 190, 110), 0.48f, 0.28f);
+    ring(at, PZCfg::kColBad, 190.f, 0.42f);
+
+    // Fire at the crash: orange licks + dark smoke puffs.
+    for (int i = 0; i < 12; ++i) {
+        auto* f = DrawNode::create();
+        const float sz = rnd(7.f, 16.f);
+        Vec2 tri[3] = {Vec2(-sz, 0.f), Vec2(0.f, sz * 2.2f), Vec2(sz, 0.f)};
+        f->drawSolidPoly(tri, 3, PZUI::c4f(Color3B(255, 140, 40), 0.9f), 0.f, Color4F(0, 0, 0, 0), true);
+        f->setBlendFunc(BlendFunc::ADDITIVE);
+        f->setPosition(at + Vec2(rnd(-40.f, 40.f), rnd(-16.f, 16.f)));
+        f->setScale(0.4f);
+        _scene->addChild(f, kZFx + 20);
+        f->runAction(Sequence::create(DelayTime::create(rnd(0.f, 0.18f)),
+                                      Spawn::create(EaseOut::create(ScaleTo::create(0.42f, 1.2f, 1.8f), 2.f),
+                                                    MoveBy::create(0.42f, Vec2(0.f, 30.f)), FadeOut::create(0.42f), nullptr),
+                                      RemoveSelf::create(), nullptr));
+    }
+    for (int i = 0; i < 6; ++i) {
+        auto* s = DrawNode::create();
+        s->drawSolidCircle(Vec2::ZERO, rnd(8.f, 16.f), 0.f, 12, PZUI::c4f(Color3B(60, 56, 56), 0.55f));
+        s->setPosition(at + Vec2(rnd(-30.f, 30.f), rnd(0.f, 24.f)));
+        _scene->addChild(s, kZFx + 19);
+        s->runAction(Sequence::create(Spawn::create(MoveBy::create(0.7f, Vec2(rnd(-20.f, 20.f), rnd(50.f, 90.f))),
+                                                    ScaleTo::create(0.7f, 2.2f), FadeOut::create(0.7f), nullptr),
+                                      RemoveSelf::create(), nullptr));
+    }
+    PZHaptics::play(PZHaptics::Kind::Error);
+
+    auto* deathShow = Sequence::create(DelayTime::create(0.68f), CallFunc::create([this]() {
+        cameraReset(0.48f);
+        closeCinematicFrame(0.38f);
+    }), DelayTime::create(0.52f), CallFunc::create([this, completion]() {
+        setHudVisible(true);
+        _cinematic = false;
+        if (completion) completion();
+    }), nullptr);
+    deathShow->setTag(kDeathShowTag);
+    runAction(deathShow);
 }
 
 void PZRunDirector::updateJetpackRide(float dt) {
@@ -1300,7 +1645,8 @@ void PZRunDirector::endJetpack() {
         ch->setLoc(Vec2(ch->loc.x, gy + (_haveOffset ? _riderOffset : 0.f) + 4.f));
         ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
     }
-    ch->jump_counter = 1;   // airborne until the platform contact re-grounds the rider
+    // Same rule as turbo: taps work on the frame the flight ends.
+    if (!groundRiderNow()) ch->jump_counter = 1;
     clearHazards(120.f * kDeviceScale(), 520.f * kDeviceScale());
     PZUI::burst(_scene, ch->loc, PZCfg::kColJetpack, 18, 95.f, 0.55f, kZFx);
     ring(ch->loc, PZCfg::kColJetpack, 170.f, 0.45f);
@@ -1317,7 +1663,6 @@ void PZRunDirector::shakeScene(float amplitude, float duration) {
 
 void PZRunDirector::setHudVisible(bool visible) {
     if (!visible) {
-        _hiddenHud.clear();
         auto hide = [this](Node* n) {
             if (n && n->isVisible()) {
                 _hiddenHud.push_back({n, true});
@@ -1341,13 +1686,12 @@ void PZRunDirector::setHudVisible(bool visible) {
 // Eased camera move: scales the whole scene layer and slides it so `focus` (a point in scene coordinates) lands in the
 // middle of the screen. `focus` = screen centre and scale 1 is the neutral camera.
 void PZRunDirector::cameraTo(const Vec2& focus, float scale, float duration, const Vec2* screenAnchor) {
-    constexpr int kCamTag = 7732;
     const Size win = Director::getInstance()->getWinSize();
     const Vec2 centre(win.width * 0.5f, win.height * 0.5f);
     const Vec2 anchor = screenAnchor ? *screenAnchor : centre;   // where on screen `focus` should end up
     const Vec2 f0 = _scene->convertToNodeSpace(centre);          // scene point currently under the screen centre
     const float s0 = _camScale;
-    _scene->stopActionByTag(kCamTag);
+    _scene->stopActionByTag(kCameraActionTag);
     auto* act = ActionFloat::create(std::max(0.01f, duration), 0.f, 1.f, [this, f0, focus, s0, scale, centre, anchor](float t) {
         const float e = t * t * (3.f - 2.f * t);                 // smoothstep
         _camScale = s0 + (scale - s0) * e;
@@ -1359,7 +1703,7 @@ void PZRunDirector::cameraTo(const Vec2& focus, float scale, float duration, con
         _camPos = screenPt - w;
         _scene->setPosition(_camPos);
     });
-    act->setTag(kCamTag);
+    act->setTag(kCameraActionTag);
     _scene->runAction(act);
 }
 
@@ -1379,12 +1723,15 @@ void PZRunDirector::cameraReset(float duration) {
     const Size win = Director::getInstance()->getWinSize();
     cameraTo(Vec2(win.width * 0.5f, win.height * 0.5f), 1.f, duration);
     // Snap to the exact neutral transform when the move completes (no sub-pixel drift).
-    _scene->runAction(Sequence::create(DelayTime::create(duration + 0.02f), CallFunc::create([this]() {
+    _scene->stopActionByTag(kCameraSnapTag);
+    auto* snap = Sequence::create(DelayTime::create(duration + 0.02f), CallFunc::create([this]() {
         _camScale = 1.f;
         _camPos = Vec2::ZERO;
         _scene->setScale(1.f);
         _scene->setPosition(Vec2::ZERO);
-    }), nullptr));
+    }), nullptr);
+    snap->setTag(kCameraSnapTag);
+    _scene->runAction(snap);
 }
 
 // "Destroy everything" pickup. The world holds still, the HUD steps aside, and the camera pushes in on each hazard in
@@ -2077,6 +2424,10 @@ bool PZRunDirector::onDeath() {
         rescueRider();
         return true;
     }
+    if (_graceT > 0.f) {
+        rescueRider();
+        return true;
+    }
     // An active shield saves the rider from one fall (hits are already absorbed in onObstacleHit).
     if (_shieldT > 0.f) {
         _shieldT = 0.f;
@@ -2118,22 +2469,28 @@ bool PZRunDirector::onDeath() {
     flash(PZCfg::kColBad, 0.4f, 0.5f);
     PZHaptics::play(PZHaptics::Kind::Error);
     PZAudio::play("fx_crash");
-    if (!PZCfg::kEnableRevive || _reviveOffered) return false;
     auto* sc = PZSettingsController::shared();
-    const bool video = PZCfg::kEnableReviveVideo;   // offered even while the ad is still loading; the popup polls
-    if (sc->coins < PZCfg::kReviveCost && !video) return false;     // nothing to offer: go straight to game over
-    if (video) PZ::AdsController::shared()->requestRewarded();
-    _reviveOffered = true;
-    _deathPending = true;
+    const bool video = PZCfg::kEnableReviveVideo;
+    const bool offerRevive = PZCfg::kEnableRevive && !_reviveOffered &&
+                             (sc->coins >= PZCfg::kReviveCost || video);
+    if (offerRevive) {
+        if (video) PZ::AdsController::shared()->requestRewarded();
+        _reviveOffered = true;
+    }
+    _deathPending = offerRevive;
 
     _scene->gameOver = true;     // freeze the world while the offer is up
-    shakeScene(10.f, 0.4f);
-
-    // A short beat so the player sees what killed them, then the offer.
-    runAction(Sequence::create(DelayTime::create(0.45f), CallFunc::create([this, video]() {
-        PZPopups::showRevive(_scene, PZCfg::kReviveCost, PZSettingsController::shared()->coins, video,
-                             [this]() { reviveAccepted(true); }, [this]() { reviveFromVideo(); }, [this]() { reviveDeclined(); });
-    }), nullptr));
+    auto afterDeathShow = [this, video, offerRevive]() {
+        if (!_scene) return;
+        if (offerRevive) {
+            PZPopups::showRevive(_scene, PZCfg::kReviveCost, PZSettingsController::shared()->coins, video,
+                                 [this]() { reviveAccepted(true); }, [this]() { reviveFromVideo(); },
+                                 [this]() { reviveDeclined(); });
+        } else {
+            _scene->gameOverCallBack(true);
+        }
+    };
+    beginDeathCinematic(afterDeathShow);
     return true;
 }
 
@@ -2152,6 +2509,7 @@ void PZRunDirector::rescueRider() {
         }
         ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
         ch->reset();
+        ch->update(0.f);   // the world is held during the countdown: draw the rider where it was parked
         ch->jump_counter = 1;
     }
     clearHazards(240.f * kDeviceScale(), 950.f * kDeviceScale());
@@ -2204,8 +2562,6 @@ void PZRunDirector::reviveAccepted(bool paidWithCoins) {
     _reviveWaitT = 0.f;
     PZAudio::play("fx_revive");
 
-    const Size win = Director::getInstance()->getWinSize();
-    PZUI::banner(_scene, PZCfg::kStrReviveWait, "", PZCfg::kColAccent, win.height * 0.7f, 1.0f);
     flash(Color3B(255, 255, 255), 0.4f, 0.35f);
     PZHaptics::play(PZHaptics::Kind::Success);
 }
