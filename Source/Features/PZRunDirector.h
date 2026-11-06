@@ -148,7 +148,10 @@ private:
     void endTurbo();
     void endGun();
     void resumeFromGameOver(bool paidWithCoins);
-    void rescueRider();      // put the rider back on solid ground (revive / shield save / mercy)
+    void rescueRider(std::function<void()> done = nullptr);   // glide the rider back onto solid ground (revive / shield save / mercy)
+    // Glides the rider (and slides the world in when the platform is not under it) onto a platform instead of teleporting.
+    void settleRider(float fallbackRideY, bool preferRunway, std::function<void()> done);
+    bool _riderTweening = false;
     bool mercyAvailable() const;
 
     // Obstacle destruction
@@ -270,10 +273,14 @@ private:
     std::vector<GadgetBtn> _gadgetBtns;
     int   _gadgetPress = -1;
     float _headstartFlash = 0.f;
-    void  activateGadget(int btn);
+    void  activateGadget(int btn);          // tap on the top-bar GADGETS button: opens the picker
+    void  openGadgetPicker();
+    void  openGadgetShop();                 // out of charges: the shop opens so the player can buy more
+    void  useGadget(const std::string& id); // spends one charge and starts the effect
     void  updateGadgetStrip(float dt);
     bool  gadgetState(const std::string& id, float& frac) const;   // true while the gadget's effect is running
     static constexpr int kGadgetStartTag = 7711;
+    static constexpr int kRiderTweenTag  = 7712;
     ax::Node* _tracker = nullptr;
     ax::Label* _trackerText = nullptr;
     ax::Label* _trackerCount = nullptr;

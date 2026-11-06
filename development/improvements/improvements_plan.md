@@ -202,6 +202,29 @@ ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads st
 44. PLAY button centred on the XP plate / pill column; menu bike tilted left-up / right-down and as low as the banner allows
     > Feedback: DONE (simulator). PLAY shares the column centre; the bike tilts 3.4 degrees (wheels stay on the pavement, lowest point sits right above the ad banner).
 
+45. Run commands without device ids
+    > Feedback: DONE. tools/run.sh finds the iPhone / booted simulator / Android device itself (one target = used, several = numbered list, none = pick a simulator to boot). BUILD_COMMANDS.md section 0 documents it; the hard-coded device id is gone from the docs.
+46. Run start: the bike no longer drops in from above
+    > Feedback: DONE (simulator frames). The rider is parked hidden off-screen with gravity off until the intro starts, then rides in from the left.
+47. Revive / power-up end / fall rescue: no more teleporting
+    > Feedback: DONE (simulator position log: jetpack end 484 -> 386 -> 329 over ~0.45 s). PZRunDirector::settleRider glides the rider onto the platform and, when the platform is not under it, slides the world in at the same time (PZGGamefieldPlatforms::findReviveTarget + shiftWorld). Used by rescueRider (revive, shield / mercy / helmet saves) and by turbo / jetpack endings. The rider is untouchable during the glide; a jump tap hands control back immediately.
+48. BEST overlapping XP on the menu plate; BEST in the game HUD
+    > Feedback: DONE. The XP text shrinks to leave room for BEST; in the run HUD BEST sits on the coin / distance line, between the two counters.
+49. Upload readiness
+    > Feedback: versions bumped to 1.4.0 (iOS build 10, Android versionCode 6). See the release notes at the end of this file section / BUILD_COMMANDS.md for the artifacts that were produced.
+
+50. Out of charges -> shop (monetisation)
+    > Feedback: DONE (simulator). Choosing a gadget with 0 charges in the in-run picker opens the SHOP (power-ups tab) over the held run; closing it resumes the run and refreshes the counts. The shop gadget cards were re-laid out so name / status / price no longer overlap.
+51. In-run GADGETS button + picker with proper icons
+    > Feedback: DONE (simulator). The top bar now has one round GADGETS button (2x2 board of the real magnet / shield / rocket / turbo icons, badge = total charges, ring breathes; red ring when everything is at zero). It opens a picker with all eight gadgets (nature-specific icons, charges, LV lock); tap one and it applies to the rider at once, the run is held while the picker is open. Menu GADGETS screen now just sells charges (no equip slots).
+52. Menu bike `tuning` keys checked
+    > Feedback: DONE. Temporarily changing MenuBikeHeight / MenuBikeTilt / MenuCoinSize in the plist changed the menu bike and coins on the next launch, so the tuning section is read correctly. NOTE: MenuBikeLift in the plist is currently -10 (your value) and was kept. Values: tuning/MenuBikeHeight, MenuBikeTilt, MenuBikeSlope, MenuBikeLift, MenuBikeSpeed, MenuBikeHop, MenuCoinSize, MenuCoinLift, MenuCoinArc.
+
+53. Voices inaudible in game
+    > Feedback: DONE. Cause: the voice grade pushed pitch down and boosted the bass, so 80-95 % of the energy sat below 400 Hz, which phone speakers cannot play (the sound effects live at 400 Hz-3 kHz, which is why only they were heard). tools/audiogen.py voice now high-passes at 320 Hz, boosts 1-3 kHz, compresses and normalises each line to about -11 dB mean; all 24 vo_*.mp3 regenerated (same Ralph voice, same licensing caveat as 22.2). Not listened to on a device speaker by me: please check.
+54. Gadgets button icon: zig-zag lightning bolt with a glow (pulsing), replaces the 2x2 icon board.
+55. Test vs live ads is now automatic: debug builds force Google sample units, release builds use the live ids (see BUILD_COMMANDS.md "Ads: test vs live").
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control

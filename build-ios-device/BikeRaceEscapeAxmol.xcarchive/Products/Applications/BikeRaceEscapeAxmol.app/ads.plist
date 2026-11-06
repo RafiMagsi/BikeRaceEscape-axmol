@@ -19,13 +19,13 @@
 			<key>interstitialIdIOS</key>
 			<string>ca-app-pub-8966545526103390/3450330423</string>
 			<key>rewardedIdIOS</key>
-			<string></string>
+			<string>ca-app-pub-8966545526103390/5633843231</string>
 			<key>bannerIdAndroid</key>
 			<string>ca-app-pub-8966545526103390/1144454373</string>
 			<key>interstitialIdAndroid</key>
 			<string>ca-app-pub-8966545526103390/3534813999</string>
 			<key>rewardedIdAndroid</key>
-			<string></string>
+			<string>ca-app-pub-8966545526103390/5655160008</string>
 		</dict>
 		<key>Chartboost</key>
 		<dict>
@@ -88,7 +88,7 @@
 				<key>chartboostInterstitial</key>
 				<integer>1</integer>
 				<key>showAfterCount</key>
-				<integer>1</integer>
+				<integer>2</integer>
 			</dict>
 			<key>OnMainMenu</key>
 			<dict>

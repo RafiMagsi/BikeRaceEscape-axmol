@@ -111,8 +111,16 @@ lines={'vo_go':'Go!','vo_second_chance':'Second chance!','vo_get_ready':'Get rea
 if len(sys.argv)<2 or sys.argv[1] not in ('fx','effects'):
     for name,text in lines.items():
         aiff=f'{TMP}/{name}.aiff'
-        subprocess.run(['say','-v',VOICE,'-r','150','-o',aiff,text],check=True)
-        # deep trailer-voice grade: pitch down ~12%, low shelf boost, compress, slight slap echo
-        af='asetrate=22050*0.88,aresample=22050,atempo=1.1,equalizer=f=140:t=q:w=1.0:g=6,equalizer=f=3200:t=q:w=1.5:g=3,acompressor=threshold=-18dB:ratio=4:makeup=6,aecho=0.6:0.5:70:0.25,alimiter=limit=0.9'
-        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',aiff,'-af',af,'-ac','1','-ar','22050','-b:a','56k',f'{OUT}/{name}.mp3'],check=True)
+        subprocess.run(['say','-v',VOICE,'-r','165','-o',aiff,text],check=True)
+        # Phone-speaker grade. The first version boosted the bass (pitch down + 140 Hz shelf): 80-95 % of the energy sat
+        # below 400 Hz, which phone speakers cannot reproduce, so the voices were effectively inaudible in game.
+        # Now: steep high-pass at 320 Hz, presence boost around 1-3 kHz, compression, a short slap echo, then a
+        # measured gain so every line lands at about -11 dB mean (louder than the effects) under a peak limiter.
+        af='highpass=f=320,highpass=f=320,asetrate=22050*0.96,aresample=22050,atempo=1.04,equalizer=f=1200:t=q:w=1.0:g=4,equalizer=f=2800:t=q:w=1.2:g=5,acompressor=threshold=-24dB:ratio=5:makeup=10,aecho=0.6:0.5:60:0.18,alimiter=limit=0.92'
+        tmp=f'{TMP}/{name}_graded.wav'
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',aiff,'-af',af,'-ac','1','-ar','22050',tmp],check=True)
+        vol=subprocess.run(['ffmpeg','-i',tmp,'-af','volumedetect','-f','null','-'],capture_output=True,text=True).stderr
+        mean=float([l for l in vol.split('\n') if 'mean_volume' in l][0].split(':')[1].split()[0])
+        gain=max(0.0,min(14.0,-11.0-mean))
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-i',tmp,'-af',f'volume={gain:.1f}dB,alimiter=limit=0.95','-ac','1','-ar','22050','-b:a','64k',f'{OUT}/{name}.mp3'],check=True)
 print('done')

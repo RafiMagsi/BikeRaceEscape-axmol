@@ -762,25 +762,27 @@ private:
         }
 
         const float top = _h * 0.5f;
+        const bool compact = _h < 150.f;      // shop grid: no description line, tighter rows (nothing overlaps)
+        const float discR = compact ? 27.f : 30.f;
         auto* disc = DrawNode::create();
-        disc->drawSolidCircle(Vec2::ZERO, 30.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge, on ? 0.22f : 0.10f));
-        disc->drawCircle(Vec2::ZERO, 30.f, 0.f, 28, false, PZUI::c4f(edge, 0.95f), 2.f);
-        disc->setPosition(Vec2(0.f, top - 38.f));
+        disc->drawSolidCircle(Vec2::ZERO, discR, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge, on ? 0.22f : 0.10f));
+        disc->drawCircle(Vec2::ZERO, discR, 0.f, 28, false, PZUI::c4f(edge, 0.95f), 2.f);
+        disc->setPosition(Vec2(0.f, top - (compact ? 33.f : 38.f)));
         addChild(disc);
-        auto* icon = PZUI::gadgetIcon(_def.id, 38.f, _def.icon, !on);
-        icon->setPosition(Vec2(0.f, top - 38.f));
+        auto* icon = PZUI::gadgetIcon(_def.id, compact ? 34.f : 38.f, _def.icon, !on);
+        icon->setPosition(Vec2(0.f, top - (compact ? 33.f : 38.f)));
         addChild(icon);
 
         const float maxW = _w - 18.f;
         auto fit = [maxW](Label* l) { if (l->getContentSize().width > maxW) l->setScale(maxW / l->getContentSize().width); };
         auto* name = PZUI::heading(_def.name, 10.f, on ? PZCfg::kColText : PZCfg::kColDim);
-        name->setPosition(Vec2(0.f, top - 80.f));
+        name->setPosition(Vec2(0.f, top - (compact ? 74.f : 80.f)));
         fit(name);
         addChild(name);
         auto* desc = PZUI::heading(_def.desc, 6.5f, PZCfg::kColDim);
         desc->setPosition(Vec2(0.f, top - 96.f));
         fit(desc);
-        addChild(desc);
+        if (!compact) addChild(desc);
 
         // Status line.
         char buf[48];
@@ -792,7 +794,7 @@ private:
             std::snprintf(buf, sizeof(buf), PZCfg::kStrGadgetOwned, _v.stock);
         }
         auto* status = PZUI::heading(buf, 7.f, !on ? PZCfg::kColBad : (_v.stock > 0 ? PZCfg::kColAccent : PZCfg::kColDim));
-        status->setPosition(Vec2(0.f, -top + 52.f));
+        status->setPosition(Vec2(0.f, -top + (compact ? 40.f : 52.f)));
         fit(status);
         addChild(status);
 
@@ -800,17 +802,17 @@ private:
         const bool can = on && _v.canAfford;
         const Color3B pill = can ? PZCfg::kColGood : Color3B(96, 100, 112);
         addChild([&]() {
-            auto* b = PZUI::roundedRect(_w - 28.f, 28.f, 14.f, pill, 1.f, Color3B(255, 255, 255), 0.9f, 1.5f);
-            b->setPosition(Vec2(0.f, -top + 22.f));
+            auto* b = PZUI::roundedRect(_w - 28.f, compact ? 24.f : 28.f, 12.f, pill, 1.f, Color3B(255, 255, 255), 0.9f, 1.5f);
+            b->setPosition(Vec2(0.f, -top + (compact ? 17.f : 22.f)));
             return b;
         }());
         std::snprintf(buf, sizeof(buf), "%d", _def.price);
         auto* price = PZUI::heading(buf, 11.f, on ? Color3B(255, 255, 255) : Color3B(170, 172, 182));
         price->setAnchorPoint(Vec2(1.f, 0.5f));
-        price->setPosition(Vec2(8.f, -top + 22.f));
+        price->setPosition(Vec2(8.f, -top + (compact ? 17.f : 22.f)));
         addChild(price);
         auto* coin = PZUI::coinIcon(18.f);
-        coin->setPosition(Vec2(20.f, -top + 22.f));
+        coin->setPosition(Vec2(20.f, -top + (compact ? 17.f : 22.f)));
         if (!on) coin->setOpacity(120);
         addChild(coin);
     }
@@ -947,12 +949,111 @@ Node* showGadgets(Node* parent, std::function<void()> onClosed) {
     updateBal();
 
     const float closeY = mid.y - panelH * 0.5f + 34.f;
-    buildGadgetGrid(base, base, mid, panelW - 56.f, mid.y + panelH * 0.5f - 84.f, closeY + 38.f, true, updateBal);
+    buildGadgetGrid(base, base, mid, panelW - 56.f, mid.y + panelH * 0.5f - 84.f, closeY + 38.f, false, updateBal);   // no equip slots any more: gadgets are used from the in-run picker
 
     Node* basePtr = base;
     auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton,
                                        [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 12.f);
     close->setPosition(Vec2(mid.x, closeY));
+    base->addChild(close);
+    return base;
+}
+
+// ================================================================================================
+// In-run gadget picker: every gadget with its icon and charges; tap one to use it, or to buy when it is at zero
+// ================================================================================================
+
+Node* showGadgetPicker(Node* parent, std::function<void(const std::string&)> onChoose, std::function<void()> onCancel) {
+    if (!parent) return nullptr;
+    auto* pg = PZProgress::shared();
+    const Vec2 mid = PZLayout::popupCentre();
+    const int count = pg->gadgetPoolCount();
+    const int cols = 4;
+    const int rows = (count + cols - 1) / cols;
+    const float panelW = std::min(780.f, PZLayout::safeRect().size.width - 40.f);
+    const float tileH = 142.f, gap = 12.f;
+    const float panelH = std::min(PZLayout::popupMaxHeight(), 150.f + rows * tileH + (rows - 1) * gap);
+    auto* base = openModal(parent, panelW, panelH, 350, 0.82f);
+
+    auto* title = PZUI::heading(PZCfg::kStrGadgetsTitle, 24.f, PZCfg::kColAccent);
+    title->setPosition(mid + Vec2(0, panelH * 0.5f - 38.f));
+    base->addChild(title);
+    auto* sub = PZUI::heading("TAP A GADGET TO USE IT", 8.f, PZCfg::kColDim);
+    sub->setPosition(mid + Vec2(0, panelH * 0.5f - 64.f));
+    base->addChild(sub);
+
+    // One of the two callbacks fires, after the popup has removed itself.
+    auto chosen = std::make_shared<std::string>();
+    auto picked = std::make_shared<bool>(false);
+    Node* basePtr = base;
+    auto finish = [basePtr, chosen, picked, onChoose, onCancel]() {
+        dismiss(basePtr, [chosen, picked, onChoose, onCancel]() {
+            if (*picked) { if (onChoose) onChoose(*chosen); }
+            else if (onCancel) onCancel();
+        });
+    };
+
+    const float tileW = (panelW - 56.f - (cols - 1) * gap) / cols;
+    const float left = mid.x - panelW * 0.5f + 28.f + tileW * 0.5f;
+    const float topY = mid.y + panelH * 0.5f - 92.f - tileH * 0.5f;
+    for (int i = 0; i < count; ++i) {
+        const auto& def = PZCfg::kGadgetPool[i];
+        const bool unlocked = pg->gadgetUnlocked(i);
+        const int stock = pg->gadgetStock(def.id);
+        const Vec2 pos(left + (i % cols) * (tileW + gap), topY - (i / cols) * (tileH + gap));
+        auto* tile = Node::create();
+        tile->setPosition(pos);
+        base->addChild(tile);
+        const Color3B edge = !unlocked ? Color3B(80, 84, 96) : (stock > 0 ? PZCfg::kColAccent : PZCfg::kColPanelEdge);
+        tile->addChild(PZUI::roundedRect(tileW, tileH, 14.f, PZCfg::kColPanel, 0.96f, edge, 1.f, stock > 0 ? 3.f : 2.f));
+        auto* disc = DrawNode::create();
+        disc->drawSolidCircle(Vec2::ZERO, 32.f, 0.f, 28, PZUI::c4f(PZCfg::kColPanelEdge, unlocked ? 0.25f : 0.10f));
+        disc->drawCircle(Vec2::ZERO, 32.f, 0.f, 28, false, PZUI::c4f(edge, 0.95f), 2.f);
+        disc->setPosition(Vec2(0.f, tileH * 0.5f - 44.f));
+        tile->addChild(disc);
+        auto* icon = PZUI::gadgetIcon(def.id, 44.f, def.icon, !unlocked || stock <= 0);
+        icon->setPosition(Vec2(0.f, tileH * 0.5f - 44.f));
+        tile->addChild(icon);
+        auto* name = PZUI::heading(def.name, 9.f, unlocked ? PZCfg::kColText : PZCfg::kColDim);
+        name->setPosition(Vec2(0.f, -tileH * 0.5f + 52.f));
+        if (name->getContentSize().width > tileW - 14.f) name->setScale((tileW - 14.f) / name->getContentSize().width);
+        tile->addChild(name);
+        char buf[40];
+        Color3B stCol = PZCfg::kColAccent;
+        if (!unlocked) { std::snprintf(buf, sizeof(buf), PZCfg::kStrGadgetLocked, def.unlockLevel); stCol = PZCfg::kColBad; }
+        else if (stock > 0) std::snprintf(buf, sizeof(buf), "x%d", stock);
+        else { std::snprintf(buf, sizeof(buf), "BUY MORE"); stCol = PZCfg::kColGood; }
+        auto* st = PZUI::heading(buf, 11.f, stCol);
+        st->setPosition(Vec2(0.f, -tileH * 0.5f + 26.f));
+        if (st->getContentSize().width > tileW - 14.f) st->setScale((tileW - 14.f) / st->getContentSize().width);
+        tile->addChild(st);
+
+        auto* l = EventListenerTouchOneByOne::create();
+        l->setSwallowTouches(true);
+        l->onTouchBegan = [tile, tileW, tileH](Touch* t, Event*) {
+            for (Node* n = tile; n; n = n->getParent()) if (!n->isVisible()) return false;
+            const Vec2 p = tile->convertToNodeSpace(t->getLocation());
+            return std::abs(p.x) <= tileW * 0.5f && std::abs(p.y) <= tileH * 0.5f;
+        };
+        const std::string id = def.id;
+        l->onTouchEnded = [tile, tileW, tileH, id, unlocked, picked, chosen, finish, basePtr](Touch* t, Event*) {
+            const Vec2 p = tile->convertToNodeSpace(t->getLocation());
+            if (std::abs(p.x) > tileW * 0.5f || std::abs(p.y) > tileH * 0.5f) return;
+            if (!unlocked) {
+                PZHaptics::play(PZHaptics::Kind::Warning);
+                PZAudio::play("fx_error");
+                return;
+            }
+            PZHaptics::play(PZHaptics::Kind::Selection);
+            *picked = true;
+            *chosen = id;
+            finish();
+        };
+        tile->getEventDispatcher()->addEventListenerWithSceneGraphPriority(l, tile);
+    }
+
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 40.f, PZCfg::kColButton, [finish]() { finish(); }, 12.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 32.f));
     base->addChild(close);
     return base;
 }
@@ -1840,6 +1941,11 @@ public:
         _xpText->setString(b);
         std::snprintf(b, sizeof(b), PZCfg::kStrBest, pg->bestScore());
         _best->setString(b);
+        // XP counter and BEST share the top line: shrink the XP text rather than let the two overlap.
+        _xpText->setScale(1.f);
+        const float xpW = _xpText->getContentSize().width, bestW = _best->getContentSize().width;
+        const float room = _topLineW - bestW - 14.f;
+        if (xpW > room && xpW > 1.f) _xpText->setScale(std::max(0.55f, room / xpW));
         updateNextUnlock(pg);
         animateXpBar(pg);
         if (_daily) _daily->setBadge(PZCfg::kEnableGifts ? pg->giftsReady() : (pg->dailyAvailable() ? 1 : 0));
@@ -1962,6 +2068,7 @@ private:
         plate->addChild(_best);
 
         _xpBarW = rw;
+        _topLineW = rw;
         _xp = PZUI::bar(_xpBarW, 16.f, pg->levelFraction(), PZCfg::kColAccent2);
         _xp->setPosition(Vec2(rx + rw * 0.5f, 5.f));
         plate->addChild(_xp);
@@ -2133,6 +2240,7 @@ private:
     DrawNode* _xp = nullptr;
     float _xpBarW = 140.f;
     float _shownFrac = 0.f;
+    float _topLineW = 160.f;
     int _xpLevel = 1;
     PZUI::Button* _daily = nullptr;
     PZUI::Button* _missions = nullptr;

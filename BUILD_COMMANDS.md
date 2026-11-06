@@ -8,12 +8,47 @@ cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol
 
 **Contents**
 
+0. [Run on a device (automatic)](#0-run-on-a-device-automatic)
 1. [Quick reference](#1-quick-reference)
 2. [Bump the version](#2-bump-the-version)
 3. [iOS build](#3-ios-build)
 4. [Android build](#4-android-build)
 5. [iPhone: install, run, logs, crashes](#5-iphone-install-run-logs-crashes)
 6. [Troubleshooting](#6-troubleshooting)
+
+---
+
+## 0. Run on a device (automatic)
+
+One script builds, installs and launches. It finds the iPhone, booted simulator or Android device by itself: with exactly one target it just uses it, with several it shows a numbered list and asks, with none it lets you pick a simulator to start. You never type a device id.
+
+```bash
+tools/run.sh                    # asks: iOS or Android, then picks / asks for the device
+tools/run.sh ios                # iPhone plugged in? simulator running? picks it (asks if there are several)
+tools/run.sh android            # release build (use --debug for a debug build)
+tools/run.sh ios --list         # only list what it can see
+tools/run.sh ios --device "iPhone 15"   # optional: choose by name part instead of being asked
+tools/run.sh ios --no-build     # skip the build: install + launch the last one
+tools/run.sh ios --app path/to/BikeRaceEscapeAxmol.app   # install this build, no compile
+```
+
+- **iPhone**: Release archive (section 3.2) then `devicectl` install + launch. The first run generates the Xcode project (3.1).
+- **Simulator**: Debug build into `build-ios-sim`, then `simctl` install + launch (the Simulator app is opened and booted if needed).
+- **Android**: `assembleRelease`, `adb install -r`, launch. Needs `adb` (on PATH or in `~/Library/Android/sdk/platform-tools`) and USB debugging on.
+- Set `TEAM_ID=...` to override the Apple team (default `XF5237ER2B`).
+
+---
+
+## Ads: test vs live (automatic)
+
+You do not switch anything by hand. The build type decides:
+
+| Build | Ads |
+| --- | --- |
+| Xcode **Debug**, `tools/run.sh ios` to a simulator, Gradle **debug** | Google's sample ad units only (test ads, safe to tap). Log line: `AdMob testMode is ON` |
+| iOS **Release / archive**, Gradle **bundleRelease / assembleRelease** | Your live unit ids from `Content/ads.plist` |
+
+`ads.plist` keeps `testMode = false` (the release value). If it were ever `true` in a release build the log warns you. Never register your own phone as a "test device" in a release flow and tap live ads. Chartboost has no automatic test switch: use it only in release builds you do not tap.
 
 ---
 
@@ -29,8 +64,8 @@ cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol
 | Android engine (`AX_ROOT`) | leave as is; the default `~/development/axmol` is correct |
 | Android signing key | `proj.android/dino-bike-upload.keystore` |
 | Android signing settings | `proj.android/keystore.properties` (both files are git-ignored; **back them up**) |
-| Test iPhone ID | `9EABB48C-7555-51D7-8014-E04CD3B2ED01` (Rafi iPhone 15) |
-| Current version | 1.3.0: iOS build 9, Android versionCode 5 |
+| Test iPhone | Rafi iPhone 15 (found automatically by `tools/run.sh`; no id needed) |
+| Current version | 1.4.0: iOS build 10, Android versionCode 6 |
 
 ---
 
@@ -190,7 +225,9 @@ Upload by hand in Play Console: **Testing → Internal testing → Create releas
 Set these once per terminal:
 
 ```bash
-DEV=9EABB48C-7555-51D7-8014-E04CD3B2ED01
+# the connected iPhone, found automatically (no id to remember)
+xcrun devicectl list devices --json-output /tmp/devices.json >/dev/null
+DEV=$(python3 -c "import json;print(next(d['identifier'] for d in json.load(open('/tmp/devices.json'))['result']['devices'] if d['connectionProperties'].get('tunnelState')=='connected'))")
 BID=com.nextfiction.dinobikeescape
 APP=build-ios-device/BikeRaceEscapeAxmol.xcarchive/Products/Applications/BikeRaceEscapeAxmol.app
 ```
@@ -271,44 +308,3 @@ Back the file up before changing it, and stop the app before copying a changed f
 | Play Console says minimum SDK is too low | `min_sdk` in `.axproj` | Keep `min_sdk=24` |
 | No ads on the phone | `PMP_RemoveAds` is `true` in the saved settings | Check `UserDefault.bin` (section 5) |
 | Command never returns | macOS has no `timeout` command | Run long commands in the background |
-
-
-## Android (build + install + launch)
-
-The package name got split across lines when pasted (com.nextfiction. + dinobikeescape/...), so zsh ran it as two commands. Use it as one line, quoted:
-
-~/Library/Android/sdk/platform-tools/adb shell am start -n 'com.nextfiction.dinobikeescape/dev.axmol.app.AppActivity'
-
-Or launch by package (avoids the long component name):
-
-~/Library/Android/sdk/platform-tools/adb shell monkey -p com.nextfiction.dinobikeescape -c android.intent.category.LAUNCHER 1
-
-The earlier Warning: Activity not started... just meant it was already running; after install -r, run the command again.
-#### #############################################
-
-cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/proj.android
-./gradlew :BikeRaceEscapeAxmol:assembleRelease
-
-~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/release/BikeRaceEscapeAxmol-release.apk
-
-~/Library/Android/sdk/platform-tools/adb shell am start -n com.nextfiction.
-dinobikeescape/dev.axmol.app.AppActivity
-
-iOS (archive + install + launch)
-
-cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol
-
-rm -rf build-ios-device/BikeRaceEscapeAxmol.xcarchive
-
-xcodebuild -workspace build-ios-device/BikeRaceEscapeAxmol.xcworkspace -scheme BikeRaceEscapeAxmol \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -archivePath build-ios-device/BikeRaceEscapeAxmol.xcarchive -allowProvisioningUpdates archive
-
-APP=build-ios-device/BikeRaceEscapeAxmol.xcarchive/Products/Applications/BikeRaceEscapeAxmol.app
-DEV=9EABB48C-7555-51D7-8014-E04CD3B2ED01
-
-xcrun devicectl device install app --device $DEV $APP
-
-xcrun devicectl device process launch --device $DEV --terminate-existing com.nextfiction.dinobikeescape
-
-The iPhone must be connected and unlocked (currently devicectl shows it as unavailable). If CMake/Content changed, regenerate the Xcode project first with BUILD_COMMANDS.md §3.1.

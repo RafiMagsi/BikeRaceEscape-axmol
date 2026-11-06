@@ -747,7 +747,9 @@ bool PZGGamefieldPlatforms::groundYAt(float x, float& outY) const {
     return found;
 }
 
-bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
+// Finds the platform a rescued rider should land on and how far the world must slide left (outDx >= 0) to put its start
+// under the rider. Nothing moves here (see shiftWorld), so the caller can animate the slide.
+bool PZGGamefieldPlatforms::findReviveTarget(float x, float& outGroundY, float& outDx) {
     const float k = kDeviceScale();
     const float inv = 1.0f / kPhysicsWorldScale();
 
@@ -770,29 +772,35 @@ bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
             }
         }
     }
-    if (!best) {
-        return false;
-    }
+    if (!best) return false;
 
     const float want = x - 70.0f * k;
-    const float dx = (bestLeft <= want) ? 0.0f : (bestLeft - want);
-    if (dx > 0.0f) {
-        for (int i = 0; i < kMaxPlatfroms; ++i) {
-            PZGPlatfrom* p = platforms[i];
-            if (!p || !p->body || !p->sprite) continue;
-            p->sprite->setPosition(ccp(p->sprite->getPosition().x - dx, p->sprite->getPosition().y));
-            p->body->SetTransform(b2Vec2(p->body->GetPosition().x - dx * kPhysicsWorldScale(), p->body->GetPosition().y), 0);
-        }
-        for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
-            if (obstacles[i]) obstacles[i]->setPosition(ccp(obstacles[i]->getPosition().x - dx, obstacles[i]->getPosition().y));
-        }
-        for (int i = 0; i < kMaxBasicRunnerCoins; ++i) {
-            if (coins[i]) coins[i]->setPosition(ccp(coins[i]->getPosition().x - dx, coins[i]->getPosition().y));
-        }
-        length -= dx;
-    }
+    outDx = (bestLeft <= want) ? 0.0f : (bestLeft - want);
+    outGroundY = best->body->GetPosition().y * inv + 20.0f * k;
+    return true;
+}
 
-    // Fair restart: wipe hazards around the rider (removed by the regular update loop).
+// Slides everything in the world left by dx (used by the animated rescue; may be called every frame with small steps).
+void PZGGamefieldPlatforms::shiftWorld(float dx) {
+    if (dx == 0.0f) return;
+    for (int i = 0; i < kMaxPlatfroms; ++i) {
+        PZGPlatfrom* p = platforms[i];
+        if (!p || !p->body || !p->sprite) continue;
+        p->sprite->setPosition(ccp(p->sprite->getPosition().x - dx, p->sprite->getPosition().y));
+        p->body->SetTransform(b2Vec2(p->body->GetPosition().x - dx * kPhysicsWorldScale(), p->body->GetPosition().y), 0);
+    }
+    for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
+        if (obstacles[i]) obstacles[i]->setPosition(ccp(obstacles[i]->getPosition().x - dx, obstacles[i]->getPosition().y));
+    }
+    for (int i = 0; i < kMaxBasicRunnerCoins; ++i) {
+        if (coins[i]) coins[i]->setPosition(ccp(coins[i]->getPosition().x - dx, coins[i]->getPosition().y));
+    }
+    length -= dx;
+}
+
+// Fair restart: wipe hazards around x (removed by the regular update loop).
+void PZGGamefieldPlatforms::clearHazardsNear(float x) {
+    const float k = kDeviceScale();
     for (int i = 0; i < kMaxBasicRunnerObsctales; ++i) {
         PZGObstacle* o = obstacles[i];
         if (!o || o->dead) continue;
@@ -803,8 +811,14 @@ bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
             o->deleteReady = true;
         }
     }
+}
 
-    outGroundY = best->body->GetPosition().y * inv + 20.0f * k;
+// Instant version (kept for callers that want the old behaviour).
+bool PZGGamefieldPlatforms::alignForRevive(float x, float& outGroundY) {
+    float dx = 0.0f;
+    if (!findReviveTarget(x, outGroundY, dx)) return false;
+    shiftWorld(dx);
+    clearHazardsNear(x);
     return true;
 }
 

@@ -4,10 +4,6 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>.DS_Store</key>
-		<data>
-		aIHLLX6AzQoGy9c9K5Wt83e8Iu4=
-		</data>
 		<key>AppIcon60x60@2x.png</key>
 		<data>
 		ER0pq/r+Kj2iGbZMP6fvfmf7rNQ=
@@ -22,15 +18,15 @@
 		</data>
 		<key>CompleteGameInfo.plist</key>
 		<data>
-		EWovNBmkESk5PwNiYCbxOgZVzEI=
+		IzZJcvOOoNEdKIqPU1+AI8jAOFs=
+		</data>
+		<key>Fonts/LilitaOne-Regular.ttf</key>
+		<data>
+		cLTyakeHlS9/RSkM2WMEnr1aZQE=
 		</data>
 		<key>Fonts/PressStart2P-Regular.ttf</key>
 		<data>
 		U9Ct4ey/AbtyN/Q1xvUk9ivTC58=
-		</data>
-		<key>Fonts/README.md</key>
-		<data>
-		q54w/QsZVPLxvDE4Yd+UombpqM8=
 		</data>
 		<key>Fonts/RETROTECH.ttf</key>
 		<data>
@@ -38,41 +34,17 @@
 		</data>
 		<key>Frameworks/soft_oal.framework/Info.plist</key>
 		<data>
-		k+rFw3nlphamdiYHMDkNaQsEVLU=
+		LGgb8oJcBaw1sAA+tTYYZe0ZWpo=
 		</data>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<data>
-		e4/Py8FX/Y/gLMV0aKg2/9icJJ0=
+		Nfoy14GpRhIZPC7g5pnAAdEt3jk=
 		</data>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<data>
-		jsq7v/Hwf7FsX/OugSlZghV8in0=
-		</data>
-		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
-		<data>
-		cUBXBUwyyb7pEmqppGnGp10vDwQ=
-		</data>
-		<key>GoogleMobileAdsResources.bundle/PrivacyInfo.xcprivacy</key>
-		<data>
-		VWCA3MeaiPMoOAS1uOteTSLX8js=
-		</data>
-		<key>Images/.DS_Store</key>
-		<data>
-		cVocbQqg2yOzPXcTf0jNTI8vnCg=
-		</data>
-		<key>Images/HD/.DS_Store</key>
-		<data>
-		3y++sUAKzaCQmjLBz2v0kvESHgc=
-		</data>
-		<key>Images/HD/.dummy</key>
-		<data>
-		JzMVhfW0/O3W2vNeQvNM/4WsTK8=
+		yT/7HxDS8gsZg5C/IKYm0zTJoAY=
 		</data>
 		<key>Images/HD/GeneralApplicationSplashScreen.png</key>
-		<data>
-		izJyuIU9aRDrxuNc2KjuXK/HEXs=
-		</data>
-		<key>Images/HD/GeneralApplicationSplashScreen_0_0.png</key>
 		<data>
 		izJyuIU9aRDrxuNc2KjuXK/HEXs=
 		</data>
@@ -90,7 +62,7 @@
 		</data>
 		<key>Images/HD/animation_s0.png</key>
 		<data>
-		FGOP+TpAl3TCHkwnHZA566HBz8g=
+		7YYxNi2aEDC536aq3FMgudR05Sc=
 		</data>
 		<key>Images/HD/animation_s1.plist</key>
 		<data>
@@ -98,7 +70,7 @@
 		</data>
 		<key>Images/HD/animation_s1.png</key>
 		<data>
-		yCg1Pjzfu4s1gVdeeQU9jVjDIyE=
+		6lPX7M1qr4hgJCJGOh/GctZya5E=
 		</data>
 		<key>Images/HD/animation_s2.plist</key>
 		<data>
@@ -106,7 +78,7 @@
 		</data>
 		<key>Images/HD/animation_s2.png</key>
 		<data>
-		+XXNMkXKw5En3AecVnM3F/TTZ1I=
+		zrJLLxLzlCO+coNp4SThhidUnVM=
 		</data>
 		<key>Images/HD/animation_s3.plist</key>
 		<data>
@@ -124,73 +96,9 @@
 		<data>
 		LMt2ZKxh1+VeT6Vy44Kb3q60yaI=
 		</data>
-		<key>Images/SD/.DS_Store</key>
-		<data>
-		3y++sUAKzaCQmjLBz2v0kvESHgc=
-		</data>
-		<key>Images/SD/.dummy</key>
-		<data>
-		llSDsm/bnQH7gckKWu2FrEtJBtk=
-		</data>
-		<key>Images/SD/GeneralApplicationSplashScreen.png</key>
-		<data>
-		WOgA15/Y7L6IULBG8Hwcwj01Uhc=
-		</data>
-		<key>Images/SD/GeneralApplicationSplashScreen_0_0.png</key>
-		<data>
-		WOgA15/Y7L6IULBG8Hwcwj01Uhc=
-		</data>
-		<key>Images/SD/MainFont.fnt</key>
-		<data>
-		IpAdUKELT+mlwqvVciKR3QZmx9Q=
-		</data>
-		<key>Images/SD/MainFont.png</key>
-		<data>
-		vmCUObETRNyMN17eWixUT32wock=
-		</data>
-		<key>Images/SD/animation_s0.plist</key>
-		<data>
-		ZrAIhIOFy9eiurPKSZ27oGgZ7Iw=
-		</data>
-		<key>Images/SD/animation_s0.png</key>
-		<data>
-		Ltc9yCGtQSuCV/VWhQ6wuSHwNck=
-		</data>
-		<key>Images/SD/animation_s1.plist</key>
-		<data>
-		mcGV3iVL/YsnhQfzY/RmPkvM2cg=
-		</data>
-		<key>Images/SD/animation_s1.png</key>
-		<data>
-		9ZPTwY20hI3O6VTCW+5i34N1aEU=
-		</data>
-		<key>Images/SD/animation_s2.plist</key>
-		<data>
-		IZhB6X1RNVf/dDBWrenetFfXqTI=
-		</data>
-		<key>Images/SD/animation_s2.png</key>
-		<data>
-		M3JZSPsR2/vQb1hNT+COam0n5Tk=
-		</data>
-		<key>Images/SD/animation_s3.plist</key>
-		<data>
-		x1LHRop0unQLSqNsNp8QMPeTb4k=
-		</data>
-		<key>Images/SD/animation_s3.png</key>
-		<data>
-		mIJM9heCwDtiJzf3U5SzhGMBF/o=
-		</data>
-		<key>Images/SD/free_game.png</key>
-		<data>
-		Lmk5vmuA1erikTKJB0pQffTgH7A=
-		</data>
-		<key>Images/SD/gameLogo.png</key>
-		<data>
-		IhK9djCicQb1i9TrAkv27BsdxQE=
-		</data>
 		<key>Info.plist</key>
 		<data>
-		VJvFn9F4vyV0fKxp2M8I/kJLUPU=
+		1u/ChVLPpr/ED6AjDTCFkDLdM/U=
 		</data>
 		<key>LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
@@ -208,9 +116,9 @@
 		<data>
 		n57qDP4tZfLD1rCS43W0B4LQjzE=
 		</data>
-		<key>Sounds/.dummy</key>
+		<key>PrivacyInfo.xcprivacy</key>
 		<data>
-		Z5iKuaF6abB1ZiGt6reAOpehGPY=
+		b1kXGceNhfxcDN9UG31NCcqrxOQ=
 		</data>
 		<key>Sounds/Sounds_0.mp3</key>
 		<data>
@@ -228,6 +136,22 @@
 		<data>
 		jvGGk0ihp6sN2UBk29+Q479NdfI=
 		</data>
+		<key>Sounds/Sounds_4.mp3</key>
+		<data>
+		+lnZ7BZCbGhjMLucGnlwu343QV0=
+		</data>
+		<key>Sounds/Sounds_5.mp3</key>
+		<data>
+		RUDqZMSkqGLj/hh8mqTG6+Akxgc=
+		</data>
+		<key>Sounds/Sounds_6.mp3</key>
+		<data>
+		CIznbRcNT4EcdsNxfSvZzyVryhM=
+		</data>
+		<key>Sounds/Sounds_7.mp3</key>
+		<data>
+		U25plWayuTRLRUiAqVSpNonMUQI=
+		</data>
 		<key>Sounds/Sounds_8.mp3</key>
 		<data>
 		mkYLPFixUV8/JIq/9XKw6bd7jnY=
@@ -236,17 +160,245 @@
 		<data>
 		mkYLPFixUV8/JIq/9XKw6bd7jnY=
 		</data>
-		<key>UserMessagingPlatformResources.bundle/Info.plist</key>
+		<key>Sounds/fx_bigair.mp3</key>
 		<data>
-		Su3b8tIUqwzgDZFjMIaCexyGob0=
+		8vqOtbTixOtwpMWdiwyf+3L80eo=
 		</data>
-		<key>UserMessagingPlatformResources.bundle/PrivacyInfo.xcprivacy</key>
+		<key>Sounds/fx_blast.mp3</key>
 		<data>
-		k9OFlDPBRWfteJ+bfG12WAoBuls=
+		7FUDJaTxRSufHz0ky1Hk097b10w=
+		</data>
+		<key>Sounds/fx_buy.mp3</key>
+		<data>
+		9KlTfp3xv7pQDRuaNzrnWJUcQDo=
+		</data>
+		<key>Sounds/fx_claim.mp3</key>
+		<data>
+		Rso5z2KaUIGvdLujtjqjaHq3KXw=
+		</data>
+		<key>Sounds/fx_combo.mp3</key>
+		<data>
+		gHTSlCbmWH7zsW4rSMHhrCrv9jw=
+		</data>
+		<key>Sounds/fx_combo_bonus.mp3</key>
+		<data>
+		lj+MCufAyGyDgAMDGz24mUOHlaE=
+		</data>
+		<key>Sounds/fx_crash.mp3</key>
+		<data>
+		sYMKPExQdYdktZHsKm0tlZGUwk4=
+		</data>
+		<key>Sounds/fx_crowd_boo.mp3</key>
+		<data>
+		s5Aef9X5uCfgIrB/6WVf0pe79d8=
+		</data>
+		<key>Sounds/fx_crowd_cheer.mp3</key>
+		<data>
+		bkXcEW7qJ68VkpDVjk7kip3eekI=
+		</data>
+		<key>Sounds/fx_error.mp3</key>
+		<data>
+		VEGQFZ1jSrl5r6MNATWIA1XHqfg=
+		</data>
+		<key>Sounds/fx_explosion.mp3</key>
+		<data>
+		YkBJIKY3Q2/l8Fq1HACTR3b23Qo=
+		</data>
+		<key>Sounds/fx_fall.mp3</key>
+		<data>
+		mYuRtLu8SPxBWDh+ef1j46h9Tcc=
+		</data>
+		<key>Sounds/fx_fire.mp3</key>
+		<data>
+		e6W64Wg9JyzijZaV+6UFF2YUmt8=
+		</data>
+		<key>Sounds/fx_go_hit.mp3</key>
+		<data>
+		UXeWFOCVrRSDRKGo6w/NEOpSnag=
+		</data>
+		<key>Sounds/fx_gun_on.mp3</key>
+		<data>
+		/ilK5uRVwpVue4uKxCeweFX8x9o=
+		</data>
+		<key>Sounds/fx_helmet.mp3</key>
+		<data>
+		yJtbscyAUups2TmsjYsa0bbwJOo=
+		</data>
+		<key>Sounds/fx_jetpack.mp3</key>
+		<data>
+		PTsDrDM4gum/+gr2/wl2lPLe8Bk=
+		</data>
+		<key>Sounds/fx_jump.mp3</key>
+		<data>
+		8ATcmdGb0NiAP44EXkTheoYpFxQ=
+		</data>
+		<key>Sounds/fx_land.mp3</key>
+		<data>
+		r/kTJx1OVRSJEUw4Sr+9Zv0ryTE=
+		</data>
+		<key>Sounds/fx_levelup.mp3</key>
+		<data>
+		mUhi738QpqM3uXitNjtAwaO7JhY=
+		</data>
+		<key>Sounds/fx_magnet.mp3</key>
+		<data>
+		l66WDHQyfbDJzFQVj3dSuC/Gz5Q=
+		</data>
+		<key>Sounds/fx_mission.mp3</key>
+		<data>
+		hukaHR8oD2jSPdTULV/i8SY6rBY=
+		</data>
+		<key>Sounds/fx_nearmiss.mp3</key>
+		<data>
+		aKOxH1RVOnMxgU7iBtCH+3aeRCg=
+		</data>
+		<key>Sounds/fx_open.mp3</key>
+		<data>
+		U9oez090tP7Lm9x33LIzws2gKKQ=
+		</data>
+		<key>Sounds/fx_powerup.mp3</key>
+		<data>
+		wglCDTcL+dGvHgSw7YSdHczdVsM=
+		</data>
+		<key>Sounds/fx_revive.mp3</key>
+		<data>
+		ZcjMbSmcx+zsgROO2xDmdOHfdJM=
+		</data>
+		<key>Sounds/fx_rocket.mp3</key>
+		<data>
+		CwDg5eMTvSf/NNwlH2GiCgSWqCM=
+		</data>
+		<key>Sounds/fx_shield.mp3</key>
+		<data>
+		pyoH4O+q1LPRhyPgUGD6yjLiFyM=
+		</data>
+		<key>Sounds/fx_shield_break.mp3</key>
+		<data>
+		WibAYeQA6ed1egeoKxgfg/dNVik=
+		</data>
+		<key>Sounds/fx_shot.mp3</key>
+		<data>
+		+lnZ7BZCbGhjMLucGnlwu343QV0=
+		</data>
+		<key>Sounds/fx_smash.mp3</key>
+		<data>
+		9Xz9O8cFtsWgAEwdaZf8+9QcRro=
+		</data>
+		<key>Sounds/fx_stage.mp3</key>
+		<data>
+		2AvOgL3WiScLsTQ+ZdO3dfPw8jE=
+		</data>
+		<key>Sounds/fx_swoosh.mp3</key>
+		<data>
+		xNM+RouWROLF2msQApE+n/54mss=
+		</data>
+		<key>Sounds/fx_tick.mp3</key>
+		<data>
+		AJJUuH8SAQke6BdB8hxkQA41j9k=
+		</data>
+		<key>Sounds/fx_turbo.mp3</key>
+		<data>
+		EwW1u9gLdaYjevnuVlg+Gu3hNTc=
+		</data>
+		<key>Sounds/vo_1.mp3</key>
+		<data>
+		sEQQb650PRxHTQQUGmV0vS5jpCM=
+		</data>
+		<key>Sounds/vo_2.mp3</key>
+		<data>
+		oeHjJ4eT82bV4h41uD7lK4qhBzc=
+		</data>
+		<key>Sounds/vo_3.mp3</key>
+		<data>
+		YvyT0yx9cEnS4FHJSyLBoA1XU+4=
+		</data>
+		<key>Sounds/vo_big_air.mp3</key>
+		<data>
+		o9yjbhtX37ZqaAzVoO4726TUfgg=
+		</data>
+		<key>Sounds/vo_blast.mp3</key>
+		<data>
+		MMnIrK05FPTWo1tF/tZGHy9G0J4=
+		</data>
+		<key>Sounds/vo_close_call.mp3</key>
+		<data>
+		/HZ+X3hChcb1zDz3eT+La5f6Y3E=
+		</data>
+		<key>Sounds/vo_combo.mp3</key>
+		<data>
+		DlTGzF9E1NenhYflWdcjuAcLthI=
+		</data>
+		<key>Sounds/vo_game_over.mp3</key>
+		<data>
+		iURMZB5p0ABy9ek1iu8N/L1Z4CE=
+		</data>
+		<key>Sounds/vo_get_ready.mp3</key>
+		<data>
+		gJnZdqQbK5JXcLF+3YImThXDw+c=
+		</data>
+		<key>Sounds/vo_go.mp3</key>
+		<data>
+		EFgZXJeqGeBl+rKZ9GS1yGq2fjo=
+		</data>
+		<key>Sounds/vo_gun.mp3</key>
+		<data>
+		pUeFdILTPAwnP2avbaY81+U2Lzc=
+		</data>
+		<key>Sounds/vo_helmet.mp3</key>
+		<data>
+		n7GsWA/KLGmx1ggfWXqK3LMSYUc=
+		</data>
+		<key>Sounds/vo_jetpack.mp3</key>
+		<data>
+		LYvrKFsGWnTlLnCbFu99K5n9VEM=
+		</data>
+		<key>Sounds/vo_magnet.mp3</key>
+		<data>
+		ly37eK0guJHbMOaAHNdiObdXBVA=
+		</data>
+		<key>Sounds/vo_mission.mp3</key>
+		<data>
+		ZQexxnJdBp86HbB5p3PxhCRPX+0=
+		</data>
+		<key>Sounds/vo_new_best.mp3</key>
+		<data>
+		tRD08JRLQ7Y75Fat0fcokj3xMks=
+		</data>
+		<key>Sounds/vo_revived.mp3</key>
+		<data>
+		hv2TMc4cybYRQl8Hnkmc1UoQIsk=
+		</data>
+		<key>Sounds/vo_rocket.mp3</key>
+		<data>
+		9GaM+z3TdCbwmMUfHbzaXHNJhZw=
+		</data>
+		<key>Sounds/vo_second_chance.mp3</key>
+		<data>
+		zirFkSwQqvVB6lM9BYaqAiDCyfE=
+		</data>
+		<key>Sounds/vo_shield.mp3</key>
+		<data>
+		t/YA7GQjjR2cN2rUIINf5cXHAt0=
+		</data>
+		<key>Sounds/vo_smash.mp3</key>
+		<data>
+		p8Y2IRmwMSZ+Nc1udZzgG+9yMIk=
+		</data>
+		<key>Sounds/vo_stage.mp3</key>
+		<data>
+		xX+nilza0ZZgIL2e9WSguAiZhHg=
+		</data>
+		<key>Sounds/vo_turbo.mp3</key>
+		<data>
+		L4Lssofh+dL6J3SL6rVDDYkkXio=
+		</data>
+		<key>Sounds/vo_welcome.mp3</key>
+		<data>
+		Dv44UZs93gm/lNfsnD8yGYVFMts=
 		</data>
 		<key>ads.plist</key>
 		<data>
-		CPaIsIBw0vHG0w9BS3Q+wgPiTR8=
+		qcHe/XKGw6JWmZ+TI/1zwgtJA0s=
 		</data>
 		<key>axslc/cameraClear_fs</key>
 		<data>
@@ -504,7 +656,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			H7mvDBvkj9VEt2vrAOcUHRcxPrgNr5hP4jk5/fDcpNo=
+			V59IHK0lHPv4BJvffLzS7Hbf0ZkiIdlfKdtvbEzsSCY=
+			</data>
+		</dict>
+		<key>Fonts/LilitaOne-Regular.ttf</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			9bZBxFxp13LuTtpoe8n9pBHVytawtFNxSR2kWAy8jVk=
 			</data>
 		</dict>
 		<key>Fonts/PressStart2P-Regular.ttf</key>
@@ -512,13 +671,6 @@
 			<key>hash2</key>
 			<data>
 			A0x38fBeyJQh5KY/DjpMoez4UsxtK/YR8SbydXKOAX0=
-			</data>
-		</dict>
-		<key>Fonts/README.md</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			6w7l0VZgBBtxMi116D+B+v7QvUY/5nC1NdHXohkX2ok=
 			</data>
 		</dict>
 		<key>Fonts/RETROTECH.ttf</key>
@@ -532,52 +684,24 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			kktewtTIcK2+lSUVVKXQggK3U/xMJZXzpol1nBYNfbs=
+			n24Hsdxhn8THhDhueV4QXqD0UBL3yJHDgfOJRIJrdJI=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			jqSC+vQbNPffLe6lyY/wy+eG6JovQmo8Fq9OAkFmvNo=
+			z2+/wQWL21OuHBRLDImtETTXfLRQeCs5DOpyxQUs36c=
 			</data>
 		</dict>
 		<key>Frameworks/soft_oal.framework/soft_oal</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ygDTYa8FvEcDQuJzlcGVNmMpfhBSQtFociHXuV9LGXo=
-			</data>
-		</dict>
-		<key>GoogleMobileAdsResources.bundle/Info.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			6uxmpDvPvIgOGPEMr/nNlj9fnaRTbVJzKXL0Dgv2LWM=
-			</data>
-		</dict>
-		<key>GoogleMobileAdsResources.bundle/PrivacyInfo.xcprivacy</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			afsRJYL8I/wGxjXJYdJio/e0tWVNKEeHSR3jAA2t+dI=
-			</data>
-		</dict>
-		<key>Images/HD/.dummy</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			mmmSLFl5Ij6X4gWwGXvt6mOrHih1CrWXGJF6isOaGTY=
+			Z6B185wyjQdNq/N4ShD7JHIH3OlPPUUraoz3yF4nkFc=
 			</data>
 		</dict>
 		<key>Images/HD/GeneralApplicationSplashScreen.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			FFUI6Xv4z2njJfTv8WTaxAkbKEyncuadpNsVbyNEW1Y=
-			</data>
-		</dict>
-		<key>Images/HD/GeneralApplicationSplashScreen_0_0.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
@@ -609,7 +733,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			+MdKi1AeCkOOK4Tu+aw4Lvi4S2jE0PwEzNZEnXAthVI=
+			zKtHY07YM/loKtk08TEnH4H21NO/y4pdOx5Wh2z3X/I=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s1.plist</key>
@@ -623,7 +747,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			B2jXzQt5SW9YgZDBFtaCcLx+i54VZ046/EFERolryfU=
+			6jwLzJKTv3yCcoOuSuiXWWDSPQSBbWwJ0LD7CSPAemE=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s2.plist</key>
@@ -637,7 +761,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			LEgI3/Eb1+Bnc/zW8YnOq5f2MjhsMoO9fSdTenqWnZY=
+			a7UwzGytHEwIoY3c3AbfXQb26BdI2Q8nqGAZswD8wh8=
 			</data>
 		</dict>
 		<key>Images/HD/animation_s3.plist</key>
@@ -668,111 +792,6 @@
 			+sD2E84xSkVXokBqF0kji3pj3W4yAcyvAPKPA+AV3X0=
 			</data>
 		</dict>
-		<key>Images/SD/.dummy</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			MIhqY4EU+8c+9/bYFmmEjh6sFak8buogXvK6MBkGhbs=
-			</data>
-		</dict>
-		<key>Images/SD/GeneralApplicationSplashScreen.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			mso2ZlQ8ZvEnEby/c26WE/qM8wHcZrn1uj08gz6TkZ8=
-			</data>
-		</dict>
-		<key>Images/SD/GeneralApplicationSplashScreen_0_0.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			mso2ZlQ8ZvEnEby/c26WE/qM8wHcZrn1uj08gz6TkZ8=
-			</data>
-		</dict>
-		<key>Images/SD/MainFont.fnt</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			IFKP8O1bmwG6WWM1YVRU4mzMZrxg9UFUgp5/oHhUydQ=
-			</data>
-		</dict>
-		<key>Images/SD/MainFont.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			jDu3zzYv4asO2a2XEM11g7BlVNM5yFQS+aROXCs0ZNY=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s0.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			VU5aioTyyGgV8cqkfzxVb9se3J4ynsek9+kNfOC8CvA=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s0.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			j6D9cbDeoDV/GXmfx7GnzU/stqbyu5n2IZr2QHIkiMA=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s1.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			IoA5YBwRL2E3X1y0gquOPq7Wat9/r5t6Bk2UvRL7iwA=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s1.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			hoXzxKNFx6fPuZaVE4U4Imm3I9kxYtrkUm0SpQW7v3s=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s2.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			nlC1jOwKhahxqrEBqbE8OM46+LDkrhR2kRXk2HhGu8Y=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s2.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			d+iq7VtzX/ChyOezUO9JSB6r3Vl4hq2PF/UHXnmuqfg=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s3.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			9OwNV3LRn4kpkN6kH6yegXleLVYU/ilrMFGftqX0AU0=
-			</data>
-		</dict>
-		<key>Images/SD/animation_s3.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			NW9ywXjosi2GZBAicPkIBmppBHeGQ79WbgMiDDo0jkg=
-			</data>
-		</dict>
-		<key>Images/SD/free_game.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			gpvsC4Xfm/dK+0BxY5w+5ncpf18Ykwky+CebRNQHsLA=
-			</data>
-		</dict>
-		<key>Images/SD/gameLogo.png</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			xoBah5zT8Zi1BQDSaU+joVS2mlkDOWBnJU/sPH8P/4E=
-			</data>
-		</dict>
 		<key>LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<dict>
 			<key>hash2</key>
@@ -794,11 +813,11 @@
 			VPNjf2cf66XxnoLsT0p/tEi7PPwPsYDwiapXH8jwU+I=
 			</data>
 		</dict>
-		<key>Sounds/.dummy</key>
+		<key>PrivacyInfo.xcprivacy</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			09gWZkiVCwtMabdWzD+S6SvF8jg/4lvl/zLE7/EdoQQ=
+			iZxDcYwTwzhoZdmR5usTJL8MZKjhVakKQum+q/J5Fzc=
 			</data>
 		</dict>
 		<key>Sounds/Sounds_0.mp3</key>
@@ -829,6 +848,34 @@
 			Ux8tDrKZA4w0vDEe7y/gfBCaCbtjyVrMZvd1SlPviNk=
 			</data>
 		</dict>
+		<key>Sounds/Sounds_4.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			5uvQT6yJhF7q2l9xfQANWtjGARzdmOuBvbHayunHbhY=
+			</data>
+		</dict>
+		<key>Sounds/Sounds_5.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			scsMg4OaT+5Y4ALo1RWdtdUOIMSKFcQK/S9xjhzzYIc=
+			</data>
+		</dict>
+		<key>Sounds/Sounds_6.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			EBWGUtRSmqSb/ctyTaGufv4Sm6sze/mHtdHhFY7Oqa4=
+			</data>
+		</dict>
+		<key>Sounds/Sounds_7.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Ez4lkXkKbacZsr78T6dx7NT7WnVOiLEmv0s/egl/Wr0=
+			</data>
+		</dict>
 		<key>Sounds/Sounds_8.mp3</key>
 		<dict>
 			<key>hash2</key>
@@ -843,25 +890,424 @@
 			0K8tL/AQgpFdiWDHGkalJnBM+UbFT4Y5mc/odcnraTk=
 			</data>
 		</dict>
-		<key>UserMessagingPlatformResources.bundle/Info.plist</key>
+		<key>Sounds/fx_bigair.mp3</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			CtuATHY4g/FGjVBo7Hn7CJgLHbun0WJLf78WQEUHugc=
+			3BGdAU2OTo1y+eaoU66bjoo9Q680Cue62m2t/uuevz0=
 			</data>
 		</dict>
-		<key>UserMessagingPlatformResources.bundle/PrivacyInfo.xcprivacy</key>
+		<key>Sounds/fx_blast.mp3</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			RbetuZ/NLZYqHIAPv8wTJbV6f6QWX0FhgjI7tf/pyQA=
+			tjkoWBiO66LuLkkwwDnoEQXWa5L1N9lXpFzTf5AGrEo=
+			</data>
+		</dict>
+		<key>Sounds/fx_buy.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			UF0IDevC1k6EQczGIO8eSPW4IEWUTsvLWevrjc+s2L8=
+			</data>
+		</dict>
+		<key>Sounds/fx_claim.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Fp+kq173DtLh2rB2Aa2Iq08u9P0E4Wg/Z+UmU7av5Mw=
+			</data>
+		</dict>
+		<key>Sounds/fx_combo.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			21oUUE1huI0l7kuvC++EdVvx0DFHGjaorQlXMBAWZ54=
+			</data>
+		</dict>
+		<key>Sounds/fx_combo_bonus.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			x188fieVPQtO4RliXhhLyWiYLhovKzH74R4oPQdRPyg=
+			</data>
+		</dict>
+		<key>Sounds/fx_crash.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Mvkv0iNFovsdqW08IvmVhjGAEr90NgzQKWss1SpIvSo=
+			</data>
+		</dict>
+		<key>Sounds/fx_crowd_boo.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ejmSzaQSbxvbnASYajgnMJ7Yvbs5UEpTJg0ydU4JFJA=
+			</data>
+		</dict>
+		<key>Sounds/fx_crowd_cheer.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			AAYCBZipnYqCwgkeGBKEECdOJQjB0HCECtiTjVgc31I=
+			</data>
+		</dict>
+		<key>Sounds/fx_error.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			dSivnQQ7dZNwW9IKDimBavgAHXPDg3g6W9lRxoCpNdw=
+			</data>
+		</dict>
+		<key>Sounds/fx_explosion.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			JAqs+PXSvhcknBua1HUxQJf/EdhzZxHzxAWnz/sfIFs=
+			</data>
+		</dict>
+		<key>Sounds/fx_fall.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			840uxgOdLF3go5x6yMviHThdDBYxjaP/wnKNhkPXcm4=
+			</data>
+		</dict>
+		<key>Sounds/fx_fire.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			89t14BkaLFE1Xdx5+L9TfLRtmxV5wsKzqlQaP0GnHNo=
+			</data>
+		</dict>
+		<key>Sounds/fx_go_hit.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			qCNZR5IadyjEmk1ZCKS+8gmTOPeXQnWRltOxootLX8s=
+			</data>
+		</dict>
+		<key>Sounds/fx_gun_on.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hWsETOGnEcDjMXA9D6rE4nvi7zjA/rQFSdCWC4nTe2o=
+			</data>
+		</dict>
+		<key>Sounds/fx_helmet.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			gaACJZRpzqbLuzhEm6/A14gsTmxu0mrdGw3vuwqVJyA=
+			</data>
+		</dict>
+		<key>Sounds/fx_jetpack.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			6LOa1Sr3aRs7QkgnCZLmNqDwBDkChLzkDHEqaZwpqOs=
+			</data>
+		</dict>
+		<key>Sounds/fx_jump.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			fydpqK5tZYrpZJXCrbd0N70a0f3AQVAPUgvAIDt1Vlw=
+			</data>
+		</dict>
+		<key>Sounds/fx_land.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Flngkr6YNXDrD9ir5YrEZj6je5ktfE8GAdw10Y36d/I=
+			</data>
+		</dict>
+		<key>Sounds/fx_levelup.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7JVT583HBl5XF7cIzGbKmc3eV7Pw08cCgMNO0SbUXak=
+			</data>
+		</dict>
+		<key>Sounds/fx_magnet.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			K/9uO9OcHFDIohxCvtjGEq5ZHcyXM9AuQ5zPFPs821I=
+			</data>
+		</dict>
+		<key>Sounds/fx_mission.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			bmgAamVafjwGwZKFLaKnEolYpntg+QsbaxxzdaTN2VE=
+			</data>
+		</dict>
+		<key>Sounds/fx_nearmiss.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LsYKefzdELAoai1HhFaEhEXUXZQHGPT7ThDGR9Qx/5Q=
+			</data>
+		</dict>
+		<key>Sounds/fx_open.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			rlwOtH5I33BAGqsPKW+3gE0i9DW8bN8PAYnBaGCY5k0=
+			</data>
+		</dict>
+		<key>Sounds/fx_powerup.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			0xSikPw6MvPkFZ3KeVz7i3r+HLGmulfUQjDInoXFhXs=
+			</data>
+		</dict>
+		<key>Sounds/fx_revive.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			lUH/xt1aiHicP7I/EEEgkjyBIpjuKiOZTnB99Wrmo8k=
+			</data>
+		</dict>
+		<key>Sounds/fx_rocket.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hZnS6NmoOzEFMFoFoIp0VL63ZIOILQpVZDxdguvj7rk=
+			</data>
+		</dict>
+		<key>Sounds/fx_shield.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			P2xDRpFYxd8/5P7yM/jQlrasgiDLvadZIlJziV9FsjY=
+			</data>
+		</dict>
+		<key>Sounds/fx_shield_break.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Lc4qLJ+fD5jztRE+6WllSC2tIBL0f+1wIrMyc+fPdvw=
+			</data>
+		</dict>
+		<key>Sounds/fx_shot.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			5uvQT6yJhF7q2l9xfQANWtjGARzdmOuBvbHayunHbhY=
+			</data>
+		</dict>
+		<key>Sounds/fx_smash.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			f1yfKctjKJWHv40566ITwhUQ2voUyJsnxh0FBZthAjM=
+			</data>
+		</dict>
+		<key>Sounds/fx_stage.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			1rmahjIpPSyBltutFvmf0kaOEhXbkOUjsQ60v8v3YP8=
+			</data>
+		</dict>
+		<key>Sounds/fx_swoosh.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			2kJhOwSviRZpo03nDJHuJcQjzYHk64rAzNU/VeEWqNU=
+			</data>
+		</dict>
+		<key>Sounds/fx_tick.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			oUTnnUJaM9UmdMainkZIT4X8wHuX9FUiBjz16wVk1x4=
+			</data>
+		</dict>
+		<key>Sounds/fx_turbo.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			A9e4+lKlyxoAbcHO4rzC8yuEa95a6885pSy3E1oEXm4=
+			</data>
+		</dict>
+		<key>Sounds/vo_1.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			pcz1nlLbg5lkkaDSD5z+YlcdTtQfqzyLUVqIbkoZhj4=
+			</data>
+		</dict>
+		<key>Sounds/vo_2.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			6nqSCxw2bcrBoS8bunYFzO6C7D/2AP0C9ZqWmGNrqV0=
+			</data>
+		</dict>
+		<key>Sounds/vo_3.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			vfodG7UVAg/Fhxv9ZzXPmAbdcUvadSYD2Q0lEti2qTw=
+			</data>
+		</dict>
+		<key>Sounds/vo_big_air.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			gaGK5KLp4PMAcoWKHGqh1bGI0/um18Bm5qQeFSoeQm4=
+			</data>
+		</dict>
+		<key>Sounds/vo_blast.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			NDGMzE7zgpaPatSu/4AIjpxf2TzjSBr6rMUNb5YUikk=
+			</data>
+		</dict>
+		<key>Sounds/vo_close_call.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			YSYGIXEU9FRiWbzqp0gUuUgW84nVL6fWerOIiGwp7lY=
+			</data>
+		</dict>
+		<key>Sounds/vo_combo.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			BonpJpvY8qbZ3bUrn5qilCyompn8zBbkZtGV/VkNfsY=
+			</data>
+		</dict>
+		<key>Sounds/vo_game_over.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			sg5Gwx3shj+5JVeiY63rdx+qKpCTTlR81ZSHE25nTEA=
+			</data>
+		</dict>
+		<key>Sounds/vo_get_ready.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			xF2ONTQXgCdI1o5JlqlnvZg6yasZ2LGZYsD2Ld5Po5Y=
+			</data>
+		</dict>
+		<key>Sounds/vo_go.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			G3D2G2e14yogMMAJWzJal2yhOhNdoi4j3ApbuAxUBXM=
+			</data>
+		</dict>
+		<key>Sounds/vo_gun.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			HVMgGsDcDnlvOsUu+biv/ULfQzsuqBeJ6sy57bQzyG0=
+			</data>
+		</dict>
+		<key>Sounds/vo_helmet.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			H6/CDld0oIe/SL6iR4c06DgmMgmgOYVv45JZIBcM+yk=
+			</data>
+		</dict>
+		<key>Sounds/vo_jetpack.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			uW1xsqjkDAZ3qzURr4KrEVkozaDzYQtckajfd27hP4w=
+			</data>
+		</dict>
+		<key>Sounds/vo_magnet.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			97RjPX+i2AVeKmdztj4mmG8vgjBUFUP0HhH1r0BsXOA=
+			</data>
+		</dict>
+		<key>Sounds/vo_mission.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/biidHO1nNrMVJroknP7wvaDAcxkJERbaWNl/d99u18=
+			</data>
+		</dict>
+		<key>Sounds/vo_new_best.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			O/Tu1l4sT5pdFMwWE1oJ2OUNuhT+Q59h+OXpJ+cMQwE=
+			</data>
+		</dict>
+		<key>Sounds/vo_revived.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			I3fH64yf2ZFPG1VWifaO+kpmzamVBbFYKt89jvuR29Y=
+			</data>
+		</dict>
+		<key>Sounds/vo_rocket.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kncZc8cdzLH/SqGM2SB4oFq/81HGKusHYp2EyTzyRLA=
+			</data>
+		</dict>
+		<key>Sounds/vo_second_chance.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			SZ18W0hHN8K6VsnFFA/zKA47R7+V2FlU9o3/tCCgRR4=
+			</data>
+		</dict>
+		<key>Sounds/vo_shield.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hEN8SgLC9+NTrWoBK5xnWAY0r0zLpoLQBraAH2WectI=
+			</data>
+		</dict>
+		<key>Sounds/vo_smash.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			KbMOac3xAz0rbcnNlpVmLc8JOPPO1/qmqsmp50Xwsoo=
+			</data>
+		</dict>
+		<key>Sounds/vo_stage.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			OWYJdLKLj79ZBEF6mDzl9gOoO5UQV9kz0A+XaPNtsJg=
+			</data>
+		</dict>
+		<key>Sounds/vo_turbo.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			tcT8fygsYMpdmsfp4BV8Z9+fWqWX+04SAkjBdcQaNEg=
+			</data>
+		</dict>
+		<key>Sounds/vo_welcome.mp3</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			aCHBQ1sGzmJEjTsnznC2MIsBung1WRhZsN6oeKBXkwM=
 			</data>
 		</dict>
 		<key>ads.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0WVfPniyr0FN/y98x70vaCnSfy/D2MtDr3sCnF0rmFs=
+			H8P6xrcv2nM19zODxezHLgEtVlf6aWoiDX3ySkgs9Ro=
 			</data>
 		</dict>
 		<key>axslc/cameraClear_fs</key>

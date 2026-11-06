@@ -73,6 +73,13 @@ AdsConfig AdsConfig::loadFromAdsPlist() {
         cfg.admob.rewardedIdAndroid = readStr(admob, "rewardedIdAndroid");
 
         cfg.admobTestMode = readBool(admob, "testMode", false);
+#if !defined(NDEBUG)
+        // Debug builds (Xcode Debug / Gradle debug) can never request LIVE ads: clicking your own live ads can get the
+        // AdMob account suspended. Release / archive / bundleRelease builds define NDEBUG and use the real unit ids.
+        cfg.admobTestMode = true;
+#else
+        if (cfg.admobTestMode) AXLOGW("AdsConfig: ads.plist testMode=true in a RELEASE build: set it to false before upload");
+#endif
         if (cfg.admobTestMode) {
             // Google's documented sample ad units: https://developers.google.com/admob/ios/test-ads
             cfg.admob.bannerIdIOS = "ca-app-pub-3940256099942544/2435281174";

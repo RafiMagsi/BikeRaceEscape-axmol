@@ -34,6 +34,10 @@ void attachResults(ax::Node* gameOverLayer, ax::Label* distanceLabel, const PZRu
 // Gadget loadout: pick up to kGadgetSlots unlocked gadgets. `onChanged` fires after every equip/unequip.
 ax::Node* showGadgets(ax::Node* parent, std::function<void()> onClosed = nullptr);
 
+// In-run gadget picker (opened from the top-bar GADGETS button). Exactly one callback fires after the popup closed:
+// onChoose(id) for a tapped unlocked gadget (stock may be 0: the caller opens the shop), or onCancel.
+ax::Node* showGadgetPicker(ax::Node* parent, std::function<void(const std::string&)> onChoose, std::function<void()> onCancel);
+
 // Settings: sound effects, music, vibration, reminders and the Google privacy-choices form.
 ax::Node* showSettings(ax::Node* parent, std::function<void()> onClosed = nullptr);
 

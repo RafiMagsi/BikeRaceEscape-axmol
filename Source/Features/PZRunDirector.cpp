@@ -248,13 +248,18 @@ void PZRunDirector::onLoaded() {
     if (!_scene) return;
     // Best-score read-out tucked under the live distance counter (same gold arcade style as the HUD).
     if (_bestLabel) _bestLabel->removeFromParent();
-    _bestLabel = PZUI::heading("", 10.f, PZCfg::kColDim);
-    _bestLabel->setAnchorPoint(Vec2(0.f, 0.5f));
-    if (_scene->distance_label) {
+    _bestLabel = PZUI::heading("", 12.f, PZCfg::kColAccent2);
+    _bestLabel->setAnchorPoint(Vec2(0.5f, 0.5f));
+    if (_scene->distance_label && _scene->coins_label) {
+        // Level with the coin and distance counters, halfway between them (left of the distance meter).
+        const Vec2 pc = _scene->coins_label->getPosition();
+        const Vec2 pd = _scene->distance_label->getPosition();
+        _bestLabel->setPosition(Vec2((pc.x + pd.x) * 0.5f + 40.f, pd.y));
+    } else if (_scene->distance_label) {
         const Vec2 p = _scene->distance_label->getPosition();
-        _bestLabel->setPosition(Vec2(p.x, p.y - 30.f));
+        _bestLabel->setPosition(Vec2(p.x - 240.f, p.y));
     } else {
-        _bestLabel->setPosition(Vec2(PZLayout::safeRect().getMidX(), Director::getInstance()->getWinSize().height - 92.f));
+        _bestLabel->setPosition(Vec2(PZLayout::safeRect().getMidX() - 240.f, Director::getInstance()->getWinSize().height - 60.f));
     }
     _hud->addChild(_bestLabel);
     layoutHud();
@@ -279,53 +284,62 @@ void PZRunDirector::refreshGadgetStrip() {
         _gadgetStrip->setVisible(false);
         return;
     }
-    // One big round button per gadget in the player's loadout, right-aligned under the top edge. The number is the
-    // stored charges; the ring is bright and breathing while a tap is available, and drains while the effect runs.
-    auto* pg = PZProgress::shared();
-    std::vector<int> pools;
-    const int count = std::min(pg->selectedGadgetCount(), std::max(0, PZCfg::kGadgetSlots));
-    for (int i = 0; i < count; ++i) {
-        const int idx = pg->gadgetPoolIndex(pg->gadgetAt(i));
-        if (idx >= 0 && pg->gadgetUnlocked(idx)) pools.push_back(idx);
-    }
-    const int n = static_cast<int>(pools.size());
-    const float d = n <= 3 ? 78.f : (n <= 5 ? 66.f : 56.f);
-    const float gap = 12.f;
-    for (int i = 0; i < n; ++i) {
-        const auto& def = PZCfg::kGadgetPool[pools[i]];
-        GadgetBtn b;
-        b.id = def.id;
-        b.pool = pools[i];
-        b.r = d * 0.5f;
-        b.pos = Vec2(-(n - 1 - i) * (d + gap) - d * 0.5f, 0.f);
-
-        b.root = Node::create();
-        b.root->setPosition(b.pos);
-        _gadgetStrip->addChild(b.root);
-        auto* disc = DrawNode::create();
-        disc->drawSolidCircle(Vec2(0.f, -3.f), b.r + 3.f, 0.f, 32, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
-        disc->drawSolidCircle(Vec2::ZERO, b.r, 0.f, 32, PZUI::c4f(PZCfg::kColPanel, 0.94f));
-        disc->drawSolidCircle(Vec2::ZERO, b.r - 5.f, 0.f, 32, PZUI::c4f(Color3B(36, 44, 74), 0.9f));
-        b.root->addChild(disc, 0);
-        b.ring = DrawNode::create();
-        b.root->addChild(b.ring, 1);
-        auto* icon = PZUI::gadgetIcon(def.id, d * 0.62f, def.icon, false);
-        icon->setName("icon");
-        b.root->addChild(icon, 2);
-
-        auto* badge = Node::create();
-        badge->setPosition(Vec2(b.r * 0.72f, -b.r * 0.72f));
-        auto* dot = DrawNode::create();
-        dot->drawSolidCircle(Vec2::ZERO, 13.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.5f));
-        dot->drawSolidCircle(Vec2::ZERO, 12.f, 0.f, 20, PZUI::c4f(PZCfg::kColAccent));
-        dot->drawCircle(Vec2::ZERO, 12.f, 0.f, 20, false, PZUI::c4f(PZCfg::kColPanel), 1.5f);
-        badge->addChild(dot, 0);
-        b.count = PZUI::label("0", 9.f, PZCfg::kColPanel);
-        badge->addChild(b.count, 1);
-        b.root->addChild(badge, 3);
-        _gadgetBtns.push_back(b);
-    }
-    _gadgetStrip->setVisible(n > 0 && !_cinematic);
+    // One round GADGETS button on the top row (left of the pause button). Tapping it opens the gadget picker: every
+    // gadget with its icon and charges, tap one to use it, or buy more when it is at zero.
+    const float d = 78.f;
+    GadgetBtn b;
+    b.id = "box";
+    b.r = d * 0.5f;
+    b.pos = Vec2(-d * 0.5f, 0.f);
+    b.root = Node::create();
+    b.root->setPosition(b.pos);
+    _gadgetStrip->addChild(b.root);
+    auto* disc = DrawNode::create();
+    disc->drawSolidCircle(Vec2(0.f, -3.f), b.r + 3.f, 0.f, 32, PZUI::c4f(Color3B(0, 0, 0), 0.35f));
+    disc->drawSolidCircle(Vec2::ZERO, b.r, 0.f, 32, PZUI::c4f(PZCfg::kColPanel, 0.94f));
+    disc->drawSolidCircle(Vec2::ZERO, b.r - 5.f, 0.f, 32, PZUI::c4f(Color3B(36, 44, 74), 0.9f));
+    b.root->addChild(disc, 0);
+    b.ring = DrawNode::create();
+    b.root->addChild(b.ring, 1);
+    // The icon is a zig-zag lightning bolt (power!) over a soft warm glow. The bolt is concave, so it is drawn as five
+    // triangles with a dark-orange outline on top.
+    auto* glow = DrawNode::create();
+    glow->drawSolidCircle(Vec2::ZERO, b.r * 0.62f, 0.f, 28, PZUI::c4f(Color3B(255, 190, 40), 0.22f));
+    glow->drawSolidCircle(Vec2::ZERO, b.r * 0.46f, 0.f, 28, PZUI::c4f(Color3B(255, 210, 70), 0.20f));
+    glow->setBlendFunc(BlendFunc::ADDITIVE);
+    b.root->addChild(glow, 1);
+    auto* bolt = DrawNode::create();
+    const float u = d * 0.5f;
+    auto P = [u](float x, float y) { return Vec2(x * u * 1.15f, y * u * 1.15f); };
+    const Vec2 v0 = P(-0.20f, 0.70f), v1 = P(0.30f, 0.70f), v2 = P(0.08f, 0.12f), v3 = P(0.34f, 0.12f),
+               v4 = P(-0.24f, -0.74f), v5 = P(-0.04f, -0.06f), v6 = P(-0.32f, -0.06f);
+    const Color4F fill = PZUI::c4f(Color3B(255, 214, 40));
+    const Color4F lite = PZUI::c4f(Color3B(255, 244, 168));
+    const Color4F line = PZUI::c4f(Color3B(196, 92, 10));
+    bolt->drawTriangle(v0, v1, v2, fill);
+    bolt->drawTriangle(v0, v2, v5, fill);
+    bolt->drawTriangle(v0, v5, v6, fill);
+    bolt->drawTriangle(v2, v3, v5, fill);
+    bolt->drawTriangle(v3, v4, v5, fill);
+    // bright inner streak
+    bolt->drawTriangle(P(-0.10f, 0.58f), P(0.18f, 0.58f), P(0.06f, 0.20f), lite);
+    bolt->drawTriangle(P(0.20f, 0.04f), P(-0.04f, -0.14f), P(-0.14f, -0.52f), lite);
+    const Vec2 outline[7] = {v0, v1, v2, v3, v4, v5, v6};
+    for (int i = 0; i < 7; ++i) bolt->drawSegment(outline[i], outline[(i + 1) % 7], 1.6f, line);
+    b.root->addChild(bolt, 2);
+    bolt->runAction(RepeatForever::create(Sequence::create(ScaleTo::create(0.55f, 1.07f), ScaleTo::create(0.55f, 0.97f), nullptr)));
+    auto* badge = Node::create();
+    badge->setPosition(Vec2(b.r * 0.72f, -b.r * 0.72f));
+    auto* dot = DrawNode::create();
+    dot->drawSolidCircle(Vec2::ZERO, 13.f, 0.f, 20, PZUI::c4f(Color3B(0, 0, 0), 0.5f));
+    dot->drawSolidCircle(Vec2::ZERO, 12.f, 0.f, 20, PZUI::c4f(PZCfg::kColAccent));
+    dot->drawCircle(Vec2::ZERO, 12.f, 0.f, 20, false, PZUI::c4f(PZCfg::kColPanel), 1.5f);
+    badge->addChild(dot, 0);
+    b.count = PZUI::label("0", 9.f, PZCfg::kColPanel);
+    badge->addChild(b.count, 1);
+    b.root->addChild(badge, 3);
+    _gadgetBtns.push_back(b);
+    _gadgetStrip->setVisible(!_cinematic);
     updateGadgetStrip(0.f);
 }
 
@@ -342,38 +356,25 @@ bool PZRunDirector::gadgetState(const std::string& id, float& frac) const {
     return false;
 }
 
-// Redraws every button's ring and charge count. Cheap: at most three buttons.
+// Redraws the GADGETS button: the badge is the total of stored charges, the ring breathes while something can be used.
 void PZRunDirector::updateGadgetStrip(float dt) {
+    (void)dt;
     if (_gadgetBtns.empty()) return;
-    if (_headstartFlash > 0.f) _headstartFlash -= dt;
     auto* pg = PZProgress::shared();
+    int total = 0;
+    for (int i = 0; i < pg->gadgetPoolCount(); ++i) {
+        if (pg->gadgetUnlocked(i)) total += pg->gadgetStock(PZCfg::kGadgetPool[i].id);
+    }
     const float pulse = 0.5f + 0.5f * std::sin(_auraClock * 5.f);
     for (auto& b : _gadgetBtns) {
-        float frac = 0.f;
-        const bool active = gadgetState(b.id, frac);
-        const int stock = pg->gadgetStock(b.id);
         char buf[12];
-        std::snprintf(buf, sizeof(buf), "%d", stock);
+        std::snprintf(buf, sizeof(buf), "%d", std::min(total, 99));
         b.count->setString(buf);
-        if (auto* icon = b.root->getChildByName("icon")) {
-            icon->setOpacity(active || stock > 0 ? 255 : 110);
-        }
         b.ring->clear();
-        if (active) {
-            // Draining arc in the power-up's own colour on top of a dim track.
-            b.ring->drawCircle(Vec2::ZERO, b.r - 2.f, 0.f, 36, false, PZUI::c4f(Color3B(255, 255, 255), 0.18f), 4.f);
-            const int segs = std::max(2, static_cast<int>(40.f * frac));
-            Vec2 prev = Vec2(0.f, b.r - 2.f);
-            for (int i = 1; i <= segs; ++i) {
-                const float a = M_PI * 0.5f - 2.f * static_cast<float>(M_PI) * frac * i / segs;
-                const Vec2 p(std::cos(a) * (b.r - 2.f), std::sin(a) * (b.r - 2.f));
-                b.ring->drawSegment(prev, p, 2.6f, PZUI::c4f(PZCfg::kColGood));
-                prev = p;
-            }
-        } else if (stock > 0) {
+        if (total > 0) {
             b.ring->drawCircle(Vec2::ZERO, b.r - 1.f, 0.f, 36, false, PZUI::c4f(PZCfg::kColAccent, 0.55f + 0.45f * pulse), 4.f);
         } else {
-            b.ring->drawCircle(Vec2::ZERO, b.r - 1.f, 0.f, 36, false, PZUI::c4f(Color3B(90, 92, 104)), 3.f);
+            b.ring->drawCircle(Vec2::ZERO, b.r - 1.f, 0.f, 36, false, PZUI::c4f(Color3B(200, 90, 60), 0.5f + 0.4f * pulse), 4.f);   // empty: invites a shop visit
         }
     }
 }
@@ -443,6 +444,8 @@ void PZRunDirector::startRun() {
     _haveGroundY = false;
     _haveRoadY = false;
     _graceHover = false;
+    stopActionByTag(kRiderTweenTag);
+    _riderTweening = false;
     _prevJump = 0;
     _airTime = 0.f;
     _flying = 0;
@@ -483,6 +486,15 @@ void PZRunDirector::beginIntro() {
         return;
     }
     _introActive = true;
+    // Until the show starts the rider waits off-screen to the left: it must never be seen dropping in from above.
+    if (PZGCharacter* ch0 = _scene->character; ch0 && ch0->p_body) {
+        const Size w0 = Director::getInstance()->getWinSize();
+        ch0->p_body->SetGravityScale(0.f);
+        ch0->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+        ch0->setLoc(Vec2(-w0.width * 0.3f, w0.height * 0.45f));
+        ch0->jump_counter = 1;
+        ch0->setVisible(false);
+    }
     // The platform generator fills the world in its first update, so start the show one beat later.
     auto* intro = Sequence::create(DelayTime::create(0.30f),
                                    CallFunc::create([this]() { startIntroNow(); }), nullptr);
@@ -556,6 +568,8 @@ void PZRunDirector::startIntroNow() {
     ch->p_body->SetGravityScale(0.f);
     ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
     ch->setLoc(Vec2(startX, gy + offset + 8.f));
+    ch->update(0.f);
+    ch->setVisible(true);
     ch->jump_counter = 1;
 
     // Camera pushed in on the left where the bike comes to a stop.
@@ -614,26 +628,57 @@ void PZRunDirector::applyGadgets() {
     _headstartFlash = 0.f;
 }
 
-// A tap on the top-bar gadget button: spends one stored charge and starts the effect, unless it is already running
-// or the rider is in a state where it would be wasted.
+// A tap on the top-bar GADGETS button opens the picker (the run is held while it is up).
 void PZRunDirector::activateGadget(int btn) {
-    if (btn < 0 || btn >= static_cast<int>(_gadgetBtns.size()) || !_scene) return;
-    const auto& b = _gadgetBtns[btn];
-    if (_scene->gameOver || _scene->gamePause || inputLocked() || _deathPending || _reviveWait) return;
+    if (btn < 0 || btn >= static_cast<int>(_gadgetBtns.size())) return;
+    openGadgetPicker();
+}
+
+void PZRunDirector::openGadgetPicker() {
+    if (!_scene || _scene->gameOver || _scene->gamePause || inputLocked() || _deathPending || _reviveWait || _riderTweening) return;
+    Node* top = _scene->getParent() ? _scene->getParent() : _scene;
+    _scene->gamePause = true;
+    PZHaptics::play(PZHaptics::Kind::Selection);
+    PZPopups::showGadgetPicker(top,
+        [this](const std::string& id) {
+            if (!_scene) return;
+            if (PZProgress::shared()->gadgetStock(id) <= 0) {      // out of charges: sell some
+                openGadgetShop();
+                return;
+            }
+            _scene->gamePause = false;
+            useGadget(id);
+        },
+        [this]() { if (_scene) _scene->gamePause = false; });
+}
+
+// Out of charges: the shop opens right here (run still held) so buying is one tap away.
+void PZRunDirector::openGadgetShop() {
+    if (!_scene) return;
+    Node* top = _scene->getParent() ? _scene->getParent() : _scene;
+    _scene->gamePause = true;
+    PZPopups::showShop(top, [this]() {
+        if (!_scene) return;
+        _scene->gamePause = false;
+        refreshGadgetStrip();
+    }, false);
+}
+
+// Spends one stored charge and starts the effect, unless it is already running or would be wasted.
+void PZRunDirector::useGadget(const std::string& id) {
+    if (!_scene || _scene->gameOver || inputLocked() || _deathPending || _reviveWait) return;
+    auto* pg = PZProgress::shared();
+    const int poolIdx = pg->gadgetPoolIndex(id);
+    if (poolIdx < 0) return;
+    const auto& def = PZCfg::kGadgetPool[poolIdx];
     const Size win = Director::getInstance()->getWinSize();
     const float bannerY = win.height * 0.6f;
-    const auto& def = PZCfg::kGadgetPool[b.pool];
-    auto* pg = PZProgress::shared();
-
     auto refuse = [&](const char* title, const char* sub) {
         PZHaptics::play(PZHaptics::Kind::Warning);
         PZAudio::play("fx_error");
         PZUI::banner(_scene, title, sub, PZCfg::kColBad, bannerY, 0.7f);
     };
-    if (pg->gadgetStock(def.id) <= 0) {
-        refuse("NO CHARGES", "BUY MORE IN THE SHOP");
-        return;
-    }
+    if (pg->gadgetStock(def.id) <= 0) { openGadgetShop(); return; }
     const bool rideKind = def.id == "turbo" || def.id == "jetpack" || def.id == "rocket";
     float frac = 0.f;
     if (gadgetState(def.id, frac) && def.id != "headstart") {
@@ -645,7 +690,6 @@ void PZRunDirector::activateGadget(int btn) {
         return;
     }
     if (!pg->consumeGadgetStock(def.id)) return;
-
     const float value = def.value;
     const Vec2 at = riderPos();
     if (def.id == "headstart") {
@@ -673,7 +717,6 @@ void PZRunDirector::activateGadget(int btn) {
     }
     PZAudio::play("fx_powerup");
     PZHaptics::play(PZHaptics::Kind::Medium);
-    if (b.root) PZUI::burst(_gadgetStrip, b.pos, PZCfg::kColAccent, 10, 46.f, 0.4f, 8);
     refreshGadgetStrip();
 }
 
@@ -1234,20 +1277,8 @@ void PZRunDirector::endTurbo() {
     ch->p_body->SetGravityScale(1.f);
     _graceT = std::max(_graceT, 1.0f);
 
-    // Land on solid ground: slide the world if the rider is over a gap.
-    float gy = 0.f;
-    PZGGamefieldPlatforms* p = platform();
-    if (p) {
-        if (!p->groundYAt(ch->loc.x, gy)) {
-            p->alignForRevive(ch->loc.x, gy);
-            if (!p->groundYAt(ch->loc.x, gy)) gy = _turboLockY - (_haveOffset ? _riderOffset : 0.f);
-        }
-        const float y = gy + (_haveOffset ? _riderOffset : 0.f) + 4.f;
-        ch->setLoc(Vec2(ch->loc.x, y));
-        ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
-    }
-    // Grounded again the instant the ride ends, so the next tap is a jump (it used to be swallowed as a buffered tap).
-    if (!groundRiderNow()) ch->jump_counter = 1;
+    // Land on solid ground with a glide (and slide the world in if the rider is over a gap).
+    settleRider(_turboLockY, false, nullptr);
     clearHazards(120.f * kDeviceScale(), 520.f * kDeviceScale());
     PZUI::burst(_scene, ch->loc, PZCfg::kColTurbo, 14, 80.f, 0.5f, kZFx);
     ring(ch->loc, PZCfg::kColTurbo, 150.f, 0.45f);
@@ -1505,7 +1536,7 @@ void PZRunDirector::updateGraceBridge(float dt) {
     PZGCharacter* ch = _scene ? _scene->character : nullptr;
     if (!ch || !ch->p_body) { _graceHover = false; return; }
     PZGGamefieldPlatforms* p = platform();
-    const bool special = turboActive() || _jetpackT > 0.f || _rocketT > 0.f || _reviveWait || _readyCountdown || _deathPending;
+    const bool special = turboActive() || _jetpackT > 0.f || _rocketT > 0.f || _reviveWait || _readyCountdown || _deathPending || _riderTweening;
     if (special || _graceT <= 0.f || !p) {
         if (_graceHover && !special) ch->p_body->SetGravityScale(1.f);
         _graceHover = false;
@@ -1576,17 +1607,16 @@ void PZRunDirector::updateReviveWait(float dt) {
     // After 2.5 s without a usable platform, stop waiting and slide the world instead (never hover forever).
     if ((runway && _reviveWaitT > 0.3f && std::abs(dy) < 34.f) || _reviveWaitT > 2.5f) {
         _reviveWait = false;
-        rescueRider();
-
-        float check = 0.f;
-        if (!safeLandHere(check)) {
-            // The rescue shifted the world out from under us: keep waiting.
-            _reviveWait = true;
-            _reviveWaitT = 0.f;
-            return;
-        }
-
-        beginReadyCountdown(true);
+        rescueRider([this]() {
+            float check = 0.f;
+            if (!safeLandHere(check)) {
+                // The rescue left the rider with no platform under it: keep waiting.
+                _reviveWait = true;
+                _reviveWaitT = 0.f;
+                return;
+            }
+            beginReadyCountdown(true);
+        });
     }
 }
 
@@ -1832,19 +1862,8 @@ void PZRunDirector::endJetpack() {
     ch->p_body->SetGravityScale(1.f);
     _graceT = std::max(_graceT, 1.2f);
 
-    // Land on the nearest solid ground, sliding the world if the rider is over a gap.
-    float gy = 0.f;
-    PZGGamefieldPlatforms* p = platform();
-    if (p) {
-        if (!p->groundYAt(ch->loc.x, gy)) {
-            p->alignForRevive(ch->loc.x, gy);
-            if (!p->groundYAt(ch->loc.x, gy)) gy = _jetpackLockY - (_haveOffset ? _riderOffset : 0.f);
-        }
-        ch->setLoc(Vec2(ch->loc.x, gy + (_haveOffset ? _riderOffset : 0.f) + 4.f));
-        ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
-    }
-    // Same rule as turbo: taps work on the frame the flight ends.
-    if (!groundRiderNow()) ch->jump_counter = 1;
+    // Land on the nearest solid ground with a glide (and slide the world in if the rider is over a gap).
+    settleRider(_jetpackLockY, false, nullptr);
     clearHazards(120.f * kDeviceScale(), 520.f * kDeviceScale());
     PZUI::burst(_scene, ch->loc, PZCfg::kColJetpack, 18, 95.f, 0.55f, kZFx);
     ring(ch->loc, PZCfg::kColJetpack, 170.f, 0.45f);
@@ -2221,7 +2240,7 @@ bool PZRunDirector::mercyAvailable() const {
 
 bool PZRunDirector::onObstacleHit(PZGObstacle* o) {
     if (!o) return false;
-    if (_reviveWait || _readyCountdown || _deathPending) {      // untouchable while being put back in play
+    if (_reviveWait || _readyCountdown || _deathPending || _riderTweening) {      // untouchable while being put back in play
         destroyObstacle(o, Style::Explode, false);
         return true;
     }
@@ -2618,7 +2637,7 @@ bool PZRunDirector::onDeath() {
     }
     // A second death signal (hit + fall in the same frame, two obstacles at once) must not stack a game-over screen on
     // top of a revive in progress.
-    if (_deathPending) return true;
+    if (_deathPending || _riderTweening) return true;
     if (_reviveWait || _readyCountdown) {
         rescueRider();
         return true;
@@ -2693,26 +2712,89 @@ bool PZRunDirector::onDeath() {
     return true;
 }
 
-void PZRunDirector::rescueRider() {
-    PZGCharacter* ch = _scene->character;
+// Glide the rider onto a platform. When the platform is not under the rider the world slides in at the same time, so the
+// player sees the bike move and the road arrive instead of a teleport.
+void PZRunDirector::settleRider(float fallbackRideY, bool preferRunway, std::function<void()> done) {
+    PZGCharacter* ch = _scene ? _scene->character : nullptr;
     PZGGamefieldPlatforms* p = platform();
-    if (ch && ch->p_body) {
-        float gy = 0.f;
-        if (p && p->alignForRevive(ch->loc.x, gy)) {
-            const float y = gy + (_haveOffset ? _riderOffset : 30.f) + 6.f;
-            ch->setLoc(Vec2(ch->loc.x, y));
-        } else if (p && p->groundYAt(ch->loc.x, gy)) {
-            ch->setLoc(Vec2(ch->loc.x, gy + (_haveOffset ? _riderOffset : 30.f) + 6.f));
+    if (!ch || !ch->p_body) {
+        if (done) done();
+        return;
+    }
+    const float off = (_haveOffset ? _riderOffset : 30.f) + 5.f;
+    const float x = ch->loc.x;
+    float gy = 0.f, dx = 0.f;
+    bool found = false;
+    if (p) {
+        if (preferRunway) {
+            if (p->findReviveTarget(x, gy, dx)) { found = true; p->clearHazardsNear(x); }
+            else if (p->groundYAt(x, gy)) { found = true; dx = 0.f; }
         } else {
-            ch->setLoc(Vec2(ch->loc.x, Director::getInstance()->getWinSize().height * 0.6f));
+            if (p->groundYAt(x, gy)) { found = true; dx = 0.f; }
+            else if (p->findReviveTarget(x, gy, dx)) { found = true; p->clearHazardsNear(x); }
         }
-        ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+    }
+    const float winH = Director::getInstance()->getWinSize().height;
+    const float targetY = found ? gy + off : (fallbackRideY > 0.f ? fallbackRideY : winH * 0.6f);
+    const float y0 = ch->loc.y;
+
+    auto finish = [this, found, done]() {
+        _riderTweening = false;
+        PZGCharacter* c = _scene ? _scene->character : nullptr;
+        if (c && c->p_body) {
+            c->p_body->SetGravityScale(1.f);
+            c->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+            c->jump_counter = found ? 0 : 1;
+            c->jump_enabled = false;
+        }
+        if (done) done();
+    };
+
+    if (std::abs(dx) < 1.f && std::abs(y0 - targetY) < 10.f) {      // already there: no need to animate
+        ch->setLoc(Vec2(x, targetY));
+        finish();
+        return;
+    }
+
+    _riderTweening = true;
+    ch->p_body->SetGravityScale(0.f);
+    ch->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+    ch->jump_counter = found ? 0 : 1;                     // a tap during the glide is a real jump and ends it
+    const float dur = std::max(0.32f, std::min(0.75f, 0.28f + 0.0007f * (std::abs(targetY - y0) + std::abs(dx))));
+    auto applied = std::make_shared<float>(0.f);
+    auto cancelled = std::make_shared<bool>(false);
+    auto* tween = Sequence::create(
+        ActionFloat::create(dur, 0.f, 1.f, [this, x, y0, targetY, dx, applied, cancelled, finish](float t) {
+            if (*cancelled || !_scene || !_scene->character) return;
+            PZGCharacter* c = _scene->character;
+            const float e = t * t * (3.f - 2.f * t);              // smoothstep
+            if (PZGGamefieldPlatforms* pl = platform()) pl->shiftWorld(e * dx - *applied);
+            *applied = e * dx;
+            if (t > 0.1f && c->jump_counter >= 1 && c->p_body && c->p_body->GetLinearVelocity().y > 1.f) {
+                *cancelled = true;                                // the player jumped: hand control back at once
+                stopActionByTag(kRiderTweenTag);
+                finish();
+                return;
+            }
+            c->setLoc(Vec2(x, y0 + (targetY - y0) * e));
+            if (c->p_body) c->p_body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+        }),
+        CallFunc::create([cancelled, finish]() { if (!*cancelled) finish(); }), nullptr);
+    tween->setTag(kRiderTweenTag);
+    stopActionByTag(kRiderTweenTag);
+    runAction(tween);
+}
+
+void PZRunDirector::rescueRider(std::function<void()> done) {
+    PZGCharacter* ch = _scene->character;
+    if (ch && ch->p_body) {
         ch->reset();
-        ch->update(0.f);   // the world is held during the countdown: draw the rider where it was parked
+        ch->update(0.f);
         ch->jump_counter = 1;
     }
     clearHazards(240.f * kDeviceScale(), 950.f * kDeviceScale());
     _graceT = std::max(_graceT, PZCfg::kHitGrace + 1.2f);
+    settleRider(0.f, true, std::move(done));
 }
 
 void PZRunDirector::reviveFromVideo() {

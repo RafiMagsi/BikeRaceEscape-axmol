@@ -107,6 +107,9 @@ public:
     // Slides the world left (never right) so a platform lies under `x`, clears obstacles around it, and
     // returns the surface height there. Used to put the rider back on solid ground after a revive / turbo.
     bool alignForRevive(float x, float& outGroundY);
+    bool findReviveTarget(float x, float& outGroundY, float& outDx);   // no movement: see shiftWorld
+    void shiftWorld(float dx);
+    void clearHazardsNear(float x);
 
     LAYER_CREATE_FUNC( PZGGamefieldPlatforms );
 };
