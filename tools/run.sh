@@ -123,13 +123,13 @@ run_ios() {
   if [[ "$kind" == "device" ]]; then
     local archive="$ROOT/build-ios-device/BikeRaceEscapeAxmol.xcarchive"
     if [[ "$BUILD" == "1" ]]; then
-      if [[ ! -d "$ROOT/build-ios-device/BikeRaceEscapeAxmol.xcworkspace" ]]; then
-        echo "Generating the Xcode project (first run) ..."
+      if [[ ! -d "$ROOT/build-ios-device/BikeRaceEscapeAxmol.xcworkspace" || "$ROOT/CMakeLists.txt" -nt "$ROOT/build-ios-device/BikeRaceEscapeAxmol.xcodeproj/project.pbxproj" ]]; then
+        echo "Generating the Xcode project ..."
         cmake -S "$ROOT" -B "$ROOT/build-ios-device" -G Xcode -DCMAKE_TOOLCHAIN_FILE="$ROOT/thirdparty/axmol/1k/ios.cmake" \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=arm64 -DPZ_DEVELOPMENT_TEAM="$TEAM" -DDEPLOYMENT_TARGET=15.0 \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 -DCMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=15.0
-        (cd "$ROOT/build-ios-device" && pod install)
       fi
+      (cd "$ROOT/build-ios-device" && pod install)
       rm -rf "$archive"
       xcodebuild -workspace "$ROOT/build-ios-device/BikeRaceEscapeAxmol.xcworkspace" -scheme BikeRaceEscapeAxmol -configuration Release \
         -destination 'generic/platform=iOS' -archivePath "$archive" -allowProvisioningUpdates archive
@@ -143,12 +143,12 @@ run_ios() {
       xcrun simctl boot "$id"; open -a Simulator
     fi
     if [[ "$BUILD" == "1" ]]; then
-      if [[ ! -d "$sim/BikeRaceEscapeAxmol.xcworkspace" ]]; then
-        echo "Generating the simulator project (first run) ..."
+      if [[ ! -d "$sim/BikeRaceEscapeAxmol.xcworkspace" || "$ROOT/CMakeLists.txt" -nt "$sim/BikeRaceEscapeAxmol.xcodeproj/project.pbxproj" ]]; then
+        echo "Generating the simulator project ..."
         cmake -S "$ROOT" -B "$sim" -G Xcode -DCMAKE_TOOLCHAIN_FILE="$ROOT/thirdparty/axmol/1k/ios.cmake" -DCMAKE_SYSTEM_NAME=iOS \
           -DCMAKE_OSX_ARCHITECTURES=arm64 -DSIMULATOR=TRUE -DPZ_DEVELOPMENT_TEAM="$TEAM" -DDEPLOYMENT_TARGET=15.0 -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0
-        (cd "$sim" && pod install)
       fi
+      (cd "$sim" && pod install)
       xcodebuild -workspace "$sim/BikeRaceEscapeAxmol.xcworkspace" -scheme BikeRaceEscapeAxmol -configuration Debug \
         -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$sim/dd" \
         CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO ARCHS=arm64 ONLY_ACTIVE_ARCH=YES build

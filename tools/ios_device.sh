@@ -31,7 +31,8 @@ if [[ -d "${BUILD_DIR}/${TARGET}.xcworkspace" ]] && [[ -d "${BUILD_DIR}/Pods" ]]
   already_pods=1
 fi
 
-if [[ "${already_pods}" == "1" ]] && [[ "${RECONFIGURE:-0}" != "1" ]]; then
+if [[ "${already_pods}" == "1" ]] && [[ "${RECONFIGURE:-0}" != "1" ]] && \
+   [[ ! "${ROOT_DIR}/CMakeLists.txt" -nt "${BUILD_DIR}/${TARGET}.xcodeproj/project.pbxproj" ]]; then
   echo "[ios_device] Pods workspace detected; skipping CMake reconfigure (set RECONFIGURE=1 to force)"
 else
 if [[ -f "${BUILD_DIR}/CMakeCache.txt" ]]; then
@@ -95,11 +96,20 @@ if [[ -f "${BUILD_DIR}/CMakeCache.txt" ]]; then
   echo "[ios_device] cache plats:  ${effplats:-"(missing)"}"
 fi
 
+fi # end skip-reconfigure guard
+
+if [[ -f "${BUILD_DIR}/Podfile" ]]; then
+  if ! command -v pod >/dev/null 2>&1; then
+    echo "error: CocoaPods is required for the iOS ad SDKs; install it and run pod install" >&2
+    exit 1
+  fi
+  (cd "${BUILD_DIR}" && pod install)
+fi
+
 if [[ "${CONFIGURE_ONLY:-0}" == "1" ]]; then
   echo "[ios_device] CONFIGURE_ONLY=1: skipping build"
   exit 0
 fi
-fi # end skip-reconfigure guard
 
 if [[ -d "${BUILD_DIR}/${TARGET}.xcworkspace" ]] && [[ -d "${BUILD_DIR}/Pods" ]]; then
   echo "[ios_device] build (workspace): ${TARGET} (${CONFIG})"

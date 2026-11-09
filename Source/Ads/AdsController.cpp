@@ -249,6 +249,12 @@ void AdsController::cancelPendingInterstitial() {
 }
 
 void AdsController::showRewardedWithCallback(std::function<void(bool)> callback) {
+    // There is only one native rewarded presentation slot. Never replace the callback for an ad
+    // that is already opening or on screen; the original caller would otherwise wait forever.
+    if (rewardedCallback_) {
+        if (callback) callback(false);
+        return;
+    }
     if (!isRewardedAvailable()) {
         if (callback) callback(false);
         requestRewarded();

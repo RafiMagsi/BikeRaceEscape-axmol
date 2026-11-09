@@ -25,6 +25,10 @@
 #define PZ_HAS_GMA 0
 #endif
 
+#if defined(PZ_REQUIRE_IOS_AD_SDKS) && !PZ_HAS_GMA
+#error "Google Mobile Ads headers missing. Run pod install after CMake configuration and build from the .xcworkspace."
+#endif
+
 #if PZ_HAS_GMA
 
 #if !__has_feature(objc_arc)
@@ -406,7 +410,7 @@ bool AdsProviderAdMob::isRewardedReady() const {
 #if PZ_HAS_GMA
     return initialized_ && g_rewardedReady.load();
 #else
-    return initialized_ && rewardedReady_;
+    return false;
 #endif
 }
 
@@ -435,25 +439,34 @@ void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
                       }];
     });
 #else
-    rewardedReady_ = !lastRewardedPlacement_.empty();
-    AXLOGI("AdsProviderAdMob(iOS)::loadRewarded (stub) placementId='{}'", lastRewardedPlacement_);
+    rewardedReady_ = false;
 #endif
 }
 
 void AdsProviderAdMob::showRewarded() {
-    if (!initialized_) return;
+    if (!initialized_) {
+        PZ::AdsController::shared()->handleRewardedFinished(false);
+        return;
+    }
 #if PZ_HAS_GMA
     bool expected = true;
     if (!g_rewardedReady.compare_exchange_strong(expected, false)) {
         AXLOGI("AdsProviderAdMob(iOS)::showRewarded not ready");
+        PZ::AdsController::shared()->handleRewardedFinished(false);
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         GADRewardedAd* ad = g_rewarded;
-        if (!ad) return;
+        if (!ad) {
+            AXLOGW("AdsProviderAdMob(iOS): rewarded ad disappeared before presentation");
+            PZ::AdsController::shared()->handleRewardedFinished(false);
+            return;
+        }
 
         if (g_presentingRewarded || g_presentingInterstitial) {
             g_rewardedReady = true;
+            AXLOGW("AdsProviderAdMob(iOS): another full screen ad is presenting");
+            PZ::AdsController::shared()->handleRewardedFinished(false);
             return;
         }
 
@@ -461,6 +474,7 @@ void AdsProviderAdMob::showRewarded() {
         if (!vc) {
             AXLOGW("AdsProviderAdMob(iOS): cannot present rewarded (no view controller)");
             g_rewardedReady = true;
+            PZ::AdsController::shared()->handleRewardedFinished(false);
             return;
         }
 
@@ -468,9 +482,11 @@ void AdsProviderAdMob::showRewarded() {
         if (![ad canPresentFromRootViewController:vc error:&presentError]) {
             AXLOGW("AdsProviderAdMob(iOS): rewarded cannot be presented: {}", presentError.localizedDescription.UTF8String ?: "");
             g_rewarded = nil;
+            PZ::AdsController::shared()->handleRewardedFinished(false);
             return;
         }
 
+        g_rewardEarned = NO;
         g_rewarded = nil;
         g_presentingRewarded = ad;
         ad.fullScreenContentDelegate = _fullScreenDelegate();
@@ -483,12 +499,9 @@ void AdsProviderAdMob::showRewarded() {
                  }];
     });
 #else
-    if (!rewardedReady_) {
-        AXLOGI("AdsProviderAdMob(iOS)::showRewarded (stub) not ready");
-        return;
-    }
-    AXLOGI("AdsProviderAdMob(iOS)::showRewarded (stub) placementId='{}'", lastRewardedPlacement_);
+    AXLOGW("AdsProviderAdMob(iOS): rewarded SDK unavailable; cannot show ad");
     rewardedReady_ = false;
+    PZ::AdsController::shared()->handleRewardedFinished(false);
 #endif
 }
 

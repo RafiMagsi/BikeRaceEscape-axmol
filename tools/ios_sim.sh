@@ -83,6 +83,14 @@ if [[ -f "${BUILD_DIR}/CMakeCache.txt" ]]; then
   echo "[ios_sim] cache plats:  ${effplats:-"(missing)"}"
 fi
 
+if [[ -f "${BUILD_DIR}/Podfile" ]]; then
+  if ! command -v pod >/dev/null 2>&1; then
+    echo "error: CocoaPods is required for the iOS ad SDKs; install it and run pod install" >&2
+    exit 1
+  fi
+  (cd "${BUILD_DIR}" && pod install)
+fi
+
 if [[ "${CONFIGURE_ONLY:-0}" == "1" ]]; then
   echo "[ios_sim] CONFIGURE_ONLY=1: skipping build"
   exit 0

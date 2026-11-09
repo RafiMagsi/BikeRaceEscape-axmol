@@ -212,6 +212,12 @@ if(IOS AND XCODE)
   # for the generated Xcode project.
   set(PZ_DEVELOPMENT_TEAM "" CACHE STRING "Apple Developer Team ID for iOS code signing (Xcode DEVELOPMENT_TEAM)")
   option(PZ_USE_COCOAPODS "Enable CocoaPods integration (iOS)" ON)
+  # CocoaPods edits the generated Xcode project after CMake. Xcode's ZERO_CHECK
+  # can regenerate it during a build and silently remove the Pods integration.
+  # The build scripts run pod install after explicit reconfiguration.
+  if(PZ_USE_COCOAPODS)
+    set(CMAKE_SUPPRESS_REGENERATION ON)
+  endif()
 
   # Ensure Xcode compiles the asset catalog (AppIcon) into the bundle.
   set(_PZ_IOS_ASSETS_XCASSETS "${CMAKE_CURRENT_SOURCE_DIR}/proj.ios_mac/ios/targets/ios/Images.xcassets")
@@ -268,6 +274,8 @@ if(IOS AND XCODE)
   # ---- CocoaPods Setup for iOS ----
   # Create Podfile for CocoaPods dependency management (pods installed via build script)
   if(IOS AND PZ_USE_COCOAPODS)
+    # A missing Pods integration must fail the build instead of compiling ad stubs.
+    target_compile_definitions(${APP_NAME} PRIVATE PZ_REQUIRE_IOS_AD_SDKS=1)
     set(_PODFILE_PATH "${CMAKE_BINARY_DIR}/Podfile")
     set(_PODS_DIR "${CMAKE_BINARY_DIR}/Pods")
 

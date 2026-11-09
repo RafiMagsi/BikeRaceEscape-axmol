@@ -125,24 +125,17 @@ void AdsProviderAdMob::showInterstitial() {
 }
 
 bool AdsProviderAdMob::isRewardedReady() const {
-    return initialized_ && rewardedReady_;
+    return false;
 }
 
 void AdsProviderAdMob::loadRewarded(const AdRequest& request) {
     if (!initialized_) return;
     lastRewardedPlacement_ = request.placementId;
-    rewardedReady_ = !lastRewardedPlacement_.empty();
-    AXLOGI("AdsProviderAdMob::loadRewarded (stub) placementId='{}'", lastRewardedPlacement_);
+    rewardedReady_ = false;
 }
 
 void AdsProviderAdMob::showRewarded() {
-    if (!initialized_) return;
-    if (!rewardedReady_) {
-        AXLOGI("AdsProviderAdMob::showRewarded (stub) not ready");
-        return;
-    }
-    AXLOGI("AdsProviderAdMob::showRewarded (stub) placementId='{}'", lastRewardedPlacement_);
-    rewardedReady_ = false;
+    AXLOGW("AdsProviderAdMob: rewarded SDK unavailable; cannot show ad");
 }
 
 #else

@@ -18,6 +18,10 @@
   #define PZ_HAS_CHARTBOOST 0
 #endif
 
+#if defined(PZ_REQUIRE_IOS_AD_SDKS) && !PZ_HAS_CHARTBOOST
+  #error "Chartboost headers missing. Run pod install after CMake configuration and build from the .xcworkspace."
+#endif
+
 static UIViewController* PZTopMostViewController() {
     UIViewController* root = nil;
     if (@available(iOS 13.0, *)) {
