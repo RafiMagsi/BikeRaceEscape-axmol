@@ -23,7 +23,7 @@ android {
         applicationId packageName
         minSdkVersion minSdk
         targetSdkVersion targetSdk
-        versionCode 12
+        versionCode 14
         versionName "1.4.0"
         resourceConfigurations += ['en']
 

@@ -62,8 +62,8 @@ You do not switch anything by hand. The build type decides:
 | Android minSdk | 24 (set in `.axproj`) |
 | iOS engine | always `thirdparty/axmol` (the project's own copy; CMake picks it automatically, `AX_ROOT` is ignored) |
 | Android engine (`AX_ROOT`) | leave as is; the default `~/development/axmol` is correct |
-| Android signing key | `proj.android/dino-bike-upload.keystore` |
-| Android signing settings | `proj.android/keystore.properties` (both files are git-ignored; **back them up**) |
+| Android signing key | The upload keystore whose certificate SHA-1 matches the current Play Console upload certificate |
+| Android signing settings | `proj.android/keystore.properties` (git-ignored; **back it up**) |
 | Test iPhone | Rafi iPhone 15 (found automatically by `tools/run.sh`; no id needed) |
 | Current version | 1.4.0: iOS build 10, Android versionCode 7 |
 
@@ -183,9 +183,11 @@ xcodebuild -exportArchive \
 > - Run the commands from the `proj.android` folder (that is where `gradlew` is).
 > - Android builds with the shared engine `~/development/axmol` (ninja is installed there). If `AX_ROOT` is left pointing at the project's iOS copy (`thirdparty/axmol`), `proj.android/settings.gradle` ignores it and uses the shared engine, so you don't have to fix your terminal.
 > - The SDK location comes from `proj.android/local.properties` (`sdk.dir=/Users/rafi/Library/Android/sdk`, git-ignored). You do **not** need to export `ANDROID_HOME`. If that file is missing, create it with the line above.
+> - To sign a release bundle, provide the existing upload keystore through the ignored `proj.android/keystore.properties` or the `KEY_STORE_FILE`, `KEY_STORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD` Gradle properties. Without these, Gradle can build the release AAB, but it will be unsigned. Do not generate a replacement key for an app that is already published.
+> - With Play App Signing, the AAB must still be signed with the registered **upload key**. The Google-managed app-signing key is separate. Verify the upload certificate fingerprint in Play Console before uploading.
 > - The Gradle project is named `:BikeRaceEscapeAxmol`. Do not use `:app:`.
 
-### 4.1 Build the signed bundle (AAB)
+### 4.1 Build the release bundle (AAB)
 
 ```bash
 cd /Users/rafi/developer/games/remake/BikeRaceEscape-axmol/proj.android
@@ -211,7 +213,7 @@ cd proj.android
 AAB=app/build/outputs/bundle/release/BikeRaceEscapeAxmol-release.aab
 
 jarsigner -verify $AAB                          # expect: jar verified
-keytool -printcert -jarfile $AAB | grep SHA256  # expect: 24:D9:29:00:46:12:15:BE:CA:F7:5E:36:41:3E:5C:49:FA:D9:7F:8D:3F:BA:07:5C:51:05:91:E4:AB:0F:FE:37
+keytool -printcert -jarfile $AAB | grep SHA1    # must match Play Console: 15:2E:F5:01:AE:57:78:6D:63:3B:DE:7C:78:E3:49:11:93:47:25:0A
 ```
 
 ### 4.4 Upload
