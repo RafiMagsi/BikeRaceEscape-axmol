@@ -194,6 +194,8 @@ inline const char* kStrVibration     = "VIBRATION";
 inline const char* kStrRemoveAds     = "REMOVE ADS";
 inline const char* kStrSettingsBtn   = "SETTINGS";
 inline const char* kStrPrivacyPolicy = "PRIVACY POLICY";
+inline const char* kShareUrl         = "https://nextfictiongames.com";   // shown on result cards / share text (strings/ShareUrl)
+inline const char* kStrDailyBtn2     = "DAILY RUN";
 inline const char* kPrivacyPolicyUrl  = "https://nextfictiongames.com/privacy-policy";        // https page opened inside the game (Settings > Privacy policy); set strings/PrivacyPolicyUrl
 inline const char* kStrOn            = "ON";
 inline const char* kStrOff           = "OFF";
@@ -329,6 +331,7 @@ inline float kReviveCountdown     = 10.0f;    // seconds the player has to choos
 // Rewarded-video economy
 // Gifts
 inline bool kEnableGifts          = true;
+inline bool kEnableDailyChallenge = true;   // Version 2 daily seeded run (menu pill, result card)
 inline int  kHourlyCooldown       = 10800;     // seconds (3 h)
 inline int  kHourlyMin            = 20;
 inline int  kHourlyMax            = 60;

@@ -4,7 +4,12 @@
 #include "PZPopups.h"
 #include "PZUI.h"
 #include "PZGBaseMenuScene.h"
+#include "PZRunDirector.h"
+#include "PZGMainMenuScene.h"
 #include "PZLinks.h"
+#include "V2/V2Daily.h"
+#include "V2/V2Core.h"
+#include "V2/V2Share.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
 #include "PZAudio.h"
@@ -1073,6 +1078,229 @@ Node* showGadgetPicker(Node* parent, std::function<void(const std::string&)> onC
 }
 
 // ================================================================================================
+// Daily seeded run (Version 2)
+// ================================================================================================
+
+namespace {
+Color3B dailyMedalColor(int m) {
+    switch (m) {
+    case 3: return Color3B(255, 205, 50);
+    case 2: return Color3B(214, 222, 236);
+    case 1: return Color3B(205, 127, 50);
+    default: return Color3B(90, 96, 112);
+    }
+}
+const char* dailyMedalName(int m) {
+    static const char* n[] = {"NO MEDAL", "BRONZE", "SILVER", "GOLD"};
+    return n[std::max(0, std::min(3, m))];
+}
+Node* medalDisc(int m, float r) {
+    auto* d = DrawNode::create();
+    const Color3B c = dailyMedalColor(m);
+    d->drawSolidCircle(Vec2::ZERO, r, 0.f, 32, PZUI::c4f(c));
+    d->drawSolidCircle(Vec2::ZERO, r * 0.74f, 0.f, 32, PZUI::c4f(Color3B(static_cast<uint8_t>(c.r * 0.78f), static_cast<uint8_t>(c.g * 0.78f), static_cast<uint8_t>(c.b * 0.78f))));
+    d->drawCircle(Vec2::ZERO, r, 0.f, 32, false, PZUI::c4f(Color3B(30, 20, 14)), 2.f);
+    return d;
+}
+std::string commas(int v) {
+    std::string s = std::to_string(v), out;
+    for (size_t i = 0; i < s.size(); ++i) {
+        out += s[i];
+        const size_t left = s.size() - 1 - i;
+        if (left > 0 && left % 3 == 0) out += ',';
+    }
+    return out;
+}
+} // namespace
+
+Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
+    if (!parent) return nullptr;
+    const int date = V2::Daily::dateKeyNow();
+    const auto mod = V2::Daily::modifierFor(date);
+    const bool ranked = V2::Daily::hasRanked(date);
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelW = std::min(700.f, PZLayout::safeRect().size.width - 40.f);
+    const float panelH = std::min(PZLayout::popupMaxHeight(), 470.f);
+    auto* base = openModal(parent, panelW, panelH, 350, 0.84f);
+    const float top = mid.y + panelH * 0.5f;
+
+    auto* title = PZUI::heading(PZCfg::kStrDailyBtn2, 24.f, PZCfg::kColAccent);
+    title->setPosition(Vec2(mid.x, top - 38.f));
+    base->addChild(title);
+    auto* dateL = PZUI::heading(V2::Daily::dateLabel(date) + "  -  SAME ROAD FOR EVERYONE", 8.f, PZCfg::kColDim);
+    dateL->setPosition(Vec2(mid.x, top - 66.f));
+    if (dateL->getContentSize().width > panelW - 40.f) dateL->setScale((panelW - 40.f) / dateL->getContentSize().width);
+    base->addChild(dateL);
+
+    // modifier plate
+    auto* plate = PZUI::roundedRect(panelW - 60.f, 74.f, 14.f, PZCfg::kColPanelEdge, 0.14f, PZCfg::kColAccent2, 0.8f, 2.f);
+    plate->setPosition(Vec2(mid.x, top - 118.f));
+    base->addChild(plate);
+    auto* mt = PZUI::heading("TODAY: " + mod.title, 13.f, PZCfg::kColAccent2);
+    mt->setPosition(Vec2(mid.x, top - 100.f));
+    base->addChild(mt);
+    auto* md = PZUI::label(mod.desc, 7.5f, PZCfg::kColText);
+    md->setPosition(Vec2(mid.x, top - 134.f));
+    if (md->getContentSize().width > panelW - 90.f) md->setScale((panelW - 90.f) / md->getContentSize().width);
+    base->addChild(md);
+
+    // status
+    char buf[96];
+    if (ranked) {
+        const auto r = V2::Daily::rankedResult(date);
+        auto* h = PZUI::heading("YOUR RANKED SCORE", 8.f, PZCfg::kColDim);
+        h->setPosition(Vec2(mid.x - 110.f, top - 186.f));
+        base->addChild(h);
+        auto* sc = PZUI::heading(commas(r.score), 26.f, Color3B(255, 255, 255));
+        sc->setPosition(Vec2(mid.x - 110.f, top - 220.f));
+        base->addChild(sc);
+        auto* md2 = medalDisc(r.medal, 26.f);
+        md2->setPosition(Vec2(mid.x + 70.f, top - 206.f));
+        base->addChild(md2);
+        auto* mn = PZUI::heading(dailyMedalName(r.medal), 8.f, PZCfg::kColText);
+        mn->setPosition(Vec2(mid.x + 70.f, top - 244.f));
+        base->addChild(mn);
+        std::snprintf(buf, sizeof(buf), "PRACTICE BEST  %s", commas(V2::Daily::bestPractice(date)).c_str());
+        auto* pb = PZUI::heading(buf, 8.f, PZCfg::kColDim);
+        pb->setPosition(Vec2(mid.x + 190.f, top - 206.f));
+        if (pb->getContentSize().width > 170.f) pb->setScale(170.f / pb->getContentSize().width);
+        base->addChild(pb);
+    } else {
+        auto* h = PZUI::heading("1 RANKED ATTEMPT TODAY", 11.f, PZCfg::kColGood);
+        h->setPosition(Vec2(mid.x, top - 190.f));
+        base->addChild(h);
+        auto* sub = PZUI::label("No gadgets in daily runs. Practice as often as you like.", 7.5f, PZCfg::kColDim);
+        sub->setPosition(Vec2(mid.x, top - 220.f));
+        if (sub->getContentSize().width > panelW - 70.f) sub->setScale((panelW - 70.f) / sub->getContentSize().width);
+        base->addChild(sub);
+    }
+
+    // medal thresholds
+    for (int m = 1; m <= 3; ++m) {
+        const float x = mid.x + (m - 2) * 150.f;
+        auto* d = medalDisc(m, 17.f);
+        d->setPosition(Vec2(x - 32.f, top - 276.f));
+        base->addChild(d);
+        auto* t = PZUI::heading(commas(V2::Daily::medalThreshold(m)), 9.f, PZCfg::kColText);
+        t->setAnchorPoint(Vec2(0.f, 0.5f));
+        t->setPosition(Vec2(x - 8.f, top - 276.f));
+        base->addChild(t);
+    }
+
+    Node* basePtr = base;
+    const float by = mid.y - panelH * 0.5f + 92.f;
+    auto start = [basePtr, onStart](V2::Daily::Mode m) {
+        V2::Daily::begin(m);
+        V2::Analytics::shared().log("daily_start", {{"mode", m == V2::Daily::Mode::Ranked ? "ranked" : "practice"},
+                                                     {"date", std::to_string(V2::Daily::dateKeyNow())}});
+        dismiss(basePtr, onStart);
+    };
+    const float bw = 190.f;
+    const float gap = 14.f;
+    const int count = ranked ? 3 : 2;
+    float x0 = mid.x - ((count * bw + (count - 1) * gap) * 0.5f) + bw * 0.5f;
+    if (!ranked) {
+        auto* b = PZUI::Button::create("PLAY RANKED", bw, 44.f, PZCfg::kColGood, [start]() { start(V2::Daily::Mode::Ranked); }, 12.f);
+        b->setPosition(Vec2(x0, by));
+        base->addChild(b);
+        x0 += bw + gap;
+    }
+    auto* pr = PZUI::Button::create("PRACTICE", bw, 44.f, Color3B(70, 150, 240), [start]() { start(V2::Daily::Mode::Practice); }, 12.f);
+    pr->setPosition(Vec2(x0, by));
+    base->addChild(pr);
+    if (ranked) {
+        auto* sh = PZUI::Button::create("SHARE", bw, 44.f, Color3B(236, 120, 30), [parent, date]() {
+            V2::Share::shareDailyResult(parent, V2::Daily::rankedResult(date));
+            V2::Analytics::shared().log("share_prompt", {{"context", "daily_menu"}, {"tapped", "1"}});
+        }, 12.f);
+        sh->setPosition(Vec2(x0 + bw + gap, by));
+        base->addChild(sh);
+    }
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 38.f, PZCfg::kColButton,
+                                       [basePtr]() { dismiss(basePtr, nullptr); }, 11.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 36.f));
+    base->addChild(close);
+    return base;
+}
+
+Node* showDailyResult(Node* parent, int dateKey, int score, int distance, int coins, int events, int medal, bool ranked,
+                      int rankedScore, int coinsGranted, std::function<void()> onClosed) {
+    if (!parent) return nullptr;
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelW = std::min(620.f, PZLayout::safeRect().size.width - 40.f);
+    const float panelH = std::min(PZLayout::popupMaxHeight(), 430.f);
+    auto* base = openModal(parent, panelW, panelH, 352, 0.84f);
+    const float top = mid.y + panelH * 0.5f;
+    PZAudio::play("fx_levelup", 0.6f, 0.2f);
+
+    auto* title = PZUI::heading(ranked ? "DAILY RESULT" : "PRACTICE RESULT", 22.f, PZCfg::kColAccent);
+    title->setPosition(Vec2(mid.x, top - 38.f));
+    base->addChild(title);
+    auto* sub = PZUI::heading(V2::Daily::dateLabel(dateKey) + "  -  " + V2::Daily::modifierFor(dateKey).title, 8.f, PZCfg::kColDim);
+    sub->setPosition(Vec2(mid.x, top - 64.f));
+    if (sub->getContentSize().width > panelW - 40.f) sub->setScale((panelW - 40.f) / sub->getContentSize().width);
+    base->addChild(sub);
+
+    auto* md = medalDisc(medal, 44.f);
+    md->setPosition(Vec2(mid.x - 150.f, top - 150.f));
+    base->addChild(md);
+    auto* mn = PZUI::heading(dailyMedalName(medal), 9.f, Color3B(255, 255, 255));
+    mn->setPosition(Vec2(mid.x - 150.f, top - 150.f));
+    if (mn->getContentSize().width > 70.f) mn->setScale(70.f / mn->getContentSize().width);
+    base->addChild(mn, 3);
+
+    auto* sc = PZUI::heading(commas(score), 34.f, Color3B(255, 255, 255));
+    sc->setAnchorPoint(Vec2(0.f, 0.5f));
+    sc->setPosition(Vec2(mid.x - 80.f, top - 136.f));
+    base->addChild(sc);
+    auto* pts = PZUI::heading("POINTS", 9.f, PZCfg::kColAccent);
+    pts->setAnchorPoint(Vec2(0.f, 0.5f));
+    pts->setPosition(Vec2(mid.x - 80.f, top - 176.f));
+    base->addChild(pts);
+
+    char buf[96];
+    std::snprintf(buf, sizeof(buf), "%d M   -   %d COINS   -   %d EVENTS", distance, coins, events);
+    auto* det = PZUI::heading(buf, 8.5f, PZCfg::kColText);
+    det->setPosition(Vec2(mid.x, top - 226.f));
+    if (det->getContentSize().width > panelW - 50.f) det->setScale((panelW - 50.f) / det->getContentSize().width);
+    base->addChild(det);
+
+    std::string note;
+    Color3B noteCol = PZCfg::kColDim;
+    if (ranked) {
+        note = coinsGranted > 0 ? "RANKED  -  +" + std::to_string(coinsGranted) + " COINS" : "RANKED SCORE SAVED";
+        noteCol = PZCfg::kColGood;
+    } else {
+        note = "PRACTICE  -  RANKED SCORE " + (rankedScore > 0 ? commas(rankedScore) : std::string("NOT PLAYED YET"));
+    }
+    auto* nl = PZUI::heading(note, 10.f, noteCol);
+    nl->setPosition(Vec2(mid.x, top - 262.f));
+    if (nl->getContentSize().width > panelW - 50.f) nl->setScale((panelW - 50.f) / nl->getContentSize().width);
+    base->addChild(nl);
+
+    Node* basePtr = base;
+    V2::Daily::Result res;
+    res.dateKey = dateKey;
+    res.score = score;
+    res.distance = distance;
+    res.coins = coins;
+    res.eventsCleared = events;
+    res.medal = medal;
+    res.mode = ranked ? V2::Daily::Mode::Ranked : V2::Daily::Mode::Practice;
+    auto* sh = PZUI::Button::create("SHARE RESULT", 240.f, 44.f, Color3B(236, 120, 30), [parent, res]() {
+        V2::Share::shareDailyResult(parent, res);
+        V2::Analytics::shared().log("share_prompt", {{"context", "daily_result"}, {"tapped", "1"}});
+    }, 12.f);
+    sh->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 98.f));
+    base->addChild(sh);
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 38.f, PZCfg::kColButton,
+                                       [basePtr, onClosed]() { dismiss(basePtr, onClosed); }, 11.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 40.f));
+    base->addChild(close);
+    return base;
+}
+
+// ================================================================================================
 // Settings: sound, music, vibration, reminders and privacy choices
 // ================================================================================================
 
@@ -1962,6 +2190,7 @@ public:
         if (xpW > room && xpW > 1.f) _xpText->setScale(std::max(0.55f, room / xpW));
         updateNextUnlock(pg);
         animateXpBar(pg);
+        if (_dailyRun) _dailyRun->setBadge(V2::Daily::hasRanked(V2::Daily::dateKeyNow()) ? 0 : 1);
         if (_daily) _daily->setBadge(PZCfg::kEnableGifts ? pg->giftsReady() : (pg->dailyAvailable() ? 1 : 0));
         if (_missions) _missions->setBadge(pg->unclaimedMissions());
         if (_gadgets) _gadgets->setBadge(pg->selectedGadgetCount());
@@ -2101,6 +2330,15 @@ private:
         // Pills are laid out as they are created, so disabling a feature in the plist closes the gap instead of
         // leaving a hole in the corner.
         std::vector<PZUI::Button*> grid;
+        if (PZCfg::kEnableDailyChallenge) {
+            _dailyRun = PZUI::Button::create(PZCfg::kStrDailyBtn2, colW, btnH, Color3B(40, 170, 160), [this, host]() {
+                PZPopups::showDailyChallenge(host, [this, host]() {
+                    if (auto* scene = dynamic_cast<PZGMainMenuScene*>(host)) scene->menuStartGameCallback(nullptr);
+                    refresh();
+                });
+            }, 14.f);
+            grid.push_back(_dailyRun);
+        }
         if (PZCfg::kEnableDailyReward || PZCfg::kEnableGifts) {
             _daily = PZUI::Button::create(PZCfg::kEnableGifts ? PZCfg::kStrGiftsBtn : PZCfg::kStrDailyBtn, colW, btnH, PZCfg::kColButton, [this, host]() {
                 if (PZCfg::kEnableGifts) {
@@ -2157,6 +2395,15 @@ private:
             runAction(Sequence::create(DelayTime::create(1.2f), CallFunc::create([this]() { PZNotif::reschedule(); refresh(); }), nullptr));
         }
 
+#ifndef NDEBUG
+        // Debug builds only: plays the bundled golden replay (Content/golden_replay.v2r) and compares every checkpoint. Run it on
+        // a second platform to measure cross-platform drift. Result is a banner + the [V2:replay] RESULT log line.
+        chips.push_back(PZUI::Button::create("REPLAY TEST", 130.f, chipH, Color3B(150, 60, 160), [host]() {
+            if (PZRunDirector::startReplayTest()) {
+                if (auto* scene = dynamic_cast<PZGMainMenuScene*>(host)) scene->menuStartGameCallback(nullptr);
+            }
+        }, 8.f));
+#endif
         _settings = PZUI::Button::create(PZCfg::kStrSettingsBtn, 150.f, chipH, Color3B(96, 106, 130), [this, host]() {
             PZPopups::showSettings(host, [this]() { refresh(); });
         }, 8.f);
@@ -2279,6 +2526,7 @@ private:
     PZUI::Button* _vibe = nullptr;
     PZUI::Button* _remind = nullptr;
     PZUI::Button* _removeAds = nullptr;
+    PZUI::Button* _dailyRun = nullptr;
     PZUI::Button* _settings = nullptr;
     std::string _freeText;
     bool _freePending = false;

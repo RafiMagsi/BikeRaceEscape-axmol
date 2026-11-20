@@ -8,6 +8,7 @@
 
 #include "PZLegacyCompat.h"
 #include "PZRandom.h"
+#include "V2/V2Replay.h"
 #include "PZGGamefieldBasicRunner.h"
 #include "PZGGamefieldPlatforms.h"
 #include "SharedData/PZGGameplayBasicRunner.h"
@@ -211,6 +212,16 @@ void PZGGamefieldBasicRunner::update(float dt){
     
     // Brief hit-stop on big impacts: the simulation holds for a few frames while effects keep playing.
     const bool hitStop = run && run->frozen();
+    if (PZRand::fixedStep()) {
+        V2::Replay::frame(gameOver);
+        // A frozen / paused / finished world must not bank time: the banked slices would burst out at the first live frame.
+        if (hitStop || gamePause || gameOver) _stepAcc = 0.0f;
+        // Before GO the world is frozen, but the road still has to be generated: one zero-time update does exactly that.
+        if (hitStop && platform && !platform->primed() && world && !world->IsLocked()) {
+            platform->speed = 0.0f;
+            platform->update(0.0f);
+        }
+    }
 
     // Fixed-step mode (challenge seeds): simulate in exact 1/60 s slices so a run is reproducible at any frame rate.
     int slices = 1;
@@ -220,12 +231,15 @@ void PZGGamefieldBasicRunner::update(float dt){
         slices = std::min(6, static_cast<int>(_stepAcc / PZRand::kFixedDt));
         _stepAcc -= slices * PZRand::kFixedDt;
     }
-    for (int slice = 0; slice < slices && !gameOver && !gamePause && !hitStop; ++slice) {
+    // The hit-stop is re-read for every slice: a hit-stop that starts inside this frame must stop the following slices of the
+    // same frame too, or a frame-rate stall would run slices that a smooth frame rate runs after the freeze.
+    for (int slice = 0; slice < slices && !gameOver && !gamePause && !hitStop && !(slice > 0 && run && run->frozen()); ++slice) {
         const float dt = PZRand::fixedStep() ? PZRand::kFixedDt : realDt;
         if (!platform) {
             AXLOGE("PZGGamefieldBasicRunner::update: platform is null");
             return;
         }
+        if (PZRand::fixedStep()) V2::Replay::feedDueInputs([this](bool p) { applyInput(p); });   // replay: inputs due at this tick
         
         // Forgiving jump: a tap just before touchdown fires the moment the rider lands.
         if (_jumpBuffer > 0.0f) {
@@ -268,8 +282,16 @@ void PZGGamefieldBasicRunner::update(float dt){
 
         if (run) {
             run->update( dt );
-        }
+            }
         
+        if (PZRand::fixedStep() && character->p_body) {
+            const b2Vec2 p = character->p_body->GetPosition(), v = character->p_body->GetLinearVelocity();
+            V2::Replay::Snapshot snap;
+            snap.x = p.x; snap.y = p.y; snap.vx = v.x; snap.vy = v.y;
+            snap.distance = static_cast<float>(gf_distance); snap.speed = gf_speed;
+            V2::Replay::afterSlice(snap, PZRand::drawHash());
+        }
+
         if (character->loc.y < -20.0) {
             gameOverCallBack( true );
         }
@@ -294,16 +316,28 @@ void PZGGamefieldBasicRunner::ccTouchesBegan(__Set *pTouch, Event *pEvent){
     if (!character || (run && run->inputLocked())) {
         return;
     }
-    _touchHeld = true;
-    const bool wasGrounded = character->jump_counter < 1;
-    character->jump();
-    if (!wasGrounded && PZCfg::kEnableJumpBuffer) {
-        _jumpBuffer = PZCfg::kJumpBuffer;
-    }
+    injectInput(true);
 }
 void PZGGamefieldBasicRunner::ccTouchesEnded(__Set *pTouch, Event *pEvent){
-    _touchHeld = false;
-    if (character) {
+    injectInput(false);
+}
+
+void PZGGamefieldBasicRunner::injectInput(bool press) {
+    if (!V2::Replay::onLiveInput(press)) return;     // a replay is playing: live input is ignored
+    applyInput(press);
+}
+
+void PZGGamefieldBasicRunner::applyInput(bool press) {
+    if (!character) return;
+    if (press) {
+        _touchHeld = true;
+        const bool wasGrounded = character->jump_counter < 1;
+        character->jump();
+        if (!wasGrounded && PZCfg::kEnableJumpBuffer) {
+            _jumpBuffer = PZCfg::kJumpBuffer;
+        }
+    } else {
+        _touchHeld = false;
         character->jumpEnd();
     }
 }

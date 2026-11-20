@@ -20,9 +20,9 @@ class PZGPlatfrom : public ax::Node
     
     public:
     
-    b2Body*             body;
-    ax::Sprite*  sprite;
-    float width;
+    b2Body*             body = nullptr;
+    ax::Sprite*  sprite = nullptr;
+    float width = 0.f;
     ax::Vec2 collisionPosition;
     
     static PZGPlatfrom* create( PZGArtObject* platformInfo, b2World *world );

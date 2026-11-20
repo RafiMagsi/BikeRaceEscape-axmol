@@ -79,7 +79,8 @@ void RoadEventDirector::reset(uint32_t seed) {
         _bag.setItems(all);
     }
     _clock = 0.f;
-    _cool = kFirstEventAt;
+    _successes = 0;
+    _cool = kFirstEventAt * _breatherScale;
     _ambientCool = 14.f + _rng.range(0.f, 8.f);
     _speed = 300.f;
     Analytics::shared().log("v2_run_seed", {{"seed", std::to_string(seed)}});
@@ -333,8 +334,9 @@ void RoadEventDirector::startEvent(EventId id) {
 void RoadEventDirector::finishEvent(bool success) {
     Analytics::shared().log("road_event_end", {{"event", eventName(_cur)}, {"success", success ? "1" : "0"},
                                                {"duration", std::to_string(static_cast<int>(_t))}});
+    if (success) ++_successes;
     _active = false;
-    _cool = _rng.range(kBreatherMin, kBreatherMax);
+    _cool = _rng.range(kBreatherMin, kBreatherMax) * _breatherScale;
     if (_marker) {
         _marker->removeFromParent();
         _marker = nullptr;

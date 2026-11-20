@@ -18,16 +18,16 @@
 class PZGCoin : public ax::Node
 {
     
-    b2Body*             body;
+    b2Body*             body = nullptr;
 public:
 
-    ax::Sprite*  sprite;
+    ax::Sprite*  sprite = nullptr;
 
-    float   reward;
-    float   comingRatio;
-    bool    disabled;
-    float   scale;
-    bool    deleteReady;
+    float   reward = 1.f;
+    float   comingRatio = 0.f;
+    bool    disabled = false;
+    float   scale = 1.f;
+    bool    deleteReady = false;
     
     static PZGCoin* create( PZGArtCoins* obstInfo, b2World *world );
     void init(PZGArtCoins* obstInfo);

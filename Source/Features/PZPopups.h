@@ -38,6 +38,13 @@ ax::Node* showGadgets(ax::Node* parent, std::function<void()> onClosed = nullptr
 // onChoose(id) for a tapped unlocked gadget (stock may be 0: the caller opens the shop), or onCancel.
 ax::Node* showGadgetPicker(ax::Node* parent, std::function<void(const std::string&)> onChoose, std::function<void()> onCancel);
 
+// Daily seeded run (Version 2): today's modifier, ranked / practice start, medals, share. `onStart` runs after the
+// popup closed and Daily::begin() chose the mode (the caller starts the normal Play flow).
+ax::Node* showDailyChallenge(ax::Node* parent, std::function<void()> onStart);
+// Shown after a daily run: score, medal, reward, SHARE. `coinsGranted` is what this result paid (ranked, first time).
+ax::Node* showDailyResult(ax::Node* parent, int dateKey, int score, int distance, int coins, int events, int medal,
+                          bool ranked, int rankedScore, int coinsGranted, std::function<void()> onClosed = nullptr);
+
 // Settings: sound effects, music, vibration, reminders and the Google privacy-choices form.
 ax::Node* showSettings(ax::Node* parent, std::function<void()> onClosed = nullptr);
 

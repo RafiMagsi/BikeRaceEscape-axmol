@@ -64,6 +64,8 @@ public:
     bool busy() const { return _active || !_actors.empty(); }
     bool forceStart(const std::string& name);     // debug / QA: start a specific event now
     uint32_t seed() const { return _seed; }
+    int successCount() const { return _successes; }   // events finished without a hit this run (daily score)
+    void setBreatherScale(float s) { _breatherScale = s; }
     void layoutHud();
     // Distance from x to the nearest live hazard actor ahead (left edge of its box), or -1. Used by the QA bot and by a
     // future assist/tutorial hint; never by gameplay.
@@ -132,6 +134,8 @@ private:
     BarkBook _barks;
     ShuffleBag<int> _bag;
     uint32_t _seed = 1;
+    int _successes = 0;
+    float _breatherScale = 1.f;
     bool _enabled = true;
 
     std::vector<std::shared_ptr<Actor>> _actors;

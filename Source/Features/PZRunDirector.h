@@ -13,6 +13,7 @@
 #include "PZLegacyCompat.h"
 #include "PZGameConfig.h"
 #include "PZProgress.h"
+#include "V2/V2Core.h"
 #include <chrono>
 #include <functional>
 #include <string>
@@ -68,12 +69,18 @@ public:
     void setChallengeSeed(uint32_t seed) { _challengeSeed = seed; }
     uint32_t runSeed() const;
     bool forceRoadEvent(const std::string& name);
+    // Replay test: loads the bundled golden replay (or `path`), starts a run from its seed and compares it tick by tick.
+    static bool startReplayTest(const std::string& path = "golden_replay.v2r");
     float roadHazardAhead(float x) const;      // QA bot helper (-1 = none)
 
 private:
     bool absorbExternalHit(const ax::Vec2& at);   // shield / turbo / grace / mercy for hazards that are not PZGObstacles
     V2::RoadEventDirector* _events = nullptr;
     uint32_t _challengeSeed = 0;
+    V2::Rng _orbRng;                // power-up orbs draw from their own stream (never perturbs the content stream)
+    bool _dailyNoRevive = false;    // daily runs: no revive (a result is final)
+    bool _dailyNoMercy = false;     // ONE LIFE modifier: no free second-chance saves either
+    float _dailySnapT = 0.f;
     bool _overGap = false;        // the rider crossed a gap during this jump
     int  _smoothStreak = 0;       // consecutive clean gap landings
     bool _sigLogged = false;      // debug determinism signature logged for this run

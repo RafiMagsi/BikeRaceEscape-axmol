@@ -35,45 +35,45 @@ enum PZGObstacleTrajectory {
 class PZGObstacle : public ax::Node
 {
     
-    b2Body*             body;
+    b2Body*             body = nullptr;
 
-    ax::Animate*  sprite_death;
-    ax::Sprite*  sprite_flash;
+    ax::Animate*  sprite_death = nullptr;
+    ax::Sprite*  sprite_flash = nullptr;
     
-    float               damage_counter;
+    float               damage_counter = 0.f;
     
-    float counter;
+    float counter = 0.f;
 
     
-    PZGSoundData *deathSound;
+    PZGSoundData *deathSound = nullptr;
     
 public:
  
-    ax::Vec2 velocityLinear;
+    ax::Vec2 velocityLinear = ax::Vec2::ZERO;
     
-    float obstacle_scale;
-    ax::Sprite*  sprite;
+    float obstacle_scale = 1.f;
+    ax::Sprite*  sprite = nullptr;
     
     void setRotation( float angle );
     
     virtual void setScaleX( float scale );
     virtual void setScaleY( float scale );
     
-    float health;
-    bool  destroyCharacter;
-    bool  bouncingAnimation;
-    bool  rotationAnimation;
-    float rotationVelocity;
-    float comingRatio;
+    float health = 1.f;
+    bool  destroyCharacter = false;
+    bool  bouncingAnimation = false;
+    bool  rotationAnimation = false;
+    float rotationVelocity = 0.f;
+    float comingRatio = 0.f;
     
-    bool dead;
-    bool deleteReady;
+    bool dead = false;
+    bool deleteReady = false;
     bool nearMissDone = false;   // set by PZRunDirector once the near-miss check for this obstacle ran
     
-    float speed;
-    float gameSpeed;
+    float speed = 0.f;
+    float gameSpeed = 0.f;
     
-    PZGObstacleTrajectory trajectory;
+    PZGObstacleTrajectory trajectory = PZGObstacleTrajectoryLeftLinear;
     
     static PZGObstacle* create( PZGArtObstacle* obstInfo, b2World *world );
     void initPhysics( PZGArtObstacle* obstInfo, b2World *world );

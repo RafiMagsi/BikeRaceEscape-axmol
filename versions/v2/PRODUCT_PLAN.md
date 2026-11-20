@@ -637,9 +637,35 @@ Verified on the iOS simulator with a QA bot that can read hazards: sign telegrap
 - **Art.** Atlas grew to 47 frames (grandma rider, meteor, rocket flame, worker, cone, drum, rock, coin, work sign).
 - **Bugs found by the simulator and fixed:** a null dereference when Grandma left the screen, an event that ended early because its actor had been removed, actors spawned while iterating the actor list, and meteors that landed on the rider.
 
-### 19.4 Next steps, in order
+### 19.4 Daily challenge and share card (built, 2026-11-20)
 
-1. Golden-replay spike: record `{seed, input log}` in challenge mode, replay it headless, compare final distance / content hash; run the same log on an Android device to measure float drift.
-2. Daily challenge screen (seed = UTC date hash, versioned scoring, local result queue) and share card.
-3. Second rival race variants, localisation IDs for barks, accessibility option to turn barks off.
-4. Real-device frame-time / memory pass with events active; tune `V2RoadEvents.h` from playtests (rival race currently ends in 5-10 s with a bot that jumps constantly: expect humans to need more help or less drift).
+- **Daily run** (`Source/V2/V2Daily.*`, DAILY RUN pill on the main menu): seed = hash of the UTC date + rules version (identical on every device); modifier of the day rotates through STANDARD, ONE LIFE (no free second chances, x1.5), EVENT RUSH (events twice as often, x1.25) and COIN DROUGHT (40% coins, x1.3). Score = `(distance + 2 x coins + 25 x events cleared) x modifier`, medals at 500 / 1,200 / 2,500.
+- **Fairness rules:** one ranked attempt per UTC day (the first run; leaving or restarting it before the end still counts it), unlimited practice; no gadgets, no revives, no ads-for-advantage in daily runs; power-up orbs use their own RNG stream so they cannot change the level. Participation reward (20 / 40 / 80 / 150 coins by medal) is claimed once per date, so clock changes or repeats cannot pay twice. Results are kept in a local upload queue (`pendingUploads()`) for a future leaderboard adapter; rules version is stored with every score.
+- **Share card** (`Source/V2/V2Share.*`): a 1200 x 630 card drawn with a RenderTexture (score, medal, modifier, the player's own bike, "CAN YOU BEAT THIS?", link) saved as PNG and handed to the native sheet (iOS `UIActivityViewController`, Android `ACTION_SEND` through a FileProvider, no storage permission). Sharing never grants a reward. Verified on the simulator: card PNG written and the iOS share sheet opens with the image and text. Android code is written but not built or run on a device.
+- **Analytics events:** `daily_start`, `daily_end`, `share_prompt` (local ring buffer / log only).
+- **Not built yet:** a leaderboard upload, friend challenge links with ghosts, and server-side score validation. Daily scores are only as trustworthy as the device until a server checks them, so do not attach prizes to ranks yet.
+
+### 19.5 Replay test (built, 2026-11-20)
+
+**What exists** (`Source/V2/V2Replay.*`): every fixed-step run (daily / challenge) records `{seed, rules version, input events by tick, a state checkpoint every 30 ticks, death tick}`. A recording can be played back into a fresh run: inputs are injected on the same ticks (live input is ignored while a replay plays) and each checkpoint is compared bit-for-bit (rider position / velocity, distance, speed, hash of every content random draw). The daily ranked run saves its replay to `replay_daily_<yyyymmdd>.v2r` in the writable path. A golden file `Content/golden_replay.v2r` (seed 7070, 1,496 ticks, 30 inputs, 49 checkpoints, recorded on the iOS simulator) ships with the app; **debug builds show a REPLAY TEST button** on the main menu (then press Play on the character screen) that plays it and shows REPLAY EXACT / REPLAY DRIFT with the numbers (also logged as `[V2:replay] RESULT`). Run it on an Android device to measure cross-platform drift: that part is still open.
+
+**Result on the iOS simulator:** 6 of 6 replays bit-exact, including 3 with random 0-40 ms stalls injected into every frame, and the bundled file through the real button.
+
+**What it took (each was a real bug or a hidden real-time dependency):**
+1. Tick 0 now starts at GO. The world used to simulate for ~0.3 s of real time before the intro froze it, so the number of pre-GO ticks depended on frame timing. In fixed-step runs the world is now frozen from the first frame (one zero-time update builds the road) and the tick clock starts at GO.
+2. The frozen / paused world no longer banks time in the fixed-step accumulator (it burst out as up to 6 slices at the first live frame).
+3. The hit-stop is re-read for every slice, so a frame stall cannot run slices that a smooth frame rate would run after the freeze.
+4. The road-event hit test used the rider sprite's bounding box, which follows the bike's real-time animation frame. It now uses a fixed box around the body position.
+5. Undefined behaviour: `PZGObstacle` never initialised `dead`, `deleteReady`, `body`, `gameSpeed`, `counter`, `damage_counter` (only ever set to true / assigned on some paths). Same for `PZGCoin` and `PZGPlatfrom`. All members now have default values. This affects normal runs too (an obstacle could behave as dead or move on its own depending on heap contents).
+6. The death tick is the first lethal physics signal, not the frame in which game over is processed (that is deferred in real time).
+7. **Power-up orbs in reproducible runs are limited to magnet and shield.** Turbo, blast, jetpack, rocket and gun use real-time tweens, cinematics and hit-stops; replays that picked one up diverged (all replays of two different seeds split at the first pickup, ~11 s). If daily runs should offer more power-ups, those effects have to be made tick-based first.
+
+**Limits:** not proven across platforms; one golden recording only (a bot run with a death at tick 1,496); revive, mercy rescues and any run that takes a real-time rescue are not replayable (a replay ends at the first death signal); replay files are not yet signed or validated by a server.
+
+### 19.6 Next steps, in order
+
+1. Run the golden replay on an Android device (and an older iPhone) and record the drift numbers here. If Android is not bit-exact, define a tolerance and checkpoint on quantised state instead.
+2. Server-side validation: replay a submitted `{seed, inputs}` headless to check the claimed score before it enters a leaderboard.
+3. Leaderboard: Game Center daily board first, Play Games on Android after a bridge spike.
+4. Friend challenge link + ghost playback from a replay file; make turbo / jetpack / rocket tick-based if they should appear in daily runs.
+5. Real-device frame-time / memory pass with events active; tune from playtests.

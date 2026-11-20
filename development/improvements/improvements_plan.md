@@ -237,6 +237,10 @@ ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads st
 
 60. Version 2 continued: seeded content generator + fixed-step challenge mode (determinism verified 4/4 on the simulator), three more road events (Construction Chaos, Meteor Shower, Grandma Turbo), smooth-landing feedback. Details in versions/v2/PRODUCT_PLAN.md 19.3. Not in a store build yet.
 
+61. Version 2: daily seeded challenge (DAILY RUN pill, modifier of the day, ranked once / practice, medals, idempotent reward, local upload queue) and result share card (PNG + native share sheet, FileProvider on Android). Details in versions/v2/PRODUCT_PLAN.md 19.4. Android not built/run; no leaderboard yet. Not in a store build.
+
+62. Version 2 replay test: record seed + inputs + checkpoints, play back and compare bit-for-bit. 6/6 exact on the iOS simulator incl. frame-stall stress. Found and fixed uninitialised members in PZGObstacle / PZGCoin / PZGPlatfrom (affects normal runs). Daily/challenge runs now only spawn magnet and shield orbs. Debug-only REPLAY TEST button + bundled golden_replay.v2r. Android drift not measured yet. Details in versions/v2/PRODUCT_PLAN.md 19.5.
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control

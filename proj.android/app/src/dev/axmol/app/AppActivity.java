@@ -81,6 +81,7 @@ public class AppActivity extends AxmolActivity {
         HapticsBridge.init(this);
         NotificationBridge.init(this);
         LinkBridge.init(this);
+        ShareBridge.init(this);
         
     }
 

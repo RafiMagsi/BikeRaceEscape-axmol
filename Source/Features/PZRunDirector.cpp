@@ -4,6 +4,8 @@
 #include "PZRunDirector.h"
 #include "V2/V2RoadEvents.h"
 #include "PZRandom.h"
+#include "V2/V2Daily.h"
+#include "V2/V2Replay.h"
 #include "PZUI.h"
 #include "PZPopups.h"
 #include "PZLayout.h"
@@ -497,13 +499,44 @@ void PZRunDirector::startRun() {
     _trackerClock = 0.f;
     for (bool& d : _trackerDone) d = false;
     {
-        const uint32_t seed = _challengeSeed ? _challengeSeed
-                                             : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;
+        // A ranked daily run that was restarted before it finished still used up the ranked attempt.
+        if (V2::Daily::mode() == V2::Daily::Mode::Ranked && V2::Daily::runLive()) {
+            V2::Daily::Result f;
+            if (V2::Daily::takeForfeit(f)) {
+                int granted = 0;
+                V2::Daily::record(f, granted);
+                if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
+                V2::Daily::switchToPractice();
+            }
+        }
+        if (V2::Replay::playbackPending()) {            // a replay test owns the run: its seed, no daily modifiers
+            V2::Daily::end();
+            _challengeSeed = V2::Replay::pendingSeed();
+        }
+        const bool daily = V2::Daily::mode() != V2::Daily::Mode::None;
+        const auto& mod = V2::Daily::activeModifier();
+        static const float baseCoinDensity = PZCfg::kCoinDensity;
+        PZCfg::kCoinDensity = baseCoinDensity * (daily ? mod.coinDensityScale : 1.f);
+        _dailyNoRevive = daily;
+        _dailyNoMercy = daily && mod.noRevive;
+        if (_events) _events->setBreatherScale(daily ? mod.eventBreatherScale : 1.f);
+        const uint32_t forced = daily ? V2::Daily::seedFor(V2::Daily::dateKeyNow()) : _challengeSeed;
+        const uint32_t seed = forced ? forced
+                                     : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;
         PZRand::setRunSeed(seed);                       // content stream: applied when the world is (re)filled
-        PZRand::setFixedStep(_challengeSeed != 0);
+        PZRand::setFixedStep(forced != 0);
+        _orbRng.reseed(seed ^ 0xA5A5A5A5u);
+        V2::Replay::beginRun(seed, forced != 0, !PZCfg::kEnableCinematics);   // with the intro, ticks start at GO
+        V2::Replay::setResultHandler([this](const V2::Replay::Report& rep) {
+            if (!_scene) return;
+            PZUI::banner(_scene, rep.exact ? "REPLAY EXACT" : "REPLAY DRIFT", rep.text, rep.exact ? PZCfg::kColGood : PZCfg::kColBad,
+                         Director::getInstance()->getWinSize().height * 0.6f, 4.0f, 1600);
+        });
         _overGap = false;
         _smoothStreak = 0;
         _sigLogged = false;
+        _dailySnapT = 0.f;
+        if (daily) V2::Daily::clearLive();
     }
     if (_events) {
         _events->reset(PZRand::runSeed());
@@ -538,6 +571,7 @@ void PZRunDirector::beginIntro() {
         PZUI::banner(_scene, PZCfg::kStrGo, PZCfg::kStrStartHint, PZCfg::kColGood, winH * 0.62f, 1.0f);
         return;
     }
+    if (PZRand::fixedStep()) freezeFor(60.f);           // reproducible runs: the world waits, frozen, from the very first frame
     _introActive = true;
     // Until the show starts the rider waits off-screen to the left: it must never be seen dropping in from above.
     if (PZGCharacter* ch0 = _scene->character; ch0 && ch0->p_body) {
@@ -688,6 +722,11 @@ void PZRunDirector::activateGadget(int btn) {
 }
 
 void PZRunDirector::openGadgetPicker() {
+    if (V2::Daily::mode() != V2::Daily::Mode::None) {       // daily runs are skill only: nothing bought can help
+        PZUI::banner(_scene, "DAILY RUN", "NO GADGETS TODAY", PZCfg::kColAccent2, Director::getInstance()->getWinSize().height * 0.6f, 0.8f);
+        PZHaptics::play(PZHaptics::Kind::Warning);
+        return;
+    }
     if (!_scene || _scene->gameOver || _scene->gamePause || inputLocked() || _deathPending || _reviveWait || _riderTweening) return;
     Node* top = _scene->getParent() ? _scene->getParent() : _scene;
     _scene->gamePause = true;
@@ -805,12 +844,25 @@ void PZRunDirector::update(float dt) {
         AXLOGI("[V2:sig] seed={} dist={} hash={}", PZRand::runSeed(), static_cast<int>(_scene->gf_distance), h);
     }
 #endif
+    if (V2::Daily::mode() == V2::Daily::Mode::Ranked && !_committed) {
+        _dailySnapT += dt;
+        if (_dailySnapT > 0.4f) {
+            _dailySnapT = 0.f;
+            V2::Daily::snapshot(static_cast<int>(_scene->gf_distance), _stats.coins, _events ? _events->successCount() : 0);
+        }
+    }
     if (_events) {
         V2::Context ctx;
         ctx.dt = dt;
         ctx.scroll = platform() ? platform()->lastScroll : scroll;
         ctx.rider = riderPos();
-        ctx.riderBox = riderBox();
+        // Fixed-size box around the body position, NOT the sprite bounds: the sprite box follows the bike's real-time animation
+        // frame, which would make hits (and therefore a replay) depend on frame timing.
+        {
+            const Vec2 rp = riderPos();
+            const float kk = kDeviceScale();
+            ctx.riderBox = Rect(rp.x - 46.f * kk, rp.y - 30.f * kk, 92.f * kk, 78.f * kk);
+        }
         ctx.airborne = _scene->character->jump_counter > 0 && !turboActive() && _jetpackT <= 0.f;
         ctx.apex = apex();
         ctx.ridesActive = turboActive() || _jetpackT > 0.f || _rocketT > 0.f;
@@ -1059,14 +1111,17 @@ void PZRunDirector::spawnOrb() {
 
     // Always reachable with a jump, on every platform's physics scale.
     const float lift = std::min(PZCfg::kOrbHeightAboveGround * k, apex() * 0.78f);
-    const float y = std::max(90.f, std::min(win.height - 120.f, gy + lift + CCRANDOM_0_1() * 30.f));
+    const float y = std::max(90.f, std::min(win.height - 120.f, gy + lift + _orbRng.unit() * 30.f));
 
-    const float wM = PZCfg::kWeightMagnet, wS = PZCfg::kWeightShield, wT = PZCfg::kWeightTurbo, wB = PZCfg::kWeightBlast;
-    const float wJ = PZCfg::kEnableJetpack ? PZCfg::kWeightJetpack : 0.f;
-    const float wR = PZCfg::kEnableRocket ? PZCfg::kOrbWeightRocket : 0.f;
-    const float wG = PZCfg::kEnableGun ? PZCfg::kOrbWeightGun : 0.f;
+    // Reproducible (challenge / daily) runs only get the orbs whose effect is a plain timer: magnet and shield. Turbo, blast,
+    // jetpack, rocket and gun use real-time tweens, cinematics and hit-stops, which cannot be replayed bit-for-bit.
+    const bool det = PZRand::fixedStep();
+    const float wM = PZCfg::kWeightMagnet, wS = PZCfg::kWeightShield, wT = det ? 0.f : PZCfg::kWeightTurbo, wB = det ? 0.f : PZCfg::kWeightBlast;
+    const float wJ = (PZCfg::kEnableJetpack && !det) ? PZCfg::kWeightJetpack : 0.f;
+    const float wR = (PZCfg::kEnableRocket && !det) ? PZCfg::kOrbWeightRocket : 0.f;
+    const float wG = (PZCfg::kEnableGun && !det) ? PZCfg::kOrbWeightGun : 0.f;
     const float total = std::max(0.001f, wM + wS + wT + wB + wJ + wR + wG);
-    const float r = CCRANDOM_0_1() * total;
+    const float r = _orbRng.unit() * total;
     PowerUp kind = PowerUp::Blast;
     if (r < wM) kind = PowerUp::Magnet;
     else if (r < wM + wS) kind = PowerUp::Shield;
@@ -1089,7 +1144,7 @@ void PZRunDirector::updateOrbs(float dt, float scroll) {
         _rocketT <= 0.f) {
         spawnOrb();
         _nextOrbAt = _time + PZCfg::kPowerUpIntervalMin +
-                     CCRANDOM_0_1() * (PZCfg::kPowerUpIntervalMax - PZCfg::kPowerUpIntervalMin);
+                     _orbRng.unit() * (PZCfg::kPowerUpIntervalMax - PZCfg::kPowerUpIntervalMin);
     }
     const Vec2 rp = riderPos();
     for (size_t i = 0; i < _orbs.size();) {
@@ -1772,6 +1827,7 @@ void PZRunDirector::beginReadyCountdown(bool revive) {
             _introActive = false;
             _freezeUntil = std::chrono::steady_clock::time_point{};   // release the world
             _graceT = std::max(_graceT, PZCfg::kHitGrace + 0.6f);
+            if (!revive) V2::Replay::goLive();                          // tick 0 of a reproducible run
             closeCinematicFrame(0.28f);
             if (revive && PZCfg::kReviveTurbo > 0.f && PZCfg::kEnablePowerUps) {
                 collect(PowerUp::Turbo, riderPos(), PZCfg::kReviveTurbo);
@@ -2310,12 +2366,23 @@ int PZRunDirector::clearHazards(float behind, float ahead) {
 }
 
 bool PZRunDirector::mercyAvailable() const {
-    return PZCfg::kEnableMercy && _mercyUsed < PZCfg::kMercySaves && PZProgress::shared()->bestScore() < PZCfg::kMercyBestBelow;
+    return PZCfg::kEnableMercy && !_dailyNoMercy && _mercyUsed < PZCfg::kMercySaves && PZProgress::shared()->bestScore() < PZCfg::kMercyBestBelow;
 }
 
 float PZRunDirector::roadHazardAhead(float x) const { return _events ? _events->hazardAhead(x) : -1.f; }
 
 uint32_t PZRunDirector::runSeed() const { return PZRand::runSeed(); }
+
+bool PZRunDirector::startReplayTest(const std::string& path) {
+    V2::Replay::Data d;
+    const std::string full = FileUtils::getInstance()->isAbsolutePath(path) ? path : FileUtils::getInstance()->fullPathForFilename(path);
+    if (full.empty() || !V2::Replay::load(full, d)) {
+        AXLOGW("[V2:replay] cannot load {}", path);
+        return false;
+    }
+    V2::Replay::armPlayback(d);
+    return true;
+}
 
 bool PZRunDirector::forceRoadEvent(const std::string& name) {
     return _events && _events->forceStart(name);
@@ -2749,6 +2816,7 @@ void PZRunDirector::updateMissionTracker(float dt) {
 // ---- death / revive --------------------------------------------------------------------------
 
 bool PZRunDirector::onDeath() {
+    if (!_deathDeferred && !_skipDeathOnce) V2::Replay::noteDeath();   // first lethal signal = the replay's end tick
     if (_skipDeathOnce) {              // the deferred decision below already ran and chose a real game over
         _skipDeathOnce = false;
         return false;
@@ -2825,7 +2893,7 @@ bool PZRunDirector::onDeath() {
     PZAudio::play("fx_crash");
     auto* sc = PZSettingsController::shared();
     const bool video = PZCfg::kEnableReviveVideo;
-    const bool offerRevive = PZCfg::kEnableRevive && !_reviveOffered &&
+    const bool offerRevive = PZCfg::kEnableRevive && !_dailyNoRevive && !_reviveOffered &&
                              (sc->coins >= PZCfg::kReviveCost || video);
     if (offerRevive) {
         if (video) PZ::AdsController::shared()->requestRewarded();
@@ -2995,6 +3063,10 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     if (_committed || !gameOverLayer) return;
     _committed = true;
     if (_events) _events->clear();                      // the results screen never sits on top of live road actors
+    int dailyEvents = _events ? _events->successCount() : 0;
+    if (V2::Daily::mode() == V2::Daily::Mode::Ranked && V2::Replay::state() == V2::Replay::State::Recording) {
+        V2::Replay::save(V2::Replay::lastRecording(), FileUtils::getInstance()->getWritablePath() + "replay_daily_" + std::to_string(V2::Daily::dateKeyNow()) + ".v2r");
+    }
     _stats.distance = static_cast<int>(_scene->gf_distance);
     _stats.stage = _stage;
 
@@ -3021,7 +3093,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         return extra;
     };
     std::function<void()> onCoins, onVideo;
-    if (PZCfg::kEnableRevive) {          // every game over offers a revive, as often as it happens
+    if (PZCfg::kEnableRevive && !_dailyNoRevive) {          // every game over offers a revive, as often as it happens
         onCoins = [this]() { reviveFromGameOver(true); };
         onVideo = [this]() { reviveFromGameOver(false); };
     }
@@ -3032,6 +3104,32 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
                                                  [this](int slot) { return slot >= 0 && slot < 3 && _trackerDone[slot]; }),
                                   shown.completedMissions.end());
     PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, shown, claimDoubleCoins, onCoins, onVideo);
+
+    // Daily run: score it, store it (ranked counts once), then show the result card popup.
+    if (V2::Daily::mode() != V2::Daily::Mode::None) {
+        const auto& mod = V2::Daily::activeModifier();
+        V2::Daily::Result dr;
+        dr.dateKey = V2::Daily::dateKeyNow();
+        dr.mode = V2::Daily::mode();
+        dr.distance = _stats.distance;
+        dr.coins = _stats.coins;
+        dr.eventsCleared = dailyEvents;
+        dr.modifierId = mod.id;
+        dr.score = V2::Daily::computeScore(dr.distance, dr.coins, dr.eventsCleared, mod);
+        const bool wasRanked = dr.mode == V2::Daily::Mode::Ranked;
+        int granted = 0;
+        const int medal = V2::Daily::record(dr, granted);
+        V2::Daily::clearLive();
+        if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
+        if (wasRanked) V2::Daily::switchToPractice();      // retries from here are practice
+        V2::Analytics::shared().log("daily_end", {{"mode", wasRanked ? "ranked" : "practice"}, {"score", std::to_string(dr.score)},
+                                                  {"medal", std::to_string(medal)}, {"date", std::to_string(dr.dateKey)}});
+        const int rankedScore = V2::Daily::hasRanked(dr.dateKey) ? V2::Daily::rankedResult(dr.dateKey).score : 0;
+        const int date = dr.dateKey, sc2 = dr.score, dist = dr.distance, cn = dr.coins, ev = dr.eventsCleared;
+        runAction(Sequence::create(DelayTime::create(1.3f), CallFunc::create([this, date, sc2, dist, cn, ev, medal, wasRanked, rankedScore, granted]() {
+            if (_scene) PZPopups::showDailyResult(_scene, date, sc2, dist, cn, ev, medal, wasRanked, rankedScore, granted, nullptr);
+        }), nullptr));
+    }
 }
 
 void PZRunDirector::reviveFromGameOver(bool withCoins) {

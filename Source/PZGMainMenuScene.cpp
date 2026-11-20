@@ -8,6 +8,7 @@
 #include "MyObject-C-Interface.h"
 #include "2d/Label.h"
 #include "Features/PZPopups.h"
+#include "V2/V2Daily.h"
 #include "Features/PZUI.h"
 
 #if (CC_TARGET_PLATFORM == CC_TARGET_PLATFORM_IOS)
@@ -179,6 +180,15 @@ void PZGMainMenuScene::moreGames(Object*){
 
 void PZGMainMenuScene::onEnter(){
     Layer::onEnter();
+    {   // back on the main menu: a ranked run that was left unfinished still counts; then normal play again
+        V2::Daily::Result f;
+        if (V2::Daily::takeForfeit(f)) {
+            int granted = 0;
+            V2::Daily::record(f, granted);
+            if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
+        }
+        V2::Daily::end();
+    }
     fprintf(stderr, "\n[MAINMENU-LIFECYCLE] onEnter called\n");
     fflush(stderr);
     AXLOGI("[MAINMENU-LIFECYCLE] onEnter called");

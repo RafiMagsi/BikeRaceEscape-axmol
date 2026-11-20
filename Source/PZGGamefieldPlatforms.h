@@ -109,6 +109,7 @@ public:
     bool alignForRevive(float x, float& outGroundY);
     bool findReviveTarget(float x, float& outGroundY, float& outDx);   // no movement: see shiftWorld
     void shiftWorld(float dx);
+    bool primed() const { return !prefillPending; }  // the road has been generated (first update done)
     float lastScroll = 0.f;                        // units the world moved in the last update() (actors ride on this)
     std::function<void(float)> onShift;            // told when shiftWorld() slid the world (road-event actors follow)
     void clearHazardsNear(float x);

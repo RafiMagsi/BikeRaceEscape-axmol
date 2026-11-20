@@ -106,7 +106,7 @@ static void arrangeInterface(const char* key, ax::Node* layer, ax::Menu* menu) {
         }
         // PLAY is centred under the XP plate and pills (same column), and sits a little lower.
         if (auto* play = item(3)) {
-            play->setPosition(ax::Vec2(safe.getMaxX() - 12.f - 145.f * S, play->getPositionY() - 26.f));
+            play->setPosition(ax::Vec2(safe.getMaxX() - 12.f - 145.f * S, play->getPositionY() - 48.f));
             play->setScale(play->getScale() * S);
         }
         if (auto* gc = item(kUIIDMainMenuGameCenter)) gc->setScale(gc->getScale() * S);

@@ -95,6 +95,8 @@ public:
     // --- meta features (Source/Features) ---
     PZRunDirector*  run = nullptr;                    // per-run action layer; owned by the scene graph
     virtual PZGGamefieldPlatforms* platformLayer() { return nullptr; }
+    // The single entry point for jump input (touch, QA bot, replay): records it for the replay when needed.
+    virtual void injectInput(bool press) { (void)press; }
     float speedMultiplier() const;                    // turbo boost (1.0 when idle)
     void  addBonusCoins( int amount );                // bonus coins (stage, combo, ...) added to wallet + HUD
     bool  onObstacleHit( PZGObstacle* obstacle );     // true = absorbed by shield / turbo, no death

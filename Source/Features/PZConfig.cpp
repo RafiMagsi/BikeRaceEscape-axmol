@@ -110,7 +110,7 @@ void ensureLoaded() {
     }
 
     const ValueMap* str = section(*root, "strings");
-    R(str, PrivacyPolicyUrl); R(str, StrPrivacyPolicy);
+    R(str, ShareUrl); R(str, StrDailyBtn2); R(str, PrivacyPolicyUrl); R(str, StrPrivacyPolicy);
     R(str, StrBest); R(str, StrNewBest); R(str, StrStage); R(str, StrStageSub); R(str, StrCloseCall); R(str, StrCombo);
     R(str, StrComboBonus); R(str, StrSmash); R(str, StrShieldBreak); R(str, StrBlast); R(str, StrSaved); R(str, StrGo);
     R(str, StrMagnet); R(str, StrShield); R(str, StrTurbo); R(str, StrBlastName); R(str, StrJetpackName);
@@ -131,7 +131,7 @@ void ensureLoaded() {
 
     const ValueMap* feat = section(*root, "features");
     R(feat, EnableNotifications); R(feat, EnablePowerUps); R(feat, EnableRevive); R(feat, EnableReviveVideo); R(feat, EnableStages); R(feat, EnableCombos); R(feat, EnableNearMiss);
-    R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
+    R(feat, EnableDailyChallenge); R(feat, EnableDailyReward); R(feat, EnableMissions); R(feat, EnableShake); R(feat, EnableHaptics); R(feat, EnableFx);
     R(feat, EnableFairPlacement); R(feat, EnableHazardBudget); R(feat, EnableCoinArcs); R(feat, EnableMercy); R(feat, EnableJumpBuffer);
     R(feat, EnableGadgets); R(feat, EnableJetpack); R(feat, EnableFreeCoins); R(feat, EnableSfx); R(feat, EnableVoice); R(feat, EnableFreeGameAd); R(feat, EnableDoubleCoins);
     R(feat, EnableBigAir); R(feat, EnableStartGrace); R(feat, EnableCinematics);

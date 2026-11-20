@@ -40,6 +40,8 @@ public:
     virtual PZGGamefieldPlatforms* platformLayer() { return platform; }
     
     virtual void ccTouchesBegan(__Set *pTouch, Event *pEvent);
+    virtual void injectInput(bool press) override;
+    void applyInput(bool press);        // the actual jump / release, no recording
     virtual void ccTouchesEnded(__Set *pTouch, Event *pEvent);
 };
 
