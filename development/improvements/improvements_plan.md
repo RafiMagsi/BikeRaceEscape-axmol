@@ -233,6 +233,8 @@ ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads st
     > Feedback: FIXED (simulator: character screen x2 and game over, shop opened and closed, screens stay clean). Root cause: closing the shop called PZPopups::refreshMenuWidgets(this), which ATTACHED the main-menu overlay (level plate, pills, parallax backdrop, bike lane) to whatever screen opened the shop whenever it was missing, so the main menu was drawn over the character / game-over screen and its widgets sat above the real buttons (stuck). Now refresh is a no-op where the widgets do not exist, each screen has its own onShopClosed() (character screen refreshes its coin counter), and a second shop cannot be stacked on an open one. Also: Android back closes an open popup first on every screen (PZPopups::hasModal / closeTopModal) instead of leaving the screen underneath it.
     > Checked for the same class of bug: attachMenuWidgets is only called from the main menu's load(); the pause screen has no shop button; the gadget picker is blocked while paused.
 
+59. Version 2, Phase 1 slice: road events, rivals, barks, analytics port (see versions/v2/PRODUCT_PLAN.md section 19). Revive / game over offers have no per-run limit (item added earlier). Not yet in a store build.
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control

@@ -635,6 +635,7 @@ void PZGGamefieldPlatforms::update(float dt){
     }
 
     float s =  dt*speed*32*kDeviceScale()*2;
+    lastScroll = s;
 
     for (int i = 0; i < kMaxPlatfroms; i++){
         if (platforms[ i ]) {
@@ -783,6 +784,7 @@ bool PZGGamefieldPlatforms::findReviveTarget(float x, float& outGroundY, float& 
 // Slides everything in the world left by dx (used by the animated rescue; may be called every frame with small steps).
 void PZGGamefieldPlatforms::shiftWorld(float dx) {
     if (dx == 0.0f) return;
+    if (onShift) onShift(dx);
     for (int i = 0; i < kMaxPlatfroms; ++i) {
         PZGPlatfrom* p = platforms[i];
         if (!p || !p->body || !p->sprite) continue;

@@ -22,6 +22,7 @@ class PZGGameFieldScene;
 class PZGGamefieldPlatforms;
 class PZGObstacle;
 class PZGCoin;
+namespace V2 { class RoadEventDirector; }
 
 class PZRunDirector : public ax::Node {
 public:
@@ -60,7 +61,14 @@ public:
     // Game-over screen: REVIVE for coins / WATCH AD. Either rolls the committed run back and resumes it.
     void reviveFromGameOver(bool withCoins);
 
+    // Version 2 road events (see Source/V2). forceRoadEvent is for QA / tuning: starts "dino_crossing", "pizza_panic"
+    // or "cool_kid_race" right now.
+    bool forceRoadEvent(const std::string& name);
+    float roadHazardAhead(float x) const;      // QA bot helper (-1 = none)
+
 private:
+    bool absorbExternalHit(const ax::Vec2& at);   // shield / turbo / grace / mercy for hazards that are not PZGObstacles
+    V2::RoadEventDirector* _events = nullptr;
     enum class Style { Explode, Launch };
 
     struct Orb {

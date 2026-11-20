@@ -2,6 +2,7 @@
 //  PZRunDirector.cpp
 //
 #include "PZRunDirector.h"
+#include "V2/V2RoadEvents.h"
 #include "PZUI.h"
 #include "PZPopups.h"
 #include "PZLayout.h"
@@ -23,6 +24,7 @@
 USING_NS_AX;
 
 namespace {
+constexpr float V2_GAIN_COIN = 22.f;   // helps in a rival race (see V2RoadEvents.h)
 constexpr int kZTint  = 150;     // above the world, below game-over / pause overlays (200)
 constexpr int kZAura  = 120;
 constexpr int kZOrb   = 125;
@@ -67,6 +69,18 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
 
     _hud = Node::create();
     scene->addChild(_hud, kZHud);
+
+    // Version 2 road events: separate module, owned here, talks back only through this host.
+    _events = V2::RoadEventDirector::create(scene, _hud);
+    addChild(_events);
+    {
+        V2::Host host;
+        host.absorbHit = [this](const Vec2& at) { return absorbExternalHit(at); };
+        host.lethal = [this]() { if (_scene && !_scene->gameOver) _scene->gameOverCallBack(true); };
+        host.award = [this](int coins, const Vec2& at, const std::string& text) { awardBonus(coins, at, text, PZCfg::kColGood); };
+        host.shake = [this](float a, float d) { shakeScene(a, d); };
+        _events->setHost(host);
+    }
 
     // Combo read-out under the coin counter.
     _comboLabel = PZUI::heading("", 13.f, PZCfg::kColAccent2);
@@ -259,6 +273,7 @@ void PZRunDirector::layoutHud() {
         _gadgetStrip->setPosition(at);
     }
     if (_bestLabel) _bestLabel->setScale(S);
+    if (_events) _events->layoutHud();
 }
 
 void PZRunDirector::onLoaded() {
@@ -480,6 +495,10 @@ void PZRunDirector::startRun() {
     _trackerSlot = -1;
     _trackerClock = 0.f;
     for (bool& d : _trackerDone) d = false;
+    if (_events) {
+        _events->reset(static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()));
+        if (platform()) platform()->onShift = [this](float dx) { if (_events) _events->shiftWorld(dx); };
+    }
     if (PZCfg::kEnableRevive && PZCfg::kEnableReviveVideo) PZ::AdsController::shared()->requestRewarded();   // warm a rewarded ad
 
     if (_scene && _scene->character && _scene->character->p_body) {
@@ -768,6 +787,18 @@ void PZRunDirector::update(float dt) {
     updateReviveWait(dt);
     updateGraceBridge(dt);
     updateGadgetStrip(dt);
+    if (_events) {
+        V2::Context ctx;
+        ctx.dt = dt;
+        ctx.scroll = platform() ? platform()->lastScroll : scroll;
+        ctx.rider = riderPos();
+        ctx.riderBox = riderBox();
+        ctx.airborne = _scene->character->jump_counter > 0 && !turboActive() && _jetpackT <= 0.f;
+        ctx.apex = apex();
+        ctx.ridesActive = turboActive() || _jetpackT > 0.f || _rocketT > 0.f;
+        ctx.controlLocked = _readyCountdown || _cinematic || _reviveWait || _riderTweening || _deathPending || frozen();
+        _events->update(ctx);
+    }
     updateWaves(dt);
     updateKills(dt);
     updateNearMiss();
@@ -840,6 +871,7 @@ void PZRunDirector::onCoin(PZGCoin* coin) {
     if (!coin) return;
     const int reward = static_cast<int>(coin->reward);
     _stats.coins += reward;
+    if (_events) _events->notifyBoost(V2_GAIN_COIN);
 
     Vec2 at = riderPos();
     if (coin->sprite) {
@@ -910,6 +942,7 @@ void PZRunDirector::updateNearMiss() {
             char buf[32];
             std::snprintf(buf, sizeof(buf), PZCfg::kStrCloseCall, PZCfg::kNearMissCoins);
             awardBonus(PZCfg::kNearMissCoins, Vec2(rb.getMidX(), rb.getMaxY() + 20.f), buf, PZCfg::kColGood);
+            if (_events) _events->notifyBoost(40.f);
             ring(Vec2(rb.getMidX(), rb.getMinY()), PZCfg::kColGood, 90.f, 0.35f);
             PZHaptics::play(PZHaptics::Kind::Medium);
             PZAudio::play("fx_nearmiss");
@@ -2238,6 +2271,7 @@ void PZRunDirector::destroyObstacle(PZGObstacle* o, Style style, bool reward) {
 // ride) every hazard around them is exploded first, in view, so the thing that just killed them can never be waiting
 // when control returns. Window is measured from the rider: `behind` covers the killer itself, `ahead` buys reaction time.
 int PZRunDirector::clearHazards(float behind, float ahead) {
+    if (_events) _events->clearNear(behind, ahead);     // road-event hazards fly away too
     if (!platform() || !_scene->character) return 0;
     const float rx = riderPos().x;
     int n = 0;
@@ -2259,6 +2293,40 @@ int PZRunDirector::clearHazards(float behind, float ahead) {
 
 bool PZRunDirector::mercyAvailable() const {
     return PZCfg::kEnableMercy && _mercyUsed < PZCfg::kMercySaves && PZProgress::shared()->bestScore() < PZCfg::kMercyBestBelow;
+}
+
+float PZRunDirector::roadHazardAhead(float x) const { return _events ? _events->hazardAhead(x) : -1.f; }
+
+bool PZRunDirector::forceRoadEvent(const std::string& name) {
+    return _events && _events->forceStart(name);
+}
+
+// Same protections as onObstacleHit, for hazards that are not PZGObstacles (Version 2 road-event actors).
+bool PZRunDirector::absorbExternalHit(const Vec2& at) {
+    if (_reviveWait || _readyCountdown || _deathPending || _riderTweening) return true;
+    if (_jetpackT > 0.f || turboActive() || _graceT > 0.f) return true;
+    if (_shieldT > 0.f) {
+        _shieldT = 0.f;
+        _graceT = PZCfg::kHitGrace;
+        PZAudio::play("fx_shield_break");
+        startWave(riderPos(), PZCfg::kShieldBreakRadius, 1600.f, PZCfg::kColShield);
+        PZUI::floatText(_scene, PZCfg::kStrShieldBreak, riderPos() + Vec2(0, 56), PZCfg::kColShield, 12.f, kZFx);
+        PZUI::burst(_scene, at, PZCfg::kColShield, 16, 100.f, 0.55f, kZFx);
+        flash(PZCfg::kColShield, 0.3f, 0.3f);
+        shakeScene(9.f, 0.3f);
+        PZHaptics::play(PZHaptics::Kind::Heavy);
+        return true;
+    }
+    if (mercyAvailable()) {
+        ++_mercyUsed;
+        _graceT = PZCfg::kHitGrace;
+        startWave(riderPos(), PZCfg::kShieldBreakRadius * 0.7f, 1500.f, PZCfg::kColGood);
+        PZUI::banner(_scene, PZCfg::kStrSaved, "", PZCfg::kColGood, Director::getInstance()->getWinSize().height * 0.6f, 0.7f);
+        flash(PZCfg::kColGood, 0.25f, 0.3f);
+        PZHaptics::play(PZHaptics::Kind::Warning);
+        return true;
+    }
+    return false;
 }
 
 bool PZRunDirector::onObstacleHit(PZGObstacle* o) {
@@ -2549,6 +2617,7 @@ void PZRunDirector::updateFx(float dt, float scroll) {
         } else if (_prevJump != 0 && jc == 0) {
             const float strength = std::min(1.f, _airTime / 0.7f);
             dustPuff(Vec2(riderPos().x, groundY + 6.f), 4 + static_cast<int>(strength * 5.f), 110.f);
+            if (_airTime >= 0.5f && _events) _events->notifyBoost(35.f);   // a long clean jump helps in a rival race
             if (_airTime > 0.25f) {
                 PZAudio::play("fx_land", 0.5f + 0.5f * strength, 0.1f);
                 landingFx(groundY, strength);
@@ -2881,6 +2950,7 @@ void PZRunDirector::reviveDeclined() {
 void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     if (_committed || !gameOverLayer) return;
     _committed = true;
+    if (_events) _events->clear();                      // the results screen never sits on top of live road actors
     _stats.distance = static_cast<int>(_scene->gf_distance);
     _stats.stage = _stage;
 
