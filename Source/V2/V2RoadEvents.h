@@ -27,7 +27,8 @@ class PZGGamefieldPlatforms;
 
 namespace V2 {
 
-enum class EventId { DinoCrossing = 0, PizzaPanic = 1, CoolKidRace = 2 };
+enum class EventId { DinoCrossing = 0, PizzaPanic = 1, CoolKidRace = 2, ConstructionChaos = 3, MeteorShower = 4, GrandmaTurbo = 5 };
+constexpr int kEventCount = 6;
 const char* eventName(EventId id);
 
 struct Context {
@@ -69,7 +70,7 @@ public:
     float hazardAhead(float x) const;
 
 private:
-    enum class Kind { Sign, DinoSmall, DinoBig, Rider, Box, Ambient };
+    enum class Kind { Sign, DinoSmall, DinoBig, Rider, Box, Ambient, Cone, Barrel, Worker, Meteor, Rock, Coin, Shadow };
     struct Actor {
         int id = 0;
         Kind kind = Kind::DinoSmall;
@@ -88,6 +89,8 @@ private:
         float spin = 0.f, life = 0.f;
         bool collected = false;
         bool facingRight = false;
+        ax::Sprite* extra = nullptr;              // e.g. the rocket flame on Grandma's bike
+        float targetY = 0.f, fallT = 0.f, fallDur = 1.f;   // meteor / shadow timing
     };
     struct Bubble { ax::Node* node = nullptr; int actorId = 0; float t = 0.f, life = 2.f; ax::Vec2 off; };
 
@@ -111,6 +114,10 @@ private:
     void updateDino(const Context& ctx);
     void updatePizza(const Context& ctx);
     void updateRace(const Context& ctx);
+    void updateConstruction(const Context& ctx);
+    void updateMeteor(const Context& ctx);
+    void updateGrandma(const Context& ctx);
+    void impact(Actor& meteor, const Context& ctx);
     void updateAmbient(const Context& ctx);
     void updateActors(const Context& ctx);
     void updateBubbles(float dt, const Context& ctx);

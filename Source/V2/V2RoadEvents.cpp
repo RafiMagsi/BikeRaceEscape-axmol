@@ -27,6 +27,9 @@ const char* eventName(EventId id) {
     case EventId::DinoCrossing: return "dino_crossing";
     case EventId::PizzaPanic:   return "pizza_panic";
     case EventId::CoolKidRace:  return "cool_kid_race";
+    case EventId::ConstructionChaos: return "construction_chaos";
+    case EventId::MeteorShower: return "meteor_shower";
+    case EventId::GrandmaTurbo: return "grandma_turbo";
     }
     return "?";
 }
@@ -48,8 +51,11 @@ bool RoadEventDirector::init(PZGGameFieldScene* scene, Node* hud) {
     if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("sign_dino_0")) {
         SpriteFrameCache::getInstance()->addSpriteFramesWithFile("v2_events.plist");
     }
-    _bag.setItems({static_cast<int>(EventId::DinoCrossing), static_cast<int>(EventId::PizzaPanic),
-                   static_cast<int>(EventId::CoolKidRace)});
+    {
+        std::vector<int> all;
+        for (int i = 0; i < kEventCount; ++i) all.push_back(i);
+        _bag.setItems(all);
+    }
     return true;
 }
 
@@ -67,8 +73,11 @@ void RoadEventDirector::reset(uint32_t seed) {
     _seed = seed;
     _rng.reseed(seed);
     _barks.resetHistory();
-    _bag.setItems({static_cast<int>(EventId::DinoCrossing), static_cast<int>(EventId::PizzaPanic),
-                   static_cast<int>(EventId::CoolKidRace)});
+    {
+        std::vector<int> all;
+        for (int i = 0; i < kEventCount; ++i) all.push_back(i);
+        _bag.setItems(all);
+    }
     _clock = 0.f;
     _cool = kFirstEventAt;
     _ambientCool = 14.f + _rng.range(0.f, 8.f);
@@ -131,7 +140,7 @@ float RoadEventDirector::hazardAhead(float x) const {
 
 bool RoadEventDirector::forceStart(const std::string& name) {
     if (_active) return false;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < kEventCount; ++i) {
         if (name == eventName(static_cast<EventId>(i))) {
             startEvent(static_cast<EventId>(i));
             return true;
@@ -213,6 +222,10 @@ void RoadEventDirector::removeActor(Actor& a) {
 }
 
 void RoadEventDirector::animate(Actor& a, float dt) {
+    if (a.extra) {
+        const int f = static_cast<int>(_clock * 20.f) % 4;
+        a.extra->setSpriteFrame("flame_" + std::to_string(f));
+    }
     if (a.frames <= 1 || !a.spr) return;
     a.t += dt;
     const int f = static_cast<int>(a.t * a.fps) % a.frames;
@@ -359,6 +372,9 @@ void RoadEventDirector::update(const Context& ctxIn) {
         case EventId::DinoCrossing: updateDino(ctx); break;
         case EventId::PizzaPanic:   updatePizza(ctx); break;
         case EventId::CoolKidRace:  updateRace(ctx); break;
+        case EventId::ConstructionChaos: updateConstruction(ctx); break;
+        case EventId::MeteorShower: updateMeteor(ctx); break;
+        case EventId::GrandmaTurbo: updateGrandma(ctx); break;
         }
     }
     updateAmbient(ctx);
@@ -598,6 +614,233 @@ void RoadEventDirector::updateRace(const Context& ctx) {
     updateRaceMarker();
 }
 
+// ------------------------------------------------------------------------------------------------ Construction Chaos
+
+void RoadEventDirector::updateConstruction(const Context& ctx) {
+    const float winW = Director::getInstance()->getWinSize().width;
+    const float spawnX = winW + 110.f;
+    const float k = kDeviceScale();
+    if (_step == 0) {
+        _waited += ctx.dt;
+        if (roadClear(spawnX - 90.f, spawnX + 300.f, ctx.apex)) {
+            float gy = 0.f;
+            ground(spawnX, gy);
+            if (Actor* s = spawn(Kind::Sign, "sign_work", 1, spawnX, gy, 112.f * k, false)) say("construction", s->id);
+            _step = 1;
+            _wait = 1.9f;
+            _waited = 0.f;
+        } else if (_waited > 7.f) {
+            finishEvent(false);
+        }
+        return;
+    }
+    if (_step >= 1 && _step <= 4) {
+        _wait -= ctx.dt;
+        if (_wait > 0.f) return;
+        _waited += ctx.dt;
+        if (!roadClear(spawnX - 70.f, spawnX + 240.f, ctx.apex)) {
+            if (_waited > 4.f) { ++_step; _waited = 0.f; _wait = 0.4f; }
+            return;
+        }
+        float gy = 0.f;
+        ground(spawnX, gy);
+        const float coneH = std::min(0.30f * ctx.apex, 46.f * k);
+        if (_step == 1 || _step == 3) {                       // three cones close together: one jump clears all of them
+            for (int i = 0; i < 3; ++i) {
+                if (Actor* c = spawn(Kind::Cone, "cone", 1, spawnX + i * 34.f, gy, coneH, false)) {
+                    c->hazard = true;
+                    c->w = 20.f * k;
+                    ++_total;
+                }
+            }
+            _wait = _rng.range(1.4f, 1.8f);
+        } else if (_step == 2) {                              // a paint drum rolls toward you: timing, not just distance
+            if (Actor* b = spawn(Kind::Barrel, "barrel", 1, spawnX, gy, std::min(0.34f * ctx.apex, 54.f * k), false)) {
+                b->hazard = true;
+                b->vx = -170.f;
+                b->w = b->h * 0.8f;
+                ++_total;
+            }
+            _wait = 1.7f;
+        } else {                                              // the worker who turned the sign the wrong way
+            if (Actor* w = spawn(Kind::Worker, "worker", 2, spawnX, gy, 74.f * k, false)) {
+                w->laneLift = 20.f;
+                w->fps = 3.f;
+                w->y = gy + 20.f;
+                say("construction", w->id);
+            }
+            _wait = 0.f;
+        }
+        ++_step;
+        _waited = 0.f;
+        return;
+    }
+    for (auto& a : _actors) {
+        if (a->kind == Kind::Cone || a->kind == Kind::Barrel || a->kind == Kind::Worker || a->kind == Kind::Sign) return;
+    }
+    const bool clean = !_hitThisEvent;
+    if (clean && _total > 0 && _host.award) _host.award(12, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "SITE CLEARED! +12");
+    finishEvent(clean);
+}
+
+// ------------------------------------------------------------------------------------------------ Meteor Shower
+
+void RoadEventDirector::impact(Actor& m, const Context& ctx) {
+    float gy = m.targetY;
+    ground(m.x, gy);
+    const float k = kDeviceScale();
+    if (Actor* r = spawn(Kind::Rock, "rock", 1, m.x, gy, std::min(0.30f * ctx.apex, 50.f * k), false)) {
+        r->hazard = true;
+        r->w = r->spr->getContentSize().width * r->spr->getScale() * 0.62f;
+        ++_total;
+    }
+    PZUI::burst(_scene, Vec2(m.x, gy + 10.f), Color3B(255, 170, 60), 14, 90.f, 0.5f, 900);
+    PZAudio::play("fx_explosion", 0.5f, 0.1f);
+    if (_host.shake) _host.shake(4.f, 0.2f);
+    removeActor(m);
+    // a dodge bonus when the rider was close to the impact and did not get hit
+    if (!_hitThisEvent && std::abs(m.x - ctx.rider.x) < 150.f && _host.award) {
+        _host.award(5, Vec2(m.x, gy + 70.f), "CLOSE DODGE +5");
+        ++_score;
+    }
+}
+
+void RoadEventDirector::updateMeteor(const Context& ctx) {
+    const float winH = Director::getInstance()->getWinSize().height;
+    const float k = kDeviceScale();
+    if (_step == 0) {                                          // a line from the rider first, then the sky opens up
+        if (_t <= ctx.dt * 1.5f + 0.001f) say("meteor", 0);
+        if (_t > 1.5f) { _step = 1; _wait = 0.f; }
+        return;
+    }
+    // _step 1..N: one strike every ~1.7 s, each one telegraphed by a growing shadow
+    if (_step <= 4) {
+        _wait -= ctx.dt;
+        if (_wait > 0.f) return;
+        _waited += ctx.dt;
+        const float dur = 1.35f;
+        const float X = ctx.rider.x + _speed * (dur + 0.85f) + _rng.range(40.f, 200.f);   // lands well ahead: >= 0.85 s to react to the rock
+        if (!roadClear(X - 70.f, X + 70.f, ctx.apex)) {
+            if (_waited > 4.f) { ++_step; _waited = 0.f; _wait = 0.5f; }
+            return;
+        }
+        float gy = 0.f;
+        ground(X, gy);
+        if (Actor* sh = spawn(Kind::Shadow, "shadow", 1, X, gy, 16.f * k, false)) {
+            sh->fallDur = dur;
+            sh->spr->setScale(0.3f);
+            sh->spr->setOpacity(150);
+        }
+        if (Actor* m = spawn(Kind::Meteor, "meteor", 4, X, winH + 130.f, 96.f * k, false)) {
+            m->fallDur = dur;
+            m->targetY = gy;
+            m->fps = 14.f;
+        }
+        PZAudio::play("fx_tick", 0.4f, 0.1f);
+        ++_step;
+        _waited = 0.f;
+        _wait = _rng.range(1.6f, 2.0f);
+        return;
+    }
+    for (auto& a : _actors) {
+        if (a->kind == Kind::Meteor || a->kind == Kind::Shadow || a->kind == Kind::Rock) return;
+    }
+    const bool clean = !_hitThisEvent;
+    if (clean && _host.award) _host.award(10, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "SKY CLEARED! +10");
+    finishEvent(clean);
+}
+
+// ------------------------------------------------------------------------------------------------ Grandma Turbo
+
+void RoadEventDirector::updateGrandma(const Context& ctx) {
+    const float winW = Director::getInstance()->getWinSize().width;
+    const float k = kDeviceScale();
+    Actor* g = find(_rivalId);
+    if (_step == 0) {
+        float gy = 0.f;
+        if (!ground(ctx.rider.x, gy)) {
+            _waited += ctx.dt;
+            if (_waited > 8.f) finishEvent(false);
+            return;
+        }
+        g = spawn(Kind::Rider, "rider_grandma", 4, ctx.rider.x - 260.f, gy, 80.f * k, true);
+        if (!g) { finishEvent(false); return; }
+        g->fps = 8.f;                                     // slow wheels: she is taking her time
+        g->laneLift = 10.f;
+        _rivalId = g->id;
+        _lead = -260.f;
+        _raceT = 0.f;
+        _wait = 0.f;
+        _step = 1;
+        say("grandma", g->id);
+        return;
+    }
+    if (_step == 3) {                                     // she is gone; the coin trail stays collectable for a moment
+        _wait -= ctx.dt;
+        if (_wait <= 0.f) {
+            const bool good = _score >= 6;
+            if (good && _host.award) _host.award(10, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "BASKET BONUS +10");
+            finishEvent(good);
+        }
+        return;
+    }
+    if (!g) { finishEvent(false); return; }
+    _raceT += ctx.dt;
+    if (_step == 1) {                                     // slow entrance
+        _lead = approach(_lead, -130.f, 46.f * ctx.dt);
+        if (_raceT > 2.4f) {
+            _step = 2;
+            _raceT = 0.f;
+            _wait = 0.f;
+            if (!g->extra) {
+                g->extra = Sprite::createWithSpriteFrameName("flame_0");
+                if (g->extra) {
+                    g->extra->setAnchorPoint(Vec2(1.f, 0.5f));
+                    g->extra->setPosition(Vec2(-26.f * k, 26.f * k));
+                    g->extra->setScale(0.9f * k);
+                    g->root->addChild(g->extra, -1);
+                }
+            }
+            g->fps = 22.f;
+            PZAudio::play("fx_rocket", 0.5f, 0.2f);
+            if (_host.shake) _host.shake(3.f, 0.5f);
+        }
+    } else if (_step == 2) {                              // absurd rocket overtake, dropping coins from the basket
+        _lead += (160.f + 900.f * _raceT) * ctx.dt;
+        _wait -= ctx.dt;
+        if (_wait <= 0.f && _lead > -80.f && _lead < winW - 200.f && _total < 9) {
+            float gy = 0.f;
+            if (ground(g->x - 40.f, gy)) {
+                if (Actor* c = spawn(Kind::Coin, "coin_gold", 1, g->x - 40.f,
+                                     gy + 52.f * k + 34.f * std::sin(_total * 0.9f), 28.f * k, false)) {
+                    c->w = 34.f * k;
+                    c->h = 34.f * k;
+                    c->y -= 0.f;
+                    ++_total;
+                }
+            }
+            _wait = 0.26f;
+        }
+        if (_lead > winW + 220.f) {
+            removeActor(*g);
+            _rivalId = 0;
+            _step = 3;
+            _wait = 3.0f;                                 // the trail is still collectable for a moment
+            return;                                       // the actor (and its root) is gone
+        }
+    } else {
+        _wait -= ctx.dt;
+        if (_wait <= 0.f) {
+            const bool good = _score >= 6;
+            if (good && _host.award) _host.award(10, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "BASKET BONUS +10");
+            finishEvent(good);
+        }
+        return;
+    }
+    g->x = ctx.rider.x + _lead;
+    g->root->setRotation(_step == 2 ? -9.f : 0.f);        // nose up under rocket power
+}
+
 // ------------------------------------------------------------------------------------------------ ambient traffic
 
 void RoadEventDirector::updateAmbient(const Context& ctx) {
@@ -626,8 +869,8 @@ void RoadEventDirector::updateAmbient(const Context& ctx) {
 
 void RoadEventDirector::updateActors(const Context& ctx) {
     const float dt = ctx.dt;
-    for (auto& ap : _actors) {
-        Actor& a = *ap;
+    for (size_t ai = 0; ai < _actors.size(); ++ai) {      // index loop: impact() / drops may spawn new actors mid-loop
+        Actor& a = *_actors[ai];
         if (!a.root) continue;
         const bool screenLocked = a.kind == Kind::Ambient || a.kind == Kind::Rider;
         if (a.launched) {                                 // comic knock-away
@@ -683,9 +926,50 @@ void RoadEventDirector::updateActors(const Context& ctx) {
             }
             break;
         }
-        case Kind::Sign: {
+        case Kind::Sign:
+        case Kind::Cone:
+        case Kind::Rock: {
             float gy = 0.f;
             if (ground(a.x, gy)) a.y = gy;
+            break;
+        }
+        case Kind::Barrel: {
+            a.x += a.vx * dt;
+            float gy = 0.f;
+            if (!ground(a.x, gy)) { removeActor(a); continue; }       // rolls off the end of the road
+            a.y = gy;
+            a.root->setRotation(a.root->getRotation() + (a.vx * dt - ctx.scroll) / std::max(10.f, a.h * 0.5f) * 57.3f);
+            break;
+        }
+        case Kind::Worker: {
+            float gy = 0.f;
+            if (ground(a.x, gy)) a.y = gy + a.laneLift;
+            animate(a, dt);
+            break;
+        }
+        case Kind::Coin: {
+            a.spr->setScaleX(std::max(0.2f, std::abs(std::cos(_clock * 5.f + a.x * 0.02f))) * a.spr->getScaleY());
+            break;
+        }
+        case Kind::Shadow: {
+            a.fallT += dt;
+            const float p = clampf(a.fallT / std::max(0.1f, a.fallDur), 0.f, 1.f);
+            a.spr->setScale(0.3f + 1.5f * p);
+            a.spr->setOpacity(static_cast<uint8_t>(110.f + 120.f * p));
+            float gy = 0.f;
+            if (ground(a.x, gy)) a.y = gy - 2.f;
+            if (p >= 1.f) { removeActor(a); continue; }
+            break;
+        }
+        case Kind::Meteor: {
+            a.fallT += dt;
+            const float p = clampf(a.fallT / std::max(0.1f, a.fallDur), 0.f, 1.f);
+            float gy = a.targetY;
+            ground(a.x, gy);
+            const float top = Director::getInstance()->getWinSize().height + 130.f;
+            a.y = top + (gy - top) * p * p;                    // accelerates as it falls
+            animate(a, dt);
+            if (p >= 1.f) { impact(a, ctx); continue; }
             break;
         }
         }
@@ -736,12 +1020,13 @@ void RoadEventDirector::hitTest(const Context& ctx) {
     for (auto& ap : _actors) {
         Actor& a = *ap;
         if (!a.root || a.launched) continue;
-        if (a.kind == Kind::Box && !a.collected) {
+        if ((a.kind == Kind::Box || a.kind == Kind::Coin) && !a.collected) {
             Rect bb(a.x - a.w * 0.5f - 8.f, a.y - 4.f, a.w + 16.f, a.h + 12.f);
             if (bb.intersectsRect(rb)) {
                 a.collected = true;
                 ++_score;
-                if (_host.award) _host.award(3, Vec2(a.x, a.y + 40.f), "PIZZA +3");
+                if (a.kind == Kind::Coin) { if (_host.award) _host.award(4, Vec2(a.x, a.y + 30.f), "+4"); }
+                else if (_host.award) _host.award(3, Vec2(a.x, a.y + 40.f), "PIZZA +3");
                 PZAudio::play("fx_powerup", 0.5f, 0.05f);
                 PZUI::burst(_scene, Vec2(a.x, a.y + 14.f), Color3B(255, 210, 90), 8, 46.f, 0.4f, 900);
                 removeActor(a);
@@ -759,7 +1044,7 @@ void RoadEventDirector::hitTest(const Context& ctx) {
             PZUI::burst(_scene, Vec2(a.x, a.y + a.h * 0.5f), Color3B(255, 220, 120), 10, 60.f, 0.4f, 900);
             if (_rng.chance(0.5f)) say("hit_absorbed", 0);
         } else if (_host.lethal) {
-            Analytics::shared().log("road_event_hit", {{"event", eventName(_cur)}, {"t", std::to_string(static_cast<int>(_t))}});
+            Analytics::shared().log("road_event_hit", {{"event", eventName(_cur)}, {"t", std::to_string(static_cast<int>(_t))}, {"kind", std::to_string(static_cast<int>(a.kind))}, {"x", std::to_string(static_cast<int>(a.x))}, {"rider", std::to_string(static_cast<int>(ctx.rider.x))}, {"y", std::to_string(static_cast<int>(a.y))}, {"ry", std::to_string(static_cast<int>(ctx.rider.y))}});
             _host.lethal();
             return;
         }

@@ -627,9 +627,19 @@ The plan's direction (events, rivals, daily seeds, ghosts, sharing) stands. Read
 
 Verified on the iOS simulator with a QA bot that can read hazards: sign telegraph, dinos, delivery rider and boxes, rival pass and meter all render and complete; shield absorbs a dino hit and knocks it away; analytics lines show seed / start / hit / end.
 
-### 19.3 Next steps, in order
+### 19.3 Phase 0 / 1 progress (2026-11-20, second pass)
 
-1. Seed the platform generator and add a fixed-step challenge mode; golden replay test (Phase 0 gate).
-2. Remaining events (Construction Chaos, Meteor Shower), second rival, perfect-landing feedback, localisation IDs for barks.
-3. Daily seeded challenge and share cards (Phase 2 / 3 as written above).
-4. Real-device frame-time and memory pass with events active; tune `V2RoadEvents.h` from playtest data.
+- **Seeded content.** `Source/PZRandom.*` is a dedicated content RNG; `PZGGamefieldPlatforms.cpp` and `PZGObstacle.cpp` draw only from it (cosmetic effects keep `std::rand`). `PZRunDirector::setChallengeSeed(seed)` makes a run reproducible; 0 = normal run (time-based seed).
+- **Fixed-step mode.** With a challenge seed the runner simulates in exact 1/60 s slices (`PZGGamefieldBasicRunner::update`), independent of frame rate.
+- **Determinism check (debug builds).** `[V2:sig] seed= dist= hash=` logs a hash of every content decision when the run passes 150 m. Simulator result: seed 12345 gave the same hash on 4 of 4 runs (including after another seed in between); seed 777 gave a different one. Not yet covered: input replay and cross-platform identity (iOS vs Android floats), which is what the golden-replay spike must prove.
+- **Three more events.** *Construction Chaos* (sign, cone clusters, rolling paint drum, worker gag), *Meteor Shower* (growing shadow telegraph, falling meteor, smoking rock hazard, close-dodge bonus; rocks land at least 0.85 s ahead of the rider) and *Grandma Turbo* (slow entrance, rocket overtake, dropped coin trail). Six events now share one shuffle bag.
+- **Smooth landing.** Crossing a gap in the air and landing with road ahead gives a squash-and-stretch on the rider and a small bonus; three in a row show PERFECT xN.
+- **Art.** Atlas grew to 47 frames (grandma rider, meteor, rocket flame, worker, cone, drum, rock, coin, work sign).
+- **Bugs found by the simulator and fixed:** a null dereference when Grandma left the screen, an event that ended early because its actor had been removed, actors spawned while iterating the actor list, and meteors that landed on the rider.
+
+### 19.4 Next steps, in order
+
+1. Golden-replay spike: record `{seed, input log}` in challenge mode, replay it headless, compare final distance / content hash; run the same log on an Android device to measure float drift.
+2. Daily challenge screen (seed = UTC date hash, versioned scoring, local result queue) and share card.
+3. Second rival race variants, localisation IDs for barks, accessibility option to turn barks off.
+4. Real-device frame-time / memory pass with events active; tune `V2RoadEvents.h` from playtests (rival race currently ends in 5-10 s with a bot that jumps constantly: expect humans to need more help or less drift).

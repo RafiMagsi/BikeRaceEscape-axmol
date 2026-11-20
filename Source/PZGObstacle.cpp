@@ -11,6 +11,14 @@
 #include "constants.h"
 #include "PZSettingsController.h"
 
+// Content generation uses its own seedable stream (PZRandom.h), never the global one.
+#include "PZRandom.h"
+#undef CCRANDOM_0_1
+#undef CCRANDOM_MINUS1_1
+#define CCRANDOM_0_1() (PZRand::unit())
+#define CCRANDOM_MINUS1_1() (PZRand::unit() * 2.0f - 1.0f)
+#define rand() PZRand::raw()
+
 USING_NS_AX;
 
 PZGObstacle* PZGObstacle::create( PZGArtObstacle* obstInfo, b2World *world){

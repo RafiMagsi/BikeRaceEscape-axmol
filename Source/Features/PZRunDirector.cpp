@@ -3,6 +3,7 @@
 //
 #include "PZRunDirector.h"
 #include "V2/V2RoadEvents.h"
+#include "PZRandom.h"
 #include "PZUI.h"
 #include "PZPopups.h"
 #include "PZLayout.h"
@@ -495,8 +496,17 @@ void PZRunDirector::startRun() {
     _trackerSlot = -1;
     _trackerClock = 0.f;
     for (bool& d : _trackerDone) d = false;
+    {
+        const uint32_t seed = _challengeSeed ? _challengeSeed
+                                             : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;
+        PZRand::setRunSeed(seed);                       // content stream: applied when the world is (re)filled
+        PZRand::setFixedStep(_challengeSeed != 0);
+        _overGap = false;
+        _smoothStreak = 0;
+        _sigLogged = false;
+    }
     if (_events) {
-        _events->reset(static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()));
+        _events->reset(PZRand::runSeed());
         if (platform()) platform()->onShift = [this](float dx) { if (_events) _events->shiftWorld(dx); };
     }
     if (PZCfg::kEnableRevive && PZCfg::kEnableReviveVideo) PZ::AdsController::shared()->requestRewarded();   // warm a rewarded ad
@@ -787,6 +797,14 @@ void PZRunDirector::update(float dt) {
     updateReviveWait(dt);
     updateGraceBridge(dt);
     updateGadgetStrip(dt);
+#ifndef NDEBUG
+    // Determinism check (debug only): one content signature per run, taken when the run passes 150 m.
+    if (!_sigLogged && _scene->gf_distance >= 150.f && platform()) {
+        _sigLogged = true;
+        const uint32_t h = PZRand::drawHash();   // every content decision of the run so far
+        AXLOGI("[V2:sig] seed={} dist={} hash={}", PZRand::runSeed(), static_cast<int>(_scene->gf_distance), h);
+    }
+#endif
     if (_events) {
         V2::Context ctx;
         ctx.dt = dt;
@@ -2297,6 +2315,8 @@ bool PZRunDirector::mercyAvailable() const {
 
 float PZRunDirector::roadHazardAhead(float x) const { return _events ? _events->hazardAhead(x) : -1.f; }
 
+uint32_t PZRunDirector::runSeed() const { return PZRand::runSeed(); }
+
 bool PZRunDirector::forceRoadEvent(const std::string& name) {
     return _events && _events->forceStart(name);
 }
@@ -2607,6 +2627,10 @@ void PZRunDirector::updateFx(float dt, float scroll) {
 
     // Jump / landing events, detected from the rider's grounded counter.
     const int jc = ch->jump_counter;
+    if (jc != 0) {
+        float gyUnder = 0.f;
+        if (platform() && !platform()->groundYAt(riderPos().x, gyUnder)) _overGap = true;
+    }
     const float groundY = riderPos().y - (_haveOffset ? _riderOffset : 40.f);
     if (!turboActive() && _jetpackT <= 0.f) {
         if (_prevJump == 0 && jc != 0 && ch->p_body && ch->p_body->GetLinearVelocity().y > 0.f) {
@@ -2618,6 +2642,26 @@ void PZRunDirector::updateFx(float dt, float scroll) {
             const float strength = std::min(1.f, _airTime / 0.7f);
             dustPuff(Vec2(riderPos().x, groundY + 6.f), 4 + static_cast<int>(strength * 5.f), 110.f);
             if (_airTime >= 0.5f && _events) _events->notifyBoost(35.f);   // a long clean jump helps in a rival race
+            // Smooth landing: crossed a gap in the air and touched down with road ahead (comic squash + small bonus).
+            if (_overGap && _airTime > 0.3f && runwayAhead(140.f * kDeviceScale())) {
+                ++_smoothStreak;
+                char msg[32];
+                if (_smoothStreak >= 3) std::snprintf(msg, sizeof(msg), "PERFECT x%d", _smoothStreak);
+                else std::snprintf(msg, sizeof(msg), "SMOOTH!");
+                awardBonus(_smoothStreak >= 3 ? 4 : 2, Vec2(riderPos().x, riderPos().y + 64.f), msg, PZCfg::kColAccent2);
+                if (_scene->character && _scene->character->s_body) {
+                    Sprite* sb = _scene->character->s_body;
+                    sb->stopActionByTag(7741);
+                    const float sx = sb->getScaleX(), sy = sb->getScaleY();
+                    auto* squash = Sequence::create(ScaleTo::create(0.07f, sx * 1.14f, sy * 0.86f),
+                                                    EaseBackOut::create(ScaleTo::create(0.16f, sx, sy)), nullptr);
+                    squash->setTag(7741);
+                    sb->runAction(squash);
+                }
+            } else if (_overGap) {
+                _smoothStreak = 0;
+            }
+            _overGap = false;
             if (_airTime > 0.25f) {
                 PZAudio::play("fx_land", 0.5f + 0.5f * strength, 0.1f);
                 landingFx(groundY, strength);

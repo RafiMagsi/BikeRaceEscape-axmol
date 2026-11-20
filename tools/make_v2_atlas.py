@@ -150,6 +150,16 @@ def rider(frame, kind, hue=RED):
         for i in range(4):
             c.rect(14 + w * (i + 1) * 0.5, 64 - i * 11, 50 + w * (i + 1) * 0.5, 74 - i * 11, (236, 190, 110, 255), INK, 1.6, 2)
             c.line([(14 + w * (i + 1) * 0.5, 69 - i * 11), (50 + w * (i + 1) * 0.5, 69 - i * 11)], RED, 1.6)
+    elif kind == "grandma":
+        c.ell(84, 11 + bob, 4, 4.4, WHITE, INK, 1.2)
+        c.ell(85.4, 11.4 + bob, 1.8, 2, INK, None)
+        c.ell(80, -1 + bob, 9, 8, (170, 150, 200, 255), INK, 1.6)                       # hair bun
+        c.ell(86, 11 + bob, 7.5, 6.5, None, INK, 1.4)                                    # glasses
+        c.poly([(60, 6 + bob), (68, 2 + bob), (80, 2 + bob), (84, 8 + bob), (66, 10 + bob)], (236, 150, 190, 255), INK, 1.6)   # scarf
+        # shopping basket on the rack with coins
+        c.poly([(8, 66), (46, 66), (42, 84), (12, 84)], BROWN, INK, 1.8)
+        for i in range(3):
+            c.ell(16 + i * 10, 62 + math.sin(t * 2 + i) * 1.5, 5.5, 5.5, YELLOW, INK, 1.2)
     else:  # ambient
         c.ell(84, 11 + bob, 4, 4.4, WHITE, INK, 1.2)
         c.ell(85.4, 11.4 + bob, 1.8, 2, INK, None)
@@ -201,6 +211,84 @@ def shadow():
     return c.done()
 
 
+
+def sign_work():
+    c = Canvas(76, 118)
+    c.rect(35, 52, 41, 116, STEEL, INK, 2.0)
+    c.poly([(38, 2), (74, 38), (38, 74), (2, 38)], ORANGE, INK, 3.0)
+    c.poly([(38, 12), (64, 38), (38, 64), (12, 38)], (255, 190, 90, 255), None)
+    c.rect(35, 20, 41, 44, INK, None)
+    c.ell(38, 52, 3.6, 3.6, INK, None)
+    return c.done()
+
+
+def cone():
+    c = Canvas(40, 56)
+    c.rect(2, 48, 38, 55, (40, 40, 48, 255), INK, 1.6, 2)
+    c.poly([(20, 2), (34, 48), (6, 48)], ORANGE, INK, 2.4)
+    c.poly([(20, 14), (27, 32), (13, 32)], WHITE, None)
+    c.line([(11, 40), (29, 40)], WHITE, 3.4)
+    return c.done()
+
+
+def barrel():
+    c = Canvas(60, 60)
+    c.ell(30, 30, 28, 28, (214, 70, 60, 255), INK, 2.6)
+    c.ell(30, 30, 20, 20, (236, 110, 90, 255), INK, 1.6)
+    c.ell(30, 30, 9, 9, (250, 214, 90, 255), INK, 1.6)
+    for a in (0.5, 2.1, 3.7, 5.3):
+        c.line([(30 + math.cos(a) * 11, 30 + math.sin(a) * 11), (30 + math.cos(a) * 27, 30 + math.sin(a) * 27)], INK, 2.0)
+    return c.done()
+
+
+def worker(frame):
+    im = dino(frame, 0.95)
+    c = Canvas(im.size[0] + 30, im.size[1] + 36)
+    c.im.alpha_composite(im.resize((im.size[0] * SS, im.size[1] * SS), Image.LANCZOS), (30 * SS, 36 * SS))
+    c.poly([(41, 56), (47, 43), (60, 43), (66, 56)], YELLOW, INK, 2.0)                     # hard hat
+    c.line([(39, 56), (68, 56)], INK, 2.2)
+    c.line([(18, 36), (18, 110)], STEEL_D, 4.0)                                  # sign pole
+    c.poly([(2, 4), (34, 4), (34, 26), (2, 26)], RED, INK, 2.4)
+    c.rect(7, 11, 29, 19, WHITE, None)
+    return c.done()
+
+
+def meteor(frame):
+    c = Canvas(64, 96)
+    f = frame * 0.7
+    c.poly([(32, 2), (14, 56 + math.sin(f) * 4), (24, 78), (40, 78), (50, 56 + math.cos(f) * 4)], ORANGE, INK, 2.0)
+    c.poly([(32, 14), (22, 52), (42, 52)], YELLOW, None)
+    c.ell(32, 74, 20, 19, (110, 96, 92, 255), INK, 2.6)
+    c.ell(25, 69, 6, 5, (150, 134, 128, 255), None)
+    c.ell(38, 79, 4, 3.4, (84, 72, 70, 255), None)
+    return c.done()
+
+
+def rock():
+    c = Canvas(66, 48)
+    c.poly([(4, 46), (12, 18), (26, 6), (44, 8), (58, 22), (62, 46)], (118, 104, 98, 255), INK, 2.6)
+    c.poly([(16, 44), (22, 24), (34, 14), (40, 30), (30, 44)], (150, 134, 128, 255), None)
+    c.ell(34, 44, 24, 4, (255, 120, 40, 200), None)                              # ember glow at the base
+    return c.done()
+
+
+def coin_gold():
+    c = Canvas(30, 30)
+    c.ell(15, 15, 13, 13, YELLOW, INK, 2.2)
+    c.ell(15, 15, 8, 8, (250, 232, 130, 255), (200, 140, 20, 255), 1.6)
+    c.line([(15, 9), (15, 21)], (200, 140, 20, 255), 2.2)
+    return c.done()
+
+
+def flame(frame):
+    c = Canvas(70, 40)
+    k = 1.0 + 0.25 * math.sin(frame * 1.6)
+    c.poly([(68, 20), (30 * k, 4), (4, 20), (30 * k, 36)], ORANGE, None)
+    c.poly([(62, 20), (36 * k, 10), (16, 20), (36 * k, 30)], YELLOW, None)
+    c.poly([(54, 20), (40, 15), (30, 20), (40, 25)], WHITE, None)
+    return c.done()
+
+
 # ------------------------------------------------------------------------------------------------ packing
 def pack(sprites, size=1024, pad=2):
     sheet = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -246,6 +334,15 @@ def main():
         sp.append((f"rider_ambient_a_{f}", rider(f, "ambient", (240, 170, 40, 255))))
     for f in range(4):
         sp.append((f"rider_ambient_b_{f}", rider(f, "ambient", (150, 90, 210, 255))))
+    for f in range(4):
+        sp.append((f"rider_grandma_{f}", rider(f, "grandma", (236, 120, 170, 255))))
+    for f in range(4):
+        sp.append((f"meteor_{f}", meteor(f)))
+    for f in range(4):
+        sp.append((f"flame_{f}", flame(f)))
+    for f in range(2):
+        sp.append((f"worker_{f}", worker(f)))
+    sp += [("sign_work_0", sign_work()), ("cone_0", cone()), ("barrel_0", barrel()), ("rock_0", rock()), ("coin_gold_0", coin_gold())]
     sp += [("sign_dino_0", sign()), ("pizza_box_0", pizza_box()), ("impact_star_0", impact_star()), ("shadow_0", shadow())]
     sheet, frames = pack(sp)
     os.makedirs(OUT, exist_ok=True)

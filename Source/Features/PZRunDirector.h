@@ -63,12 +63,20 @@ public:
 
     // Version 2 road events (see Source/V2). forceRoadEvent is for QA / tuning: starts "dino_crossing", "pizza_panic"
     // or "cool_kid_race" right now.
+    // Challenge seed: non-zero = every random content decision comes from this seed and the runner simulates in fixed
+    // 1/60 s slices (reproducible runs: daily challenges, ghosts). 0 = normal run (time-based seed, variable step).
+    void setChallengeSeed(uint32_t seed) { _challengeSeed = seed; }
+    uint32_t runSeed() const;
     bool forceRoadEvent(const std::string& name);
     float roadHazardAhead(float x) const;      // QA bot helper (-1 = none)
 
 private:
     bool absorbExternalHit(const ax::Vec2& at);   // shield / turbo / grace / mercy for hazards that are not PZGObstacles
     V2::RoadEventDirector* _events = nullptr;
+    uint32_t _challengeSeed = 0;
+    bool _overGap = false;        // the rider crossed a gap during this jump
+    int  _smoothStreak = 0;       // consecutive clean gap landings
+    bool _sigLogged = false;      // debug determinism signature logged for this run
     enum class Style { Explode, Launch };
 
     struct Orb {

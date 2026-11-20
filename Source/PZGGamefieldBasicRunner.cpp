@@ -7,6 +7,7 @@
 //
 
 #include "PZLegacyCompat.h"
+#include "PZRandom.h"
 #include "PZGGamefieldBasicRunner.h"
 #include "PZGGamefieldPlatforms.h"
 #include "SharedData/PZGGameplayBasicRunner.h"
@@ -211,7 +212,16 @@ void PZGGamefieldBasicRunner::update(float dt){
     // Brief hit-stop on big impacts: the simulation holds for a few frames while effects keep playing.
     const bool hitStop = run && run->frozen();
 
-    if (!gameOver && !gamePause && !hitStop) {
+    // Fixed-step mode (challenge seeds): simulate in exact 1/60 s slices so a run is reproducible at any frame rate.
+    int slices = 1;
+    const float realDt = dt;
+    if (PZRand::fixedStep()) {
+        _stepAcc += realDt;
+        slices = std::min(6, static_cast<int>(_stepAcc / PZRand::kFixedDt));
+        _stepAcc -= slices * PZRand::kFixedDt;
+    }
+    for (int slice = 0; slice < slices && !gameOver && !gamePause && !hitStop; ++slice) {
+        const float dt = PZRand::fixedStep() ? PZRand::kFixedDt : realDt;
         if (!platform) {
             AXLOGE("PZGGamefieldBasicRunner::update: platform is null");
             return;

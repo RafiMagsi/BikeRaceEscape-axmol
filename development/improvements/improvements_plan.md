@@ -235,6 +235,8 @@ ADS CHECK (iOS simulator, real unit IDs, 2026-11-06): UMP + Google Mobile Ads st
 
 59. Version 2, Phase 1 slice: road events, rivals, barks, analytics port (see versions/v2/PRODUCT_PLAN.md section 19). Revive / game over offers have no per-run limit (item added earlier). Not yet in a store build.
 
+60. Version 2 continued: seeded content generator + fixed-step challenge mode (determinism verified 4/4 on the simulator), three more road events (Construction Chaos, Meteor Shower, Grandma Turbo), smooth-landing feedback. Details in versions/v2/PRODUCT_PLAN.md 19.3. Not in a store build yet.
+
 ## ##################################
 ## Agent comments
 Latest fix (revive killer obstacle): the obstacle that caused a death, or the next one, could still be waiting when control

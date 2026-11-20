@@ -12,6 +12,9 @@ BarkBook::BarkBook() {
     _lines["cleared"]     = {"Smooth jumping!", "Not a scratch.", "That was legally questionable."};
     _lines["pizza_ok"]    = {"That pizza is still good!", "Delivered. Still warm.", "Five stars!"};
     _lines["pizza_cold"]  = {"The pizza went cold...", "Dropped the order!", "No tip for you."};
+    _lines["construction"] = {"Why are the cones moving?", "Who put a barrel there?", "This is not on the map."};
+    _lines["meteor"]      = {"Meteor insurance was extra.", "Look up! Or don't.", "That is not weather."};
+    _lines["grandma"]     = {"Tune-up complete, dear!", "Hold my basket!", "Beep beep, sweetie!"};
     _lines["hit_absorbed"] = {"Meteor insurance was extra.", "The road attacked first.", "Bonk! Nobody saw that."};
 }
 
