@@ -66,6 +66,7 @@ public:
   	virtual void leftCallback(Object* pSender);
   	virtual void rightCallback(Object* pSender);
     virtual void unlockCallback(Object* pSender);
+    virtual void onShopClosed() override;
     
     virtual void onEnterTransitionDidFinish();
     

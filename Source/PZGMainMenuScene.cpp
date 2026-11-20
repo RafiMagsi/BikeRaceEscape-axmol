@@ -513,5 +513,6 @@ void PZGMainMenuScene::kidModePurchased(){
 }
 
 void PZGMainMenuScene::keyBackClicked(){
+    if (PZPopups::closeTopModal(this)) return;   // back closes an open popup before quitting
     Director::getInstance()->end();
 }

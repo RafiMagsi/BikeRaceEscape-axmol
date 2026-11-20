@@ -324,7 +324,12 @@ void PZGBaseMenuScene::coinShopCallback(Object* pSender) {
 
     // The coin store is the SHOP overlay's COINS tab now: same six packs, plus the rewarded-video top-up, in the
     // code-drawn style the rest of the meta UI uses (the old three-pack InterfaceCoinShop scene is retired).
-    PZPopups::showShop(this, [this]() { PZPopups::refreshMenuWidgets(this, false); }, true);
+    if (PZPopups::hasModal(this)) return;      // never stack a second popup on the first one
+    PZPopups::showShop(this, [this]() { onShopClosed(); }, true);
+}
+
+void PZGBaseMenuScene::onShopClosed() {
+    PZPopups::refreshMenuWidgets(this, false);   // no-op on screens without the main-menu widgets
 }
 
 void PZGBaseMenuScene::offKidModeCallback(Object* pSender){

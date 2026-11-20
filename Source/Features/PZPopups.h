@@ -42,6 +42,10 @@ ax::Node* showGadgetPicker(ax::Node* parent, std::function<void(const std::strin
 ax::Node* showSettings(ax::Node* parent, std::function<void()> onClosed = nullptr);
 
 // Main-menu additions (level plate, DAILY / MISSIONS buttons, vibration toggle). Safe to call again to refresh.
+// True while a popup (shop, settings, ...) is open on `parent`; closeTopModal removes it (Android back key).
+bool hasModal(ax::Node* parent);
+bool closeTopModal(ax::Node* parent);
+
 void attachMenuWidgets(ax::Node* menuLayer);
 void refreshMenuWidgets(ax::Node* menuLayer, bool allowDailyPopup);
 

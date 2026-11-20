@@ -10,6 +10,7 @@
 #include "PZGGameFieldScene.h"
 #include "constants.h"
 #include "PZLegacyCompat.h"
+#include "Features/PZPopups.h"
 #include "SharedData/PZGSharedData.h"
 
 #include "PZGCoinShopScene.h"
@@ -278,5 +279,6 @@ void PZGGameOverScene::kidModePurchased(){
 
 
 void PZGGameOverScene::keyBackClicked(){
+    if (PZPopups::closeTopModal(this)) return;
     menuBackCallback( NULL );
 }

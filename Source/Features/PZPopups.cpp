@@ -68,12 +68,14 @@ void dismiss(Node* layer, std::function<void()> after) {
 // Every popup must sit above the in-run HUD (power-up chips, mission tracker, labels are at z ~1000) and above
 // the main-menu meta widgets (z 450), otherwise its panel is drawn underneath live read-outs.
 constexpr int kZModal = 1500;
+constexpr int kTagModal = 0x4D4F44;   // every popup base carries this tag (see hasModal / closeTopModal)
 
 // Modal scaffold: dim base + original-style panel, popping in.
 LayerColor* openModal(Node* parent, float w, float h, int z, float dim) {
     // `z` is kept for readability at the call sites; popups always take the reserved top layer.
     (void)z;
     auto* base = PZUI::modalBase(dim);
+    base->setTag(kTagModal);
     parent->addChild(base, kZModal);
     PZAudio::play("fx_open");
     const Vec2 mid = PZLayout::popupCentre();
@@ -90,6 +92,18 @@ LayerColor* openModal(Node* parent, float w, float h, int z, float dim) {
     return base;
 }
 } // namespace
+
+bool hasModal(Node* parent) {
+    return parent && parent->getChildByTag(kTagModal) != nullptr;
+}
+
+bool closeTopModal(Node* parent) {
+    if (!parent) return false;
+    Node* m = parent->getChildByTag(kTagModal);
+    if (!m) return false;
+    m->removeFromParent();
+    return true;
+}
 
 void later(std::function<void()> fn) {
     Director::getInstance()->getScheduler()->runOnAxmolThread(std::move(fn));
@@ -2754,12 +2768,12 @@ void attachMenuShowcase(Node* menuLayer, bool interactive) {
 
 void refreshMenuWidgets(Node* menuLayer, bool allowDailyPopup) {
     if (!menuLayer) return;
+    // Only the main menu owns these widgets (it attaches them in load()). This used to attach them when missing, so
+    // closing the shop from the character / pause / game-over screen dropped the whole main-menu overlay (level plate,
+    // pills, parallax backdrop) on top of that screen: two menus mixed and the buttons beneath became unreachable.
     auto* w = dynamic_cast<MenuWidgets*>(menuLayer->getChildByTag(kTagMenuWidgets));
-    if (!w) {
-        attachMenuWidgets(menuLayer);
-        w = dynamic_cast<MenuWidgets*>(menuLayer->getChildByTag(kTagMenuWidgets));
-    }
-    if (w) w->refresh();
+    if (!w) return;
+    w->refresh();
     // A welcome-back gift (player was away) takes the first slot; the daily reward follows.
     if (allowDailyPopup && PZProgress::shared()->comebackCoins() > 0) {
         menuLayer->runAction(Sequence::create(DelayTime::create(0.7f), CallFunc::create([menuLayer]() {

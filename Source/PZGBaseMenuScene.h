@@ -35,6 +35,7 @@ public:
     
     virtual void menuUpgradeCallback(Object* pSender);
     virtual void coinShopCallback(Object* pSender);
+    virtual void onShopClosed();   // after the shop overlay closed: each screen refreshes what it shows
     virtual void buyKidModeCallback(Object* pSender);
     virtual void offKidModeCallback(Object* pSender);    
     

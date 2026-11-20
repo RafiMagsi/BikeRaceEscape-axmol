@@ -818,6 +818,15 @@ void PZGCharacterMenu::unlockCallback(Object* pSender){
     }
 }
 
+// Coins changed in the shop: refresh the counter (the buy/unlock state is re-checked when the button is tapped).
+void PZGCharacterMenu::onShopClosed(){
+    if (coins_label) {
+        char c[16];
+        sprintf(c, "%d", (int)PZSettingsController::shared()->coins);
+        coins_label->setString(c);
+    }
+}
+
 void PZGCharacterMenu::backCallback(Object* pSender){
     if (buttonClickedSound) {
         buttonClickedSound->playAsSound( false );
@@ -884,5 +893,6 @@ void PZGCharacterMenu::kidModePurchased(){
 
 
 void PZGCharacterMenu::keyBackClicked(){
+    if (PZPopups::closeTopModal(this)) { onShopClosed(); return; }   // back closes an open shop first
     backCallback( NULL );
 }

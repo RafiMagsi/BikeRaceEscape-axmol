@@ -236,5 +236,6 @@ void PZGPauseMenuScene::kidModePurchased(){
 }
 
 void PZGPauseMenuScene::keyBackClicked(){
+    if (PZPopups::closeTopModal(this)) return;
     menuBackCallback( NULL );
 }
