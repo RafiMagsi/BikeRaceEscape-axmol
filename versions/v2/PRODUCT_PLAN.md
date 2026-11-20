@@ -1010,6 +1010,626 @@ The next milestone is **Gameplay Validation Complete**, not “more features.”
 
 After this checkpoint, recalculate the percentages in section 20.7 and choose either the entertainment-depth sprint or the social follow-up from evidence. Do not run both simultaneously.
 
+## 21. Visual entertainment, screens, and cinematic presentation plan
+
+### 21.1 Goal and non-goals
+
+The visual update should make the game feel like a professionally directed arcade bike escape, not a collection of unrelated effects. The desired fantasy is:
+
+> Ride fast through a dangerous, cinematic sewer world where rival bikers, distant dinosaurs, environmental surprises, and short character moments make each run feel like an episode.
+
+This pass must improve anticipation, personality, spectacle, and visual clarity without changing the proven bike, platform, coin, or core HUD language.
+
+Non-goals for this pass:
+
+- Do not redesign bike physics or normal controls.
+- Do not turn decorative dinosaurs into hidden hazards.
+- Do not add dialogue screens during active gameplay.
+- Do not replace the bike, coins, platforms, parallax backgrounds, or core HUD merely to make everything new.
+- Do not add real-time multiplayer before the asynchronous plan in section 20.10 is validated.
+- Do not generate final assets before the style baseline, collision baselines, asset manifest, and one obstacle vertical slice are approved.
+
+### 21.2 Research summary and product lessons
+
+The useful lesson from successful bike games is not “add more graphics.” They combine a readable core action with visible identity, short goals, competition, and content variety:
+
+| Reference | Relevant product pattern | Apply here | Do not copy |
+|---|---|---|---|
+| [Bike Race](https://play.google.com/store/apps/details?id=com.topfreegames.bikeracefreeworld) | Simple controls, crazy worlds, stunts, many bikes, offline play, friend challenges, and multiplayer are presented as one clear fantasy | Keep one-tap readability; make worlds and rival moments memorable; later use challenge links and ghosts | Its exact tracks, bikes, UI, or visual identity |
+| [Hill Climb Racing 2](https://play.google.com/store/apps/details?id=com.fingersoft.hcr2) | Ranked cups, teams, events, leaderboards, and customization give repeated runs context | Frame daily runs and rivals as visible competition; make rewards and records legible | Large metagame scope before the run itself is validated |
+| [Mad Skills Motocross 3](https://apps.apple.com/us/app/mad-skills-motocross-3/id1508275130) | Strong side-view physics, many designed tracks, recurring content, multiplayer events, and deep visual customization | Protect the side-view silhouette and landing readability; later test cosmetic rider identity | Realistic simulation complexity or hundreds of tracks now |
+| [Trials Rising](https://www.ubisoft.com/en-us/games/trials-rising) | Over-the-top locations, spectacle, character/bike customization, progression, competition, and optional ghosts | Use large background set pieces, expressive rivals, short camera reveals, and optional future ghosts | Long forced cinematics, visual clutter, or expensive 3D scope |
+| [Bike Unchained 3](https://play.google.com/store/apps/details?id=com.redbull.bike.downhill.racing) | Downhill and jump modes are marketed as distinct fantasies, supported by bike/rider presentation | Give each event a distinct visual promise and result identity | Adding modes that do not change decisions |
+
+Research conclusion:
+
+- Spectacle attracts attention, but recognizable goals and rivalry create repeat play.
+- The player must read the road, bike posture, obstacle silhouette, and landing surface before noticing decoration.
+- Background dinosaurs are appropriate because they strengthen the game's unique identity without creating another rules system.
+- Dialogue should establish who the rival is and why this run matters, then get out of the way.
+- Fast restart is more valuable than a long cinematic. Repeated presentation must be skippable or abbreviated.
+- Ghosts and social comparison are useful later, but only after replay determinism and platform services work.
+
+### 21.3 Current visual audit
+
+#### Preserve as primary style references
+
+Use these existing elements as the art-direction reference set for all future generated graphics:
+
+1. **Bike and rider:** crisp side silhouette, realistic material highlights, readable wheels, dark gear, controlled color accent.
+2. **Platforms and ramps:** photo-painted dirt/wood/stone materials, visible top surface, strong ground contact, believable wear.
+3. **Parallax backgrounds:** dark blue sewer/canal atmosphere, naturalistic light, depth, haze, and subdued distant contrast.
+4. **Coins:** warm gold, high contrast, instantly collectible, with a clean rim and strong highlight.
+5. **HUD:** dark navy/metal framing, warm orange/gold action accents, large readable arcade typography.
+
+These are the visual source of truth. New art should look as though it shipped with them.
+
+#### Replace or revise
+
+- Legacy `Obstacles_*` art is often faded, muddy, inconsistently lit, and weak against the road.
+- The current `v2_events.png` did not follow the established bike, platform, parallax-background, HUD, or main-game style. Its bright flat-vector characters and props conflict with the semi-real painted bike and sewer world. It is implementation placeholder art only and **the complete atlas must be replaced** before the visual-entertainment update is considered finished. Do not preserve its rendering style when generating replacements; preserve only stable frame identities, gameplay roles, dimensions/anchors where required, and initially the animation timing.
+- Some interface art has an older glossy-button treatment. Keep the recognizable color language but simplify future panels and improve spacing rather than mixing additional styles.
+- Background images are atmospheric but repeated layers can feel static. Add compatible depth motion and scenic events instead of replacing them wholesale.
+
+#### Visual style definition
+
+Call the target style **cinematic painted arcade realism**:
+
+- side-on 2D readability;
+- realistic materials and lighting simplified into strong silhouettes;
+- dark cool environment with warm gameplay accents;
+- exaggerated scale and comedy, but not flat children's-vector art;
+- slightly stylized proportions for characters and dinosaurs;
+- restrained texture detail at gameplay size;
+- no photoreal human faces pasted onto illustrated bodies;
+- no thin outlines, tiny props, or low-contrast transparent hazards.
+
+### 21.4 Visual priority rules
+
+Every frame must preserve this attention order:
+
+1. Immediate landing surface and lethal obstacle.
+2. Player bike posture and jump arc.
+3. Event objective or rival position.
+4. Collectibles and optional risk route.
+5. HUD state.
+6. Background spectacle and comedy.
+
+If a dinosaur, particle effect, dialogue element, foreground prop, or camera move competes with levels 1–3, reduce or remove it.
+
+Use the following visual languages consistently:
+
+| Meaning | Visual treatment |
+|---|---|
+| Lethal/physical hazard | Solid silhouette, high local contrast, grounded shadow, warm warning accent when needed |
+| Collectible/reward | Gold light, small sparkle, upward motion, no red warning shape |
+| Decorative background | Lower contrast and saturation, atmospheric blue/green tint, slower parallax, no collision shadow on the road |
+| Objective/rival | Character accent color plus compact label or marker |
+| Cinematic-only element | Letterbox or portrait framing; never visually identical to active gameplay |
+
+### 21.5 Decorative dinosaur system
+
+Large dinosaurs should become the game's signature background entertainment. They must remain cosmetic and cannot affect physics, scoring, event RNG, replay checkpoints, or road generation.
+
+#### Scenic beats
+
+Start with five reusable beats:
+
+1. **Distant walker:** a huge long-neck silhouette crosses behind buildings or trees over 8–12 seconds.
+2. **Wall peek:** a T-Rex head rises behind a far wall, watches the rider, then slowly lowers.
+3. **Bridge crossing:** a dinosaur runs across a distant bridge while dust falls behind it.
+4. **Tunnel eye:** a large eye opens in a dark background tunnel, follows the rider briefly, then blinks.
+5. **Tiny chase callback:** several tiny dinosaurs chase a much larger harmless rider silhouette in the far background.
+
+The first production slice should implement only Distant Walker and Wall Peek. Add the others after readability and performance tests.
+
+#### Placement and behavior rules
+
+- Place dinosaurs behind gameplay platforms and never between the rider and a hazard.
+- Keep their feet, body, and shadows in a clearly distant plane; do not let them appear grounded on the playable road.
+- Apply atmospheric tint and 25–55% less contrast than gameplay actors.
+- Avoid orange/red warning flashes, meteor shadows, exclamation signs, or other hazard vocabulary.
+- Allow at most one large scenic beat at a time.
+- Default cadence: first eligible beat after 25–40 seconds, then a cosmetic seeded cooldown of 60–120 seconds.
+- Suppress scenic beats during the first tutorial, dialogue transition, T-Rex climax, death, revive, blast cinematic, and dense road event telegraphs.
+- A scenic beat may react to a normal gameplay signal—for example looking toward a rocket—but must not consume gameplay RNG or change timing.
+- Provide `Off`, `Reduced`, and `Full` spectacle levels. Reduced mode uses static or fade-only versions.
+- Repeat protection: do not show the same beat twice consecutively and do not show more than two large beats in a five-minute run.
+
+### 21.6 Start-of-run dialogue screens
+
+Dialogue screens exist only before the run begins. Mid-run personality remains limited to short non-modal barks. This protects pace and road readability.
+
+#### When to show dialogue
+
+- First encounter with a named rival.
+- First daily run of the day.
+- Rival rematch after a loss or every third rivalry milestone.
+- First time entering a new chapter or seeing the T-Rex climax setup.
+- Rare story callback unlocked by previous run outcomes.
+
+Do not show a full dialogue screen on every normal restart. After the first viewing, use a one-line abbreviated card or skip it entirely.
+
+#### Screen format
+
+- Duration target: 3–7 seconds when allowed to auto-advance.
+- Two to four short lines total; maximum eight words per line where possible.
+- One speaker at a time, with clear name and color identity.
+- Tap anywhere to advance; hold or dedicated button to skip the sequence.
+- Remember viewed dialogue by stable ID and version.
+- Never hide the Skip affordance on repeat viewing.
+- Freeze the world before the run begins; do not create physics bodies or advance fixed simulation ticks behind the screen.
+- Restore camera, HUD visibility, input lock, audio ducking, and scene transform through one cleanup path on complete, skip, app interruption, or scene exit.
+
+#### Professional close-up direction
+
+- Use waist-up or helmet-and-shoulders portraits, not scaled gameplay sprites.
+- Frame the player on the left facing inward and the rival on the right facing inward.
+- Use a subtle sewer/environment strip behind the portraits, heavily defocused or simplified so faces dominate.
+- Give each named rider four expressions: neutral, confident, surprised, and frustrated.
+- Preserve helmet, jacket, gloves, and bike color from the gameplay identity.
+- Use a slow 2–3% push-in on the current speaker only in Full motion mode; Reduced mode uses a crossfade and highlight.
+- Use eye-line, pose, and panel angle to communicate attitude. Do not rely on large text or emoji.
+- Dialogue panel uses the existing dark navy/metal HUD family with warm gold focus accents.
+- Text must remain readable over every portrait; use an opaque panel or controlled gradient rather than shadow alone.
+
+#### Initial dialogue set
+
+Keep writing short, competitive, and playful:
+
+| Trigger | Rider | Rival | Purpose |
+|---|---|---|---|
+| First Cool Kid encounter | “Road looks busy.” | “Only behind me.” | Introduce rivalry and confidence |
+| Rematch after player loss | “Same road. Different finish.” | “I saved you second place.” | Acknowledge memory |
+| Rematch after player lead | “Keeping up?” | “I was studying your mistakes.” | Let rival react to player success |
+| First T-Rex chapter | “Tell me that was thunder.” | “Thunder doesn't have teeth.” | Set up spectacle without explaining mechanics |
+| Daily challenge | “One route. Three real tries.” | “Then make the first one count.” | Explain stakes with character |
+
+Final writing requires localization review. Store text by dialogue ID; do not bake text into portrait art.
+
+### 21.7 Camera and motion direction
+
+The project already has `cameraTo`, `cameraPunch`, neutral reset, cinematic bars, HUD staging, start ride-in, blast focus, and death focus. Extend that system instead of adding competing scene transforms.
+
+#### Camera shot library
+
+| Shot | Use | Maximum behavior |
+|---|---|---|
+| Establishing wide | Before run/dialogue | 0.5–0.8 second ease showing road, rider, and background identity |
+| Rider close-up | Intro or rival entrance while world is frozen | 1.20–1.35 scale, rider kept off-center to preserve direction of travel |
+| Rival two-shot | Start dialogue | Portrait screen or frozen-world composition; never during live hazards |
+| Scenic reveal | Safe road only | Small pan/zoom toward a distant dinosaur, then reset before control returns |
+| Landing punch | Existing skill feedback | Brief 1.03–1.08 scale pulse; no sustained shake |
+| Climax reveal | T-Rex start | One controlled wide-to-close transition with explicit input lock and cleanup |
+| Death focus | Existing failure feedback | Preserve cause and rider in frame; return quickly to result/restart |
+
+Rules:
+
+- Gameplay camera changes must never hide the next landing surface or move touch targets.
+- Do not rotate the world camera.
+- Do not stack shake, zoom, parallax acceleration, flash, and letterboxing on one beat.
+- Camera arbitration must allow only one owner: dialogue, intro, climax, blast, death, revive, or gameplay punch.
+- Every cinematic path must reset scale and position exactly to neutral.
+- Reduced Motion disables scenic pans, portrait push-ins, large zooms, sustained shake, and exaggerated parallax; replace them with fades, tint, and audio/haptic cues. This follows Apple's guidance to reduce automatic zooming, scaling, and peripheral/parallax motion for motion-sensitive players: [Motion guidance](https://developer.apple.com/design/human-interface-guidelines/motion) and [Reduced Motion criteria](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/reduced-motion-evaluation-criteria).
+
+### 21.8 Graphics production instructions for future asset generation
+
+These instructions are for the later graphics-generation phase. Do not generate final assets until the relevant requirement and acceptance test below is approved.
+
+#### Required reference package
+
+For every generation task, provide crops of:
+
+- current blue/red bike and rider;
+- current dirt and wood ramps/platforms;
+- one full sewer background with foreground road;
+- current coin and one HUD panel/button;
+- the exact old obstacle/event sprite being replaced;
+- a gameplay screenshot showing expected on-screen size.
+
+Do not use `v2_events.png` as the primary style reference. It is a layout/identity reference only until reskinned.
+
+#### General generation brief
+
+Use the following base instruction, then add the asset-specific requirement:
+
+> Create a side-view 2D game asset in cinematic painted arcade realism, matching the supplied dark sewer background, realistic dirt-bike rider, worn platforms, warm gold coins, and navy/orange HUD. Preserve a bold readable silhouette at mobile gameplay size, realistic material texture with simplified detail, cool environmental fill light and a controlled warm upper-left key light. Do not use flat vector art, thick cartoon outlines, photoreal pasted faces, text, logos, excessive saturation, bloom, or a baked background.
+
+#### Obstacle generation rules
+
+- Transparent background and at least 8% clear padding around the visible object.
+- Strict side view or the same three-quarter angle as the source obstacle; never change perspective between frames.
+- One clear ground-contact plane and a separate soft contact-shadow sprite when needed.
+- Damage/death variants preserve mass, orientation, and recognizable silhouette.
+- Avoid transparent smoke or dust inside the base sprite; effects belong in separate sprites/particles.
+- Do not invent spikes or threatening shapes on nonlethal decoration.
+- Deliver a high-resolution master plus the exact target-size export.
+
+#### Dialogue portrait generation rules
+
+- Waist-up portrait, transparent background, inward-facing composition.
+- Same helmet, gear, body proportions, and accent color across every expression.
+- Four expressions generated from one approved neutral master, not four independent character redesigns.
+- Hands and handlebars appear only when composition requires them; avoid malformed partial bikes.
+- Lighting direction and edge treatment must match across player and rival portraits.
+- No text or speech bubbles in the image.
+
+#### Dinosaur generation rules
+
+- Large readable silhouette first; detail must survive atmospheric tint and scale reduction.
+- Anatomically believable but slightly exaggerated for humor and clarity.
+- Neutral/cool colors so dinosaurs do not look like rewards or warnings.
+- Separate body parts only when an animation plan exists; otherwise use a stable short frame sequence.
+- Separate dust, eye blink, and shadow effects from the body sprites.
+- Produce a scale sheet showing the dinosaur behind the existing bike/platform before approval.
+
+#### Acceptance checklist for every generated asset
+
+- Matches the five approved reference categories.
+- Reads at 100%, 75%, and 50% target size.
+- Has clean alpha with no white/dark fringe.
+- Uses the approved anchor, source canvas, and light direction.
+- Does not alter physics, platform joins, telegraph timing, or UI layout.
+- Fits the atlas budget and passes on-device texture/memory review.
+- Includes source prompt, reference list, seed/version when available, master image, and final export so it can be reproduced.
+
+### 21.9 Obstacle and hurdle refresh — first production priority
+
+The faded hurdles are the first art task because they directly affect moment-to-moment quality and hazard readability.
+
+#### Requirement O1 — inventory and baseline
+
+- Build an asset manifest for every `Obstacles_*` frame: frame name, gameplay ID, lethal/nonlethal, animation, source size, trimmed size, anchor, scale, offset, collision vertices, death art, and scenes/modes that use it.
+- Capture each hurdle in gameplay at normal and maximum speed.
+- Record current collision outlines over the sprite and save deterministic replay checkpoints before replacement.
+- Grade each asset for silhouette, contrast, material match, scale, ground contact, alpha edge, and animation quality.
+
+#### Requirement O2 — collision-safe vertical slice
+
+Refresh one common obstacle first, preferably a barrier or barrel that appears early.
+
+Important code constraint: `PZGObstacle::initPhysics` subtracts `sprite->getContentSize()` when converting configured collision points and uses the sprite size as the whole collision box when points are absent. Trimming or changing source size can therefore change physics even when configuration vertices are untouched.
+
+Before replacing art:
+
+- preserve original untrimmed source canvas, content size, anchor, offset, and scale; or
+- refactor collision conversion to use explicit logical source dimensions stored in data, then migration-test every existing obstacle.
+
+The safer first slice is source-canvas compatibility. Decoupling collision dimensions is the correct long-term architecture but must be a separate tested change.
+
+Vertical-slice exit criteria:
+
+- new art is immediately clearer in the full background;
+- collision debug overlay matches the baseline;
+- identical replay input produces identical collision outcome and checkpoint hashes;
+- near-miss detection, destruction, flash, scale randomization, and death art still work;
+- no alpha fringe, atlas bleeding, ground float, or unintended size increase appears;
+- two target devices hold the frame-time and memory budgets.
+
+#### Requirement O3 — obstacle family refresh
+
+After the slice passes, replace in families so style remains coherent:
+
+1. Road barriers, cones, barrels, and warning hardware.
+2. Rocks, rubbish, tires, and broken platform debris.
+3. Mechanical/industrial hazards and moving obstacles.
+4. Destruction frames, debris, impact flashes, dust, and contact shadows.
+
+Each family receives one light/material sheet and one gameplay contact sheet before atlas packing.
+
+### 21.10 Parallax background and platform presentation
+
+The existing backgrounds and platforms remain the reference. Improve depth, variation, and integration rather than replacing their identity.
+
+#### Parallax stack
+
+Use a documented layer stack:
+
+| Layer | Typical content | Relative movement | Contrast |
+|---|---|---:|---:|
+| Sky/atmosphere | clouds, haze, distant light | 0.02–0.06 | Very low |
+| Far silhouette | skyline, trees, giant distant dinosaur | 0.08–0.15 | Low |
+| Mid environment | buildings, bridges, sewer walls | 0.18–0.32 | Medium-low |
+| Scenic action | wall-peek dinosaur, distant riders | 0.20–0.38 | Medium-low |
+| Near environment | fences, pipes, foliage | 0.45–0.65 | Medium |
+| Gameplay road | platforms, ramps, hazards | 1.00 | Highest gameplay contrast |
+| Optional foreground | rare blurred post/leaf sweep | 1.10–1.25 | Low opacity; never obscures road |
+
+Requirements:
+
+- Every repeating layer must tile without a visible seam at all supported aspect ratios.
+- Avoid repeating unique landmarks so frequently that motion becomes obvious.
+- Create two or three modular variants per mid/near layer before making an entirely new biome.
+- Platforms keep a clear bright-enough top edge and darker side face.
+- Platform art cannot conceal gaps or imply a solid surface outside collision bounds.
+- Add small material callbacks—wet reflection, loose pebble, pipe steam—through cosmetic systems, not physics bodies.
+- Foreground sweeps are disabled in Reduced spectacle mode and during dense hazards.
+
+### 21.11 V2 event-art reskin
+
+Replacing `v2_events.png` is mandatory, not optional polish. The current atlas established event identities and code integration, but it failed the main-game style requirement. After hurdle replacement and the style bible are proven, replace the placeholder V2 atlas in this order:
+
+1. Warning signs, cones, barrels, shadows, meteor, rocks, and objective props.
+2. Small and large dinosaurs.
+3. Delivery, Cool Kid, Grandma, worker, and ambient rider gameplay sprites.
+4. Flames, dust, impact stars, reward effects, and variant-specific props.
+5. Dialogue close-ups only after each gameplay identity is approved.
+
+Rules:
+
+- Preserve existing frame names for the first reskin to avoid simultaneous code and art migration.
+- Preserve animation frame count and timing initially. Improve animation only in a separate change with replay and cleanup tests.
+- Use the existing bike, platform/ramp, sewer parallax, coin, and HUD references for every replacement batch. Never use the current V2 atlas as the style target.
+- Rider sprites must share wheel diameter, road contact, direction, lighting, and scale with the player bike.
+- Event-specific colors identify actors but must not overpower coin gold or hazard warnings.
+- Grandma can be exaggerated and funny while still using the same material and lighting language.
+- The T-Rex gameplay actor and decorative background dinosaurs must be visually distinct in depth and contrast so players know which one matters.
+
+### 21.12 Screen-by-screen presentation requirements
+
+#### Main menu
+
+- Keep the logo and primary Play action dominant.
+- Use a living but low-motion sewer background: water shimmer, one distant light flicker, rare dinosaur silhouette.
+- Show the selected bike/rider at useful scale.
+- Surface Daily Challenge and Friends/Challenges as secondary cards only when those systems work.
+- Avoid a grid of equal-weight buttons.
+
+#### Run setup / dialogue
+
+- Show rider and rival close-ups, run type, modifier/objective, and one primary Start action.
+- Normal run can skip this screen unless a story/rival trigger exists.
+- Daily setup must clearly show three ranked attempts, current modifier, best score, medal thresholds, and Practice.
+
+#### Gameplay
+
+- Preserve the current bike, coins, platforms, and core HUD.
+- Integrate objectives into the existing hierarchy; no additional permanent top bar.
+- Temporary event HUD should enter, update, and leave as one component.
+- Decorative spectacle yields to road readability automatically.
+
+#### Pause/settings
+
+- Add Motion: Full/Reduced and Spectacle: Full/Reduced/Off.
+- Explain that spectacle changes only decoration, not difficulty or score.
+- Preserve large touch targets and safe-area placement.
+
+#### Results
+
+- Lead with distance/score and medal, then the most interesting event or rivalry result.
+- Show one clear next action: Retry, Next Ranked Attempt, or Share Challenge.
+- Use a frozen action snapshot or approved character pose, not an unrelated decorative image.
+- Do not claim friend competition until a real challenge token or leaderboard result exists.
+
+All screens must adapt to safe areas and multiple aspect ratios. Apple's game guidance recommends adaptive menus, safe-area-aware controls, and customization for motion intensity: [Designing for games](https://developer.apple.com/design/human-interface-guidelines/designing-for-games/) and [Game controls](https://developer.apple.com/design/human-interface-guidelines/game-controls).
+
+### 21.13 V2 presentation architecture
+
+Do not continue adding visual logic directly to `PZRunDirector`. It already coordinates gameplay, power-ups, camera, HUD, revive, and V2 signals. The presentation expansion needs clean ownership.
+
+#### Proposed modules
+
+```text
+Source/V2/Presentation/
+  V2PresentationConfig.h/.cpp     typed visual/camera/dialogue/scenic tuning
+  V2PresentationDirector.h/.cpp   lifecycle coordinator and arbitration
+  V2ScenicDirector.h/.cpp         cosmetic background beats and repeat protection
+  V2DialogueDirector.h/.cpp       start-only dialogue selection, state, skip, cleanup
+  V2CinematicDirector.h/.cpp      exclusive camera/input/HUD cinematic ownership
+  V2AssetCatalog.h/.cpp           stable IDs to frames, portraits, sounds, fallbacks
+  V2PresentationEvents.h          immutable signals from gameplay to presentation
+```
+
+```text
+Content/
+  CompleteGameInfo.plist          authoritative V2 registry, tuning, dialogue, scenic and asset bindings
+Content/Images/HD/
+  v2_obstacles.png/.plist
+  v2_scenic.png/.plist
+  v2_riders.png/.plist
+  v2_portraits.png/.plist
+  v2_ui.png/.plist
+```
+
+Atlas plists contain generated frame rectangles required by Axmol; they do not own gameplay or presentation definitions. Generated manifests and migration reports belong in the tooling/work directory and are derived from `CompleteGameInfo.plist`, not loaded as competing runtime configuration. Do not require all proposed atlases immediately. Split only when measured loading, memory, or ownership benefits justify it.
+
+#### Ownership rules
+
+- Gameplay publishes immutable events such as `RunWillStart`, `RivalSelected`, `SafeScenicWindow`, `RoadEventWillStart`, `ClimaxWillStart`, `PlayerDied`, and `RunEnded`.
+- Presentation observes events but cannot mutate score, physics, road generation, daily attempts, replay input, or gameplay RNG.
+- `V2ScenicDirector` uses a dedicated cosmetic RNG stream. Cosmetic decisions are not part of competitive replay state.
+- `V2DialogueDirector` selects only pre-run sequences and records viewed IDs through a versioned persistence interface.
+- `V2CinematicDirector` is the single authority for camera transform, input lock, HUD visibility, world freeze, letterbox, and cleanup while a cinematic owns the screen.
+- Existing `PZRunDirector` camera functions become the low-level adapter or move behind the cinematic interface; there must not be two systems writing scene position and scale.
+- Every asset lookup has a fallback so a missing optional scenic asset cannot crash or block a run.
+- Presentation configuration is read once into validated typed structures. No scattered string keys or unbounded values in feature code.
+
+#### Runtime layer contract
+
+Use named layer hosts rather than arbitrary Z values throughout feature code:
+
+```text
+BackgroundSky
+BackgroundFar
+BackgroundScenic
+BackgroundMid
+GameplayBehind
+GameplayWorld
+GameplayEffects
+GameplayFront
+ScreenHUD
+CinematicOverlay
+ModalUI
+```
+
+The adapter may map these names to current Axmol nodes/Z orders. The contract prevents a decorative dinosaur from accidentally rendering over the rider or HUD.
+
+#### Cinematic ownership state
+
+Only one of these states may own camera/input at a time:
+
+```text
+None -> PreRunDialogue -> Intro -> Gameplay
+Gameplay -> Climax -> Gameplay
+Gameplay -> Blast -> Gameplay
+Gameplay -> Death -> Results
+Gameplay -> Revive -> Gameplay
+```
+
+Invalid transitions fail safely by declining the new cosmetic/cinematic request. Death, scene exit, and app interruption always win and force common cleanup.
+
+### 21.14 Asset pipeline and cost control
+
+The repository already uses Axmol-compatible `.plist` sprite atlases. Axmol's own documentation supports loading sprite frames from plist atlases and identifies TexturePacker/Zwoptex-style tools: [SpriteFrameCache reference](https://axmol.dev/manual/latest/d8/dff/classax_1_1_sprite_frame_cache) and [Axmol sprite-sheet tools](https://git.mitgai.net/axmolengine/axmol/wiki/Sprite-Sheets-Tools-and-Formats).
+
+Recommended pipeline:
+
+1. Store approved high-resolution masters outside runtime atlases.
+2. Export target-size transparent PNG frames through a repeatable script/preset.
+3. Pack with TexturePacker CLI if already licensed; otherwise evaluate Axmol-listed `spright` or another maintained free packer using a small compatibility test.
+4. Use trim only when logical source size and anchor are explicitly preserved. Do not auto-trim legacy collision-dependent obstacles blindly.
+5. Extrude atlas edges and add sufficient padding to prevent sampling bleed.
+6. Generate a manifest report containing dimensions, frame names, atlas occupancy, file size, and missing references.
+7. Optimize losslessly first. Evaluate GPU texture formats only after confirming Axmol/platform support and measuring quality, load time, binary size, and memory. KTX 2/Basis can reduce transfer and GPU memory in supported pipelines, but it is not an automatic migration: [Khronos KTX](https://www.khronos.org/ktx/).
+8. Keep source and generated runtime assets separate; generated atlases should be reproducible and should not be edited by hand.
+
+Do not add Spine, Rive, or another animation runtime for the initial pass. Short sprite sequences and existing Axmol actions are cheaper and sufficient. Re-evaluate a skeletal runtime only if portrait/body animation volume becomes large enough to justify SDK size, tooling, licenses, platform risk, and another runtime dependency.
+
+#### Repository helper pipeline
+
+Use `tools/art_pipeline.py` and `tools/ART_PIPELINE.md` as the supported workflow. This consolidates repetitive geometry, atlas, and prompt context so later changes need fewer manual steps and fewer AI tokens.
+
+| Command | Purpose | Mutation behavior |
+|---|---|---|
+| `trace` | Trace PNG alpha into the exact five-point, bottom-left, absolute-pixel collision format consumed by `PZGObstacle` and optionally render a review overlay | Read-only unless plist target and `--apply` are both explicit |
+| `compare` | Compare source canvas, alpha bounds, exact mask, and alpha intersection-over-union between baseline and replacement | Read-only; strict flags can fail CI |
+| `atlas` | Export frame rectangles, logical source sizes, offsets, alpha bounds, and occupied pixels as JSON | Read-only unless an output report path is supplied |
+| `brief` | Generate a compact reusable art brief containing exact frame metadata and the locked main-game style direction | Read-only |
+
+The supported pipeline uses the repository-local OpenCV environment created by `tools/setup_art_env.sh`. The older scripts in `reskin-automation/automation/` are historical experiments, not the supported collision pipeline: their center-relative output does not match the current `PZGObstacle::initPhysics` coordinate contract. Do not use their output for gameplay fixtures. `tools/art_pipeline.py` keeps OpenCV's contour/convex-hull quality but converts to the game's absolute bottom-left coordinates, produces a review overlay, and requires explicit `--apply` before changing the plist.
+
+Alpha tracing is a starting proposal, not an automatic gameplay decision. Review every overlay: smoke, antennae, cloth, tiny debris, and decorative protrusions usually should not enlarge a lethal fixture. Apply collision remapping only when the art silhouette genuinely changes and replay/device testing is scheduled in the same step.
+
+### 21.15 Performance, accessibility, and quality budgets
+
+Set budgets before producing the full art set:
+
+- Maintain the existing target frame rate on the lowest supported iOS and Android devices.
+- Measure p50, p95, and worst frame time during large dinosaur beats, dialogue transitions, event starts, and atlas loading.
+- No runtime texture upload during an active hazard; preload the next required set or use an explicit safe transition.
+- Do not assume PNG file size equals GPU memory. Track decoded texture dimensions and pixel format.
+- Set per-atlas and peak presentation-memory budgets after baseline measurement; do not invent a number without device evidence.
+- Keep draw-call growth bounded by atlas/layer grouping and verify batching rather than assuming it.
+- Add Reduced Motion and Spectacle settings before shipping new full-screen camera or parallax behavior.
+- Important cues must use at least two of color, shape, text, audio, or haptic feedback.
+- Dialogue supports localization expansion and never embeds text in images.
+- Test 4:3, 16:10, 16:9, and tall phone safe areas; no critical text or controls outside the safe region.
+
+### 21.16 Sequenced implementation requirements
+
+This is the authoritative step-by-step order. Finish each gate before starting the next major step.
+
+#### Step 0 — Baseline and style lock
+
+- Create gameplay screenshots, collision overlays, frame-time captures, memory captures, and an art inventory.
+- Approve the five reference categories and cinematic-painted-arcade-realism style sheet.
+- Identify every place the old obstacle and V2 atlases are loaded.
+
+**Gate:** approved reference board, manifest schema, baseline measurements, and no unresolved ownership/licensing issue.
+
+#### Step 1 — One collision-safe hurdle refresh
+
+- Generate and integrate one refreshed common hurdle using section 21.9.
+- Preserve logical canvas/anchor/collision behavior.
+- Test normal run, daily run, near miss, destruction, replay, and low-end device performance.
+
+**Gate:** clearer art with identical gameplay outcome and no regression.
+
+#### Step 2 — Complete hurdle families
+
+- Refresh road hardware, debris, industrial hazards, and destruction/effect families.
+- Update the art manifest and comparison sheets for each family.
+
+**Gate:** every legacy hurdle passes contrast, collision, alpha, ground-contact, replay, and device checks.
+
+#### Step 3 — Presentation architecture foundation
+
+- Add typed presentation config, event signals, named layer hosts, asset catalog, presentation coordinator, and cinematic ownership.
+- Adapt existing camera/HUD/input functions behind one authority without changing visible behavior.
+- Add Full/Reduced motion and Full/Reduced/Off spectacle configuration.
+
+**Gate:** existing intro, blast, death, and revive flows pass unchanged; forced interruption always restores neutral camera/input/HUD state.
+
+#### Step 4 — Start dialogue vertical slice
+
+- Produce one approved player portrait and one Cool Kid portrait with four consistent expressions each.
+- Implement first encounter, rematch-after-win, and rematch-after-loss sequences.
+- Add skip, viewed-state versioning, localization-ready data, audio ducking, and interruption cleanup.
+
+**Gate:** first view feels professional, repeat view is fast, skip is immediate, and no simulation tick advances behind dialogue.
+
+#### Step 5 — Background dinosaur vertical slice
+
+- Implement Distant Walker and Wall Peek through `V2ScenicDirector`.
+- Use dedicated cosmetic RNG, safe-window suppression, repeat protection, and accessibility variants.
+
+**Gate:** 8/10 testers notice at least one beat, no tester mistakes it for a hazard, and road-event performance/readability does not worsen.
+
+#### Step 6 — Parallax and environmental depth pass
+
+- Modularize far/mid/near layers, remove obvious seams/repeats, and add restrained ambient callbacks.
+- Preserve gameplay platform top-edge clarity and collision truth.
+
+**Gate:** all aspect ratios tile correctly; Reduced mode is stable; performance budget passes a ten-minute run.
+
+#### Step 7 — V2 event-art reskin
+
+- Reskin props/hazards first, then dinosaurs, riders, effects, and portraits.
+- Preserve frame names/timings until the art-only regression pass succeeds.
+
+**Gate:** every V2 event is visually coherent with the bike/platform/background reference set and retains deterministic outcomes.
+
+#### Step 8 — Camera and screen polish
+
+- Add approved establishing, rival, scenic, and climax shots through the single cinematic owner.
+- Polish main menu, daily setup, pause/settings, and results using section 21.12.
+- Keep restart and repeat dialogue fast.
+
+**Gate:** camera never hides a hazard, every path resets exactly, screen layouts pass safe areas, and Reduced Motion replaces problematic movement.
+
+#### Step 9 — Entertainment validation
+
+- Run readability tests at normal and maximum speed.
+- Run ten fresh-player sessions and five returning-player sessions.
+- Measure dialogue skip, spectacle notice, hazard confusion, retry time, event completion, and voluntary replay.
+- Compare against the pre-graphics baseline; visual novelty is not success if failure confusion or restart time increases.
+
+**Gate:** no gameplay regression, measurable improvement in perceived polish/variety, and no significant increase in unintended deaths or time-to-retry.
+
+#### Step 10 — Social presentation only after system readiness
+
+- Add challenge-entry and ghost presentation only after section 20.10 services and replay gates pass.
+- Do not create mock social screens that imply unavailable multiplayer.
+
+**Gate:** challenge links work end to end on both platforms and every competitive result carries compatible rules/config versions.
+
+### 21.17 Definition of “great bike game” for this project
+
+The graphics update is successful only when the game delivers all of the following together:
+
+- The bike and landing surface remain readable instantly.
+- Obstacles look intentional, dangerous when appropriate, and physically grounded.
+- The world produces memorable but non-disruptive surprises.
+- Named rivals have recognizable visual identity and remember outcomes.
+- Start-of-run dialogue gives a reason to care, then gets out of the way.
+- Camera motion strengthens important moments without stealing control or causing confusion.
+- Daily and social screens clearly explain stakes and next actions.
+- Art, UI, events, dinosaurs, portraits, and effects appear to belong to one product.
+- Reduced-motion and low-spectacle players retain full gameplay information.
+- Every art change preserves physics, replay behavior, cleanup, performance, and ordinary non-v2 runs.
+
+More art is not the target. A coherent, readable, surprising, and repeatable ride is the target.
+
 ### 20.13 Implementation update after the 20.7–20.12 review (compiled, NOT play-tested)
 
 - **T-Rex payoff defect (20.7) fixed:** the T-Rex now stays alive ~2 s after the last hazard so the line can be read, then is removed.
@@ -1039,3 +1659,441 @@ Findings from this pass (all fixed):
 - Replay results are now also written to the analytics file (`replay_result`).
 
 How to repeat: the self-test and the replay were driven by a temporary in-app hook that is not in the repo. To re-run, call `V2::Daily::selfTest()` from a debug hook and `PZRunDirector::startReplayTest()` (default is the bundled golden file) then start a run; read `replay_result` in `v2_analytics.jsonl`.
+
+## 22. The mission: turn social-media attention into players who stay
+
+### 22.1 Mission statement
+
+The mission is not to make a trailer that receives clicks. The mission is to make a bike game that earns a second run, a return tomorrow, and a recommendation to a friend.
+
+> Social videos create the first visit. The game must create the next visit.
+
+We will compete through a distinctive combination of readable bike action, surprising dinosaur-scale spectacle, memorable riders, fast retries, daily competition, and an evolving world. We will not win by copying the number of modes or assets in larger competitors. We will win only if the core ride is more immediately understandable, more surprising, and more enjoyable to repeat.
+
+This section supersedes any earlier plan that treats a feature as complete merely because it compiles or appears once on screen.
+
+### 22.2 Acquisition-to-entertainment contract
+
+Every promise shown in a social video must have an honest in-game payoff:
+
+| Social hook | Required in-game payoff | Failure to avoid |
+|---|---|---|
+| Giant dinosaur behind the rider | A safe, readable scenic dinosaur beat appears during normal play, with multiple variants over time | Trailer-only scene or dinosaur mistaken for a hazard |
+| Rival biker dialogue | A short professional pre-run exchange, visible rivalry record, and changed rematch line | Long unskippable story with no gameplay consequence |
+| Funny passing rider | Passing riders perform setup → reaction → callback behaviors without blocking the road | Random clutter that repeats every minute |
+| T-Rex escape | Distinct phases and a memorable finish, not ten repetitions of the same falling object | Spectacle with shallow play or unfair deaths |
+| Daily challenge | Three real ranked attempts, visible modifier, score breakdown, fair rewards, and working comparison | A menu label without meaningful competition |
+| Challenge a friend | A real versioned challenge link, compatible seed/rules, result comparison, and later a verified ghost | Native share sheet marketed as multiplayer |
+
+The first-session pacing target is:
+
+1. **0–10 seconds:** player sees the bike, world identity, and one clear Play action.
+2. **10–25 seconds:** optional short rider/rival setup, immediately skippable.
+3. **Within 30 seconds of control:** player performs a satisfying jump/landing and receives clear feedback.
+4. **Within 45–75 seconds:** player sees one understandable event, rival, or background spectacle.
+5. **Within 90–150 seconds:** player receives a payoff—event result, rivalry change, micro-challenge completion, or surprising callback.
+6. **After failure:** useful result and retry input are available quickly; presentation must not punish another attempt.
+
+Do not force all entertainment into the first minute. Show enough identity to prove the social promise, then preserve discoveries for later runs.
+
+### 22.3 Retention and entertainment scorecard
+
+Before the social campaign, capture a baseline build. After each release candidate, compare the same metrics and player-observation questions.
+
+#### Product metrics
+
+- First Play tap from the main menu.
+- Time from launch to player control.
+- First-run duration and cause of exit.
+- Percentage reaching the first road event.
+- Percentage starting a second run without being prompted.
+- Runs per first session and median time between retries.
+- Daily Challenge open, ranked attempt, second attempt, and next-day return.
+- Event start, success, failure, technical skip, death, and voluntary replay by event/variant/tier.
+- Dialogue viewed, advanced, skipped, and abandoned by dialogue ID.
+- Scenic beat shown, noticed proxy, suppressed reason, and performance bucket.
+- Share tap, share completion, challenge open, challenge completion, and sender/receiver return when those systems exist.
+- D1 and D7 retention by acquisition source and app version.
+
+#### Player evidence
+
+Ask fresh players after the session, without leading them:
+
+- What was the goal?
+- Which moment do you remember?
+- What caused your death?
+- Did anything feel unfair or confusing?
+- Which rider or event would you want to see again?
+- Why did you retry or stop?
+- Would you send this challenge to a friend?
+
+Initial release gates are relative to the measured baseline, not invented industry numbers:
+
+- Time to control must not increase.
+- Unexplained deaths and “I do not know what happened” answers must decrease.
+- Voluntary second-run rate, median runs per first session, and first-event completion must improve.
+- At least 8/10 observed new players can describe the core action and one memorable event.
+- At least 6/10 voluntarily begin another run during the test window.
+- No social-media promise may rely on a scene or mode unavailable in the tested build.
+
+If attention rises but voluntary retries and returns do not, the mission is failing. Do not respond by producing more advertisements; fix the game loop.
+
+### 22.4 Entertainment operating principles
+
+1. **Readable first, surprising second.** A joke or dinosaur never hides the landing surface.
+2. **Interaction beats decoration.** At least some events must change player decisions; reskins alone do not count.
+3. **Setup and payoff.** Comedy needs a callback, rivalry needs memory, and spectacle needs a finish.
+4. **Fast repeat.** Repeat dialogue abbreviates, cinematics skip, and retry is never buried.
+5. **Controlled novelty.** Use shuffle bags, cooldowns, variants, and tier rules instead of random visual noise.
+6. **Visible consequence.** The world or rival reacts to player success and failure.
+7. **Honest competition.** Daily and friend results carry the same seed, modifier, rules version, and content version.
+8. **Content is data.** New entertainment must be registered and tunable through `CompleteGameInfo.plist`, not scattered through C++.
+
+## 23. CompleteGameInfo-driven V2 content architecture
+
+### 23.1 Non-negotiable source-of-truth rule
+
+`Content/CompleteGameInfo.plist` is the authoritative registry for all new V2 content and presentation behavior.
+
+Every new sprite sheet must be registered in `CompleteGameInfo.plist` before code may load or use it. Every new animation, actor, portrait set, scenic dinosaur, dialogue sequence, event-art binding, UI skin, effect set, and content group must be reachable from that registry through a stable semantic ID.
+
+The engine still needs a companion atlas `.plist` beside each atlas texture because Axmol's `SpriteFrameCache` reads packed frame rectangles from it. That atlas plist is storage metadata only. It must not become a second gameplay/content configuration source.
+
+The division of responsibility is:
+
+| File | Owns | Must not own |
+|---|---|---|
+| `CompleteGameInfo.plist` | Atlas registry, semantic IDs, animation frame lists/timing, anchors/logical sizes, roles, dialogue, scenic definitions, presentation tuning, preload groups, feature enablement, content/rules versions | Packed pixel rectangles generated by the atlas tool |
+| Atlas `.plist` | Generated frame rectangles, trim offsets, source sizes, rotation flags, texture filename | Gameplay rules, event selection, dialogue, timing policy, content unlocks |
+| Atlas texture `.png` | Runtime pixels only | Names, rules, timing, collision policy |
+| C++ | Typed loaders, validation, orchestration, gameplay implementation | Raw new atlas filenames, raw frame-name sequences, authored dialogue lines, or per-asset tuning constants |
+
+This satisfies “everything works from `CompleteGameInfo.plist`” without duplicating generated atlas geometry into two files that can drift apart.
+
+### 23.2 Current violations to migrate
+
+The current implementation does not yet meet this rule:
+
+- `V2RoadEvents.cpp` hard-codes `v2_events.plist` when loading the event atlas.
+- It checks and creates raw frames such as `sign_dino_0` and `rider_cool_0` directly.
+- Animation bases and frame counts such as `rider_cool` with four frames are passed in code.
+- `V2Core.cpp::BarkBook` contains authored dialogue strings in C++.
+- `tools/make_v2_atlas.py` writes a fixed filename and knows content identities independently of the game registry.
+
+These are technical debt from the prototype. Do not repeat the pattern for new graphics. Migrate them before adding the production replacement atlases, portraits, or background dinosaur sheets.
+
+### 23.3 Proposed plist schema
+
+Keep the existing top-level `v2` dictionary and add versioned nested presentation/content data. Exact key spelling is locked when the typed loader is implemented.
+
+```text
+v2
+  rulesVersion
+  contentVersion
+  presentation
+    schemaVersion
+    atlases[]
+      id
+      plist
+      texture
+      required
+      preloadGroup
+      memoryClass
+    animations
+      <animationId>
+        atlasId
+        frames[]
+        fps
+        loop
+        anchor
+        logicalSize
+        role
+        collisionPolicy
+    actors
+      <actorId>
+        idleAnimation
+        moveAnimation
+        reactionAnimations
+        portraitSet
+        accentColor
+        scale
+        groundOffset
+    obstacleArt
+      <obstacleId>
+        animationId
+        deathAnimationId
+        collisionSource
+        collisionInset
+        gameplayObstacleIndex
+    scenicBeats
+      <beatId>
+        actorId
+        layer
+        cooldown
+        duration
+        minRunSeconds
+        suppressDuring[]
+        motionVariant
+        reducedMotionVariant
+    portraitSets
+      <portraitSetId>
+        neutral
+        confident
+        surprised
+        frustrated
+    dialogues
+      <dialogueId>
+        trigger
+        oncePolicy
+        priority
+        speakers[]
+        lines[]
+        backgroundId
+        musicDuck
+    uiSkins
+      <skinId>
+        panelFrame
+        buttonFrames
+        colors
+        fonts
+    contentGroups
+      <groupId>
+        atlases[]
+        animations[]
+        requiredFor[]
+```
+
+Example conceptual registration:
+
+```text
+atlases:
+  - id: v2_event_art
+    plist: v2_events_production.plist
+    texture: v2_events_production.png
+    required: true
+    preloadGroup: gameplay_v2
+
+animations:
+  cool_kid_ride:
+    atlasId: v2_event_art
+    frames: [rider_cool_0, rider_cool_1, rider_cool_2, rider_cool_3]
+    fps: 10
+    loop: true
+    role: cosmetic_rider
+```
+
+The final file remains a valid Apple plist, not YAML. The text above documents structure only.
+
+### 23.4 Typed runtime architecture
+
+Add these responsibilities to the planned V2 presentation architecture:
+
+```text
+V2ContentRegistry
+  loads and validates v2.presentation once
+  resolves semantic IDs
+  exposes immutable typed definitions
+
+V2AtlasRegistry
+  loads/unloads registered atlas groups
+  confirms atlas metadata matches registered texture
+  prevents duplicate frame ownership
+
+V2AssetCatalog
+  creates sprites/animations from semantic IDs
+  applies registered anchor, scale, and ground offset
+  supplies explicit fallback assets
+
+V2DialogueCatalog
+  supplies localized dialogue definitions by ID
+  contains no authored fallback conversation in C++
+
+V2ContentValidator
+  runs in tools and debug startup
+  validates every cross-reference and reports all errors together
+```
+
+Feature code should request:
+
+```text
+assets.createActor("cool_kid")
+assets.createAnimation("cool_kid_ride")
+dialogues.find("cool_kid_first_encounter")
+scenic.start("distant_walker")
+```
+
+Feature code must not request:
+
+```text
+SpriteFrameCache::addSpriteFramesWithFile("v2_events.plist")
+Sprite::createWithSpriteFrameName("rider_cool_0")
+spawn("rider_cool", 4, ...)
+```
+
+The semantic API is the stable contract. Artists may repack or rename physical sheets through a controlled migration without rewriting event logic.
+
+### 23.5 Content validation requirements
+
+The build-time validator must fail when:
+
+- a registered atlas plist or texture is missing;
+- atlas metadata names a different texture than the registry;
+- a frame referenced by an animation, portrait, UI skin, or effect does not exist;
+- two required atlases define the same frame name;
+- an animation is empty, has an unsafe FPS, or mixes incompatible logical sizes without an explicit allowance;
+- an actor references a missing animation or portrait set;
+- a dialogue references a missing speaker, portrait expression, localization key, or trigger;
+- a scenic beat uses a gameplay collision policy or an invalid render layer;
+- a gameplay obstacle replacement has no explicit collision policy;
+- a source canvas, anchor, collision mapping, or logical size changes without an acknowledged migration;
+- a required content group cannot be preloaded within its budget;
+- content or rule changes were made without increasing the appropriate version.
+
+Debug builds must print one complete actionable report. Release builds must never crash midway through a run because optional cosmetic content is missing. They should disable the invalid optional beat, use an explicit fallback where safe, log the failure, and keep gameplay deterministic. Required gameplay content should fail CI and release packaging instead of silently shipping broken.
+
+### 23.6 Tooling changes required
+
+Extend `tools/art_pipeline.py` in the implementation phase with registry-aware commands:
+
+| Planned command | Purpose |
+|---|---|
+| `register-atlas` | Add or update an atlas entry in `CompleteGameInfo.plist` with explicit ID, preload group, required flag, plist, and texture |
+| `register-animation` | Validate frames in an atlas and write the semantic animation definition |
+| `validate-content` | Validate every atlas/frame/actor/dialogue/scenic/UI cross-reference and version rule |
+| `extract-frame` | Export a named frame on its logical source canvas for repainting and collision review |
+| `contact-sheet` | Generate a labeled visual sheet for an atlas or semantic content group |
+| `migration-report` | Compare old and new registries, atlas metadata, anchors, source sizes, collision mappings, and memory estimates |
+
+All write commands must be dry-run by default, print the exact proposed changes, require `--apply`, preserve a recoverable backup or work through version control, and run `plutil -lint` plus `validate-content` afterward.
+
+The generated compact art brief must read style and asset requirements from the same registry where possible. This reduces repeated prompt context and AI token use while preventing the style rule from being forgotten.
+
+### 23.7 Versioning and replay compatibility
+
+- `rulesVersion` changes when gameplay, scoring, collision, event timing, or deterministic outcomes change.
+- `contentVersion` changes when required art bindings, animation definitions, dialogue triggers, or presentation content change.
+- Replay and friend-challenge data store both versions.
+- Pure pixel repainting that preserves frame geometry and behavior may retain `rulesVersion` but still updates `contentVersion` for diagnosis.
+- Collision remapping always changes `rulesVersion` and requires a new golden replay.
+- A challenge may compare results only when its compatibility policy accepts both versions.
+- Analytics events include app version, rules version, content version, event ID, variant, and acquisition source when available.
+
+### 23.8 Authoritative implementation sequence
+
+This merges the entertainment, graphics, and data-driven requirements into one execution order.
+
+#### Phase 0 — Measure the current game
+
+- Capture launch-to-control, first-run, retry, event, performance, and retention baselines.
+- Run fresh-player observation before changing presentation.
+- Save current atlas, collision, replay, memory, and screenshot evidence.
+
+**Exit:** we know what must improve and can detect regression.
+
+#### Phase 1 — Build the CompleteGameInfo content registry
+
+- Lock the `v2.presentation` schema and content/rules version policy.
+- Implement typed registry, atlas loader, semantic asset catalog, validation, and fallbacks.
+- Add registry-aware tooling with dry-run/apply behavior.
+
+**Exit:** a small test atlas, animation, actor, and dialogue load exclusively through semantic IDs from `CompleteGameInfo.plist`; invalid references fail validation.
+
+#### Phase 2 — Migrate existing V2 prototype content
+
+- Register the current placeholder `v2_events` atlas temporarily.
+- Move frame sequences, frame counts, FPS, scales, ground offsets, and actor bindings out of C++.
+- Move BarkBook dialogue into registered/localizable dialogue data.
+- Remove hard-coded atlas and raw frame loads from `V2RoadEvents`.
+
+**Exit:** existing V2 behavior and deterministic replay remain identical, while C++ contains no raw V2 atlas filename or authored frame sequence.
+
+#### Phase 3 — Refresh faded hurdles safely
+
+- Follow section 21.9 and use the supported alpha/collision tools.
+- Ensure every replacement and collision policy is represented in `CompleteGameInfo.plist`.
+- Keep art-only and collision changes separately reviewable.
+
+**Exit:** hurdles are clearer, collision/replay evidence passes, and registry validation is clean.
+
+#### Phase 4 — Replace the complete V2 event atlas
+
+- Replace every `v2_events.png` placeholder sprite using the bike/platform/background/HUD references.
+- Register all new sheets, animations, actors, effects, and content groups before integration.
+- Preserve semantic IDs even if physical atlas layout changes.
+
+**Exit:** no flat placeholder art remains; all event visuals match the main game and load from `CompleteGameInfo.plist` definitions.
+
+#### Phase 5 — Add dialogue portraits and pre-run screens
+
+- Register portrait sheets, expressions, speakers, dialogue sequences, triggers, once/repeat policy, and presentation tuning.
+- Implement short professional close-up exchanges with skip and interruption cleanup.
+
+**Exit:** no dialogue line, portrait frame, or sequence timing is authored in C++.
+
+#### Phase 6 — Add decorative dinosaur spectacle and parallax improvements
+
+- Register scenic atlases, actors, beat definitions, cooldowns, suppression rules, layers, and reduced-motion variants.
+- Add Distant Walker and Wall Peek first; validate readability before expanding.
+
+**Exit:** new players see the social-media promise, no player mistakes decoration for a hazard, and no scenic content affects replay or gameplay RNG.
+
+#### Phase 7 — Finish entertainment depth
+
+- Complete expert event patterns, T-Rex phase variety, Construction choice, Meteor consequences, and rival progression.
+- Keep all art/timing/reward bindings data-driven while gameplay algorithms remain typed and testable.
+
+**Exit:** each repeatable event passes Notice → Choice → Skill → Reaction → Consequence and has at least two meaningful variants.
+
+#### Phase 8 — Screens, camera, daily, and fast-retry polish
+
+- Finish menu, daily setup, results, settings, cinematic arbitration, Reduced Motion, and spectacle settings.
+- Protect launch-to-control and retry speed.
+
+**Exit:** all screens pass safe areas and interruption tests; camera never hides hazards; repeat presentation is abbreviated.
+
+#### Phase 9 — Retention validation before marketing scale
+
+- Run the fresh/returning player sessions and compare section 22.3 metrics with baseline.
+- Fix confusion, unfairness, repetition, and slow restart before buying or scaling traffic.
+- Verify every planned social video against the release candidate.
+
+**Exit:** voluntary retry and observed entertainment improve without increasing confusion or technical failure.
+
+#### Phase 10 — Launch content and learn
+
+- Release social videos in measured groups with campaign/source tags.
+- Compare acquisition quality, first-session behavior, D1/D7 return, and challenge activity.
+- Ship small registered content additions based on evidence, not panic feature accumulation.
+
+**Exit:** the content cadence is sustainable, measurable, and does not bypass registry or QA rules.
+
+### 23.9 Definition of victory
+
+Victory is not one launch spike. Victory is a repeatable system where:
+
+- social videos truthfully show experiences players reach in the game;
+- new users understand the bike quickly and remember a specific entertaining moment;
+- failure feels deserved and retry is immediate;
+- players voluntarily ride again and return for daily/rival progress;
+- every new asset is coherent with the main-game style;
+- every new sprite sheet and content binding is registered through `CompleteGameInfo.plist`;
+- content can be replaced, tuned, validated, and versioned without hard-coded asset edits throughout C++;
+- analytics and player observation decide the next update;
+- ordinary runs, replay determinism, device performance, and accessibility remain protected.
+
+The mission is winnable, but confidence is not evidence. We win by building the loop, measuring behavior, fixing what players actually feel, and refusing to market features that are not ready.
+
+### 23.10 Tooling serves the mission
+
+OpenCV is the supported contour and convex-hull engine for collision remapping because it has already produced strong results for this project and reduces manual boundary work. It is installed only in the repository-local `.venv-art` environment through pinned `tools/requirements-art.txt`; it is not linked into or shipped with the game.
+
+The library does not make a collision automatically correct. The release contract remains:
+
+- OpenCV proposes the alpha-derived convex boundary.
+- The pipeline converts it to the exact absolute, bottom-left, five-point coordinate format consumed by `PZGObstacle`.
+- A human reviews the overlay and removes decorative protrusions from lethal geometry where necessary.
+- Art and collision changes are compared with the baseline, deterministic replay, near-miss behavior, and real gameplay.
+- The new collision is written to `CompleteGameInfo.plist` only through an explicit reviewed `--apply` operation.
+- A collision remap increments `rulesVersion`, re-records the golden replay, and runs device/play tests.
+
+If a future method measurably produces safer boundaries or faster reviewed iteration than OpenCV, it may replace the tracing implementation behind the same command and output contract. The mission is fair, entertaining play and fast reliable content production—not loyalty to a particular library.

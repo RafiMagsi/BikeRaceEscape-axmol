@@ -117,6 +117,12 @@ ARM64/
 *.dll
 *.pdb
 *.dSYM/
+
+# Local Python art-tool environment and bytecode
+.venv-art/
+__pycache__/
+*.pyc
+
 # Local axmol checkout mirror (kept out of git; required for sandboxed builds)
 /thirdparty/axmol/
 
