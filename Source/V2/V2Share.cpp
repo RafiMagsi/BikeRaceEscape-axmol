@@ -1,4 +1,8 @@
 #include "V2/V2Share.h"
+#include "V2/V2Challenge.h"
+#include "V2/V2Config.h"
+#include "V2/V2Content.h"
+#include "V2/V2Daily.h"
 #include "Features/PZUI.h"
 #include "Features/PZGameConfig.h"
 #include "PZSettingsController.h"
@@ -149,10 +153,17 @@ Node* buildCard(const Daily::Result& r, const Daily::Modifier& mod) {
 } // namespace
 
 std::string shareText(const Daily::Result& r) {
-    char buf[320];
-    std::snprintf(buf, sizeof(buf), "I scored %s%s%s in today's Dino Bike Escape daily challenge (%s)! Can you beat it? %s",
+    Challenge::Token t;
+    t.date = r.dateKey;
+    t.rules = cfg().rulesVersion;
+    t.content = Content::shared().contentVersion();
+    t.modifier = Daily::modifierFor(r.dateKey).index;
+    t.score = r.score;
+    t.medal = r.medal;
+    char buf[480];
+    std::snprintf(buf, sizeof(buf), "I scored %s%s%s on the Dino Bike Escape road of %s! Beat it on the same road: %s",
                   withCommas(r.score).c_str(), r.medal ? " and won " : "", r.medal ? medalName(r.medal) : "",
-                  Daily::dateLabel(r.dateKey).c_str(), PZCfg::kShareUrl);
+                  Daily::dateLabel(r.dateKey).c_str(), Challenge::makeUrl(t).c_str());
     return buf;
 }
 

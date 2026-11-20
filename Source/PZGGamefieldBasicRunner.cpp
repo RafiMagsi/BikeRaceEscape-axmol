@@ -9,6 +9,7 @@
 #include "PZLegacyCompat.h"
 #include "PZRandom.h"
 #include "V2/V2Replay.h"
+#include "V2/V2Metrics.h"
 #include "PZGGamefieldBasicRunner.h"
 #include "PZGGamefieldPlatforms.h"
 #include "SharedData/PZGGameplayBasicRunner.h"
@@ -188,6 +189,7 @@ bool PZGGamefieldBasicRunner::init()
 
 
 void PZGGamefieldBasicRunner::update(float dt){
+    V2::Metrics::frame(dt);
 
     if (!character) {
         AXLOGE("PZGGamefieldBasicRunner::update: character is null");

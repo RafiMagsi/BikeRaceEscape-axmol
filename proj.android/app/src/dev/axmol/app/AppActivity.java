@@ -49,6 +49,27 @@ public class AppActivity extends AxmolActivity {
     private static WeakReference<AppActivity> sInstance = new WeakReference<>(null);
 
     private View splashOverlay;
+    private static volatile String sPendingLink = "";
+
+    /** Friend-challenge link (dinobike://challenge?... or https://nextfictiongames.com/challenge?...) waiting for the game thread. */
+    public static String takePendingLink() {
+        final String v = sPendingLink;
+        sPendingLink = "";
+        return v == null ? "" : v;
+    }
+
+    private static void rememberLink(android.content.Intent intent) {
+        if (intent == null || intent.getData() == null) return;
+        final String s = intent.getData().toString();
+        if (s.contains("challenge?")) sPendingLink = s;
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        rememberLink(intent);
+    }
 
     static {
         // DNT remove, some android simulator require explicit load shared libraries, otherwise will crash
@@ -60,6 +81,7 @@ public class AppActivity extends AxmolActivity {
         sInstance = new WeakReference<>(this);
         super.setEnableVirtualButton(false);
         super.onCreate(savedInstanceState);
+        rememberLink(getIntent());
         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
         if (!isTaskRoot()) {
             // Android launched another instance of the root activity into an existing task
@@ -82,6 +104,7 @@ public class AppActivity extends AxmolActivity {
         NotificationBridge.init(this);
         LinkBridge.init(this);
         ShareBridge.init(this);
+        PlayGamesBridge.init(this);
         
     }
 

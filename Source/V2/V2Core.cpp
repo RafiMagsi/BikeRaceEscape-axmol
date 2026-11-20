@@ -1,26 +1,15 @@
 #include "V2/V2Core.h"
 #include "PZLegacyCompat.h"
+#include "V2/V2Content.h"
 #include <cstdio>
 #include <ctime>
 
 namespace V2 {
 
 BarkBook::BarkBook() {
-    _lines["rival_intro"] = {"Try to keep up. Politely.", "My grandma tunes this bike.", "Last one there is fossil fuel.",
-                             "No shortcuts! Unless I find one."};
-    _lines["rival_grudge"] = {"You again? I want a rematch.", "Ahead on points. Not for long.", "Round two. Bring snacks."};
-    _lines["rival_taunt"] = {"Still winning, still smiling.", "Back for more? Love that.", "I have your number now."};
-    _lines["trex"]        = {"ROAR! That means hello.", "He only wants a high five.", "Tiny arms, huge feelings."};
-    _lines["rival_win"]   = {"I meant to let you win.", "Put that on the fridge.", "Okay, that was fast."};
-    _lines["rival_loss"]  = {"Rematch? My horn was broken.", "Rawr. See you later!", "Too slow, rookie!"};
-    _lines["dino"]        = {"Why is the road so crowded?", "Excuse me! Coming through!", "Dino crossing. Obviously."};
-    _lines["cleared"]     = {"Smooth jumping!", "Not a scratch.", "That was legally questionable."};
-    _lines["pizza_ok"]    = {"That pizza is still good!", "Delivered. Still warm.", "Five stars!"};
-    _lines["pizza_cold"]  = {"The pizza went cold...", "Dropped the order!", "No tip for you."};
-    _lines["construction"] = {"Why are the cones moving?", "Who put a barrel there?", "This is not on the map."};
-    _lines["meteor"]      = {"Meteor insurance was extra.", "Look up! Or don't.", "That is not weather."};
-    _lines["grandma"]     = {"Tune-up complete, dear!", "Hold my basket!", "Beep beep, sweetie!"};
-    _lines["hit_absorbed"] = {"Meteor insurance was extra.", "The road attacked first.", "Bonk! Nobody saw that."};
+    // Authored lines live in CompleteGameInfo.plist (v2.presentation.dialogues); C++ holds no dialogue text.
+    Content::shared().load();
+    _lines = Content::shared().dialogues();
 }
 
 std::string BarkBook::pick(const std::string& tag, Rng& rng) {

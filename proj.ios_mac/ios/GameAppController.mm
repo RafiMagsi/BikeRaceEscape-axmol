@@ -29,6 +29,7 @@
 #import "GameViewController.h"
 
 #import <AVFoundation/AVFoundation.h>
+#include "V2/V2Challenge.h"
 
 @implementation GameAppController
 
@@ -47,6 +48,28 @@
         NSLog(@"GameAppController: audio session setup failed: %@", error);
     }
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
+
+// dinobike://challenge?... (friend challenge link): hand it to the game; the menu shows the invite.
+- (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id>*)options {
+    if (url && [[url scheme] isEqualToString:@"dinobike"]) {
+        V2::Challenge::setPending(std::string([[url absoluteString] UTF8String]));
+        return YES;
+    }
+    return NO;
+}
+
+// https://nextfictiongames.com/challenge?... (universal link, needs the apple-app-site-association file on that domain)
+- (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity
+ restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>>* _Nullable))restorationHandler {
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL) {
+        NSString* s = [userActivity.webpageURL absoluteString];
+        if ([s containsString:@"challenge?"]) {
+            V2::Challenge::setPending(std::string([s UTF8String]));
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - createRootViewController {

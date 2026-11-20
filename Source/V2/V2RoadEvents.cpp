@@ -1,5 +1,8 @@
 #include "V2/V2RoadEvents.h"
 #include "V2/V2Config.h"
+#include "V2/V2Content.h"
+#include "V2/V2Metrics.h"
+#include "V2/V2Cinematic.h"
 #include "PZGGameFieldScene.h"
 #include "PZGGamefieldPlatforms.h"
 #include "PZGObstacle.h"
@@ -78,8 +81,15 @@ bool RoadEventDirector::init(PZGGameFieldScene* scene, Node* hud) {
     if (!Node::init()) return false;
     _scene = scene;
     _hud = hud;
-    if (!SpriteFrameCache::getInstance()->getSpriteFrameByName("sign_dino_0")) {
-        SpriteFrameCache::getInstance()->addSpriteFramesWithFile("v2_events.plist");
+    Content::shared().ensureGroup("gameplay_v2");          // atlas files / frame sequences come from CompleteGameInfo.plist v2.presentation
+    {
+        static bool reported = false;                      // one actionable report per process (debug and release log; never aborts a run)
+        if (!reported) {
+            reported = true;
+            int errors = 0;
+            const std::string rep = Content::shared().validate(&errors);
+            if (errors > 0) AXLOGE("[V2:content] {} problem(s):\n{}", errors, rep);
+        }
     }
     {
         std::vector<int> all;
@@ -131,7 +141,7 @@ void RoadEventDirector::reset(uint32_t seed) {
     _ambientCool = 14.f + _rng.range(0.f, 8.f);
     Analytics::shared().enableFileSink(FileUtils::getInstance()->getWritablePath() + "v2_analytics.jsonl", 262144);
     _speed = 300.f;
-    Analytics::shared().log("v2_run_seed", {{"seed", std::to_string(seed)}, {"rules", std::to_string(cfg().rulesVersion)}});
+    Analytics::shared().log("v2_run_seed", {{"seed", std::to_string(seed)}, {"rules", std::to_string(cfg().rulesVersion)}, {"content", std::to_string(Content::shared().contentVersion())}});
 }
 
 void RoadEventDirector::clear(Outcome reason) {
@@ -143,6 +153,7 @@ void RoadEventDirector::clear(Outcome reason) {
     if (_microPlate) { _microPlate->removeFromParent(); _microPlate = nullptr; _microLabel = nullptr; }
     _objText.clear();
     _micro.active = false;
+    Cinematic::shared().release(Cinematic::Owner::Climax);
     for (auto& a : _actors) {
         if (a->root) a->root->removeFromParent();
     }
@@ -250,9 +261,17 @@ RoadEventDirector::Actor* RoadEventDirector::spawn(Kind kind, const std::string&
     a->y = y;
     a->facingRight = faceRight;
     a->root = Node::create();
-    a->spr = Sprite::createWithSpriteFrameName(base + "_0");
+    const AnimDef* anim = Content::shared().animation(base);          // `base` is a semantic animation id
+    if (!anim || anim->frames.empty()) {
+        AXLOGW("[V2] animation '{}' is not registered", base);
+        return nullptr;
+    }
+    a->frameNames = anim->frames;
+    a->frames = static_cast<int>(anim->frames.size());
+    a->fps = anim->fps;
+    a->spr = Sprite::createWithSpriteFrameName(anim->frames.front());
     if (!a->spr) {
-        AXLOGW("[V2] missing sprite frame {}_0", base);
+        AXLOGW("[V2] missing sprite frame {} (animation '{}')", anim->frames.front(), base);
         return nullptr;
     }
     a->spr->setAnchorPoint(Vec2(0.5f, 0.f));
@@ -286,12 +305,12 @@ void RoadEventDirector::removeActor(Actor& a) {
 void RoadEventDirector::animate(Actor& a, float dt) {
     if (a.extra) {
         const int f = static_cast<int>(_clock * 20.f) % 4;
-        a.extra->setSpriteFrame("flame_" + std::to_string(f));
+        a.extra->setSpriteFrame(Content::shared().frame("flame", f));
     }
     if (a.frames <= 1 || !a.spr) return;
     a.t += dt;
     const int f = static_cast<int>(a.t * a.fps) % a.frames;
-    a.spr->setSpriteFrame(a.base + "_" + std::to_string(f));
+    a.spr->setSpriteFrame(a.frameNames[f % a.frameNames.size()]);
 }
 
 // Keeps a kinematic actor on the road; over a gap it flies a ballistic-looking hop between the two edges.
@@ -403,6 +422,9 @@ void RoadEventDirector::startEvent(EventId id) {
     // Variants: the first tier teaches the plain version; later tiers draw from a shuffle bag (never the same one twice in a row).
     _variant = (_tier == Tier::Intro) ? 0 : _variantBag[static_cast<int>(id)].next(_rng);
     if (_micro.active && _micro.type == 2) _micro.armedNoPowerUp = true;
+    Metrics::firstEvent();
+    if (id == EventId::TrexChase) Cinematic::shared().request(Cinematic::Owner::Climax);   // no punches / blast zooms during the set piece
+    if (id == EventId::TrexChase) UserDefault::getInstance()->setBoolForKey("PZP_V2_trex_seen", true);   // unlocks the T-Rex dialogue next run
     Analytics::shared().log("road_event_start", {{"event", eventName(id)}, {"variant", std::to_string(_variant)}, {"tier", tierName(_tier)},
                                                  {"clock", std::to_string(static_cast<int>(_clock))}, {"dist", std::to_string(static_cast<int>(_lastDistance))}});
 }
@@ -438,6 +460,7 @@ void RoadEventDirector::finishEvent(Outcome o) {
         }
         if (o != Outcome::SkippedNoRoad) { _micro.active = false; _micro.cooldown = cfg().microEvery; }
     }
+    if (o != Outcome::SkippedNoRoad || _cur == EventId::TrexChase) Cinematic::shared().release(Cinematic::Owner::Climax);
     _active = false;
     _cool = _rng.range(cfg().breatherMin, cfg().breatherMax) * _breatherScale;
     if (_marker) {
@@ -662,7 +685,7 @@ void RoadEventDirector::buildRaceMarker() {
     player->drawCircle(Vec2::ZERO, 9.f, 0.f, 20, false, Color4F(0.15f, 0.09f, 0.07f, 1.f), 1.6f);
     _markerPlayer = player;
     _marker->addChild(player, 2);
-    if (auto* rv = Sprite::createWithSpriteFrameName("rider_cool_0")) {
+    if (auto* rv = Sprite::createWithSpriteFrameName(Content::shared().frame("rider_cool", 0))) {
         rv->setScale(26.f / rv->getContentSize().height);
         _markerRival = rv;
         _marker->addChild(rv, 3);
@@ -1034,7 +1057,7 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
             _raceT = 0.f;
             _wait = 0.f;
             if (!g->extra) {
-                g->extra = Sprite::createWithSpriteFrameName("flame_0");
+                g->extra = Sprite::createWithSpriteFrameName(Content::shared().frame("flame", 0));
                 if (g->extra) {
                     g->extra->setAnchorPoint(Vec2(1.f, 0.5f));
                     g->extra->setPosition(Vec2(-26.f * k, 26.f * k));
@@ -1157,7 +1180,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
                 b->group = _nextGroup++;
                 ++_total;
             }
-            bubble("*KICK*", t->id, 0.9f);
+            bubble(Content::shared().line("trex_kick"), t->id, 0.9f);
             if (_host.shake) _host.shake(5.f, 0.25f);
             PZAudio::play("fx_tick", 0.5f, 0.1f);
             ++_step;
@@ -1208,7 +1231,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         }
         const bool clean = !_hitThisEvent;
         settleRisk(ctx);
-        bubble(clean ? "...HE GAVE UP. BYE!" : "RAWR! (Rematch soon.)", t->id, 2.0f);
+        bubble(Content::shared().line(clean ? "trex_win" : "trex_loss"), t->id, 2.0f);
         if (clean) {
             reward(cfg().rewardClimax, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 80.f), "T-REX ESCAPED! +" + std::to_string(cfg().rewardClimax));
             PZAudio::play("fx_stage", 0.7f, 0.2f);
@@ -1252,7 +1275,7 @@ void RoadEventDirector::updateAmbient(const Context& ctx) {
         else {
             const int r = _rng.index(10);
             p->group = r < 4 ? 0 : (r < 6 ? 1 : (r < 8 ? 2 : 3));
-            if (p->group == 0 && _rng.chance(0.35f)) bubble("BEEP BEEP!", p->id, 1.4f);
+            if (p->group == 0 && _rng.chance(0.35f)) bubble(Content::shared().line("gag_beep"), p->id, 1.4f);
         }
     }
     _ambientCool = _rng.range(20.f, 35.f);
@@ -1297,14 +1320,14 @@ void RoadEventDirector::updateActors(const Context& ctx) {
         case Kind::Ambient:
             if (a.vx > 0.f && !a.counted && ctx.dt > 0.f) {                       // gags (the T-Rex is an Ambient actor with vx = 0)
                 const float winW2 = Director::getInstance()->getWinSize().width;
-                if (a.group == 1 && a.x > winW2 * 0.3f) { a.counted = true; bubble("WHOA!", a.id, 1.3f); a.spin = 1.f; }
+                if (a.group == 1 && a.x > winW2 * 0.3f) { a.counted = true; bubble(Content::shared().line("gag_wobble"), a.id, 1.3f); a.spin = 1.f; }
                 else if (a.group == 2 && a.x > winW2 * 0.45f) {
                     a.counted = true;
-                    bubble("MY CONE!", a.id, 1.5f);
+                    bubble(Content::shared().line("gag_cone_lost"), a.id, 1.5f);
                     _gagState = 1;
                     if (Actor* c = spawn(Kind::Cone, "cone", 1, a.x - 30.f, a.y + 20.f, 40.f * kDeviceScale(), false)) c->hazard = false;   // harmless prop
-                } else if (a.group == 3 && ctx.airborne && std::abs(a.x - ctx.rider.x) < 280.f) { a.counted = true; bubble("HEY! WARN ME!", a.id, 1.4f); a.spin = 1.f; }
-                else if (a.group == 4 && a.x > winW2 * 0.3f) { a.counted = true; bubble("FIXED IT! NEW CONE!", a.id, 1.6f); }
+                } else if (a.group == 3 && ctx.airborne && std::abs(a.x - ctx.rider.x) < 280.f) { a.counted = true; bubble(Content::shared().line("gag_startled"), a.id, 1.4f); a.spin = 1.f; }
+                else if (a.group == 4 && a.x > winW2 * 0.3f) { a.counted = true; bubble(Content::shared().line("gag_cone_fixed"), a.id, 1.6f); }
             }
             if (a.spin > 0.f && a.root) { a.spin += dt; a.root->setRotation(std::sin(a.spin * 18.f) * 9.f * std::max(0.f, 1.f - (a.spin - 1.f) / 0.8f)); }
             a.x += a.vx * dt;
@@ -1528,6 +1551,7 @@ int RoadEventDirector::rivalLosses() const { return UserDefault::getInstance()->
 void RoadEventDirector::noteRivalResult(bool playerWon) {
     const char* key = playerWon ? "PZP_V2_rv_cool_w" : "PZP_V2_rv_cool_l";
     UserDefault::getInstance()->setIntegerForKey(key, UserDefault::getInstance()->getIntegerForKey(key, 0) + 1);
+    UserDefault::getInstance()->setIntegerForKey("PZP_V2_rv_cool_last", playerWon ? 1 : -1);   // drives the rematch dialogue
 }
 
 void RoadEventDirector::notifySmoothLanding() {

@@ -38,6 +38,7 @@ struct Data {
     int rulesVersion = 0;
     uint32_t seed = 0;
     uint32_t endTick = 0;
+    int contentVersion = 0;                    // CompleteGameInfo v2.contentVersion at recording time (diagnosis; rulesVersion decides compatibility)
     int modifier = -1;                         // daily modifier index the run was recorded under (-1 none): it changes event timing, so playback must match
     bool ended = false;                        // true = the run ended (death) at endTick; false = stopped by the recorder
     std::vector<Input> inputs;

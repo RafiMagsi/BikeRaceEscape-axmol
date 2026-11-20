@@ -212,6 +212,45 @@ void GameCenter::submitScore(int score) {
     });
 }
 
+void GameCenter::submitScoreTo(const char* leaderboardId, int score) {
+    if (!leaderboardId || leaderboardId[0] == '\0') return;
+    if (score < 0) score = 0;
+    NSString* lb = [NSString stringWithUTF8String:leaderboardId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!GKLocalPlayer.localPlayer.isAuthenticated) return;
+        if (@available(iOS 14.0, *)) {
+            [GKLeaderboard submitScore:score context:0 player:GKLocalPlayer.localPlayer leaderboardIDs:@[lb]
+                     completionHandler:^(NSError* _Nullable error) { (void)error; }];
+        } else {
+            GKScore* gkScore = [[GKScore alloc] initWithLeaderboardIdentifier:lb];
+            gkScore.value = score;
+            [GKScore reportScores:@[gkScore] withCompletionHandler:nil];
+        }
+    });
+}
+
+void GameCenter::showLeaderboardFor(const char* leaderboardId) {
+    NSString* lb = (leaderboardId && leaderboardId[0]) ? [NSString stringWithUTF8String:leaderboardId] : nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!GKLocalPlayer.localPlayer.isAuthenticated) { playerLogin(); return; }
+        UIViewController* vc = _topMostViewController();
+        if (!vc) return;
+        GKGameCenterViewController* gc = nil;
+        if (@available(iOS 14.0, *)) {
+            gc = lb ? [[GKGameCenterViewController alloc] initWithLeaderboardID:lb playerScope:GKLeaderboardPlayerScopeGlobal timeScope:GKLeaderboardTimeScopeToday]
+                    : [[GKGameCenterViewController alloc] initWithState:GKGameCenterViewControllerStateLeaderboards];
+        } else {
+            gc = [[GKGameCenterViewController alloc] init];
+            gc.viewState = GKGameCenterViewControllerStateLeaderboards;
+            if (lb) gc.leaderboardIdentifier = lb;
+        }
+        if (!gc) return;
+        if (!g_gcDelegateProxy) g_gcDelegateProxy = [PZGameCenterDelegateProxy new];
+        gc.gameCenterDelegate = (id<GKGameCenterControllerDelegate>)g_gcDelegateProxy;
+        [vc presentViewController:gc animated:YES completion:nil];
+    });
+}
+
 void GameCenter::showProcessingView() {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIWindow* window = _keyWindow();

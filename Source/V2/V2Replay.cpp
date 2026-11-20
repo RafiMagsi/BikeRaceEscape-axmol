@@ -1,5 +1,6 @@
 #include "V2/V2Replay.h"
 #include "V2/V2Core.h"
+#include "V2/V2Content.h"
 #include "V2/V2Daily.h"
 #include "V2/V2Config.h"
 #include "PZLegacyCompat.h"
@@ -45,7 +46,7 @@ void conclude() {
                   g_report.endMatched ? 1 : 0, static_cast<unsigned>(g_tick), static_cast<unsigned>(g_play.endTick));
     g_report.text = buf;
     AXLOGI("[V2:replay] RESULT {}", g_report.text);
-    Analytics::shared().log("replay_result", {{"exact", g_report.exact ? "1" : "0"}, {"detail", g_report.text}, {"rules", std::to_string(cfg().rulesVersion)}});
+    Analytics::shared().log("replay_result", {{"exact", g_report.exact ? "1" : "0"}, {"detail", g_report.text}, {"rules", std::to_string(cfg().rulesVersion)}, {"content", std::to_string(Content::shared().contentVersion())}, {"recorded_content", std::to_string(g_play.contentVersion)}});
     g_finished = true;
     if (g_handler) g_handler(g_report);
 }
@@ -89,6 +90,7 @@ void beginRun(uint32_t seed, bool fixedStep, bool liveNow) {
         g_rec.seed = seed;
         g_rec.rulesVersion = cfg().rulesVersion;
         g_rec.modifier = g_modifier;
+        g_rec.contentVersion = Content::shared().contentVersion();
     } else {
         g_state = State::Idle;
     }
@@ -178,7 +180,7 @@ void stopRecording() {
 
 std::string serialize(const Data& d) {
     std::ostringstream o;
-    o << "V2R " << d.format << " " << d.rulesVersion << " " << d.seed << " " << d.endTick << " " << (d.ended ? 1 : 0) << " " << d.modifier << "\n";
+    o << "V2R " << d.format << " " << d.rulesVersion << " " << d.seed << " " << d.endTick << " " << (d.ended ? 1 : 0) << " " << d.modifier << " " << d.contentVersion << "\n";
     for (const auto& i : d.inputs) o << "I " << i.tick << " " << (i.press ? 1 : 0) << "\n";
     char buf[160];
     for (const auto& c : d.checkpoints) {
@@ -202,6 +204,7 @@ bool parse(const std::string& text, Data& out) {
             std::istringstream h(line);
             h >> out.format >> out.rulesVersion >> out.seed >> out.endTick >> ended;
             if (!(h >> out.modifier)) out.modifier = -1;          // files from before the modifier field
+            if (!(h >> out.contentVersion)) out.contentVersion = 0;
             out.ended = ended != 0;
             head = out.format == kFormat;
         } else if (tag == "I") {

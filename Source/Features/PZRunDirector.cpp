@@ -3,6 +3,12 @@
 //
 #include "PZRunDirector.h"
 #include "V2/V2RoadEvents.h"
+#include "V2/V2Scenic.h"
+#include "V2/V2Dialogue.h"
+#include "V2/V2Cinematic.h"
+#include "V2/V2Ghost.h"
+#include "V2/V2Leaderboard.h"
+#include "V2/V2Metrics.h"
 #include "PZRandom.h"
 #include "V2/V2Daily.h"
 #include "V2/V2Replay.h"
@@ -76,6 +82,12 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
     // Version 2 road events: separate module, owned here, talks back only through this host.
     _events = V2::RoadEventDirector::create(scene, _hud);
     addChild(_events);
+    _scenic = V2::ScenicDirector::create(scene);
+    addChild(_scenic);
+    _dialogue = V2::DialogueDirector::create();
+    addChild(_dialogue);
+    _ghost = V2::GhostRider::create();
+    addChild(_ghost);
     {
         V2::Host host;
         host.absorbHit = [this](const Vec2& at) { return absorbExternalHit(at); };
@@ -422,6 +434,7 @@ void PZRunDirector::updateGadgetStrip(float dt) {
 }
 
 void PZRunDirector::clearRunVisuals() {
+    V2::Cinematic::shared().forceReset();               // new run / scene exit: nobody owns the camera any more
     if (_cinematicFrame) closeCinematicFrame(0.08f);
     for (auto& o : _orbs) {
         if (o.node) o.node->removeFromParent();
@@ -524,7 +537,7 @@ void PZRunDirector::startRun() {
         _dailyNoMercy = useMod && mod.noMercy;
         if (_events) { _events->setBreatherScale(useMod ? mod.eventBreatherScale : 1.f); _events->setPizzaBoost(useMod && mod.pizzaBoost); }
         V2::Replay::setModifier(useMod ? mod.index : -1);
-        const uint32_t forced = daily ? V2::Daily::seedFor(V2::Daily::dateKeyNow()) : _challengeSeed;
+        const uint32_t forced = daily ? V2::Daily::seedFor(V2::Daily::playDate()) : _challengeSeed;
         const uint32_t seed = forced ? forced
                                      : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;
         PZRand::setRunSeed(seed);                       // content stream: applied when the world is (re)filled
@@ -540,10 +553,21 @@ void PZRunDirector::startRun() {
         _smoothStreak = 0;
         _sigLogged = false;
         _dailySnapT = 0.f;
+        if (_ghost) {                                    // personal-best ghost for this exact road (seed + rules + modifier)
+            _ghost->clear();
+            if (daily && replayMod < 0) {
+                V2::Replay::Data gd;
+                const std::string gp = FileUtils::getInstance()->getWritablePath() + "ghost_" + std::to_string(V2::Daily::playDate()) + ".v2r";
+                if (FileUtils::getInstance()->isFileExist(gp) && V2::Replay::load(gp, gd) &&
+                    V2::GhostRider::compatible(gd, seed, V2::cfg().rulesVersion, mod.index)) _ghost->arm(gd);
+            }
+        }
+        V2::Metrics::runStarted(replayMod >= 0 || V2::Replay::state() == V2::Replay::State::Playing ? "replay" : (V2::Daily::mode() == V2::Daily::Mode::Ranked ? "daily_ranked" : (V2::Daily::mode() == V2::Daily::Mode::Practice ? "daily_practice" : "normal")));
         if (daily) V2::Daily::clearLive();
     }
     if (_events) {
         _events->reset(PZRand::runSeed());
+        if (_scenic) _scenic->reset();
         if (platform()) platform()->onShift = [this](float dx) { if (_events) _events->shiftWorld(dx); };
     }
     if (PZCfg::kEnableRevive && PZCfg::kEnableReviveVideo) PZ::AdsController::shared()->requestRewarded();   // warm a rewarded ad
@@ -587,10 +611,32 @@ void PZRunDirector::beginIntro() {
         ch0->setVisible(false);
     }
     // The platform generator fills the world in its first update, so start the show one beat later.
-    auto* intro = Sequence::create(DelayTime::create(0.30f),
-                                   CallFunc::create([this]() { startIntroNow(); }), nullptr);
-    intro->setTag(kIntroDelayTag);
-    runAction(intro);
+    auto proceed = [this]() {
+        auto* intro = Sequence::create(DelayTime::create(0.30f),
+                                       CallFunc::create([this]() { startIntroNow(); }), nullptr);
+        intro->setTag(kIntroDelayTag);
+        runAction(intro);
+    };
+    // Rival dialogue (data in CompleteGameInfo.plist): only before the run, only when a sequence is eligible, always skippable.
+    // The world stays frozen behind it, so no simulation tick advances while it is on screen.
+    if (_dialogue) {
+        V2::DialogueContext dc;
+        dc.replay = V2::Replay::state() == V2::Replay::State::Playing;
+        dc.dailyRun = V2::Daily::mode() != V2::Daily::Mode::None;
+        dc.dateKey = V2::Daily::dateKeyNow();
+        const std::string seq = V2::DialogueDirector::pick(dc);
+        if (!seq.empty()) {
+            freezeFor(600.f);
+            Node* host = _scene->getParent() ? _scene->getParent() : _scene;
+            V2::Analytics::shared().log("dialogue_shown", {{"id", seq}});
+            if (_dialogue->show(seq, host, [this, proceed, seq]() {
+                    V2::Analytics::shared().log("dialogue_done", {{"id", seq}});
+                    proceed();
+                })) return;
+            freezeFor(0.01f);                           // art missing: carry on without it
+        }
+    }
+    proceed();
 }
 
 void PZRunDirector::openCinematicFrame() {
@@ -638,6 +684,7 @@ void PZRunDirector::closeCinematicFrame(float duration) {
 
 void PZRunDirector::startIntroNow() {
     if (!_introActive || !_scene || !_scene->character || !_scene->character->p_body) return;
+    V2::Cinematic::shared().request(V2::Cinematic::Owner::Intro);
     PZGCharacter* ch = _scene->character;
     const Size win = Director::getInstance()->getWinSize();
 
@@ -885,6 +932,11 @@ void PZRunDirector::update(float dt) {
         ctx.ridesActive = turboActive() || _jetpackT > 0.f || _rocketT > 0.f;
         ctx.controlLocked = _readyCountdown || _cinematic || _reviveWait || _riderTweening || _deathPending || frozen();
         _events->update(ctx);
+        if (_ghost && _ghost->armed() && !ctx.controlLocked && _scene->character && _scene->character->p_body && _scene->character->s_body) {
+            _ghost->update(V2::Replay::tick(), _scene->gf_distance, _scene->character->p_body->GetPosition().y, riderPos(), kPhysicsWorldScale(),
+                           _scene->character->s_body->getSpriteFrame(), _scene->character->s_body->getScale(), _scene, _scene->character_depth_z);
+        }
+        if (_scenic) _scenic->update(ctx.controlLocked ? 0.f : dt, !ctx.controlLocked && !ctx.ridesActive && !_events->busy());
     }
     updateWaves(dt);
     updateKills(dt);
@@ -1845,7 +1897,8 @@ void PZRunDirector::beginReadyCountdown(bool revive) {
             _introActive = false;
             _freezeUntil = std::chrono::steady_clock::time_point{};   // release the world
             _graceT = std::max(_graceT, PZCfg::kHitGrace + 0.6f);
-            if (!revive) V2::Replay::goLive();                          // tick 0 of a reproducible run
+            V2::Cinematic::shared().release(revive ? V2::Cinematic::Owner::Revive : V2::Cinematic::Owner::Intro);
+            if (!revive) { V2::Replay::goLive(); V2::Metrics::controlGranted(); }   // tick 0 of a reproducible run
             closeCinematicFrame(0.28f);
             if (revive && PZCfg::kReviveTurbo > 0.f && PZCfg::kEnablePowerUps) {
                 collect(PowerUp::Turbo, riderPos(), PZCfg::kReviveTurbo);
@@ -1900,6 +1953,7 @@ void PZRunDirector::beginDeathCinematic(std::function<void()> completion) {
         if (completion) completion();
         return;
     }
+    V2::Cinematic::shared().request(V2::Cinematic::Owner::Death);   // death always wins the screen
     stopActionByTag(kCrowdCueTag);
     if (_introActive || _readyCountdown || _cinematic) {
         stopActionByTag(kIntroDelayTag);
@@ -1957,6 +2011,7 @@ void PZRunDirector::beginDeathCinematic(std::function<void()> completion) {
     }), DelayTime::create(0.52f), CallFunc::create([this, completion]() {
         setHudVisible(true);
         _cinematic = false;
+        V2::Cinematic::shared().release(V2::Cinematic::Owner::Death);
         if (completion) completion();
     }), nullptr);
     deathShow->setTag(kDeathShowTag);
@@ -2074,7 +2129,7 @@ void PZRunDirector::cameraTo(const Vec2& focus, float scale, float duration, con
 
 // Short zoom pulse that keeps the rider where they are on screen (stage change, power-up pickup, landing slam).
 void PZRunDirector::cameraPunch(float scale, float inSeconds, float outSeconds) {
-    if (_cinematic || !PZCfg::kEnableFx || scale <= 1.001f) return;
+    if (_cinematic || !PZCfg::kEnableFx || scale <= 1.001f || !V2::Cinematic::shared().allowsGameplayCamera()) return;
     constexpr int kPunchTag = 7733;
     stopActionByTag(kPunchTag);
     const Vec2 rp = riderPos();
@@ -2133,6 +2188,13 @@ void PZRunDirector::beginBlastCinematic() {
         return;
     }
 
+    if (!V2::Cinematic::shared().request(V2::Cinematic::Owner::Blast)) {   // another owner (T-Rex climax, death...): plain shockwave, no zoom
+        flash(Color3B(255, 255, 255), 0.55f, 0.35f);
+        shakeScene(14.f, 0.5f);
+        freezeFor(PZCfg::kHitStop * 1.2f);
+        PZUI::banner(_scene, PZCfg::kStrBlast, "", col, win.height * 0.6f, 0.6f);
+        return;
+    }
     _cinematic = true;
     const float perTarget = PZCfg::kBlastZoomIn + PZCfg::kBlastHold + PZCfg::kBlastGap;
     freezeFor(perTarget * static_cast<float>(targets.size()) + 1.6f);      // safety net; released explicitly below
@@ -2190,6 +2252,7 @@ void PZRunDirector::beginBlastCinematic() {
     seq.pushBack(CallFunc::create([this, col]() {
         setHudVisible(true);
         _cinematic = false;
+        V2::Cinematic::shared().release(V2::Cinematic::Owner::Blast);
         _freezeUntil = std::chrono::steady_clock::time_point{};
         _graceT = std::max(_graceT, 1.0f);
         // Anything beyond the screen still gets wiped by a normal shockwave.
@@ -3063,6 +3126,7 @@ void PZRunDirector::reviveAccepted(bool paidWithCoins) {
         }
         ch->jump_counter = 1;
     }
+    V2::Cinematic::shared().request(V2::Cinematic::Owner::Revive);
     _reviveWait = true;
     _reviveWaitT = 0.f;
     PZAudio::play("fx_revive");
@@ -3084,6 +3148,8 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     V2::RoadEventDirector::RunStats evStats;
     int dailyEvents = 0;
     if (_events) { evStats = _events->runStats(); dailyEvents = _events->successCount(); }
+    V2::Metrics::runEnded(static_cast<int>(_scene->gf_distance), dailyEvents, _stats.coins, "death");
+    if (_scenic) _scenic->clear();
     if (_events) _events->clear(V2::Outcome::AbortedDeath);   // the results screen never sits on top of live road actors
     if (V2::Daily::mode() == V2::Daily::Mode::Ranked && V2::Replay::state() == V2::Replay::State::Recording) {
         V2::Replay::save(V2::Replay::lastRecording(), FileUtils::getInstance()->getWritablePath() + "replay_daily_" + std::to_string(V2::Daily::dateKeyNow()) + ".v2r");
@@ -3130,7 +3196,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     if (V2::Daily::mode() != V2::Daily::Mode::None) {
         const auto& mod = V2::Daily::activeModifier();
         V2::Daily::Result dr;
-        dr.dateKey = V2::Daily::dateKeyNow();
+        dr.dateKey = V2::Daily::playDate();
         dr.mode = V2::Daily::mode();
         dr.distance = _stats.distance;
         dr.coins = _stats.coins;
@@ -3144,8 +3210,13 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         const bool wasRanked = dr.mode == V2::Daily::Mode::Ranked;
         int granted = 0;
         const int attemptsBefore = V2::Daily::attemptsLeft(dr.dateKey);
+        const int prevBest = std::max(V2::Daily::hasRanked(dr.dateKey) ? V2::Daily::rankedResult(dr.dateKey).score : 0, V2::Daily::bestPractice(dr.dateKey));
         const int medal = V2::Daily::record(dr, granted);
         dr.medal = medal;
+        if (wasRanked && !V2::Daily::challengeActive()) V2::Leaderboard::submitDaily(dr.score);
+        if (dr.score > prevBest && V2::Replay::state() == V2::Replay::State::Recording) {   // new personal best on this road: keep it as the ghost
+            V2::Replay::save(V2::Replay::lastRecording(), FileUtils::getInstance()->getWritablePath() + "ghost_" + std::to_string(dr.dateKey) + ".v2r");
+        }
         V2::Daily::clearLive();
         if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
         if (wasRanked) V2::Daily::afterRankedResult();     // stays ranked while attempts remain, else practice

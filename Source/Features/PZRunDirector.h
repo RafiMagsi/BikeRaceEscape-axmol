@@ -23,7 +23,7 @@ class PZGGameFieldScene;
 class PZGGamefieldPlatforms;
 class PZGObstacle;
 class PZGCoin;
-namespace V2 { class RoadEventDirector; }
+namespace V2 { class RoadEventDirector; class ScenicDirector; class DialogueDirector; class GhostRider; }
 
 class PZRunDirector : public ax::Node {
 public:
@@ -77,6 +77,9 @@ public:
 private:
     bool absorbExternalHit(const ax::Vec2& at);   // shield / turbo / grace / mercy for hazards that are not PZGObstacles
     V2::RoadEventDirector* _events = nullptr;
+    V2::GhostRider* _ghost = nullptr;           // your best run on today's road (cosmetic)
+    V2::DialogueDirector* _dialogue = nullptr;  // start-of-run rival dialogue (before GO only)
+    V2::ScenicDirector* _scenic = nullptr;      // decorative background dinosaurs (cosmetic only)
     uint32_t _challengeSeed = 0;
     V2::Rng _orbRng;                // power-up orbs draw from their own stream (never perturbs the content stream)
     bool _dailyNoRevive = false;    // daily runs: no revive (a result is final)

@@ -25,6 +25,10 @@ public:
     // Submit score to `leaderboardId` (or default, if not set).
     void submitScore(int score);
 
+    // Per-board variants (the V2 daily board): submit to / show a specific leaderboard id.
+    void submitScoreTo(const char* leaderboardId, int score);
+    void showLeaderboardFor(const char* leaderboardId);
+
     // Simple UI helpers used by StoreBridge flows on iOS.
     static void showProcessingView();
     static void hideProcessingView();

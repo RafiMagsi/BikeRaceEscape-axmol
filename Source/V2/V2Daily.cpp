@@ -16,6 +16,7 @@ Mode g_mode = Mode::None;
 Modifier g_active;
 bool g_live = false;
 Result g_liveRes;
+int g_chDate = 0, g_chScore = 0, g_chMedal = 0;       // active friend challenge (0 = none)
 
 std::string key(int dateKey, const char* suffix) { return "PZP_D" + std::to_string(dateKey) + suffix; }
 bool hasBestStored(int dateKey) { return !UserDefault::getInstance()->getStringForKey(key(dateKey, "_r").c_str(), "").empty(); }
@@ -243,6 +244,7 @@ void markUploaded(size_t count) {
 // ---- session ------------------------------------------------------------------------------------------------------------
 
 void begin(Mode m) {
+    g_chDate = 0;
     g_mode = m;
     g_active = modifierFor(dateKeyNow());
     clearLive();
@@ -253,7 +255,20 @@ const Modifier& activeModifier() { return g_active; }
 void afterRankedResult() {
     if (g_mode == Mode::Ranked && attemptsLeft(dateKeyNow()) <= 0) g_mode = Mode::Practice;
 }
-void end() { g_mode = Mode::None; g_active = Modifier(); }
+void end() { g_mode = Mode::None; g_active = Modifier(); g_chDate = 0; }
+
+void beginChallenge(int date, int theirScore, int theirMedal) {
+    g_chDate = date;
+    g_chScore = theirScore;
+    g_chMedal = theirMedal;
+    g_mode = Mode::Practice;
+    g_active = modifierFor(date);
+    clearLive();
+}
+bool challengeActive() { return g_chDate != 0 && g_mode != Mode::None; }
+int challengeScore() { return g_chScore; }
+int challengeMedal() { return g_chMedal; }
+int playDate() { return g_chDate != 0 && g_mode != Mode::None ? g_chDate : dateKeyNow(); }
 
 void snapshot(const Result& live) { g_live = true; g_liveRes = live; }
 bool runLive() { return g_live; }

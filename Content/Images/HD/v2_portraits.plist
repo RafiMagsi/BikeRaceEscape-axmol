@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>frames</key><dict>
+<key>portrait_cool_kid_confident_0</key><dict><key>frame</key><string>{{516,322},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_cool_kid_frustrated_0</key><dict><key>frame</key><string>{{258,644},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_cool_kid_neutral_0</key><dict><key>frame</key><string>{{258,322},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_cool_kid_surprised_0</key><dict><key>frame</key><string>{{0,644},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_player_confident_0</key><dict><key>frame</key><string>{{258,0},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_player_frustrated_0</key><dict><key>frame</key><string>{{0,322},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_player_neutral_0</key><dict><key>frame</key><string>{{0,0},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+<key>portrait_player_surprised_0</key><dict><key>frame</key><string>{{516,0},{256,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{256,320}}</string><key>sourceSize</key><string>{256,320}</string></dict>
+</dict><key>metadata</key><dict><key>format</key><integer>2</integer>
+<key>size</key><string>{1024,1024}</string><key>textureFileName</key><string>v2_portraits.png</string>
+<key>realTextureFileName</key><string>v2_portraits.png</string></dict></dict></plist>

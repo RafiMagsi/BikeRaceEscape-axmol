@@ -8,6 +8,7 @@
 #include "PZLegacyCompat.h"
 #include "PZProgress.h"
 #include "V2/V2Daily.h"
+#include "V2/V2Challenge.h"
 #include <functional>
 
 namespace PZPopups {
@@ -43,6 +44,8 @@ ax::Node* showGadgetPicker(ax::Node* parent, std::function<void(const std::strin
 // popup closed and Daily::begin() chose the mode (the caller starts the normal Play flow).
 ax::Node* showDailyChallenge(ax::Node* parent, std::function<void()> onStart);
 // Shown after a daily run: score, medal, reward, SHARE. `coinsGranted` is what this result paid (ranked, first time).
+// Friend challenge invite (from a link or a pasted code). Plays the sender's road as a practice run; `onStart` starts the Play flow.
+ax::Node* showChallengeInvite(ax::Node* parent, const V2::Challenge::Token& t, V2::Challenge::Verdict verdict, std::function<void()> onStart);
 ax::Node* showDailyResult(ax::Node* parent, const V2::Daily::Result& r, bool ranked, int rankedScore, int coinsGranted,
                           std::function<void()> onClosed = nullptr);
 

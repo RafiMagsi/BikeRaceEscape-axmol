@@ -14,6 +14,8 @@ void GameCenter::playerLogin() {}
 void GameCenter::showLeaderboard() {}
 void GameCenter::restorePurchases() {}
 void GameCenter::submitScore(int) {}
+void GameCenter::submitScoreTo(const char*, int) {}
+void GameCenter::showLeaderboardFor(const char*) {}
 
 void GameCenter::showProcessingView() {}
 void GameCenter::hideProcessingView() {}

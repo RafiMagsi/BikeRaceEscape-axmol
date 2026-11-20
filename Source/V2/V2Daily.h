@@ -74,6 +74,12 @@ void markUploaded(size_t count);
 
 // Session -------------------------------------------------------------------------------------------------------------------
 void begin(Mode m);
+// Friend challenge: play another day's road as a practice run (never ranked, never uses today's attempts).
+void beginChallenge(int date, int theirScore, int theirMedal);
+bool challengeActive();
+int challengeScore();
+int challengeMedal();
+int playDate();                                   // the date whose road / modifier / ghost is being played (today, or the challenge date)
 Mode mode();
 const Modifier& activeModifier();
 void afterRankedResult();                         // stay ranked while attempts remain, else practice

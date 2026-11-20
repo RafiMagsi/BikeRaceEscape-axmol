@@ -10,6 +10,9 @@
 #include "V2/V2Daily.h"
 #include "V2/V2Core.h"
 #include "V2/V2Config.h"
+#include "V2/V2Challenge.h"
+#include "V2/V2Leaderboard.h"
+#include "V2/V2Presentation.h"
 #include "V2/V2Share.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
@@ -1224,7 +1227,74 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
     }
     auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 38.f, PZCfg::kColButton,
                                        [basePtr]() { dismiss(basePtr, nullptr); }, 11.f);
-    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 36.f));
+    close->setPosition(Vec2(mid.x - 120.f, mid.y - panelH * 0.5f + 36.f));
+    base->addChild(close);
+    if (V2::Leaderboard::configured()) {                 // platform leaderboard (Game Center / Play Games); hidden until board ids are set in the plist
+        auto* lbBtn = PZUI::Button::create("LEADERBOARD", 210.f, 34.f, Color3B(70, 150, 240), []() { V2::Leaderboard::showDaily(); }, 10.f);
+        lbBtn->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 76.f));
+        base->addChild(lbBtn);
+    }
+    auto* code = PZUI::Button::create("FRIEND CODE", 210.f, 38.f, Color3B(96, 106, 130), [basePtr, parent, onStart]() {
+        // paste a friend's challenge link (reads the clipboard once, on this explicit tap)
+        V2::Challenge::Token tk;
+        const auto verdict = V2::Challenge::parse(V2::Challenge::clipboardText(), tk);
+        dismiss(basePtr, [parent, tk, verdict, onStart]() { PZPopups::showChallengeInvite(parent, tk, verdict, onStart); });
+    }, 11.f);
+    code->setPosition(Vec2(mid.x + 120.f, mid.y - panelH * 0.5f + 36.f));
+    base->addChild(code);
+    return base;
+}
+
+Node* showChallengeInvite(Node* parent, const V2::Challenge::Token& t, V2::Challenge::Verdict verdict, std::function<void()> onStart) {
+    if (!parent) return nullptr;
+    const Vec2 mid = PZLayout::popupCentre();
+    const float panelW = std::min(620.f, PZLayout::safeRect().size.width - 40.f);
+    const float panelH = std::min(PZLayout::popupMaxHeight(), 380.f);
+    auto* base = openModal(parent, panelW, panelH, 351, 0.84f);
+    const float top = mid.y + panelH * 0.5f;
+    auto* title = PZUI::heading("FRIEND CHALLENGE", 22.f, PZCfg::kColAccent);
+    title->setPosition(Vec2(mid.x, top - 40.f));
+    base->addChild(title);
+    const bool ok = verdict == V2::Challenge::Verdict::Ok;
+    if (ok) {
+        const auto mod = V2::Daily::modifierFor(t.date);
+        auto* sub = PZUI::heading(V2::Daily::dateLabel(t.date) + "  -  " + mod.title, 9.f, PZCfg::kColDim);
+        sub->setPosition(Vec2(mid.x, top - 78.f));
+        base->addChild(sub);
+        auto* md = medalDisc(t.medal, 30.f);
+        md->setPosition(Vec2(mid.x - 150.f, top - 150.f));
+        base->addChild(md);
+        auto* sc = PZUI::heading(commas(t.score), 32.f, Color3B(255, 255, 255));
+        sc->setAnchorPoint(Vec2(0.f, 0.5f));
+        sc->setPosition(Vec2(mid.x - 100.f, top - 140.f));
+        base->addChild(sc);
+        auto* lbl = PZUI::heading("THEIR SCORE (UNVERIFIED)", 8.f, PZCfg::kColAccent);
+        lbl->setAnchorPoint(Vec2(0.f, 0.5f));
+        lbl->setPosition(Vec2(mid.x - 100.f, top - 176.f));
+        base->addChild(lbl);
+        auto* note = PZUI::label("Same road for both of you. It is practice: your daily attempts stay untouched.", 7.5f, PZCfg::kColDim);
+        note->setPosition(Vec2(mid.x, top - 222.f));
+        if (note->getContentSize().width > panelW - 60.f) note->setScale((panelW - 60.f) / note->getContentSize().width);
+        base->addChild(note);
+    } else {
+        auto* msg = PZUI::heading(V2::Challenge::verdictText(verdict), 11.f, PZCfg::kColBad);
+        msg->setPosition(Vec2(mid.x, top - 140.f));
+        if (msg->getContentSize().width > panelW - 50.f) msg->setScale((panelW - 50.f) / msg->getContentSize().width);
+        base->addChild(msg);
+    }
+    Node* basePtr = base;
+    if (ok) {
+        auto* play = PZUI::Button::create("BEAT THIS SCORE", 260.f, 44.f, PZCfg::kColGood, [basePtr, t, onStart]() {
+            V2::Daily::beginChallenge(t.date, t.score, t.medal);
+            V2::Analytics::shared().log("challenge_start", {{"date", std::to_string(t.date)}, {"their_score", std::to_string(t.score)}});
+            dismiss(basePtr, onStart);
+        }, 12.f);
+        play->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 96.f));
+        base->addChild(play);
+    }
+    V2::Analytics::shared().log("challenge_open", {{"verdict", V2::Challenge::verdictText(verdict)}});
+    auto* close = PZUI::Button::create(PZCfg::kStrClose, 210.f, 38.f, PZCfg::kColButton, [basePtr]() { dismiss(basePtr, nullptr); }, 11.f);
+    close->setPosition(Vec2(mid.x, mid.y - panelH * 0.5f + 40.f));
     base->addChild(close);
     return base;
 }
@@ -1293,6 +1363,13 @@ Node* showDailyResult(Node* parent, const V2::Daily::Result& r, bool ranked, int
     } else {
         note = "PRACTICE  -  RANKED SCORE " + (rankedScore > 0 ? commas(rankedScore) : std::string("NOT PLAYED YET"));
     }
+    if (V2::Daily::challengeActive()) {                  // friend challenge: compare with the (unverified) score from the link
+        const int theirs = V2::Daily::challengeScore();
+        note = score > theirs ? "YOU BEAT THEIR " + commas(theirs) + " BY " + commas(score - theirs) + "!"
+                              : (score == theirs ? "TIED WITH THEIR " + commas(theirs) : "THEY LEAD BY " + commas(theirs - score) + " - TRY AGAIN");
+        noteCol = score > theirs ? PZCfg::kColGood : PZCfg::kColAccent2;
+        V2::Analytics::shared().log("challenge_end", {{"yours", std::to_string(score)}, {"theirs", std::to_string(theirs)}, {"won", score > theirs ? "1" : "0"}});
+    }
     auto* nl = PZUI::heading(note, 10.f, noteCol);
     nl->setPosition(Vec2(mid.x, top - 270.f));
     if (nl->getContentSize().width > panelW - 50.f) nl->setScale((panelW - 50.f) / nl->getContentSize().width);
@@ -1321,8 +1398,8 @@ Node* showDailyResult(Node* parent, const V2::Daily::Result& r, bool ranked, int
 Node* showSettings(Node* parent, std::function<void()> onClosed) {
     if (!parent) return nullptr;
     const Vec2 mid = PZLayout::popupCentre();
-    const float rowH = 56.f;
-    const int rows = 6;
+    const float rowH = 48.f;
+    const int rows = 8;
     // Google only wants the privacy-choices entry where the player's region requires it (EEA / UK / some US states).
     const bool showPrivacyOptions = PZ::AdsController::shared()->privacyOptionsRequired();
     const int shownRows = rows - (showPrivacyOptions ? 0 : 1);
@@ -1342,7 +1419,7 @@ Node* showSettings(Node* parent, std::function<void()> onClosed) {
     auto rowsV = std::make_shared<std::vector<Row>>();
     rowsV->resize(rows);
     auto* audio = CocosDenshion::SimpleAudioEngine::sharedEngine();
-    const char* names[rows] = {"SOUND EFFECTS", "MUSIC", "VIBRATION", "REMINDERS", "PRIVACY OPTIONS", PZCfg::kStrPrivacyPolicy};
+    const char* names[rows] = {"SOUND EFFECTS", "MUSIC", "VIBRATION", "REMINDERS", "PRIVACY OPTIONS", PZCfg::kStrPrivacyPolicy, "SPECTACLE", "REDUCED MOTION"};
 
     (*rowsV)[0].isOn = [audio]() { return audio->soundEnabled(); };
     (*rowsV)[0].toggle = [audio]() { audio->setSoundEnabled(!audio->soundEnabled()); if (audio->soundEnabled()) PZAudio::play("fx_open"); };
@@ -1355,6 +1432,8 @@ Node* showSettings(Node* parent, std::function<void()> onClosed) {
         PZHaptics::play(PZHaptics::Kind::Medium);
     };
     (*rowsV)[3].isOn = []() { return PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted; };
+    (*rowsV)[7].isOn = []() { return V2::Presentation::reducedMotion(); };
+    (*rowsV)[7].toggle = []() { V2::Presentation::setReducedMotion(!V2::Presentation::reducedMotion()); };
     Node* parentPtr = parent;
     (*rowsV)[3].toggle = [parentPtr]() {
         const bool on = !(PZProgress::shared()->notifEnabled() && PZNotif::status() == PZNotif::Status::Granted);
@@ -1366,6 +1445,14 @@ Node* showSettings(Node* parent, std::function<void()> onClosed) {
         Row& r = (*rowsV)[i];
         if (!r.holder) return;
         r.holder->removeAllChildren();
+        if (i == 6) {                                        // decoration level (never changes difficulty or score)
+            auto* b = PZUI::Button::create(V2::Presentation::spectacleName(V2::Presentation::spectacle()), 150.f, 38.f, Color3B(96, 106, 130), [build, i]() {
+                V2::Presentation::setSpectacle(V2::Presentation::nextSpectacle(V2::Presentation::spectacle()));
+                (*build)(i);
+            }, 11.f);
+            r.holder->addChild(b);
+            return;
+        }
         if (i == 5) {
             auto* b = PZUI::Button::create("OPEN", 150.f, 38.f, Color3B(96, 106, 130), []() {
                 if (!PZLinks::openUrl(PZCfg::kPrivacyPolicyUrl)) {
@@ -2332,6 +2419,16 @@ private:
         _shownFrac = pg->levelFraction();
         _xpLevel = pg->level();
 
+        schedule([this](float) {                          // a challenge link opened by the OS waits here until the menu is idle
+            V2::Challenge::Token tk;
+            V2::Challenge::Verdict vd;
+            if (_host && V2::Challenge::hasPending() && V2::Challenge::takePending(tk, vd)) {
+                Node* host = _host;
+                PZPopups::showChallengeInvite(host, tk, vd, [this, host]() {
+                    if (auto* scene = dynamic_cast<PZGMainMenuScene*>(host)) scene->menuStartGameCallback(nullptr);
+                });
+            }
+        }, 0.5f, "pzchallenge");
         _next = PZUI::heading("", 9.5f, PZCfg::kColDim);
         _next->setAnchorPoint(Vec2(0.f, 0.5f));
         _next->setPosition(Vec2(rx, -26.f));

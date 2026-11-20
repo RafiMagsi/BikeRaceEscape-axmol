@@ -31,6 +31,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- friend challenge links: custom scheme and verified https App Links (needs https://nextfictiongames.com/.well-known/assetlinks.json) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dinobike" android:host="challenge" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="nextfictiongames.com" android:pathPrefix="/challenge" />
+            </intent-filter>
         </activity>
         <!-- shares the daily result card (V2Share) without any storage permission -->
         <provider

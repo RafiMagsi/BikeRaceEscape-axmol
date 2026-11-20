@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>frames</key><dict>
+<key>scenic_peek_0</key><dict><key>frame</key><string>{{514,258},{320,320}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{320,320}}</string><key>sourceSize</key><string>{320,320}</string></dict>
+<key>scenic_walker_0</key><dict><key>frame</key><string>{{0,0},{512,256}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{512,256}}</string><key>sourceSize</key><string>{512,256}</string></dict>
+<key>scenic_walker_1</key><dict><key>frame</key><string>{{0,258},{512,256}}</string>
+<key>offset</key><string>{0,0}</string><key>rotated</key><false/>
+<key>sourceColorRect</key><string>{{0,0},{512,256}}</string><key>sourceSize</key><string>{512,256}</string></dict>
+</dict><key>metadata</key><dict><key>format</key><integer>2</integer>
+<key>size</key><string>{1024,1024}</string><key>textureFileName</key><string>v2_scenic.png</string>
+<key>realTextureFileName</key><string>v2_scenic.png</string></dict></dict></plist>

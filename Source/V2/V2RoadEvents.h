@@ -95,7 +95,8 @@ private:
         Kind kind = Kind::DinoSmall;
         ax::Node* root = nullptr;
         ax::Sprite* spr = nullptr;
-        std::string base;
+        std::string base;                         // semantic animation id (V2Content)
+        std::vector<std::string> frameNames;      // resolved once from the registry
         int frames = 1;
         float fps = 8.f, t = 0.f;
         float x = 0.f, y = 0.f;                   // feet / wheel contact, scene space
