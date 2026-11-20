@@ -740,7 +740,9 @@ This means the direction is correct, but store marketing should not imply that t
 - Initialising previously undefined obstacle, coin, and platform state was an important normal-game fix, not just replay work.
 - Golden replay tests with artificial frame stalls are valuable evidence that timing changes did not silently alter a run on iOS.
 
-### 20.3 What needs to be improved properly
+### 20.3 Initial gaps identified before the latest implementation
+
+This is the original review backlog and is retained for decision history. Several items were subsequently implemented. Use the current audit in section 20.7 and the ordered work in sections 20.8–20.10 as the authoritative status and execution plan.
 
 #### P0 — Fix before presenting v2 as a major entertainment update
 
@@ -817,20 +819,22 @@ Current coverage:
 
 Before calling an event “finished,” it should pass at least four columns, including **Choice** or a strong event-specific objective.
 
-### 20.5 Recommended next gameplay sprint
+### 20.5 Previous gameplay sprint checkpoint
 
-Do this before leaderboards, ghosts, or additional menus:
+This was the recommended implementation sprint. Its current status is:
 
-1. Add a small objective HUD owned by `RoadEventDirector`.
-2. Add two variants each for Dino, Construction, and Meteor.
-3. Add one explicit safe/risky choice to those three events.
-4. Change ranked daily to best-of-three attempts and show attempts remaining.
-5. Add three micro-challenges using existing landing, coin, and event signals.
-6. Move event/daily tuning into `CompleteGameInfo.plist` under a versioned `v2` section.
-7. Add analytics outcome/skip reasons and connect a production sink.
-8. Run ten-player observation tests; do not explain the event beforehand.
+| Item | Status | Remaining proof/work |
+|---|---|---|
+| Objective HUD owned by `RoadEventDirector` | Implemented | Verify all events, tiers, aspect ratios, and cleanup paths |
+| Two variants for Dino, Construction, and Meteor | Implemented | Visually play through all six patterns and balance them |
+| Explicit safe/risky play in those events | Partial | Bonuses and optional lines exist; route choices remain shallow |
+| Best-of-three ranked daily with attempts remaining | Implemented | Add automated rule, rollover, reward, and migration tests |
+| Three micro-challenges | Implemented | Validate frequency, clarity, conflict handling, and reward balance |
+| Versioned `v2` tuning in `CompleteGameInfo.plist` | Implemented | Verify all values, defaults, and version migration |
+| Outcome/skip analytics | Implemented locally | Connect a production provider and add run/performance/share events |
+| Ten fresh-player observation sessions | Not started | Run without coaching and record comprehension and voluntary retries |
 
-Sprint exit criteria:
+The original sprint exit criteria remain valid:
 
 - At least 8/10 new testers can state each event objective after seeing it once.
 - At least 7/10 notice and intentionally take one risk route.
@@ -855,32 +859,153 @@ It is **not** yet fair to say:
 
 The product becomes genuinely entertaining when the events demand different thinking, not merely display different actors.
 
-### 20.6 Sprint status (Section 20.5)
+### 20.7 Current implementation audit — 2026-11-21
 
-Done and building on the iOS simulator: V2Config + plist `v2` section; scoring/medal rewrite with 3 ranked attempts, best-kept,
-reward paid once (+ medal upgrades), per-modifier medal scale; outcome taxonomy (`success`, `failed`, `skipped_no_road`,
-`aborted_death`, `cancelled_scene`) and tiers (intro/standard/expert); variants for Dino (stampede + HIGH ROLLER line),
-Construction (flagger STOP/GO paddle + TRICK LINE) and Meteor (twin strike + EDGE RUN); close-dodge bonuses; objective HUD plate
-and micro-challenge plate (left column); three micro-challenges; rival memory (`PZP_V2_rv_cool_w/l`, "W - L" on the race marker,
-grudge/taunt barks on a cosmetic RNG so gameplay determinism is untouched); event coins tracked so the daily score never counts them
-twice; JSONL analytics file sink (`v2_analytics.jsonl`, rotates at 256 KB).
+This section supersedes the earlier sprint-status notes. Percentages are engineering estimates, not retention data.
 
-Verified in the simulator: a forced stampede shows the objective plate; analytics lines written with start/end outcomes.
-NOT done / not verified: all six event variants visually; `golden_replay.v2r` must be re-recorded (event rules changed; rulesVersion is 2);
-production analytics provider (needs an account; the sink hook is `Analytics::setSink`); T-Rex climax; interactive Grandma;
-tick-based rocket; ten-player observation tests; Android / Game Center / Play Games.
+| Area | Estimated complete | Honest assessment |
+|---|---:|---|
+| Event framework, cleanup, and fairness | 90% | Strong foundation; requires complete device play-throughs |
+| Event content and variety | 65% | Three events have variants; the other repeatable events remain shallow |
+| Daily challenge | 80% | Feature-complete enough for testing, but scoring, rewards, migration, and edge cases are not validated |
+| Comedy and world activity | 70% | Passing riders and callback gags help; the content pool will still repeat |
+| Social and friend challenges | 25% | Native sharing exists, but no real challenge token, ghost, or cross-platform leaderboard |
+| Analytics and validation | 35% | Local structured logging exists; production measurement and player evidence do not |
+| Cross-platform release QA | 30% | Changed source compiles, but Android and real-device behavior are not proven |
 
-### 20.7 Second entertainment pass
+Overall estimates:
 
-- **T-Rex chase (chapter climax, P1 #9):** scheduled after `v2/climaxAfter` (4) cleared events once past the standard tier, then every 5 successes; never drawn from the bag. The T-Rex lumbers at the left edge, each stomp shakes the screen and drops a telegraphed boulder ahead (10 in a row, faster at expert); clean finish pays `rewardClimax` (40). QA: `forceRoadEvent("trex_chase")`. Seen starting in the simulator (plate "T-REX CHASE 0/10", dino on screen); the full 10-stomp run was not played through.
-- **Grandma Turbo (P1 #11, partial):** every third trail coin is a JACKPOT coin hanging high (needs a real jump); basket threshold lowered to 4 low coins. Drafting behind her rocket is NOT done.
-- **Ambient gags (P1 #15):** wobble, loses a cone (harmless prop left on the road), startled by your jump, and a later rider returns "fixed it, new cone".
-- Not covered: Construction timing puzzle beyond the flagger, meteor shortcut/ramp outcomes, ghost playback, rival roster.
+- **Gameplay feature implementation:** approximately 75%.
+- **Verified and balanced gameplay:** approximately 50%.
+- **Full v2 plan, including social follow-up:** approximately 58%.
 
-### 20.8 Third entertainment pass (built, compiled, not play-tested)
+#### Implemented correctly in code
 
-- **Lucky meteor (P1 #13, partial):** one meteor strike in four in the shower cracks into a gold coin arc instead of a rock (never twice in a row, never in the T-Rex chase).
-- **Road streak:** three cleared events in a row pay a growing bonus (+5, +10 ... capped at +20); a failed event resets it.
-- **Golden slice:** about one pizza box in five is golden and pays triple.
-- **Rival milestone:** every third win over Cool Kid pays +25 ("RIVAL x3!").
-- Still open: meteor shortcut / ramp / chain reaction, Grandma drafting, ghost playback, more rivals. Needs a play-test pass for balance; `golden_replay.v2r` still needs re-recording.
+- Versioned `V2Config` reads the `v2` plist section, applies defaults, and clamps unsafe values.
+- Daily mode offers best-of-three ranked attempts, keeps the best result, allows unlimited practice, and pays only the initial medal or a later medal upgrade.
+- Six daily modifiers exist: Standard, One Life, Event Rush, Coin Drought, Perfect Landing, and Pizza Express.
+- Daily results show a score breakdown, and event-generated coins are excluded from normal coin scoring to prevent double counting.
+- Event results distinguish `success`, `failed`, `skipped_no_road`, `aborted_death`, and `cancelled_scene`.
+- Intro, standard, and expert tiers are selected from run progress.
+- Dino, Construction, and Meteor have two pattern variants each.
+- Objective, risk-line, close-dodge, and compact result feedback exist.
+- Three micro-challenges use existing gameplay signals: smooth landings, event-object collection, and clearing the next event without a power-up.
+- Cool Kid stores wins and losses, changes barks, shows the record, and awards every third win.
+- The T-Rex climax is scheduled separately from the normal event bag after enough successful events.
+- Ambient riders can wobble, lose a harmless cone, react to the player, and later return with the cone fixed.
+- Lucky meteors, road-event streak bonuses, golden pizza slices, and Grandma jackpot coins add small surprise rewards.
+- Local JSONL analytics rotate at 256 KB and record event, daily, risk, and micro-challenge activity.
+
+Compilation and configuration checks passed for the changed V2 gameplay sources and `CompleteGameInfo.plist`. That proves basic integration, not entertainment quality or release safety.
+
+#### Implemented but still shallow
+
+- Expert tiers mostly increase speed and timing pressure. They need event-specific decisions or patterns, not only tighter numbers.
+- Pizza Panic, Cool Kid Race, and Grandma have no equivalent two-variant structure yet.
+- The T-Rex sequence has a memorable presentation but relies heavily on ten telegraphed rock dodges. Its chapters need mechanically different phases.
+- Grandma's high jackpot coins add jump timing, but the planned drafting and route decision are missing.
+- Construction has a flagger but not the full lift/sign timing puzzle.
+- Meteor can turn one strike into a coin arc but does not open shortcuts, create ramps, or trigger chain reactions.
+- Rival memory is limited to Cool Kid; there is no broader rival roster or meaningful rivalry progression.
+- Local analytics cannot measure retention, conversion, or population-level event balance.
+
+#### Known defect
+
+The T-Rex payoff dialogue is attached to the T-Rex actor immediately before that actor is removed. On the next update, the dialogue can lose its owner and fade almost instantly. Put the payoff on a persistent HUD/world layer or delay actor removal long enough for the line to be read.
+
+### 20.8 Release-blocking validation plan (P0)
+
+Complete these tasks in order. Do not call v2 release-ready until all exit criteria pass.
+
+1. **Full event play-through matrix**
+   - Play every variant at intro, standard, and expert tiers.
+   - Complete and deliberately fail every objective.
+   - Test shield, turbo, jetpack, rocket, death, revive, pause/control lock, restart, and scene exit during each event.
+   - Confirm telegraphs, collision windows, objective text, result text, cleanup, and normal road resumption.
+
+2. **Repair and validate the T-Rex climax**
+   - Fix the payoff-dialogue lifetime defect.
+   - Finish the complete 10-stomp sequence on success and failure paths.
+   - Confirm cleanup on death, restart, and scene change.
+   - Replace repeated rocks with at least three mechanically distinct phases before describing it as a complete set piece.
+
+3. **Restore deterministic replay evidence**
+   - Re-record `golden_replay.v2r` for rules version 2.
+   - Run it with normal frames and injected stalls.
+   - Verify identical checkpoints on iOS and Android before enabling ghosts or competitive replay claims.
+
+4. **Automate daily-mode rules**
+   - Test three ranked attempts, unlimited practice, best-score retention, medal upgrades, reward-once behavior, forfeits, and date rollover.
+   - Test all six modifiers and per-modifier medal thresholds.
+   - Test migration from existing saved daily keys so an update cannot reset attempts or duplicate rewards.
+
+5. **Balance using session evidence**
+   - Record objective success, event failure, death, close dodge, reward, score source, medal, retry, and run duration.
+   - Tune event rewards and medal thresholds from observed distributions, not developer-only runs.
+   - Treat each modifier separately; Event Rush, Coin Drought, and Perfect Landing should not share assumed score curves.
+
+6. **Device and layout QA**
+   - Test low-end target devices, long runs, app background/foreground, memory pressure, and audio interruption.
+   - Test objective and micro-challenge plates on supported aspect ratios and safe areas.
+   - Add frame-time buckets to analytics and set an explicit performance budget.
+
+7. **Fresh-player observation**
+   - Run at least ten sessions without explaining events beforehand.
+   - Capture whether players understand each objective, see the risk route, understand failure, and voluntarily retry.
+   - Use the sprint exit criteria in section 20.5; do not substitute team opinion for player evidence.
+
+### 20.9 Entertainment-depth sprint (P1)
+
+Start only after the P0 validation loop is functioning.
+
+1. Add two meaningful variants to Pizza Panic, Cool Kid Race, and Grandma. A variant must change the decision or timing pattern, not only the number of objects.
+2. Give expert tiers new route or objective patterns while preserving the tested telegraph floor.
+3. Split the T-Rex climax into distinct phases, for example: pursuit, bite requiring duck/jump timing, collapsing road choice, and a final ramp escape.
+4. Add Grandma drafting with a visible charge meter and a safe-versus-risky decision.
+5. Let Meteor open a shortcut, leave a temporary ramp, or destroy a marked obstacle through a chain reaction.
+6. Complete Construction's animation-reading puzzle with an early/late route choice.
+7. Expand rival progression only after Cool Kid engagement is proven; do not add a large roster that repeats the same race logic.
+
+Entertainment-sprint exit criteria:
+
+- Every repeatable event passes at least four parts of the Notice → Choice → Skill → Reaction → Consequence test.
+- Every repeatable event has at least two meaningfully different patterns.
+- Expert play changes decisions instead of merely accelerating the same script.
+- The T-Rex phases are recognizable from player action without relying on instruction text.
+- No new mechanic breaks normal runs, daily scoring, deterministic replay, cleanup, or power-up interactions.
+
+### 20.10 Social follow-up (P2)
+
+Build social features in increasing cost order:
+
+1. Complete Game Center daily submission and the Android Play Games bridge.
+2. Put a versioned challenge token in the shared URL with date, seed, rules version, and modifier.
+3. Open the token through a deep link and show a clear friend-challenge entry screen.
+4. Add a non-colliding replay ghost only after cross-platform deterministic tests pass.
+5. Measure challenge creation, challenge open, completion, retry, and sender/receiver return rate.
+6. Consider real-time multiplayer only if asynchronous challenges produce repeat play and the team can support authoritative networking, matchmaking, latency handling, cheating controls, and live operations.
+
+Native share cards alone are promotion, not multiplayer and not a friend challenge. Do not market them as such.
+
+### 20.11 Dependency and architecture guidance
+
+- Keep gameplay rules, presentation, persistence, platform services, and analytics behind separate interfaces. `RoadEventDirector` should not directly own platform leaderboard or share implementations.
+- Keep authoritative tuning in the versioned `v2` configuration and include the rules/config version in replay and challenge data.
+- Reuse the existing Axmol scheduler, action system, particle system, and platform share/game-service adapters before adding dependencies.
+- For real multiplayer, evaluate a maintained service such as Nakama, Photon, or Epic Online Services before writing matchmaking and relay infrastructure. This evaluation is future work, not permission to add an SDK now.
+- For production analytics, use a thin internal event interface so Firebase Analytics, GameAnalytics, or another provider can be selected without coupling gameplay code to its SDK.
+- Every external SDK must be checked for binary size, supported platforms, privacy/consent requirements, offline behavior, maintenance status, and impact on deterministic gameplay.
+
+### 20.12 Next execution checkpoint
+
+The next milestone is **Gameplay Validation Complete**, not “more features.” It is complete only when:
+
+- all event/tier/outcome combinations have a recorded QA result;
+- the T-Rex defect and complete sequence are verified;
+- rules-v2 golden replay passes on iOS and Android;
+- daily rule tests pass, including save migration;
+- ten fresh-player sessions meet the section 20.5 comprehension and retry gates;
+- scoring and medal changes are supported by recorded session data;
+- no regression is found in ordinary non-v2 runs.
+
+After this checkpoint, recalculate the percentages in section 20.7 and choose either the entertainment-depth sprint or the social follow-up from evidence. Do not run both simultaneously.
