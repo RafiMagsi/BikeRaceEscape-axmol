@@ -45,7 +45,8 @@ const char* tierName(Tier t) {
 
 static int variantCount(EventId id) {
     switch (id) {
-    case EventId::DinoCrossing: case EventId::ConstructionChaos: case EventId::MeteorShower: return 2;
+    case EventId::DinoCrossing: case EventId::ConstructionChaos: case EventId::MeteorShower:
+    case EventId::PizzaPanic: case EventId::CoolKidRace: case EventId::GrandmaTurbo: return 2;
     default: return 1;
     }
 }
@@ -386,6 +387,8 @@ void RoadEventDirector::startEvent(EventId id) {
     _riskGot = _riskNeed = _riskReward = 0;
     _riskLabel.clear();
     _evCoins = 0;
+    _draft = 0.f;
+    _drafted = false;
     _dodgesEv = 0;
     _lastCountedGroup = 0;
     _powerUpInEvent = false;
@@ -588,12 +591,14 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
         return;
     }
     if (!r) { finishEvent(Outcome::Failed); return; }
-    setObjective("PIZZA PANIC  " + std::to_string(_score) + "/5 CAUGHT");
+    const bool dbl = _variant == 1;                       // variant 1 "double order": boxes drop in pairs, six of nine needed
+    const int need = dbl ? 6 : 5, maxBoxes = dbl ? 9 : 7;
+    setObjective(std::string(dbl ? "DOUBLE ORDER  " : "PIZZA PANIC  ") + std::to_string(_score) + "/" + std::to_string(need) + " CAUGHT");
     const float targetX = std::min(winW - 150.f, ctx.rider.x + 330.f);
     if (_step == 1) {                                     // delivering: ride ahead of the player, dropping boxes
         r->x = approach(r->x, targetX + std::sin(_t * 1.3f) * 26.f, 260.f * ctx.dt);
         _wait -= ctx.dt;
-        if (_wait <= 0.f && _total < 7 && r->x < winW - 30.f) {
+        if (_wait <= 0.f && _total < maxBoxes && r->x < winW - 30.f) {
             // where would a box land? (world drift while it falls)
             const float fallT = 0.78f;
             const float landX = r->x - 24.f - _speed * fallT;
@@ -608,14 +613,22 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
                     b->spin = _rng.range(-120.f, 120.f);
                     if (_total >= 2 && _rng.chance(0.2f)) { b->group = 9; b->spr->setColor(Color3B(255, 215, 70)); }   // GOLDEN SLICE: worth more
                     ++_total;
-                    _wait = 1.5f;
+                    _wait = dbl ? 1.8f : 1.5f;
                     PZAudio::play("fx_powerup", 0.25f, 0.2f);
+                }
+                float gy2 = 0.f;
+                if (dbl && _total < maxBoxes && ground(landX - 75.f, gy2) && landX - 75.f > ctx.rider.x - 30.f) {   // the second box of the pair
+                    if (Actor* b2 = spawn(Kind::Box, "pizza_box", 1, r->x - 99.f, r->y + 60.f * k, 34.f * k, false)) {
+                        b2->vy = 260.f; b2->grounded = false; b2->hazard = false;
+                        b2->w = 40.f * k; b2->h = 34.f * k; b2->spin = _rng.range(-120.f, 120.f);
+                        ++_total;
+                    }
                 }
             } else {
                 _wait = 0.25f;                            // no safe landing spot right now: try again in a moment
             }
         }
-        if (_total >= 7 && _wait <= 0.f) { _step = 2; _wait = 2.4f; }
+        if (_total >= maxBoxes && _wait <= 0.f) { _step = 2; _wait = 2.4f; }
         return;
     }
     // delivery done: he speeds off, the payoff line comes up, boxes still lying on the road can be collected
@@ -624,7 +637,7 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
     if (r->x > winW + 220.f) {
         removeActor(*r);
         _rivalId = 0;
-        const bool good = _score >= 5;
+        const bool good = _score >= need;
         _rs.boxesMissed += std::max(0, _total - _score);
         if (good) reward(cfg().rewardPizza, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "PIZZA DELIVERED! +" + std::to_string(cfg().rewardPizza));
         say(good ? "pizza_ok" : "pizza_cold", 0);
@@ -655,7 +668,7 @@ void RoadEventDirector::buildRaceMarker() {
         _marker->addChild(rv, 3);
     }
     _hud->addChild(_marker, 20);
-    setObjective("RACE  OVERTAKE COOL KID");
+    setObjective(_variant == 1 ? "WHEELIE DUEL\nHANG IN THE AIR TO CATCH HIM" : "RACE  OVERTAKE COOL KID");
     layoutHud();
 }
 
@@ -718,8 +731,8 @@ void RoadEventDirector::updateRace(const Context& ctx) {
     case 1: {                                             // racing: he drifts away, you close in with coins, near misses, air
         float gain = std::min(_pendingGain, 280.f * ctx.dt);
         _pendingGain -= gain;
-        if (ctx.airborne) gain += cfg().gainAirPerSec * ctx.dt;
-        _lead += cfg().raceDrift * ctx.dt - gain;
+        if (ctx.airborne) gain += cfg().gainAirPerSec * (_variant == 1 ? 2.4f : 1.f) * ctx.dt;      // wheelie duel: air time is the main weapon
+        _lead += cfg().raceDrift * (_variant == 1 ? 1.6f : 1.f) * ctx.dt - gain;
         if (_lead <= cfg().raceWinLead) {
             _raceState = 2;
             _raceT = 0.f;
@@ -1004,14 +1017,15 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
         _wait -= ctx.dt;
         if (_wait <= 0.f) {
             settleRisk(ctx);
-            const bool good = _score >= 4;
+            const bool good = _score >= 4 || _drafted;
             if (good) reward(cfg().rewardGrandma, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "BASKET BONUS +" + std::to_string(cfg().rewardGrandma));
             finishEvent(good);
         }
         return;
     }
     if (!g) { finishEvent(Outcome::Failed); return; }
-    setObjective("GRANDMA TURBO  " + std::to_string(_score) + "/4 COINS" + (_riskNeed > 0 ? "\nJACKPOT  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
+    if (_variant == 1) setObjective("SLIPSTREAM  " + std::to_string(std::min(100, static_cast<int>(_draft / 1.2f * 100.f))) + "%  -  " + std::to_string(_score) + "/4 COINS" + (_riskNeed > 0 ? "\nJACKPOT  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
+    else setObjective("GRANDMA TURBO  " + std::to_string(_score) + "/4 COINS" + (_riskNeed > 0 ? "\nJACKPOT  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
     _raceT += ctx.dt;
     if (_step == 1) {                                     // slow entrance
         _lead = approach(_lead, -130.f, 46.f * ctx.dt);
@@ -1033,7 +1047,16 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
             if (_host.shake) _host.shake(3.f, 0.5f);
         }
     } else if (_step == 2) {                              // absurd rocket overtake, dropping coins from the basket
-        _lead += (160.f + 900.f * _raceT) * ctx.dt;
+        _lead += (160.f + (_variant == 1 ? 380.f : 900.f) * _raceT) * ctx.dt;   // variant 1: she lingers ahead, so you can draft
+        if (_variant == 1 && _lead > 20.f && _lead < 400.f && !ctx.airborne) {
+            _draft += ctx.dt;                                  // riding in her slipstream on the ground charges the meter
+            if (_draft >= 1.2f && !_drafted) {
+                _drafted = true;
+                reward(cfg().rewardGrandma, Vec2(ctx.rider.x + 30.f, ctx.rider.y + 90.f), "SLIPSTREAM! +" + std::to_string(cfg().rewardGrandma));
+                notifyBoost(0.f);
+                PZAudio::play("fx_turbo", 0.5f, 0.1f);
+            }
+        }
         _wait -= ctx.dt;
         if (_wait <= 0.f && _lead > -80.f && _lead < winW - 200.f && _total < 9) {
             float gy = 0.f;
@@ -1063,7 +1086,7 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
         _wait -= ctx.dt;
         if (_wait <= 0.f) {
             settleRisk(ctx);
-            const bool good = _score >= 4;
+            const bool good = _score >= 4 || _drafted;
             if (good) reward(cfg().rewardGrandma, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 70.f), "BASKET BONUS +" + std::to_string(cfg().rewardGrandma));
             finishEvent(good);
         }
@@ -1075,10 +1098,13 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
 
 // ------------------------------------------------------------------------------------------------ T-Rex chase (chapter climax)
 
-// A 25-30 second set piece, scheduled after several cleared events (never drawn from the bag, standard tier+): the T-Rex
-// catches up at the left edge, every stomp shakes the screen and drops a telegraphed boulder ahead of the rider, ten in a
-// row with a steady rhythm. Clear them all and the chase ends with a big payout.
+// A 30 second set piece in three recognisable phases (scheduled after several cleared events, never drawn from the bag):
+//   1 PURSUIT      four telegraphed boulders shaken loose by his stomps;
+//   2 LOG KICKS    he kicks three fast logs along the road (read the rumble, jump late);
+//   3 TWIN STOMPS  two double strikes with an EDGE RUN coin trail between the boulders.
+// The payoff line is held for ~2 s after the last hazard so it can actually be read.
 void RoadEventDirector::updateTrex(const Context& ctx) {
+    const float winW = Director::getInstance()->getWinSize().width;
     const float winH = Director::getInstance()->getWinSize().height;
     const float k = kDeviceScale();
     Actor* t = find(_rivalId);
@@ -1097,7 +1123,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         t->hazard = false;
         _rivalId = t->id;
         _step = 1;
-        _target = 10;
+        _target = 11;
         _wait = 2.4f;
         say("trex", t->id);
         if (_host.shake) _host.shake(8.f, 0.6f);
@@ -1105,49 +1131,101 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         return;
     }
     if (!t) { finishEvent(Outcome::Failed); return; }
-    t->x = 34.f + std::sin(_t * 2.f) * 14.f;                 // lumbering at the left edge
-    t->root->setRotation(std::sin(_t * 6.f) * 1.5f);
-    setObjective("T-REX CHASE  " + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target));
-    if (_step <= 10) {
+    const int phase = _step <= 4 ? 1 : (_step <= 7 ? 2 : 3);
+    if (_step <= 9) {
+        t->x = 34.f + std::sin(_t * 2.f) * 14.f;                // lumbering at the left edge
+        t->root->setRotation(std::sin(_t * 6.f) * 1.5f);
+        static const char* kPhase[3] = {"PURSUIT", "LOG KICKS", "TWIN STOMPS"};
+        setObjective("T-REX " + std::to_string(phase) + "/3  " + kPhase[phase - 1] + "\n" + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
+                     (_riskNeed > 0 ? "  -  " + _riskLabel + " " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
         _wait -= ctx.dt;
         if (_wait > 0.f) return;
         _waited += ctx.dt;
         const float dur = std::max(1.35f, cfg().telegraphFloor + 0.05f);
-        const float X = ctx.rider.x + _speed * (dur + 0.85f) + _rng.range(40.f, 200.f);
-        if (!roadClear(X - 70.f, X + 70.f, ctx.apex)) {
-            if (_waited > 3.f) { ++_step; _waited = 0.f; _wait = 0.4f; --_target; }
+        const float spawnX = winW + 110.f;
+        if (phase == 2) {                                       // a log kicked along the road
+            if (!roadClear(spawnX - 70.f, spawnX + 150.f, ctx.apex)) {
+                if (_waited > 3.f) { ++_step; _waited = 0.f; _wait = 0.4f; --_target; }
+                return;
+            }
+            float gy = 0.f;
+            ground(spawnX, gy);
+            if (Actor* b = spawn(Kind::Barrel, "barrel", 1, spawnX, gy, std::min(0.34f * ctx.apex, 54.f * k), false)) {
+                b->hazard = true;
+                b->vx = -200.f;                                 // fast, but still >= the telegraph floor from the screen edge
+                b->w = b->h * 0.8f;
+                b->group = _nextGroup++;
+                ++_total;
+            }
+            bubble("*KICK*", t->id, 0.9f);
+            if (_host.shake) _host.shake(5.f, 0.25f);
+            PZAudio::play("fx_tick", 0.5f, 0.1f);
+            ++_step;
+            _waited = 0.f;
+            _wait = 1.9f + _rng.range(0.f, 0.3f);
             return;
         }
-        float gy = 0.f;
-        ground(X, gy);
-        if (Actor* sh = spawn(Kind::Shadow, "shadow", 1, X, gy, 16.f * k, false)) {
-            sh->fallDur = dur;
-            sh->spr->setScale(0.3f);
-            sh->spr->setOpacity(150);
+        const bool twin = phase == 3;
+        const float X = ctx.rider.x + _speed * (dur + 0.85f) + _rng.range(40.f, 200.f);
+        const float span = twin ? 230.f : 0.f;
+        if (!roadClear(X - 70.f, X + span + 70.f, ctx.apex)) {
+            if (_waited > 3.f) { ++_step; _waited = 0.f; _wait = 0.4f; _target -= twin ? 2 : 1; }
+            return;
         }
-        if (Actor* m = spawn(Kind::Meteor, "meteor", 4, X, winH + 130.f, 96.f * k, false)) {
-            m->fallDur = dur;
-            m->targetY = gy;
-            m->fps = 14.f;
+        for (int m = 0; m < (twin ? 2 : 1); ++m) {
+            const float mx = X + m * span;
+            float gy = 0.f;
+            ground(mx, gy);
+            if (Actor* sh = spawn(Kind::Shadow, "shadow", 1, mx, gy, 16.f * k, false)) {
+                sh->fallDur = dur;
+                sh->spr->setScale(0.3f);
+                sh->spr->setOpacity(150);
+            }
+            if (Actor* mt = spawn(Kind::Meteor, "meteor", 4, mx, winH + 130.f, 96.f * k, false)) {
+                mt->fallDur = dur;
+                mt->targetY = gy;
+                mt->fps = 14.f;
+            }
         }
-        if (_host.shake) _host.shake(4.f, 0.25f);             // the stomp that shook it loose
+        if (twin) {
+            float gy = 0.f;
+            ground(X + span * 0.5f, gy);
+            spawnRiskLine(X + span * 0.5f - 40.f, gy, ctx.apex, 3, 0.10f, 40.f, _nextGroup++);
+            _riskReward = cfg().rewardEdgeRun;
+            _riskLabel = "EDGE RUN";
+        }
+        if (_host.shake) _host.shake(4.f, 0.25f);               // the stomp that shook it loose
         PZAudio::play("fx_tick", 0.4f, 0.1f);
-        if (_step == 5) say("trex", t->id);
+        if (_step == 1 || _step == 5 || _step == 8) say("trex", t->id);
         ++_step;
         _waited = 0.f;
-        _wait = (_tier == Tier::Expert ? 1.65f : 1.9f) + _rng.range(0.f, 0.3f);
+        _wait = twin ? 2.5f + _rng.range(0.f, 0.3f) : (_tier == Tier::Expert ? 1.65f : 1.9f) + _rng.range(0.f, 0.3f);
         return;
     }
-    for (auto& a : _actors) {
-        if (a->kind == Kind::Meteor || a->kind == Kind::Shadow || a->kind == Kind::Rock) return;
+    if (_step == 10) {                                          // wait for the last hazards to clear
+        for (auto& a : _actors) {
+            if (a->kind == Kind::Meteor || a->kind == Kind::Shadow || a->kind == Kind::Rock || a->kind == Kind::Barrel || a->kind == Kind::BonusCoin) return;
+        }
+        const bool clean = !_hitThisEvent;
+        settleRisk(ctx);
+        bubble(clean ? "...HE GAVE UP. BYE!" : "RAWR! (Rematch soon.)", t->id, 2.0f);
+        if (clean) {
+            reward(cfg().rewardClimax, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 80.f), "T-REX ESCAPED! +" + std::to_string(cfg().rewardClimax));
+            PZAudio::play("fx_stage", 0.7f, 0.2f);
+            PZHaptics::play(PZHaptics::Kind::Success);
+        }
+        _score = clean ? 1 : 0;
+        _step = 11;
+        _wait = 2.1f;                                           // keep the T-Rex (and so his line) alive long enough to read it
+        return;
     }
-    const bool clean = !_hitThisEvent;
-    bubble(clean ? "...HE GAVE UP. BYE!" : "RAWR! (Rematch soon.)", t->id, 1.8f);
-    if (clean) reward(cfg().rewardClimax, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 80.f), "T-REX ESCAPED! +" + std::to_string(cfg().rewardClimax));
-    if (clean) { PZAudio::play("fx_stage", 0.7f, 0.2f); PZHaptics::play(PZHaptics::Kind::Success); }
-    removeActor(*t);
-    _rivalId = 0;
-    finishEvent(clean);
+    t->root->setRotation(std::sin(_t * 3.f) * 2.f);
+    _wait -= ctx.dt;
+    if (_wait <= 0.f) {
+        removeActor(*t);
+        _rivalId = 0;
+        finishEvent(_score == 1);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------ ambient traffic

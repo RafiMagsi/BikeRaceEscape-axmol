@@ -1009,3 +1009,14 @@ The next milestone is **Gameplay Validation Complete**, not “more features.”
 - no regression is found in ordinary non-v2 runs.
 
 After this checkpoint, recalculate the percentages in section 20.7 and choose either the entertainment-depth sprint or the social follow-up from evidence. Do not run both simultaneously.
+
+### 20.13 Implementation update after the 20.7–20.12 review (compiled, NOT play-tested)
+
+- **T-Rex payoff defect (20.7) fixed:** the T-Rex now stays alive ~2 s after the last hazard so the line can be read, then is removed.
+- **T-Rex in three phases (20.9 #3, partial):** PURSUIT (4 boulders) → LOG KICKS (3 fast rolling logs) → TWIN STOMPS (2 double strikes with an EDGE RUN coin trail). A bite / collapsing-road / ramp phase is not built.
+- **Second variants for Pizza, Cool Kid and Grandma (20.9 #1):**
+  - Pizza "double order": boxes drop in pairs, 6 of 9 needed.
+  - Cool Kid "wheelie duel": air time is worth 2.4x but he drifts away 1.6x faster.
+  - Grandma "slipstream": she lingers ahead; riding on the ground in her slipstream for 1.2 s pays a bonus (a visible percentage in the objective plate; no separate meter graphic).
+  Variants unlock from the standard tier (150 m); QA can force one with `forceRoadEvent("pizza_panic:1")`.
+- Not done: expert-only patterns (20.9 #2), meteor shortcut/ramp/chain reaction, Construction lift puzzle, rival roster, and every P0 validation item in 20.8 (golden replay, daily tests, play-through matrix, fresh-player sessions). Do those before adding more features.

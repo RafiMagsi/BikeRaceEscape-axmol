@@ -199,6 +199,8 @@ private:
     int _variant = 0;
     ShuffleBag<int> _variantBag[kEventTotal];
     int _nextClimaxAt = 4;
+    float _draft = 0.f;                 // Grandma variant 1: seconds spent in her slipstream
+    bool _drafted = false;
     int _streak = 0;                    // consecutive cleared events
     bool _lastLucky = false;
     int _gagState = 0;                  // ambient gag payoff: 0 none, 1 a prop was lost (a later rider returns it fixed)
