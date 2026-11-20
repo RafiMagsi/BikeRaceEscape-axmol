@@ -1,6 +1,6 @@
 # Dino Bike Escape — Version 2 Product and Development Plan
 
-Status: proposal, not implementation  
+Status: implementation in progress; entertainment review added after commits `03e8cd6`–`4e6fdde`
 Prepared: 2026-11-20  
 Target platforms: iOS and Android  
 Engine: Axmol/C++20, Box2D
@@ -669,3 +669,188 @@ Verified on the iOS simulator with a QA bot that can read hazards: sign telegrap
 3. Leaderboard: Game Center daily board first, Play Games on Android after a bridge spike.
 4. Friend challenge link + ghost playback from a replay file; make turbo / jetpack / rocket tick-based if they should appear in daily runs.
 5. Real-device frame-time / memory pass with events active; tune from playtests.
+
+## 20. Entertainment and engagement review (2026-11-20)
+
+This section reviews gameplay only. Graphics quality is deliberately excluded.
+
+### 20.1 Verdict
+
+**Will the current v2 work improve engagement? Probably yes, but it is not yet enough to prove strong retention.**
+
+The old run was mechanically repetitive. The new event scheduler, rivals, collection objectives, daily seed, medals, and share result create anticipation and give the player more reasons to start another run. That is a real improvement. The implementation also protects fairness better than a typical first pass.
+
+The weakness is depth. Six event names do not currently equal six different gameplay experiences:
+
+| Event | Current entertainment value | Honest assessment |
+|---|---|---|
+| Dino Crossing | Medium | Good telegraph and escalating straggler, but still mainly four themed jump obstacles. |
+| Pizza Panic | High | Best event so far: a character, moving source, collection target, success threshold, and payoff. |
+| Cool Kid Race | High | Strongest skill remix: normal actions now feed an understandable race meter. Needs variants and persistent rivalry. |
+| Construction Chaos | Medium-low | Readable variety, but cones and barrel still reduce to jump timing; the worker is mostly decoration. |
+| Meteor Shower | Medium | Good anticipation and close-dodge reward. Four similar strikes will become predictable quickly. |
+| Grandma Turbo | Medium-high initially | Funny entrance and coin payoff, but little meaningful competition; novelty will fade after several encounters. |
+
+Current entertainment score, based on the code and existing simulator verification:
+
+- Technical event foundation: **8/10**.
+- Immediate novelty for returning players: **7/10**.
+- Meaningful decisions inside a run: **4/10**.
+- Variety after a week: **4/10**.
+- Competitive/social loop: **3/10** because sharing exists but challenges, ghosts, and leaderboard submission do not.
+- Measurability: **3/10** because analytics currently ends at a local log/ring buffer.
+
+This means the direction is correct, but store marketing should not imply that the game is already multiplayer or socially competitive.
+
+### 20.2 What was done properly
+
+#### Event pacing and safety
+
+- Quiet opening, one event at a time, post-event breathers, and a shuffle bag are the correct foundations.
+- Events check for continuous, flat, obstacle-free road and skip unsafe spawns instead of forcing a broken setup.
+- Signs, shadows, dialogue, and introductions give the player advance warning.
+- Kinematic traffic is the right choice; decorative riders do not need full bike physics.
+- Fixed rider hit boxes avoid animation-frame-dependent collisions.
+- Events clean up on death, restart, results, revive/world shift, pause-like control locks, and hazard clearing.
+- Shield, grace, turbo, jetpack, rocket, mercy, and revive interactions were considered instead of being left as side effects.
+
+#### Event identity
+
+- Pizza Panic and Cool Kid Race change the purpose of normal jumping instead of only replacing obstacle art.
+- Meteor shadows and a close-dodge bonus reward observation and bravery.
+- Grandma's slow setup followed by absurd acceleration has a clear comedic setup and payoff.
+- Ambient riders make the world feel occupied without adding unfair collisions.
+- Short contextual barks are better than modal dialogue and the recent-line history reduces immediate repetition.
+
+#### Skill feedback
+
+- Smooth-landing detection and streak feedback make an existing action feel more intentional.
+- Near misses, air time, coins, and clean jumps contributing to the rival race is a smart reuse of existing mechanics.
+- Event success is optional; losing an event generally does not end the entire run unless the player hits an actual hazard.
+
+#### Daily foundation
+
+- Seeded content, fixed-step simulation, separate RNG streams, versioned rules, offline result queue, and replay checkpoints are good engineering decisions.
+- Daily mode removes bought gadgets and ad-based advantage.
+- Practice remains available after the ranked attempt.
+- Share cards use native sharing and do not reward spam.
+
+#### Regression work
+
+- Initialising previously undefined obstacle, coin, and platform state was an important normal-game fix, not just replay work.
+- Golden replay tests with artificial frame stalls are valuable evidence that timing changes did not silently alter a run on iOS.
+
+### 20.3 What needs to be improved properly
+
+#### P0 — Fix before presenting v2 as a major entertainment update
+
+1. **Add real choices, not more obstacle skins.** At least three events need a visible risk/reward decision. Examples:
+   - Dino Crossing: safe jump over the small dinos or stay low and collect a risky letter trail before the big straggler.
+   - Construction: safe cone route or break through marked barrels for a shortcut bonus.
+   - Meteor: follow the safe edge or bait a meteor into destroying a marked obstacle for a larger reward.
+
+2. **Give every event two or three variants.** The shuffle bag prevents immediate repeats but not learned repetition. Six fixed scripts will become familiar in one or two sessions. Variants should change timing and objective, not merely spawn count.
+
+3. **Add difficulty tiers.** Each event needs `intro`, `standard`, and `expert` parameters selected from distance and demonstrated skill. Never make telegraphs shorter than the tested reaction-time floor. Difficulty should change patterns, speed, and optional reward lines.
+
+4. **Reconsider one blind ranked attempt.** The first run is partly a knowledge test because event order and timing are unknown. One mistake consumes the only ranked result and can create anxiety instead of engagement. Recommended launch rule: **best of three ranked attempts**, then unlimited unranked practice. Reward only once. If one attempt is retained, call it “Daily First Ride,” not a serious competition.
+
+5. **Make daily modifiers change decisions.** Current modifiers mostly change event frequency, coin density, revive availability, or a score multiplier. Add rule modifiers such as:
+   - Perfect Landing Day: landing streak drives score.
+   - Pizza Express: every event drops cargo; missed cargo reduces a delivery meter.
+   - Dino Tag: stay close to a rival without passing too early.
+   - Smash Route: marked hazards are targets while unmarked hazards must be avoided.
+
+6. **Connect analytics to a real provider before tuning.** Local logs cannot answer whether events improve retention. At minimum send run start/end, event start/outcome, skip reason, hit reason, daily attempt, modifier, share tap, and frame-time bucket. Distinguish `success`, `failed`, `skipped_no_road`, `aborted_death`, and `cancelled_scene`; currently a technical skip can look like player failure.
+
+7. **Playtest scoring and medals.** `25 × eventsCleared` is small next to distance, while event coin awards are counted again through `2 × coins`. This can make event value confusing and may overweight coin-paying events. Show a score breakdown and tune from recorded runs. Medal thresholds should be validated per modifier because Coin Drought and Event Rush do not produce equivalent score distributions.
+
+8. **Move v2 tuning out of hard-coded constants.** First-event time, breathers, race drift/gain, event counts, waits, collection thresholds, rewards, daily score weights, medals, and modifier values should use a versioned v2 configuration section with safe defaults and validation. This is required for cheap playtest tuning and future reskins.
+
+#### P1 — Needed for lasting entertainment
+
+9. **Add a chapter climax.** Implement the T-Rex escape as a 30–45 second set piece after several normal events. A run needs a memorable peak, not an endless flat sequence of equally weighted encounters.
+
+10. **Give rivals memory.** Track encounters and wins per rival, change their bark after losses, unlock a rematch milestone, and let the player see “2–1 vs Cool Kid.” This creates a relationship without building multiplayer.
+
+11. **Make Grandma interactive.** Let the player draft behind her rocket for a temporary speed/score charge, choose to follow her dangerous coin trail, or beat her to a checkpoint. The current collect-six-coins requirement is not enough after the joke is known.
+
+12. **Make Construction a timing puzzle.** The worker should flip a sign or activate a lift that changes the route. The player reads the worker animation and chooses an early or late jump. Otherwise it remains ordinary obstacles with construction names.
+
+13. **Vary Meteor outcomes.** A meteor should sometimes open a shortcut, destroy an obstacle, leave a temporary ramp, or trigger a chain reaction. Four shadow → rock repetitions are readable but shallow.
+
+14. **Add micro-challenges inside normal runs.** Start with only three: three smooth landings, collect five event objects, and clear an event without a power-up. One at a time, 10–25 seconds, no run-ending penalty. These create short goals between major events.
+
+15. **Improve ambient gags.** Current ambient riders mostly pass and sometimes say “BEEP BEEP.” Add a small pool of non-blocking setup/payoff behaviors: wave then wobble, lose a harmless prop, get startled by a horn, or reappear later with the prop fixed. Keep the 20–35 second cooldown.
+
+16. **Make event completion clear.** Show the objective at entry (`PIZZA 0/5`, `CATCH COOL KID`, `DODGE 0/4`) and a compact result at exit. Dialogue alone is not reliable instruction during movement.
+
+17. **Restore power-up variety only after tick-based conversion.** Limiting deterministic runs to magnet and shield is correct for replay safety, but daily runs may feel less exciting than normal runs. Convert one high-fantasy power-up—preferably rocket—to tick-based behavior and add a Rocket Rush daily only after replay tests remain exact.
+
+#### P2 — Social follow-up, not the next task
+
+18. Complete Game Center daily submission and the Android Play Games bridge.
+19. Turn the shared URL into a real challenge token/deep link; the current card is promotion, not a friend challenge.
+20. Render a non-colliding ghost from the recorded input/replay only after Android replay drift is measured.
+21. Do not begin live multiplayer until asynchronous challenge metrics pass the gates in section 9.
+
+### 20.4 Required entertainment loop
+
+Every event should satisfy this five-part test:
+
+1. **Notice:** the player understands that something different is coming.
+2. **Choice:** the player can choose a safe action or a harder, more rewarding action.
+3. **Skill:** timing or route execution changes the result.
+4. **Reaction:** a rival/world character visibly reacts to the result.
+5. **Consequence:** the run changes briefly—bonus, shortcut, rivalry state, combo, or later callback.
+
+Current coverage:
+
+| Event | Notice | Choice | Skill | Reaction | Consequence |
+|---|---:|---:|---:|---:|---:|
+| Dino Crossing | Yes | No | Yes | Partial | Coins only |
+| Pizza Panic | Yes | Partial | Yes | Yes | Score/reward |
+| Cool Kid Race | Yes | Yes | Yes | Yes | Score/reward |
+| Construction | Yes | No | Yes | Partial | Coins only |
+| Meteor | Yes | Partial | Yes | No | Close-dodge reward |
+| Grandma | Yes | Partial | Yes | Yes | Coin reward |
+
+Before calling an event “finished,” it should pass at least four columns, including **Choice** or a strong event-specific objective.
+
+### 20.5 Recommended next gameplay sprint
+
+Do this before leaderboards, ghosts, or additional menus:
+
+1. Add a small objective HUD owned by `RoadEventDirector`.
+2. Add two variants each for Dino, Construction, and Meteor.
+3. Add one explicit safe/risky choice to those three events.
+4. Change ranked daily to best-of-three attempts and show attempts remaining.
+5. Add three micro-challenges using existing landing, coin, and event signals.
+6. Move event/daily tuning into `CompleteGameInfo.plist` under a versioned `v2` section.
+7. Add analytics outcome/skip reasons and connect a production sink.
+8. Run ten-player observation tests; do not explain the event beforehand.
+
+Sprint exit criteria:
+
+- At least 8/10 new testers can state each event objective after seeing it once.
+- At least 7/10 notice and intentionally take one risk route.
+- No tester reports an untelegraphed event death.
+- Each tester sees at least four distinct event variants in a 10-minute session.
+- Event failure does not cause more than a short interruption or obscure the next hazard.
+- Analytics can compare death, completion, skip, and replay rates per event/variant.
+- Testers voluntarily start another daily attempt; do not count a prompted retry.
+
+### 20.6 Release claim
+
+After the current code, it is fair to say:
+
+> “Runs now feature six road events, passing riders, rival races, daily seeded challenges, medals, and shareable results.”
+
+It is **not** yet fair to say:
+
+- “Multiplayer” or “race your friends.”
+- “Every run tells a different story.”
+- “Deep daily competition.”
+- “Live events,” unless a real scheduled/configured event is active.
+
+The product becomes genuinely entertaining when the events demand different thinking, not merely display different actors.
