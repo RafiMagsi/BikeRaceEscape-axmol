@@ -210,12 +210,127 @@ def build_barrel() -> None:
     atlas.save(OUT / "animation_s0.png", optimize=True)
 
 
+def logical_frame(plist_path: Path, name: str, subject: Image.Image) -> Image.Image:
+    _, source_rect, source_size = frame_record(plist_path, name)
+    rx, ry, rw, rh = source_rect
+    logical = Image.new("RGBA", source_size, (0, 0, 0, 0))
+    logical.alpha_composite(fit(subject, rw, rh, 1), (rx, ry))
+    return logical
+
+
+def replace_registered_frame(
+    atlases: dict[str, Image.Image], atlas_name: str, name: str, subject: Image.Image
+) -> Image.Image:
+    plist_path = HD / f"{atlas_name}.plist"
+    packed, source_rect, _ = frame_record(plist_path, name)
+    logical = logical_frame(plist_path, name, subject)
+    x, y, width, height = packed
+    rx, ry, rw, rh = source_rect
+    if (width, height) != (rw, rh):
+        raise ValueError(f"rotated or mismatched frame is not supported: {atlas_name}/{name}")
+    atlas = atlases[atlas_name]
+    atlas.paste((0, 0, 0, 0), (x, y, x + width, y + height))
+    atlas.alpha_composite(logical.crop((rx, ry, rx + rw, ry + rh)), (x, y))
+    return logical
+
+
+def build_legacy_obstacles_and_ui() -> None:
+    """Replace weak legacy families while preserving every registered frame."""
+    atlas_names = ["animation_s0", "animation_s1", "animation_s2", "animation_s3"]
+    atlases = {
+        name: Image.open(OUT / f"{name}.png" if name == "animation_s0" else HD / f"{name}.png").convert("RGBA")
+        for name in atlas_names
+    }
+
+    creature_source = Image.open(ART / "obstacles/all/creatures-painted-source.png").convert("RGBA")
+    creature_boxes = row_order(components(creature_source, min_area=5000), tolerance=90)
+    if len(creature_boxes) != 21:
+        raise ValueError(f"expected 21 creature frames, found {len(creature_boxes)}: {creature_boxes}")
+    creature_subjects = [crop(creature_source, box, 2) for box in creature_boxes]
+    creature_frames = [
+        [("animation_s3", f"Obstacles_0_{i}") for i in range(8)],
+        [
+            ("animation_s3", "Obstacles_1_0"), ("animation_s0", "Obstacles_1_1"),
+            ("animation_s3", "Obstacles_1_2"), ("animation_s3", "Obstacles_1_3"),
+            ("animation_s1", "Obstacles_1_4"), ("animation_s1", "Obstacles_1_5"),
+            ("animation_s1", "Obstacles_1_6"), ("animation_s1", "Obstacles_1_7"),
+        ],
+        [("animation_s3", f"Obstacles_2_{i}") for i in range(5)],
+    ]
+
+    obstacle_dir = ART / "obstacles/all/logical"
+    obstacle_dir.mkdir(parents=True, exist_ok=True)
+    source_cursor = 0
+    for obstacle_index, (family, slug) in enumerate(zip(creature_frames, ["alligator", "lizard", "rat"])):
+        logical_frames = []
+        for atlas_name, frame_name in family:
+            logical_frames.append(replace_registered_frame(
+                atlases, atlas_name, frame_name, creature_subjects[source_cursor]
+            ))
+            source_cursor += 1
+        # The runtime uses one polygon for every animation frame even though
+        # their logical canvases vary by a few pixels. Trace the registered
+        # first frame, matching the legacy collision authoring contract.
+        logical_frames[0].save(
+            obstacle_dir / f"{obstacle_index}-{slug}-collision-source.png", optimize=True
+        )
+
+    hurdle_source = Image.open(ART / "obstacles/all/hurdles-painted-source.png").convert("RGBA")
+    hurdle_boxes = row_order(components(hurdle_source, min_area=5000), tolerance=150)
+    if len(hurdle_boxes) != 7:
+        raise ValueError(f"expected seven hurdle concepts, found {len(hurdle_boxes)}: {hurdle_boxes}")
+    hurdle_subjects = [crop(hurdle_source, box, 2) for box in hurdle_boxes]
+    hurdle_families = [
+        (3, "light-barrier", [("animation_s0", "Obstacles_3_0", 0), ("animation_s0", "Obstacles_3_1", 1)]),
+        (5, "launch-ramp", [("animation_s1", "Obstacles_5_0", 2)]),
+        (6, "fence", [("animation_s0", "Obstacles_6_0", 3)]),
+        (7, "grind-rail", [("animation_s3", "Obstacles_7_0", 4)]),
+        (8, "dirt-ramp", [("animation_s1", "Obstacles_8_0", 5)]),
+    ]
+    for obstacle_index, slug, family in hurdle_families:
+        logical_frames = [
+            replace_registered_frame(atlases, atlas_name, frame_name, hurdle_subjects[source_index])
+            for atlas_name, frame_name, source_index in family
+        ]
+        union = Image.new("RGBA", logical_frames[0].size, (0, 0, 0, 0))
+        for logical in logical_frames:
+            union = Image.alpha_composite(union, logical)
+        union.save(obstacle_dir / f"{obstacle_index}-{slug}-collision-source.png", optimize=True)
+
+    ui_source = Image.open(ART / "ui/screens-painted-source.png").convert("RGBA")
+    ui_boxes = row_order(components(ui_source, min_area=10000), tolerance=100)
+    if len(ui_boxes) != 10:
+        raise ValueError(f"expected ten UI components, found {len(ui_boxes)}: {ui_boxes}")
+    ui_subjects = [crop(ui_source, box, 2) for box in ui_boxes]
+    ui_map = [
+        ("animation_s3", "InterfaceGO_0_0", 0),
+        ("animation_s2", "InterfacePM_0_0", 1),
+        ("animation_s3", "InterfaceCoinShop_1_0", 2),
+        ("animation_s3", "InterfaceMM_4_0", 6),
+        ("animation_s3", "InterfaceMM_5_0", 3),
+        ("animation_s3", "InterfaceMM_6_0", 2),
+        ("animation_s3", "InterfaceMM_7_0", 4),
+        ("animation_s3", "InterfaceMM_8_0", 4),
+        ("animation_s3", "InterfaceGO_4_0", 4),
+        ("animation_s3", "InterfaceGO_5_0", 2),
+        ("animation_s3", "InterfaceGO_6_0", 3),
+        ("animation_s3", "InterfaceCS_12_0", 2),
+        ("animation_s1", "InterfaceGF_4_0", 8),
+    ]
+    for atlas_name, frame_name, source_index in ui_map:
+        replace_registered_frame(atlases, atlas_name, frame_name, ui_subjects[source_index])
+
+    for atlas_name, atlas in atlases.items():
+        atlas.save(OUT / f"{atlas_name}.png", optimize=True)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     build_events()
     build_portraits()
     build_scenic()
     build_barrel()
+    build_legacy_obstacles_and_ui()
     print(f"built production candidates in {OUT}")
 
 

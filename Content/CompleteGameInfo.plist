@@ -1982,11 +1982,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{207.44999999999999, 55.5}</string>
-				<string>{137.45058517456056, 98.733864212036138}</string>
-				<string>{43.824414825439447, 61.01178951263428}</string>
-				<string>{43.824414825439447, 42.488203620910639}</string>
-				<string>{156.95059890747069, 34.266139221191402}</string>
+				<string>{38.95, 70.48}</string>
+				<string>{50.8, 24.07}</string>
+				<string>{196.21, 28.11}</string>
+				<string>{232, 52.07}</string>
+				<string>{131.87, 96}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2067,11 +2067,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{170.94999999999999, 49}</string>
-				<string>{109.45058517456056, 123.6451499938965}</string>
-				<string>{48.324414825439447, 113.68238716125488}</string>
-				<string>{45.324414825439447, 48.317602539062499}</string>
-				<string>{114.45059890747069, 37.354850006103511}</string>
+				<string>{26, 59.03}</string>
+				<string>{59.6, 37.5}</string>
+				<string>{219.05, 38.52}</string>
+				<string>{124.66, 81.12}</string>
+				<string>{64.53, 81.38}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2152,11 +2152,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{166.75, 36}</string>
-				<string>{100.50681610107421, 76}</string>
-				<string>{13.868183898925778, 51.424769783020025}</string>
-				<string>{10.368183898925778, 26.575223350524901}</string>
-				<string>{111.00682983398437, 8.3339908599853487}</string>
+				<string>{3.98, 47.68}</string>
+				<string>{20.7, 2.3}</string>
+				<string>{165.19, 12.04}</string>
+				<string>{201.06, 59.41}</string>
+				<string>{84.98, 67.16}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2231,11 +2231,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{156.09999999999999, 67}</string>
-				<string>{146.18995323181153, 167.74748001098635}</string>
-				<string>{56.760043334960926, 146.66861305236816}</string>
-				<string>{56.760046768188474, 23.33137321472168}</string>
-				<string>{118.18996353149413, 43.252526855468744}</string>
+				<string>{40.75, 15.44}</string>
+				<string>{172.96, 13.2}</string>
+				<string>{144.18, 155.62}</string>
+				<string>{73.07, 159.2}</string>
+				<string>{58.31, 127.09}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2375,11 +2375,11 @@
 			<true/>
 			<key>collision</key>
 			<array>
-				<string>{376, 196}</string>
-				<string>{403, 234}</string>
-				<string>{143.98044891357421, 112.35788726806641}</string>
-				<string>{48.980448913574207, 42.642092132568351}</string>
-				<string>{357.46958541870117, 171.15854187011718}</string>
+				<string>{3.8, 11.08}</string>
+				<string>{472.25, 13.2}</string>
+				<string>{468.4, 230.51}</string>
+				<string>{304.88, 232.22}</string>
+				<string>{23.91, 50.72}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2446,11 +2446,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{180, 150.5}</string>
-				<string>{179, 291}</string>
-				<string>{11.829048156738281, 230.11550292968752}</string>
-				<string>{6.8290481567382812, 13.884469604492182}</string>
-				<string>{105.4209638595581, 89.679397583007812}</string>
+				<string>{3.53, 4.62}</string>
+				<string>{95, 6}</string>
+				<string>{186.47, 4.62}</string>
+				<string>{179.96, 154.8}</string>
+				<string>{10.12, 147.88}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2517,11 +2517,11 @@
 			<true/>
 			<key>collision</key>
 			<array>
-				<string>{428.5, 68.5}</string>
-				<string>{426.68461952209475, 80}</string>
-				<string>{5.8403770446777372, 80}</string>
-				<string>{13.840383911132804, 68.189779281616211}</string>
-				<string>{210.18463668823242, 67.5}</string>
+				<string>{86.9, 5.78}</string>
+				<string>{349.2, 9.07}</string>
+				<string>{350.04, 65.53}</string>
+				<string>{332.21, 82.9}</string>
+				<string>{106.93, 80.33}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -2588,11 +2588,11 @@
 			<true/>
 			<key>collision</key>
 			<array>
-				<string>{300.25, 183}</string>
-				<string>{380.33352737426759, 246}</string>
-				<string>{101.29146575927734, 112.71285324096681}</string>
-				<string>{32.291479492187506, 57.287126159667963}</string>
-				<string>{211.33356170654298, 136.43829345703125}</string>
+				<string>{3.81, 10.06}</string>
+				<string>{489.21, 11.11}</string>
+				<string>{461.39, 221.52}</string>
+				<string>{286.21, 218.11}</string>
+				<string>{34.94, 60.59}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -8904,7 +8904,7 @@
 	<key>v2</key>
 	<dict>
 		<key>attemptsPerDay</key>
-		<integer>3</integer>
+		<integer>4</integer>
 		<key>breatherMax</key>
 		<real>9.0</real>
 		<key>breatherMin</key>
@@ -9899,12 +9899,12 @@
 					<key>xFrac</key>
 					<real>0.5</real>
 					<key>opacity</key>
-					<integer>215</integer>
+					<integer>175</integer>
 					<key>tint</key>
 					<array>
-						<integer>255</integer>
-						<integer>255</integer>
-						<integer>255</integer>
+						<integer>150</integer>
+						<integer>172</integer>
+						<integer>205</integer>
 					</array>
 					<key>collisionPolicy</key>
 					<string>none</string>
@@ -9934,12 +9934,12 @@
 					<key>xFrac</key>
 					<real>0.72</real>
 					<key>opacity</key>
-					<integer>215</integer>
+					<integer>175</integer>
 					<key>tint</key>
 					<array>
-						<integer>255</integer>
-						<integer>255</integer>
-						<integer>255</integer>
+						<integer>150</integer>
+						<integer>172</integer>
+						<integer>205</integer>
 					</array>
 					<key>collisionPolicy</key>
 					<string>none</string>
@@ -10313,7 +10313,7 @@
 			</dict>
 		</dict>
 		<key>contentVersion</key>
-		<integer>2</integer>
+		<integer>3</integer>
 		<key>leaderboards</key>
 		<dict>
 			<key>iosDaily</key>

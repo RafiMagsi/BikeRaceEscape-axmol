@@ -2186,3 +2186,48 @@ If a future method measurably produces safer boundaries or faster reviewed itera
 6. Run the player-session protocol. Art polish is not proof of entertainment or retention; measure first-event reach, voluntary second run, dialogue skips and remembered spectacle moments.
 
 The graphics are credible production candidates, not a finished release. The largest current risk is no longer placeholder style; it is shipping untested collision feel and spectacle density.
+
+### 23.18 Full registered obstacle and screen-art pass (2026-11-21)
+
+The barrel slice was extended to every registered obstacle family without adding
+new gameplay rules or atlas names:
+
+- 8-frame sewer alligator, 8-frame sewer lizard and 5-frame sewer rat cycles;
+- light barrier off/on, barrel, launch ramp, fence, grind rail and dirt ramp;
+- GAME OVER, PAUSED, shop, upgrade, restore, kids-mode and first tutorial-card
+  art now share the navy/steel/cream/orange sewer UI language.
+
+The approved bike/rider atlases, platforms, parallax backgrounds, coins, circular
+controls and in-run HUD were preserved. “Replace all sprite sheets” does not mean
+blindly repaint good assets: unnecessary replacement increases inconsistency,
+download size and regression risk without improving retention.
+
+Integration is deterministic through `tools/build_v2_production_art.py`. It
+rebuilds all four `animation_s*.png` textures while preserving the existing plist
+frame names, rectangles and logical canvases. A pixel audit verifies that only
+the declared frame rectangles change. All collision-bearing replacements have
+review overlays under `reskin-automation/art/v2-production/obstacles/all/` and
+five-point OpenCV inset hulls in `CompleteGameInfo.plist`.
+
+`v2.contentVersion` is now **3** and `rulesVersion` is now **4**. This invalidates
+older deterministic replays by design. Before calling this release-ready:
+
+1. Re-record the golden replay for rules 4/content 3.
+2. Exercise every creature animation and hurdle at slow, normal and maximum speed.
+3. Test near-miss and direct-hit feel with collision debug drawing enabled; OpenCV
+   matching alpha is evidence, not proof of fair play.
+4. Review every affected menu and tutorial frame at phone and tablet aspect ratios.
+5. Measure texture decode/load time on a low-end device and run two fresh-player
+   sessions. Better art does not by itself make the game better than competitors.
+
+### 23.17 Graphics review in the simulator (2026-11-21)
+
+Played in the iOS simulator and forced every road event (landscape, camera cut-out on the left). The V2 event atlas is now painted art and reads as one style with the bike, platforms and sewer background; all seven events (Dino stampede, Pizza Panic, Cool Kid race, Construction flagger, Meteor twin strike, Grandma, T-Rex chase), objective plates, barks, the scenic walker and the dialogue screen render without missing frames.
+Fixed in this pass: T-Rex was clipped by the camera cut-out and hidden under the objective plate (now fully on screen, smaller); risk-line / lucky-meteor coins were small (now 34 units).
+Still open: the T-Rex bark bubble overlaps the objective plate in the top-left; the objective plate sits close to the rider's head on short screens; the dialogue portraits and scenic dinosaurs are placeholder art; only phone landscape was reviewed (no iPad / other aspect ratios); Android was not run.
+
+### 23.18 Road-missing bug and review fixes (2026-11-21)
+
+**Serious bug found and fixed:** with a pre-run dialogue, the intro and the dialogue showed an empty sewer (no platforms) and the rider fell at GO. Cause: my dialogue integration froze the world (`freezeFor`) in `beginIntro` *before* the platform generator's first update, so the road was never generated while the world was held. Fix: the dialogue is now chosen in `beginIntro` but shown only after the same 0.30 s beat the ride-in always had, i.e. after the road exists; then the world is frozen behind it. Verified in the simulator: the road is visible behind the dialogue and during the ride-in countdown. Any future feature that freezes the world during start-up must prime the road first (the fixed-step path already does).
+**Other fixes:** objective / micro plates moved to the wall band right of the rider column (27% of the safe width), so they no longer sit over the rider's head, the camera cut-out or the T-Rex's bubble; scenic beats are now tinted cool and drawn at lower opacity for the painted art.
+**Art status:** `v2_events.png`, `v2_portraits.png` and `v2_scenic.png` now hold painted art (same frame names and sizes). `tools/make_v2_scenic.py` and `make_v2_portraits.py` only produce the old flat placeholders and now refuse to run without `--force`. The scenic beat positions (`yFrac`, `heightFrac`, `clipYFrac`) were tuned with the placeholder silhouettes: re-check the painted walker and wall-peek in game and adjust the plist if they look too big / too low.

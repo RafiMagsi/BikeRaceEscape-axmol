@@ -610,33 +610,32 @@ void PZRunDirector::beginIntro() {
         ch0->jump_counter = 1;
         ch0->setVisible(false);
     }
-    // The platform generator fills the world in its first update, so start the show one beat later.
-    auto proceed = [this]() {
-        auto* intro = Sequence::create(DelayTime::create(0.30f),
-                                       CallFunc::create([this]() { startIntroNow(); }), nullptr);
-        intro->setTag(kIntroDelayTag);
-        runAction(intro);
-    };
-    // Rival dialogue (data in CompleteGameInfo.plist): only before the run, only when a sequence is eligible, always skippable.
-    // The world stays frozen behind it, so no simulation tick advances while it is on screen.
+    // The platform generator fills the world in its first update, so everything visible (dialogue or ride-in) starts one beat
+    // later. The dialogue must NOT freeze the world before that first update, or the road would never be generated and the
+    // intro / dialogue would show an empty sewer (and the rider would fall at GO).
+    std::string seq;
     if (_dialogue) {
         V2::DialogueContext dc;
         dc.replay = V2::Replay::state() == V2::Replay::State::Playing;
         dc.dailyRun = V2::Daily::mode() != V2::Daily::Mode::None;
         dc.dateKey = V2::Daily::dateKeyNow();
-        const std::string seq = V2::DialogueDirector::pick(dc);
-        if (!seq.empty()) {
-            freezeFor(600.f);
+        seq = V2::DialogueDirector::pick(dc);                  // data in CompleteGameInfo.plist; "" = none eligible
+    }
+    auto* intro = Sequence::create(DelayTime::create(0.30f), CallFunc::create([this, seq]() {
+        if (!seq.empty() && _dialogue && _scene) {
+            freezeFor(600.f);                                  // the road exists now; hold the world (no ticks) behind the dialogue
             Node* host = _scene->getParent() ? _scene->getParent() : _scene;
             V2::Analytics::shared().log("dialogue_shown", {{"id", seq}});
-            if (_dialogue->show(seq, host, [this, proceed, seq]() {
+            if (_dialogue->show(seq, host, [this, seq]() {
                     V2::Analytics::shared().log("dialogue_done", {{"id", seq}});
-                    proceed();
+                    startIntroNow();
                 })) return;
-            freezeFor(0.01f);                           // art missing: carry on without it
+            freezeFor(0.01f);                                  // art missing: carry on without it
         }
-    }
-    proceed();
+        startIntroNow();
+    }), nullptr);
+    intro->setTag(kIntroDelayTag);
+    runAction(intro);
 }
 
 void PZRunDirector::openCinematicFrame() {

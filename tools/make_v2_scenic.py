@@ -66,7 +66,12 @@ def peek():
     return im
 
 
+FORCE_GUARD = True
+
+
 def main():
+    if FORCE_GUARD and '--force' not in sys.argv:
+        sys.exit('REFUSING: Content/Images/HD/v2_scenic.png now holds the painted production art; this script only draws the old flat placeholder. Pass --force to overwrite it anyway.')
     sp = [("scenic_walker_0", walker(0)), ("scenic_walker_1", walker(1)), ("scenic_peek_0", peek())]
     sheet, frames = pack(sp, size=1024)
     os.makedirs(OUT, exist_ok=True)

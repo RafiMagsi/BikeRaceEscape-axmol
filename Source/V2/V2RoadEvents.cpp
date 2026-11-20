@@ -700,9 +700,12 @@ void RoadEventDirector::layoutHud() {
     const float S = PZLayout::uiScale();
     // left column: coin counter, combo (-162), then the objective plate (-206) and the micro challenge plate (-256)
     if (_objPlate && _objPlate->getNumberOfRunningActions() == 0) _objPlate->setScale(S);
-    if (_objPlate) _objPlate->setPosition(Vec2(safe.getMinX() + 10.f * S, safe.getMaxY() - 208.f * S));
+    // The plates sit in the wall band to the RIGHT of the rider column (rider ~ screen x/5, T-Rex left of it): never over the rider's
+    // head, the camera cut-out or the left-edge actors.
+    const float plateX = std::max(safe.getMinX() + 10.f * S, safe.getMinX() + safe.size.width * 0.27f);
+    if (_objPlate) _objPlate->setPosition(Vec2(plateX, safe.getMaxY() - 208.f * S));
     if (_microPlate && _microPlate->getNumberOfRunningActions() == 0) _microPlate->setScale(S);
-    if (_microPlate) _microPlate->setPosition(Vec2(safe.getMinX() + 10.f * S, safe.getMaxY() - (_objPlate ? 262.f : 208.f) * S));
+    if (_microPlate) _microPlate->setPosition(Vec2(plateX, safe.getMaxY() - (_objPlate ? 262.f : 208.f) * S));
     if (!_marker) return;
     _marker->setScale(S);
     _marker->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 90.f * S));
@@ -921,7 +924,7 @@ void RoadEventDirector::impact(Actor& m, const Context& ctx) {
         const int g = _nextGroup++;
         for (int i = 0; i < 4; ++i) {
             const float arc = std::sin(3.14159265f * (i + 0.5f) / 4.f) * 0.30f * ctx.apex;
-            if (Actor* c = spawn(Kind::BonusCoin, "coin_gold", 1, m.x - 60.f + i * 40.f, gy + 22.f + arc, 26.f * k, false)) {
+            if (Actor* c = spawn(Kind::BonusCoin, "coin_gold", 1, m.x - 60.f + i * 40.f, gy + 22.f + arc, 34.f * k, false)) {
                 c->w = 34.f * k; c->h = 34.f * k; c->group = g;
             }
         }
@@ -1138,7 +1141,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
             if (_waited > 8.f) finishEvent(Outcome::SkippedNoRoad);
             return;
         }
-        t = spawn(Kind::Ambient, "dino_big", 4, 34.f, gy, std::min(1.25f * ctx.apex, 210.f * k), false);
+        t = spawn(Kind::Ambient, "dino_big", 4, 125.f, gy, std::min(0.9f * ctx.apex, 150.f * k), false);   // fully on screen, clear of the camera cut-out
         if (!t) { finishEvent(Outcome::SkippedNoRoad); return; }
         t->fps = 7.f;
         t->w = 0.f;
@@ -1156,7 +1159,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
     if (!t) { finishEvent(Outcome::Failed); return; }
     const int phase = _step <= 4 ? 1 : (_step <= 7 ? 2 : 3);
     if (_step <= 9) {
-        t->x = 34.f + std::sin(_t * 2.f) * 14.f;                // lumbering at the left edge
+        t->x = 125.f + std::sin(_t * 2.f) * 14.f;                // lumbering at the left edge
         t->root->setRotation(std::sin(_t * 6.f) * 1.5f);
         static const char* kPhase[3] = {"PURSUIT", "LOG KICKS", "TWIN STOMPS"};
         setObjective("T-REX " + std::to_string(phase) + "/3  " + kPhase[phase - 1] + "\n" + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
@@ -1520,7 +1523,7 @@ void RoadEventDirector::spawnRiskLine(float x, float gy, float apex, int count, 
     const float k = kDeviceScale();
     for (int i = 0; i < count; ++i) {
         const float arc = std::sin(3.14159265f * (i + 0.5f) / count) * 0.12f * apex;
-        if (Actor* c = spawn(Kind::BonusCoin, "coin_gold", 1, x + i * spacing, gy + heightFrac * apex + arc, 26.f * k, false)) {
+        if (Actor* c = spawn(Kind::BonusCoin, "coin_gold", 1, x + i * spacing, gy + heightFrac * apex + arc, 34.f * k, false)) {
             c->w = 34.f * k;
             c->h = 34.f * k;
             c->group = group;

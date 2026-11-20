@@ -49,7 +49,12 @@ def bust(jacket, trim, expr):
     return im.resize((W, H), Image.LANCZOS)
 
 
+FORCE_GUARD = True
+
+
 def main():
+    if FORCE_GUARD and '--force' not in sys.argv:
+        sys.exit('REFUSING: Content/Images/HD/v2_portraits.png now holds the painted production art; this script only draws the old flat placeholder. Pass --force to overwrite it anyway.')
     sets = {"player": ((196, 48, 44, 255), (236, 196, 70, 255)), "cool_kid": ((52, 112, 214, 255), (240, 240, 245, 255))}
     sp = []
     for name, (jacket, trim) in sets.items():
