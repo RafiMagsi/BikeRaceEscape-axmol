@@ -1,0 +1,66 @@
+{
+  "canvas": [
+    200,
+    200
+  ],
+  "trace_engine": "OpenCV 5.1.0",
+  "coordinate_system": "sprite pixels, origin bottom-left",
+  "alpha_threshold": 15,
+  "alpha_bounds_top_left": [
+    48,
+    24,
+    150,
+    191
+  ],
+  "alpha_bounds_bottom_left": [
+    48,
+    9,
+    150,
+    176
+  ],
+  "inset_pixels": 0.0,
+  "vertices_ccw": [
+    [
+      48.0,
+      42.0
+    ],
+    [
+      90.0,
+      9.0
+    ],
+    [
+      150.0,
+      28.0
+    ],
+    [
+      106.0,
+      176.0
+    ],
+    [
+      60.0,
+      160.0
+    ]
+  ],
+  "plist_strings": [
+    "{48, 42}",
+    "{90, 9}",
+    "{150, 28}",
+    "{106, 176}",
+    "{60, 160}"
+  ],
+  "polygon_area": 11247.0,
+  "overlay": "reskin-automation/art/v2-production/obstacles/barrel/barrel-baseline-collision.png",
+  "target": {
+    "plist": "Content/CompleteGameInfo.plist",
+    "complete_info_position": 44,
+    "obstacle_index": 4,
+    "obstacle_name": "Barrel",
+    "old_collision": [
+      "{135.90000000000001, 92.5}",
+      "{128.18387918472291, 159.97190093994141}",
+      "{62.866118240356442, 159.67205657958985}",
+      "{60.86612167358399, 33.327929687499996}",
+      "{132.18388605117798, 33.028105926513675}"
+    ]
+  }
+}

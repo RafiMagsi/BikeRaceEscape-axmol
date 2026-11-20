@@ -2304,11 +2304,11 @@
 			<false/>
 			<key>collision</key>
 			<array>
-				<string>{135.90000000000001, 92.5}</string>
-				<string>{128.18387918472291, 159.97190093994141}</string>
-				<string>{62.866118240356442, 159.67205657958985}</string>
-				<string>{60.86612167358399, 33.327929687499996}</string>
-				<string>{132.18388605117798, 33.028105926513675}</string>
+				<string>{62.31, 153.48}</string>
+				<string>{63.83, 15.82}</string>
+				<string>{148.03, 25.75}</string>
+				<string>{134.94, 153.31}</string>
+				<string>{112.76, 173.01}</string>
 			</array>
 			<key>comingRatio</key>
 			<real>8.0</real>
@@ -8986,7 +8986,7 @@
 		<key>rewardPizzaBox</key>
 		<integer>3</integer>
 		<key>rulesVersion</key>
-		<integer>2</integer>
+		<integer>3</integer>
 		<key>telegraphFloor</key>
 		<real>1.3</real>
 		<key>tierExpertAt</key>
@@ -10313,7 +10313,7 @@
 			</dict>
 		</dict>
 		<key>contentVersion</key>
-		<integer>1</integer>
+		<integer>2</integer>
 		<key>leaderboards</key>
 		<dict>
 			<key>iosDaily</key>

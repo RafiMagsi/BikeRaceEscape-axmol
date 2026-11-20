@@ -2158,3 +2158,31 @@ If a future method measurably produces safer boundaries or faster reviewed itera
 4. Android: link a Play Games Services project, add `<meta-data android:name="com.google.android.gms.games.APP_ID" .../>` to the manifest, and confirm `play-services-games-v2` version `20.1.2` exists (change it if Gradle cannot resolve it).
 5. Test on devices: tap a link with the app installed and not installed, on both platforms.
 6. Score verification beyond the HMAC needs a backend (sign results server-side, or accept a replay and re-simulate headlessly); neither exists. Until then leaderboards and links are trust-based.
+
+### 23.17 Production graphics pass — implemented, release validation still open (2026-11-21)
+
+**Implemented**
+
+- Replaced the flat placeholder `v2_events.png`, `v2_portraits.png` and `v2_scenic.png` art with painted production candidates that follow the existing bike, platform and parallax-background language: cinematic arcade realism, cool sewer light, warm safety accents, readable silhouettes and transparent gutters. The existing atlas dimensions, frame rectangles, frame ids and plist contracts are unchanged.
+- Added painted construction-worker STOP/GO poses and dialogue close-ups for both riders. Dialogue code and authored sequence data did not change.
+- Replaced the faded barrel (`Obstacles_4_0`) as the first obstacle-quality vertical slice. No other legacy frame in `animation_s0.png` changed.
+- Rebuilt the barrel boundary from its alpha with the repository-local OpenCV pipeline, reviewed its overlay, and wrote the five-point inset hull to `CompleteGameInfo.plist`. `rulesVersion` is now 3; the new art/content package is `contentVersion` 2.
+- Added `tools/build_v2_production_art.py` and source/provenance under `reskin-automation/art/v2-production/`. The builder repacks approved generated art into the existing atlas contracts and preserves the legacy shadow without cumulative rescaling.
+- All runtime lookup still flows through `CompleteGameInfo.plist`; no new sprite sheet, frame name or texture path was hard-coded in gameplay code.
+
+**Verified**
+
+- Registry cross-references, plist syntax, atlas dimensions and transparent frame gutters.
+- Barrel logical canvas remained 200×200; old/new alpha bounds are within one pixel and alpha IoU is 0.948. Only its registered atlas rectangle changed.
+- The art-pipeline automated tests pass. Same-size atlases mean decoded GPU texture memory does not increase, though compressed install size increases and must be checked in the final package.
+
+**Not release-verified — required next, in order**
+
+1. Re-record the golden replay for `rulesVersion` 3. The bundled rules-2 replay is intentionally invalid after collision geometry changes.
+2. Run near-miss, direct-hit, landing and high-speed barrel tests on a device; confirm the collision feels fair rather than merely matching alpha.
+3. Review every event, portrait and dinosaur in real gameplay at phone scale, including Reduced Motion / Spectacle Reduced / Off. Correct visual noise, unsafe warning-colour use or weak silhouettes before adding more art.
+4. Profile representative low-end devices. Atlas dimensions are stable, but the larger compressed files and more detailed alpha edges may affect load/decode time and overdraw.
+5. Replace the remaining faded hurdles one family at a time through the same generate → repack → OpenCV overlay → collision review → version/replay pipeline. Do not mass-replace obstacles before the barrel slice passes gameplay testing.
+6. Run the player-session protocol. Art polish is not proof of entertainment or retention; measure first-event reach, voluntary second run, dialogue skips and remembered spectacle moments.
+
+The graphics are credible production candidates, not a finished release. The largest current risk is no longer placeholder style; it is shipping untested collision feel and spectacle density.
