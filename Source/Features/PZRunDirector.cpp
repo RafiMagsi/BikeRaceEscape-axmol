@@ -2844,6 +2844,7 @@ void PZRunDirector::reviveAccepted(bool paidWithCoins) {
         }
     }
     _stats.revived = true;
+    _reviveOffered = false;    // no limit: the next death offers a revive again
     _deathPending = false;
     _readyCountdown = false;
 
@@ -2906,7 +2907,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         return extra;
     };
     std::function<void()> onCoins, onVideo;
-    if (PZCfg::kEnableRevive && !_stats.revived) {
+    if (PZCfg::kEnableRevive) {          // every game over offers a revive, as often as it happens
         onCoins = [this]() { reviveFromGameOver(true); };
         onVideo = [this]() { reviveFromGameOver(false); };
     }
@@ -2920,7 +2921,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
 }
 
 void PZRunDirector::reviveFromGameOver(bool withCoins) {
-    if (_gameOverBusy || !_committed || _stats.revived || !_scene) return;
+    if (_gameOverBusy || !_committed || !_scene) return;
     PZ::AdsController::shared()->cancelPendingInterstitial();
     auto* sc = PZSettingsController::shared();
     const Size win = Director::getInstance()->getWinSize();
@@ -2955,7 +2956,7 @@ void PZRunDirector::resumeFromGameOver(bool paidWithCoins) {
     sc->save();
     _lastResult = PZRunResult();
     _committed = false;
-    _reviveOffered = true;     // one revive per run
+    _reviveOffered = false;    // no limit: the next death offers a revive again
 
     // Take the results overlay down and give the field back.
     if (Node* overlay = _scene->getChildByTag(10)) overlay->removeFromParent();
