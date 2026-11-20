@@ -7,6 +7,7 @@
 
 #include "PZLegacyCompat.h"
 #include "PZProgress.h"
+#include "V2/V2Daily.h"
 #include <functional>
 
 namespace PZPopups {
@@ -42,8 +43,8 @@ ax::Node* showGadgetPicker(ax::Node* parent, std::function<void(const std::strin
 // popup closed and Daily::begin() chose the mode (the caller starts the normal Play flow).
 ax::Node* showDailyChallenge(ax::Node* parent, std::function<void()> onStart);
 // Shown after a daily run: score, medal, reward, SHARE. `coinsGranted` is what this result paid (ranked, first time).
-ax::Node* showDailyResult(ax::Node* parent, int dateKey, int score, int distance, int coins, int events, int medal,
-                          bool ranked, int rankedScore, int coinsGranted, std::function<void()> onClosed = nullptr);
+ax::Node* showDailyResult(ax::Node* parent, const V2::Daily::Result& r, bool ranked, int rankedScore, int coinsGranted,
+                          std::function<void()> onClosed = nullptr);
 
 // Settings: sound effects, music, vibration, reminders and the Google privacy-choices form.
 ax::Node* showSettings(ax::Node* parent, std::function<void()> onClosed = nullptr);

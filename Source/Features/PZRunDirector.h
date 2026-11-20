@@ -71,7 +71,8 @@ public:
     bool forceRoadEvent(const std::string& name);
     // Replay test: loads the bundled golden replay (or `path`), starts a run from its seed and compares it tick by tick.
     static bool startReplayTest(const std::string& path = "golden_replay.v2r");
-    float roadHazardAhead(float x) const;      // QA bot helper (-1 = none)
+    float roadHazardAhead(float x) const;
+    // (QA bot helper: -1 = none)
 
 private:
     bool absorbExternalHit(const ax::Vec2& at);   // shield / turbo / grace / mercy for hazards that are not PZGObstacles

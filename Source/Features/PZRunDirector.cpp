@@ -506,7 +506,7 @@ void PZRunDirector::startRun() {
                 int granted = 0;
                 V2::Daily::record(f, granted);
                 if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
-                V2::Daily::switchToPractice();
+                V2::Daily::afterRankedResult();
             }
         }
         if (V2::Replay::playbackPending()) {            // a replay test owns the run: its seed, no daily modifiers
@@ -518,8 +518,8 @@ void PZRunDirector::startRun() {
         static const float baseCoinDensity = PZCfg::kCoinDensity;
         PZCfg::kCoinDensity = baseCoinDensity * (daily ? mod.coinDensityScale : 1.f);
         _dailyNoRevive = daily;
-        _dailyNoMercy = daily && mod.noRevive;
-        if (_events) _events->setBreatherScale(daily ? mod.eventBreatherScale : 1.f);
+        _dailyNoMercy = daily && mod.noMercy;
+        if (_events) { _events->setBreatherScale(daily ? mod.eventBreatherScale : 1.f); _events->setPizzaBoost(daily && mod.pizzaBoost); }
         const uint32_t forced = daily ? V2::Daily::seedFor(V2::Daily::dateKeyNow()) : _challengeSeed;
         const uint32_t seed = forced ? forced
                                      : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;
@@ -848,7 +848,19 @@ void PZRunDirector::update(float dt) {
         _dailySnapT += dt;
         if (_dailySnapT > 0.4f) {
             _dailySnapT = 0.f;
-            V2::Daily::snapshot(static_cast<int>(_scene->gf_distance), _stats.coins, _events ? _events->successCount() : 0);
+            V2::Daily::Result live;
+            live.dateKey = V2::Daily::dateKeyNow();
+            live.mode = V2::Daily::Mode::Ranked;
+            live.distance = static_cast<int>(_scene->gf_distance);
+            live.coins = _stats.coins;
+            live.modifierId = V2::Daily::activeModifier().id;
+            if (_events) {
+                const auto& rs = _events->runStats();
+                live.eventsCleared = _events->successCount();
+                live.eventCoins = rs.eventCoins; live.smooth = rs.smooth; live.boxesCaught = rs.boxesCaught; live.boxesMissed = rs.boxesMissed;
+            }
+            live.score = V2::Daily::computeScore(live, V2::Daily::activeModifier());
+            V2::Daily::snapshot(live);
         }
     }
     if (_events) {
@@ -856,6 +868,7 @@ void PZRunDirector::update(float dt) {
         ctx.dt = dt;
         ctx.scroll = platform() ? platform()->lastScroll : scroll;
         ctx.rider = riderPos();
+        ctx.distance = _scene->gf_distance;
         // Fixed-size box around the body position, NOT the sprite bounds: the sprite box follows the bike's real-time animation
         // frame, which would make hits (and therefore a replay) depend on frame timing.
         {
@@ -1192,6 +1205,7 @@ void PZRunDirector::grantByName(const std::string& name) {
 }
 
 void PZRunDirector::collect(PowerUp kind, const Vec2& at, float durationOverride) {
+    if (_events) _events->notifyPowerUp();
     if (_jetpackT > 0.f && (kind == PowerUp::Turbo || kind == PowerUp::Rocket)) return;   // flight owns gravity
     const bool bonus = durationOverride > 0.f;      // granted by revive: no pickup chrome
     const Color3B col = colorFor(kind);
@@ -2712,6 +2726,7 @@ void PZRunDirector::updateFx(float dt, float scroll) {
             // Smooth landing: crossed a gap in the air and touched down with road ahead (comic squash + small bonus).
             if (_overGap && _airTime > 0.3f && runwayAhead(140.f * kDeviceScale())) {
                 ++_smoothStreak;
+                if (_events) _events->notifySmoothLanding();
                 char msg[32];
                 if (_smoothStreak >= 3) std::snprintf(msg, sizeof(msg), "PERFECT x%d", _smoothStreak);
                 else std::snprintf(msg, sizeof(msg), "SMOOTH!");
@@ -3062,8 +3077,10 @@ void PZRunDirector::reviveDeclined() {
 void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
     if (_committed || !gameOverLayer) return;
     _committed = true;
-    if (_events) _events->clear();                      // the results screen never sits on top of live road actors
-    int dailyEvents = _events ? _events->successCount() : 0;
+    V2::RoadEventDirector::RunStats evStats;
+    int dailyEvents = 0;
+    if (_events) { evStats = _events->runStats(); dailyEvents = _events->successCount(); }
+    if (_events) _events->clear(V2::Outcome::AbortedDeath);   // the results screen never sits on top of live road actors
     if (V2::Daily::mode() == V2::Daily::Mode::Ranked && V2::Replay::state() == V2::Replay::State::Recording) {
         V2::Replay::save(V2::Replay::lastRecording(), FileUtils::getInstance()->getWritablePath() + "replay_daily_" + std::to_string(V2::Daily::dateKeyNow()) + ".v2r");
     }
@@ -3114,20 +3131,27 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         dr.distance = _stats.distance;
         dr.coins = _stats.coins;
         dr.eventsCleared = dailyEvents;
+        dr.eventCoins = evStats.eventCoins;
+        dr.smooth = evStats.smooth;
+        dr.boxesCaught = evStats.boxesCaught;
+        dr.boxesMissed = evStats.boxesMissed;
         dr.modifierId = mod.id;
-        dr.score = V2::Daily::computeScore(dr.distance, dr.coins, dr.eventsCleared, mod);
+        dr.score = V2::Daily::computeScore(dr, mod);
         const bool wasRanked = dr.mode == V2::Daily::Mode::Ranked;
         int granted = 0;
+        const int attemptsBefore = V2::Daily::attemptsLeft(dr.dateKey);
         const int medal = V2::Daily::record(dr, granted);
+        dr.medal = medal;
         V2::Daily::clearLive();
         if (granted > 0) { auto* sc = PZSettingsController::shared(); sc->coins += granted; sc->save(); }
-        if (wasRanked) V2::Daily::switchToPractice();      // retries from here are practice
+        if (wasRanked) V2::Daily::afterRankedResult();     // stays ranked while attempts remain, else practice
         V2::Analytics::shared().log("daily_end", {{"mode", wasRanked ? "ranked" : "practice"}, {"score", std::to_string(dr.score)},
                                                   {"medal", std::to_string(medal)}, {"date", std::to_string(dr.dateKey)}});
         const int rankedScore = V2::Daily::hasRanked(dr.dateKey) ? V2::Daily::rankedResult(dr.dateKey).score : 0;
-        const int date = dr.dateKey, sc2 = dr.score, dist = dr.distance, cn = dr.coins, ev = dr.eventsCleared;
-        runAction(Sequence::create(DelayTime::create(1.3f), CallFunc::create([this, date, sc2, dist, cn, ev, medal, wasRanked, rankedScore, granted]() {
-            if (_scene) PZPopups::showDailyResult(_scene, date, sc2, dist, cn, ev, medal, wasRanked, rankedScore, granted, nullptr);
+        (void)attemptsBefore;
+        const V2::Daily::Result shownDr = dr;
+        runAction(Sequence::create(DelayTime::create(1.3f), CallFunc::create([this, shownDr, wasRanked, rankedScore, granted]() {
+            if (_scene) PZPopups::showDailyResult(_scene, shownDr, wasRanked, rankedScore, granted, nullptr);
         }), nullptr));
     }
 }

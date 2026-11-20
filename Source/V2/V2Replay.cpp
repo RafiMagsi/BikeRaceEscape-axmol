@@ -1,5 +1,6 @@
 #include "V2/V2Replay.h"
 #include "V2/V2Daily.h"
+#include "V2/V2Config.h"
 #include "PZLegacyCompat.h"
 
 #include <algorithm>
@@ -81,7 +82,7 @@ void beginRun(uint32_t seed, bool fixedStep, bool liveNow) {
         g_finished = false;
         g_rec = Data();
         g_rec.seed = seed;
-        g_rec.rulesVersion = Daily::kRulesVersion;
+        g_rec.rulesVersion = cfg().rulesVersion;
     } else {
         g_state = State::Idle;
     }

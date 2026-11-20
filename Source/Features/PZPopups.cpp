@@ -9,6 +9,7 @@
 #include "PZLinks.h"
 #include "V2/V2Daily.h"
 #include "V2/V2Core.h"
+#include "V2/V2Config.h"
 #include "V2/V2Share.h"
 #include "PZLayout.h"
 #include "PZHaptics.h"
@@ -1117,7 +1118,9 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
     if (!parent) return nullptr;
     const int date = V2::Daily::dateKeyNow();
     const auto mod = V2::Daily::modifierFor(date);
-    const bool ranked = V2::Daily::hasRanked(date);
+    const bool ranked = V2::Daily::hasRanked(date);          // at least one ranked attempt used today
+    const int attemptsLeft = V2::Daily::attemptsLeft(date);
+    const int attemptsTotal = V2::cfg().attemptsPerDay;
     const Vec2 mid = PZLayout::popupCentre();
     const float panelW = std::min(700.f, PZLayout::safeRect().size.width - 40.f);
     const float panelH = std::min(PZLayout::popupMaxHeight(), 470.f);
@@ -1148,8 +1151,9 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
     char buf[96];
     if (ranked) {
         const auto r = V2::Daily::rankedResult(date);
-        auto* h = PZUI::heading("YOUR RANKED SCORE", 8.f, PZCfg::kColDim);
+        auto* h = PZUI::heading("BEST RANKED  -  " + std::to_string(attemptsLeft) + " OF " + std::to_string(attemptsTotal) + " ATTEMPTS LEFT", 8.f, PZCfg::kColDim);
         h->setPosition(Vec2(mid.x - 110.f, top - 186.f));
+        if (h->getContentSize().width > 330.f) h->setScale(330.f / h->getContentSize().width);
         base->addChild(h);
         auto* sc = PZUI::heading(commas(r.score), 26.f, Color3B(255, 255, 255));
         sc->setPosition(Vec2(mid.x - 110.f, top - 220.f));
@@ -1166,10 +1170,11 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
         if (pb->getContentSize().width > 170.f) pb->setScale(170.f / pb->getContentSize().width);
         base->addChild(pb);
     } else {
-        auto* h = PZUI::heading("1 RANKED ATTEMPT TODAY", 11.f, PZCfg::kColGood);
+        auto* h = PZUI::heading(std::to_string(attemptsTotal) + " RANKED ATTEMPTS TODAY  -  BEST ONE COUNTS", 11.f, PZCfg::kColGood);
+        if (h->getContentSize().width > panelW - 50.f) h->setScale((panelW - 50.f) / h->getContentSize().width);
         h->setPosition(Vec2(mid.x, top - 190.f));
         base->addChild(h);
-        auto* sub = PZUI::label("No gadgets in daily runs. Practice as often as you like.", 7.5f, PZCfg::kColDim);
+        auto* sub = PZUI::label("No gadgets in daily runs. Practice is unlimited and never counts.", 7.5f, PZCfg::kColDim);
         sub->setPosition(Vec2(mid.x, top - 220.f));
         if (sub->getContentSize().width > panelW - 70.f) sub->setScale((panelW - 70.f) / sub->getContentSize().width);
         base->addChild(sub);
@@ -1181,7 +1186,7 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
         auto* d = medalDisc(m, 17.f);
         d->setPosition(Vec2(x - 32.f, top - 276.f));
         base->addChild(d);
-        auto* t = PZUI::heading(commas(V2::Daily::medalThreshold(m)), 9.f, PZCfg::kColText);
+        auto* t = PZUI::heading(commas(V2::Daily::medalThreshold(m, mod)), 9.f, PZCfg::kColText);
         t->setAnchorPoint(Vec2(0.f, 0.5f));
         t->setPosition(Vec2(x - 8.f, top - 276.f));
         base->addChild(t);
@@ -1197,10 +1202,11 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
     };
     const float bw = 190.f;
     const float gap = 14.f;
-    const int count = ranked ? 3 : 2;
+    const bool canRank = attemptsLeft > 0;
+    const int count = (canRank ? 1 : 0) + 1 + (ranked ? 1 : 0);
     float x0 = mid.x - ((count * bw + (count - 1) * gap) * 0.5f) + bw * 0.5f;
-    if (!ranked) {
-        auto* b = PZUI::Button::create("PLAY RANKED", bw, 44.f, PZCfg::kColGood, [start]() { start(V2::Daily::Mode::Ranked); }, 12.f);
+    if (canRank) {
+        auto* b = PZUI::Button::create(ranked ? "RANKED RETRY" : "PLAY RANKED", bw, 44.f, PZCfg::kColGood, [start]() { start(V2::Daily::Mode::Ranked); }, 12.f);
         b->setPosition(Vec2(x0, by));
         base->addChild(b);
         x0 += bw + gap;
@@ -1223,9 +1229,13 @@ Node* showDailyChallenge(Node* parent, std::function<void()> onStart) {
     return base;
 }
 
-Node* showDailyResult(Node* parent, int dateKey, int score, int distance, int coins, int events, int medal, bool ranked,
-                      int rankedScore, int coinsGranted, std::function<void()> onClosed) {
+Node* showDailyResult(Node* parent, const V2::Daily::Result& r, bool ranked, int rankedScore, int coinsGranted,
+                      std::function<void()> onClosed) {
     if (!parent) return nullptr;
+    const int dateKey = r.dateKey, score = r.score, medal = r.medal;
+    const auto modNow = V2::Daily::modifierFor(dateKey);
+    const auto bd = V2::Daily::breakdown(r, modNow);
+    const int attemptsLeft = V2::Daily::attemptsLeft(dateKey);
     const Vec2 mid = PZLayout::popupCentre();
     const float panelW = std::min(620.f, PZLayout::safeRect().size.width - 40.f);
     const float panelH = std::min(PZLayout::popupMaxHeight(), 430.f);
@@ -1258,34 +1268,38 @@ Node* showDailyResult(Node* parent, int dateKey, int score, int distance, int co
     pts->setPosition(Vec2(mid.x - 80.f, top - 176.f));
     base->addChild(pts);
 
-    char buf[96];
-    std::snprintf(buf, sizeof(buf), "%d M   -   %d COINS   -   %d EVENTS", distance, coins, events);
+    char buf[160];
+    std::snprintf(buf, sizeof(buf), "DISTANCE %d   -   COINS %d   -   EVENTS %d", bd.distance, bd.coins, bd.events);
     auto* det = PZUI::heading(buf, 8.5f, PZCfg::kColText);
-    det->setPosition(Vec2(mid.x, top - 226.f));
+    det->setPosition(Vec2(mid.x, top - 214.f));
     if (det->getContentSize().width > panelW - 50.f) det->setScale((panelW - 50.f) / det->getContentSize().width);
     base->addChild(det);
+    if (bd.bonus != 0 || bd.mult != 1.f) {
+        std::string line;
+        if (!bd.bonusLabel.empty()) line = bd.bonusLabel + " +" + std::to_string(bd.bonus);
+        if (bd.mult != 1.f) { std::snprintf(buf, sizeof(buf), "%sx%.2f %s", line.empty() ? "" : "   -   ", bd.mult, modNow.title.c_str()); line += buf; }
+        auto* det2 = PZUI::heading(line, 8.f, PZCfg::kColAccent2);
+        det2->setPosition(Vec2(mid.x, top - 238.f));
+        if (det2->getContentSize().width > panelW - 50.f) det2->setScale((panelW - 50.f) / det2->getContentSize().width);
+        base->addChild(det2);
+    }
 
     std::string note;
     Color3B noteCol = PZCfg::kColDim;
     if (ranked) {
-        note = coinsGranted > 0 ? "RANKED  -  +" + std::to_string(coinsGranted) + " COINS" : "RANKED SCORE SAVED";
+        note = (coinsGranted > 0 ? "RANKED  -  +" + std::to_string(coinsGranted) + " COINS" : std::string("RANKED SCORE SAVED")) +
+               "  -  " + std::to_string(attemptsLeft) + (attemptsLeft == 1 ? " ATTEMPT LEFT" : " ATTEMPTS LEFT");
         noteCol = PZCfg::kColGood;
     } else {
         note = "PRACTICE  -  RANKED SCORE " + (rankedScore > 0 ? commas(rankedScore) : std::string("NOT PLAYED YET"));
     }
     auto* nl = PZUI::heading(note, 10.f, noteCol);
-    nl->setPosition(Vec2(mid.x, top - 262.f));
+    nl->setPosition(Vec2(mid.x, top - 270.f));
     if (nl->getContentSize().width > panelW - 50.f) nl->setScale((panelW - 50.f) / nl->getContentSize().width);
     base->addChild(nl);
 
     Node* basePtr = base;
-    V2::Daily::Result res;
-    res.dateKey = dateKey;
-    res.score = score;
-    res.distance = distance;
-    res.coins = coins;
-    res.eventsCleared = events;
-    res.medal = medal;
+    V2::Daily::Result res = r;
     res.mode = ranked ? V2::Daily::Mode::Ranked : V2::Daily::Mode::Practice;
     auto* sh = PZUI::Button::create("SHARE RESULT", 240.f, 44.f, Color3B(236, 120, 30), [parent, res]() {
         V2::Share::shareDailyResult(parent, res);

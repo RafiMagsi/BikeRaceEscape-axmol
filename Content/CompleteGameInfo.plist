@@ -8328,6 +8328,8 @@
 		</dict>
 		<key>strings</key>
 		<dict>
+			<key>PrivacyPolicyUrl</key>
+			<string>https://nextfictiongames.com/privacy-policy</string>
 			<key>StrAllUnlocked</key>
 			<string>ALL GADGETS UNLOCKED</string>
 			<key>StrBest</key>
@@ -8474,6 +8476,8 @@
 			<string>OFF</string>
 			<key>StrOn</key>
 			<string>ON</string>
+			<key>StrPrivacyPolicy</key>
+			<string>PRIVACY POLICY</string>
 			<key>StrResultsBest</key>
 			<string>BEST %d</string>
 			<key>StrResultsCoins</key>
@@ -8498,10 +8502,6 @@
 			<string>KEEP YOUR RUN + TURBO</string>
 			<key>StrReviveTitle</key>
 			<string>CONTINUE?</string>
-			<key>PrivacyPolicyUrl</key>
-			<string>https://nextfictiongames.com/privacy-policy</string>
-			<key>StrPrivacyPolicy</key>
-			<string>PRIVACY POLICY</string>
 			<key>StrReviveVideo</key>
 			<string>WATCH AD: CONTINUE</string>
 			<key>StrReviveWait</key>
@@ -8711,24 +8711,6 @@
 			<real>150.0</real>
 			<key>BannerReserve</key>
 			<real>128.0</real>
-			<key>MenuBikeHeight</key>
-			<real>172.0</real>
-			<key>MenuBikeTilt</key>
-			<real>1.4</real>
-			<key>MenuBikeSlope</key>
-			<real>0.004</real>
-			<key>MenuBikeLift</key>
-			<real>-10.0</real>
-			<key>MenuBikeSpeed</key>
-			<real>250.0</real>
-			<key>MenuBikeHop</key>
-			<real>40.0</real>
-			<key>MenuCoinSize</key>
-			<real>66.0</real>
-			<key>MenuCoinLift</key>
-			<real>70.0</real>
-			<key>MenuCoinArc</key>
-			<real>44.0</real>
 			<key>BigAirCoins</key>
 			<integer>5</integer>
 			<key>BigAirMin</key>
@@ -8815,6 +8797,24 @@
 			<real>8.0</real>
 			<key>MagnetRadius</key>
 			<real>280.0</real>
+			<key>MenuBikeHeight</key>
+			<real>172.0</real>
+			<key>MenuBikeHop</key>
+			<real>40.0</real>
+			<key>MenuBikeLift</key>
+			<real>-10.0</real>
+			<key>MenuBikeSlope</key>
+			<real>0.004</real>
+			<key>MenuBikeSpeed</key>
+			<real>250.0</real>
+			<key>MenuBikeTilt</key>
+			<real>1.4</real>
+			<key>MenuCoinArc</key>
+			<real>44.0</real>
+			<key>MenuCoinLift</key>
+			<real>70.0</real>
+			<key>MenuCoinSize</key>
+			<real>66.0</real>
 			<key>MercyBestBelow</key>
 			<integer>600</integer>
 			<key>MercySaves</key>
@@ -8900,6 +8900,111 @@
 			<key>XpPerStage</key>
 			<integer>40</integer>
 		</dict>
+	</dict>
+	<key>v2</key>
+	<dict>
+		<key>attemptsPerDay</key>
+		<integer>3</integer>
+		<key>breatherMax</key>
+		<real>9.0</real>
+		<key>breatherMin</key>
+		<real>6.0</real>
+		<key>coin_drought_coins</key>
+		<real>0.4</real>
+		<key>coin_drought_medalScale</key>
+		<real>0.8</real>
+		<key>coin_drought_scoreMult</key>
+		<real>1.3</real>
+		<key>event_rush_breather</key>
+		<real>0.5</real>
+		<key>event_rush_scoreMult</key>
+		<real>1.25</real>
+		<key>firstEventAt</key>
+		<real>9.0</real>
+		<key>gainAirPerSec</key>
+		<real>38.0</real>
+		<key>gainCoin</key>
+		<real>22.0</real>
+		<key>gainLongJump</key>
+		<real>35.0</real>
+		<key>gainNearMiss</key>
+		<real>40.0</real>
+		<key>medal1</key>
+		<integer>500</integer>
+		<key>medal2</key>
+		<integer>1200</integer>
+		<key>medal3</key>
+		<integer>2500</integer>
+		<key>climaxAfter</key>
+		<integer>4</integer>
+		<key>rewardClimax</key>
+		<integer>40</integer>
+		<key>microEvery</key>
+		<real>12.0</real>
+		<key>microTime</key>
+		<real>20.0</real>
+		<key>one_life_scoreMult</key>
+		<real>1.5</real>
+		<key>raceDrift</key>
+		<real>18.0</real>
+		<key>raceLoseLead</key>
+		<real>470.0</real>
+		<key>raceMaxTime</key>
+		<real>20.0</real>
+		<key>raceStartLead</key>
+		<real>190.0</real>
+		<key>raceWinLead</key>
+		<real>-70.0</real>
+		<key>rewardCloseDodge</key>
+		<integer>5</integer>
+		<key>rewardConstruction</key>
+		<integer>12</integer>
+		<key>rewardDino</key>
+		<integer>12</integer>
+		<key>rewardEdgeRun</key>
+		<integer>15</integer>
+		<key>rewardGrandma</key>
+		<integer>10</integer>
+		<key>rewardHighRoller</key>
+		<integer>20</integer>
+		<key>rewardMedal0</key>
+		<integer>20</integer>
+		<key>rewardMedal1</key>
+		<integer>40</integer>
+		<key>rewardMedal2</key>
+		<integer>80</integer>
+		<key>rewardMedal3</key>
+		<integer>150</integer>
+		<key>rewardMeteor</key>
+		<integer>10</integer>
+		<key>rewardMicro</key>
+		<integer>10</integer>
+		<key>rewardOvertake</key>
+		<integer>40</integer>
+		<key>rewardPizza</key>
+		<integer>20</integer>
+		<key>rewardPizzaBox</key>
+		<integer>3</integer>
+		<key>rulesVersion</key>
+		<integer>2</integer>
+		<key>telegraphFloor</key>
+		<real>1.3</real>
+		<key>tierExpertAt</key>
+		<real>450.0</real>
+		<key>tierStandardAt</key>
+		<real>150.0</real>
+		<key>wBox</key>
+		<real>15.0</real>
+		<key>wBoxMiss</key>
+		<real>10.0</real>
+		<key>wCoins</key>
+		<real>2.0</real>
+		<key>wDistance</key>
+		<real>1.0</real>
+		<key>wEvents</key>
+		<real>25.0</real>
+		<key>wSmooth</key>
+		<real>40.0</real>
 	</dict>
 </dict>
 </plist>

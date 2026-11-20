@@ -85,7 +85,13 @@ public:
     void log(const std::string& event, std::initializer_list<Field> fields = {});
     void setSink(std::function<void(const std::string&, const std::vector<Field>&)> sink) { _sink = std::move(sink); }
     const std::deque<std::string>& recent() const { return _recent; }
+    // JSONL file sink (rotates at maxBytes). A production provider (Firebase etc.) is still an adapter behind setSink().
+    void enableFileSink(const std::string& path, size_t maxBytes);
+    const std::string& fileSinkPath() const { return _filePath; }
 private:
+    void writeLine(const std::string& event, const std::vector<Field>& fields);
+    std::string _filePath;
+    size_t _maxBytes = 262144;
     std::function<void(const std::string&, const std::vector<Field>&)> _sink;
     std::deque<std::string> _recent;
 };

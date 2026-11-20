@@ -854,3 +854,33 @@ It is **not** yet fair to say:
 - “Live events,” unless a real scheduled/configured event is active.
 
 The product becomes genuinely entertaining when the events demand different thinking, not merely display different actors.
+
+### 20.6 Sprint status (Section 20.5)
+
+Done and building on the iOS simulator: V2Config + plist `v2` section; scoring/medal rewrite with 3 ranked attempts, best-kept,
+reward paid once (+ medal upgrades), per-modifier medal scale; outcome taxonomy (`success`, `failed`, `skipped_no_road`,
+`aborted_death`, `cancelled_scene`) and tiers (intro/standard/expert); variants for Dino (stampede + HIGH ROLLER line),
+Construction (flagger STOP/GO paddle + TRICK LINE) and Meteor (twin strike + EDGE RUN); close-dodge bonuses; objective HUD plate
+and micro-challenge plate (left column); three micro-challenges; rival memory (`PZP_V2_rv_cool_w/l`, "W - L" on the race marker,
+grudge/taunt barks on a cosmetic RNG so gameplay determinism is untouched); event coins tracked so the daily score never counts them
+twice; JSONL analytics file sink (`v2_analytics.jsonl`, rotates at 256 KB).
+
+Verified in the simulator: a forced stampede shows the objective plate; analytics lines written with start/end outcomes.
+NOT done / not verified: all six event variants visually; `golden_replay.v2r` must be re-recorded (event rules changed; rulesVersion is 2);
+production analytics provider (needs an account; the sink hook is `Analytics::setSink`); T-Rex climax; interactive Grandma;
+tick-based rocket; ten-player observation tests; Android / Game Center / Play Games.
+
+### 20.7 Second entertainment pass
+
+- **T-Rex chase (chapter climax, P1 #9):** scheduled after `v2/climaxAfter` (4) cleared events once past the standard tier, then every 5 successes; never drawn from the bag. The T-Rex lumbers at the left edge, each stomp shakes the screen and drops a telegraphed boulder ahead (10 in a row, faster at expert); clean finish pays `rewardClimax` (40). QA: `forceRoadEvent("trex_chase")`. Seen starting in the simulator (plate "T-REX CHASE 0/10", dino on screen); the full 10-stomp run was not played through.
+- **Grandma Turbo (P1 #11, partial):** every third trail coin is a JACKPOT coin hanging high (needs a real jump); basket threshold lowered to 4 low coins. Drafting behind her rocket is NOT done.
+- **Ambient gags (P1 #15):** wobble, loses a cone (harmless prop left on the road), startled by your jump, and a later rider returns "fixed it, new cone".
+- Not covered: Construction timing puzzle beyond the flagger, meteor shortcut/ramp outcomes, ghost playback, rival roster.
+
+### 20.8 Third entertainment pass (built, compiled, not play-tested)
+
+- **Lucky meteor (P1 #13, partial):** one meteor strike in four in the shower cracks into a gold coin arc instead of a rock (never twice in a row, never in the T-Rex chase).
+- **Road streak:** three cleared events in a row pay a growing bonus (+5, +10 ... capped at +20); a failed event resets it.
+- **Golden slice:** about one pizza box in five is golden and pays triple.
+- **Rival milestone:** every third win over Cool Kid pays +25 ("RIVAL x3!").
+- Still open: meteor shortcut / ramp / chain reaction, Grandma drafting, ghost playback, more rivals. Needs a play-test pass for balance; `golden_replay.v2r` still needs re-recording.
