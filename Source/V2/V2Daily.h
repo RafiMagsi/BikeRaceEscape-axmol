@@ -54,6 +54,7 @@ int dateKeyNow();                                 // today, UTC
 std::string dateLabel(int dateKey);               // "FRI 20 NOV"
 uint32_t seedFor(int dateKey);                    // same everywhere, every platform
 Modifier modifierFor(int dateKey);
+Modifier modifierByIndex(int index);              // replays re-apply the modifier they were recorded under
 Breakdown breakdown(const Result& r, const Modifier& m);
 int computeScore(const Result& r, const Modifier& m);
 int medalThreshold(int medal, const Modifier& m); // score needed for medal 1..3 on this modifier
@@ -82,6 +83,7 @@ bool runLive();
 void clearLive();
 bool takeForfeit(Result& out);
 
+std::string selfTest();                           // rule tests (V2DailyTest.cpp): returns a report ending in RESULT: PASS / FAIL
 int debugDayOffset();
 void setDebugDayOffset(int days);
 

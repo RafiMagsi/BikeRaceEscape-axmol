@@ -509,17 +509,21 @@ void PZRunDirector::startRun() {
                 V2::Daily::afterRankedResult();
             }
         }
-        if (V2::Replay::playbackPending()) {            // a replay test owns the run: its seed, no daily modifiers
+        int replayMod = -1;
+        if (V2::Replay::playbackPending()) {            // a replay test owns the run: its seed and the modifier it was recorded under
             V2::Daily::end();
             _challengeSeed = V2::Replay::pendingSeed();
+            replayMod = V2::Replay::pendingModifier();
         }
         const bool daily = V2::Daily::mode() != V2::Daily::Mode::None;
-        const auto& mod = V2::Daily::activeModifier();
+        const V2::Daily::Modifier mod = daily ? V2::Daily::activeModifier() : (replayMod >= 0 ? V2::Daily::modifierByIndex(replayMod) : V2::Daily::Modifier());
+        const bool useMod = daily || replayMod >= 0;      // modifiers change event timing and content, so a replay must re-apply them
         static const float baseCoinDensity = PZCfg::kCoinDensity;
-        PZCfg::kCoinDensity = baseCoinDensity * (daily ? mod.coinDensityScale : 1.f);
-        _dailyNoRevive = daily;
-        _dailyNoMercy = daily && mod.noMercy;
-        if (_events) { _events->setBreatherScale(daily ? mod.eventBreatherScale : 1.f); _events->setPizzaBoost(daily && mod.pizzaBoost); }
+        PZCfg::kCoinDensity = baseCoinDensity * (useMod ? mod.coinDensityScale : 1.f);
+        _dailyNoRevive = useMod;
+        _dailyNoMercy = useMod && mod.noMercy;
+        if (_events) { _events->setBreatherScale(useMod ? mod.eventBreatherScale : 1.f); _events->setPizzaBoost(useMod && mod.pizzaBoost); }
+        V2::Replay::setModifier(useMod ? mod.index : -1);
         const uint32_t forced = daily ? V2::Daily::seedFor(V2::Daily::dateKeyNow()) : _challengeSeed;
         const uint32_t seed = forced ? forced
                                      : static_cast<uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) | 1u;

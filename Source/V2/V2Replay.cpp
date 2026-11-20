@@ -1,4 +1,5 @@
 #include "V2/V2Replay.h"
+#include "V2/V2Core.h"
 #include "V2/V2Daily.h"
 #include "V2/V2Config.h"
 #include "PZLegacyCompat.h"
@@ -39,11 +40,12 @@ void conclude() {
     g_report.finished = true;
     g_report.exact = g_report.firstMismatchTick < 0 && g_report.endMatched && g_report.checked > 0;
     char buf[200];
-    std::snprintf(buf, sizeof(buf), "checked=%d exact=%d firstMismatchTick=%d maxDrift=%g endMatched=%d",
+    std::snprintf(buf, sizeof(buf), "checked=%d exact=%d firstMismatchTick=%d maxDrift=%g endMatched=%d endTick=%u/%u",
                   g_report.checked, g_report.exact ? 1 : 0, g_report.firstMismatchTick, g_report.maxDrift,
-                  g_report.endMatched ? 1 : 0);
+                  g_report.endMatched ? 1 : 0, static_cast<unsigned>(g_tick), static_cast<unsigned>(g_play.endTick));
     g_report.text = buf;
     AXLOGI("[V2:replay] RESULT {}", g_report.text);
+    Analytics::shared().log("replay_result", {{"exact", g_report.exact ? "1" : "0"}, {"detail", g_report.text}, {"rules", std::to_string(cfg().rulesVersion)}});
     g_finished = true;
     if (g_handler) g_handler(g_report);
 }
@@ -54,8 +56,11 @@ uint32_t tick() { return g_tick; }
 const Data& lastRecording() { return g_rec; }
 void setResultHandler(std::function<void(const Report&)> h) { g_handler = std::move(h); }
 const Report& lastReport() { return g_report; }
+static int g_modifier = -1;
 bool playbackPending() { return g_pending; }
 uint32_t pendingSeed() { return g_play.seed; }
+int pendingModifier() { return g_play.modifier; }
+void setModifier(int index) { g_modifier = index; }
 
 void armPlayback(const Data& d) {
     g_play = d;
@@ -83,6 +88,7 @@ void beginRun(uint32_t seed, bool fixedStep, bool liveNow) {
         g_rec = Data();
         g_rec.seed = seed;
         g_rec.rulesVersion = cfg().rulesVersion;
+        g_rec.modifier = g_modifier;
     } else {
         g_state = State::Idle;
     }
@@ -172,7 +178,7 @@ void stopRecording() {
 
 std::string serialize(const Data& d) {
     std::ostringstream o;
-    o << "V2R " << d.format << " " << d.rulesVersion << " " << d.seed << " " << d.endTick << " " << (d.ended ? 1 : 0) << "\n";
+    o << "V2R " << d.format << " " << d.rulesVersion << " " << d.seed << " " << d.endTick << " " << (d.ended ? 1 : 0) << " " << d.modifier << "\n";
     for (const auto& i : d.inputs) o << "I " << i.tick << " " << (i.press ? 1 : 0) << "\n";
     char buf[160];
     for (const auto& c : d.checkpoints) {
@@ -191,7 +197,11 @@ bool parse(const std::string& text, Data& out) {
     while (in >> tag) {
         if (tag == "V2R") {
             int ended = 0;
-            in >> out.format >> out.rulesVersion >> out.seed >> out.endTick >> ended;
+            std::string line;
+            std::getline(in, line);
+            std::istringstream h(line);
+            h >> out.format >> out.rulesVersion >> out.seed >> out.endTick >> ended;
+            if (!(h >> out.modifier)) out.modifier = -1;          // files from before the modifier field
             out.ended = ended != 0;
             head = out.format == kFormat;
         } else if (tag == "I") {

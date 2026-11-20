@@ -38,6 +38,7 @@ struct Data {
     int rulesVersion = 0;
     uint32_t seed = 0;
     uint32_t endTick = 0;
+    int modifier = -1;                         // daily modifier index the run was recorded under (-1 none): it changes event timing, so playback must match
     bool ended = false;                        // true = the run ended (death) at endTick; false = stopped by the recorder
     std::vector<Input> inputs;
     std::vector<Checkpoint> checkpoints;
@@ -75,6 +76,8 @@ const Data& lastRecording();
 void armPlayback(const Data& d);               // the NEXT run start plays this back
 bool playbackPending();
 uint32_t pendingSeed();
+int pendingModifier();                         // modifier index of the armed replay (-1 none)
+void setModifier(int index);                   // recorded into the next run (-1 none)
 void setResultHandler(std::function<void(const Report&)> h);
 const Report& lastReport();
 

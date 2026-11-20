@@ -1020,3 +1020,22 @@ After this checkpoint, recalculate the percentages in section 20.7 and choose ei
   - Grandma "slipstream": she lingers ahead; riding on the ground in her slipstream for 1.2 s pays a bonus (a visible percentage in the objective plate; no separate meter graphic).
   Variants unlock from the standard tier (150 m); QA can force one with `forceRoadEvent("pizza_panic:1")`.
 - Not done: expert-only patterns (20.9 #2), meteor shortcut/ramp/chain reaction, Construction lift puzzle, rival roster, and every P0 validation item in 20.8 (golden replay, daily tests, play-through matrix, fresh-player sessions). Do those before adding more features.
+
+### 20.14 P0 validation progress (2026-11-21)
+
+| 20.8 item | Status | Evidence / what remains |
+|---|---|---|
+| 1 Full event play-through matrix | **Not done** | Needs a human or a survivable bot per variant/tier; only a forced Dino stampede and the T-Rex start were seen. |
+| 2 T-Rex repair | Partly | Payoff line lifetime fixed; three phases built; the full 11-hazard sequence has not been played through on success and failure paths. |
+| 3 Deterministic replay | **Done on the iOS simulator** | `Content/golden_replay.v2r` re-recorded for rules v2 (797 ticks, includes the first Dino Crossing event, modifier ONE LIFE). Result: `checked=26 exact=1 endTick=797/797`, both at normal frame rate and with a ~15 fps stall. Android and real-device runs are still missing. |
+| 4 Automated daily rules | **Done** | `Daily::selfTest()` (`Source/V2/V2DailyTest.cpp`) runs 27 checks: attempts, best retention, reward-once and medal upgrades, forfeit, six modifiers and ordered thresholds, event coins not double counted, date rollover, legacy-save migration. Result: 27/27 PASS in the simulator. |
+| 5 Balance from session data | Not done | Needs player sessions. |
+| 6 Device / layout QA, frame-time buckets | Not done | |
+| 7 Fresh-player observation | Not done | |
+
+Findings from this pass (all fixed):
+- **Replays ignored the daily modifier.** A run recorded under ONE LIFE replayed with standard event timing, so the replay survived a Dino hit the recording died on (`endTick 828/797`, timeout). Replay files now carry the modifier index (`V2R fmt rules seed endTick ended modifier`; older files read as "none") and playback re-applies it (coin density, event breather, pizza boost, no-mercy).
+- **Legacy daily saves.** A rules-v1 save (7-field `_r`, boolean `_c`) was unreadable by the new code and could pay the reward again. `Daily` now migrates a date once (`_v` = 2): attempts used = 1, reward treated as paid.
+- Replay results are now also written to the analytics file (`replay_result`).
+
+How to repeat: the self-test and the replay were driven by a temporary in-app hook that is not in the repo. To re-run, call `V2::Daily::selfTest()` from a debug hook and `PZRunDirector::startReplayTest()` (default is the bundled golden file) then start a run; read `replay_result` in `v2_analytics.jsonl`.

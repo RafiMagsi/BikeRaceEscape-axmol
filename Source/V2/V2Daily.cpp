@@ -32,6 +32,23 @@ std::vector<std::string> split(const std::string& s, char c) {
 }
 }
 
+// Saves written by the first daily build (rules v1): one ranked attempt per day, `_r` with 7 fields, `_c` a bool "reward claimed".
+// Upgrade them in place, once per date, so an update can neither reset the attempt counter nor pay the reward a second time.
+static void migrateLegacy(int dateKey) {
+    auto* ud = UserDefault::getInstance();
+    if (ud->getIntegerForKey(key(dateKey, "_v").c_str(), 0) >= 2) return;
+    if (hasBestStored(dateKey)) {
+        if (ud->getIntegerForKey(key(dateKey, "_n").c_str(), 0) < 1) ud->setIntegerForKey(key(dateKey, "_n").c_str(), 1);
+        const std::string c(ud->getStringForKey(key(dateKey, "_c").c_str(), ""));
+        if (c == "true" || c == "1" ) {                       // legacy bool: treat the reward for the stored medal as already paid
+            const auto f = split(std::string(ud->getStringForKey(key(dateKey, "_r").c_str(), "")), ',');
+            const int medal = f.size() > 4 ? std::atoi(f[4].c_str()) : 0;
+            ud->setIntegerForKey(key(dateKey, "_c").c_str(), cfg().rewardByMedal[std::max(0, std::min(3, medal))]);
+        }
+    }
+    ud->setIntegerForKey(key(dateKey, "_v").c_str(), 2);
+}
+
 int debugDayOffset() { return g_dayOffset; }
 void setDebugDayOffset(int days) { g_dayOffset = days; }
 
@@ -70,10 +87,14 @@ uint32_t seedFor(int dateKey) {
 }
 
 Modifier modifierFor(int dateKey) {
+    const int day = (dateKey / 10000) * 372 + ((dateKey / 100) % 100) * 31 + dateKey % 100;     // consecutive days always differ
+    return modifierByIndex(day % 6);
+}
+
+Modifier modifierByIndex(int i) {
     static const char* titles[6] = {"STANDARD RUN", "ONE LIFE", "EVENT RUSH", "COIN DROUGHT", "PERFECT LANDING DAY", "PIZZA EXPRESS"};
     const Config& c = cfg();
-    const int day = (dateKey / 10000) * 372 + ((dateKey / 100) % 100) * 31 + dateKey % 100;     // consecutive days always differ
-    const int i = day % 6;
+    i = std::max(0, std::min(5, i));
     Modifier m;
     m.index = i;
     m.id = modId(i);
@@ -129,7 +150,7 @@ int medalFor(int score, const Modifier& m) {
 
 // ---- persistence ---------------------------------------------------------------------------------------------------------
 
-int attemptsUsed(int dateKey) { return UserDefault::getInstance()->getIntegerForKey(key(dateKey, "_n").c_str(), 0); }
+int attemptsUsed(int dateKey) { migrateLegacy(dateKey); return UserDefault::getInstance()->getIntegerForKey(key(dateKey, "_n").c_str(), 0); }
 int attemptsLeft(int dateKey) { return std::max(0, cfg().attemptsPerDay - attemptsUsed(dateKey)); }
 bool hasRanked(int dateKey) { return attemptsUsed(dateKey) > 0; }
 
@@ -139,17 +160,19 @@ Result rankedResult(int dateKey) {
     r.mode = Mode::Ranked;
     const std::string s(UserDefault::getInstance()->getStringForKey(key(dateKey, "_r").c_str(), ""));
     const auto f = split(s, ',');
-    if (f.size() >= 10) {
+    if (f.size() >= 6) {                                  // v1 saves have 6-7 fields; the rest default to 0
         r.score = std::atoi(f[0].c_str());
         r.distance = std::atoi(f[1].c_str());
         r.coins = std::atoi(f[2].c_str());
         r.eventsCleared = std::atoi(f[3].c_str());
         r.medal = std::atoi(f[4].c_str());
         r.modifierId = f[5];
-        r.forfeited = f[6] == "1";
-        r.smooth = std::atoi(f[7].c_str());
-        r.boxesCaught = std::atoi(f[8].c_str());
-        r.boxesMissed = std::atoi(f[9].c_str());
+        r.forfeited = f.size() > 6 && f[6] == "1";
+        if (f.size() >= 10) {
+            r.smooth = std::atoi(f[7].c_str());
+            r.boxesCaught = std::atoi(f[8].c_str());
+            r.boxesMissed = std::atoi(f[9].c_str());
+        }
         if (f.size() > 10) r.eventCoins = std::atoi(f[10].c_str());
     }
     return r;
@@ -162,6 +185,7 @@ int bestPractice(int dateKey) {
 int record(const Result& rIn, int& coinsGranted) {
     Result r = rIn;
     coinsGranted = 0;
+    migrateLegacy(r.dateKey);
     auto* ud = UserDefault::getInstance();
     const Modifier mod = modifierFor(r.dateKey);
     r.score = computeScore(r, mod);
