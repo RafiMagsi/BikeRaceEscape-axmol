@@ -1,0 +1,24 @@
+PODS:
+  - ChartboostSDK (9.14.2)
+  - Google-Mobile-Ads-SDK (13.4.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+
+DEPENDENCIES:
+  - ChartboostSDK
+  - Google-Mobile-Ads-SDK (~> 13.4.0)
+
+SPEC REPOS:
+  trunk:
+    - ChartboostSDK
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+
+SPEC CHECKSUMS:
+  ChartboostSDK: a0a62eeaf756b7315ed53608eb21dcb41c6dcd36
+  Google-Mobile-Ads-SDK: 5aa7af5189af2c75d1c32868062cf3692f1376f9
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+
+PODFILE CHECKSUM: d842775c99842aff880ef9b408a19d889657411e
+
+COCOAPODS: 1.16.2

@@ -1,0 +1,6 @@
+platform :ios, '15.0'
+
+target 'BikeRaceEscapeAxmol' do
+  pod 'Google-Mobile-Ads-SDK', '~> 13.4.0'
+  pod 'ChartboostSDK'
+end
