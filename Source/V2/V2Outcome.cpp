@@ -27,6 +27,9 @@ Headline pick(const Inputs& in) {
     // best mastery moment (data-driven wording, highest value first)
     if (in.trexEscaped) h.moment = text("moment_trex");
     else if (in.rivalBeaten) h.moment = text("moment_rival");
+    else if (!in.newStamp.empty()) h.moment = text("moment_stamp");
+    else if (in.bestChain >= 3) h.moment = fmt(text("moment_chain"), "n", in.bestChain);
+    else if (in.perfect >= 2) h.moment = fmt(text("moment_perfect"), "n", in.perfect);
     else if (in.closeDodges >= 3) h.moment = fmt(text("moment_dodges"), "n", in.closeDodges);
     else if (in.smooth >= 2) h.moment = fmt(text("moment_landings"), "n", in.smooth);
     else if (in.microDone > 0) h.moment = text("moment_micro");

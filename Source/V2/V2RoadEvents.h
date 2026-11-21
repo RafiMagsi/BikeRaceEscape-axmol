@@ -76,9 +76,9 @@ public:
     bool forceStart(const std::string& name);     // debug / QA: start a specific event now
     uint32_t seed() const { return _seed; }
     int successCount() const { return _successes; }   // events finished without a hit this run (daily score)
-    struct RunStats { int eventCoins = 0, smooth = 0, boxesCaught = 0, boxesMissed = 0, objectsCollected = 0, microDone = 0, closeDodges = 0; bool trexEscaped = false, rivalBeaten = false; };
+    struct RunStats { int eventCoins = 0, smooth = 0, boxesCaught = 0, boxesMissed = 0, objectsCollected = 0, microDone = 0, closeDodges = 0; bool trexEscaped = false, rivalBeaten = false; int perfect = 0, bestChain = 0; std::string newStamp; };
     const RunStats& runStats() const { return _rs; }
-    void notifySmoothLanding();                   // the rider landed smoothly after crossing a gap
+    void notifySmoothLanding(bool perfect = false);                   // the rider landed smoothly after crossing a gap
     void notifyPowerUp();                         // a power-up was picked up
     void setPizzaBoost(bool on) { _pizzaBoost = on; }   // PIZZA EXPRESS: pizza events three times as common
     bool eventActive() const { return _active; }
@@ -202,6 +202,8 @@ private:
     Tier _tier = Tier::Intro;
     int _variant = 0;
     ShuffleBag<int> _variantBag[kEventTotal];
+    float _chainT = 0.f;                // near-miss chain: seconds left to extend it
+    int _chain = 0;
     int _chapter = -1;                  // current Night Run chapter
     float _nextClimaxM = 1200.f;        // distance of the next T-Rex chase window
     ax::Node* _chapterTitle = nullptr;

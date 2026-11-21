@@ -2793,11 +2793,13 @@ void PZRunDirector::updateFx(float dt, float scroll) {
             // Smooth landing: crossed a gap in the air and touched down with road ahead (comic squash + small bonus).
             if (_overGap && _airTime > 0.3f && runwayAhead(140.f * kDeviceScale())) {
                 ++_smoothStreak;
-                if (_events) _events->notifySmoothLanding();
+                const float tilt = std::abs(_scene->character ? _scene->character->angle : 0.f);
+                const bool perfectLanding = tilt < 10.f;                 // wheels level on touchdown: grade PERFECT, else CLEAN
+                if (_events) _events->notifySmoothLanding(perfectLanding);
                 char msg[32];
-                if (_smoothStreak >= 3) std::snprintf(msg, sizeof(msg), "PERFECT x%d", _smoothStreak);
-                else std::snprintf(msg, sizeof(msg), "SMOOTH!");
-                awardBonus(_smoothStreak >= 3 ? 4 : 2, Vec2(riderPos().x, riderPos().y + 64.f), msg, PZCfg::kColAccent2);
+                if (perfectLanding) std::snprintf(msg, sizeof(msg), _smoothStreak >= 3 ? "PERFECT x%d" : "PERFECT!", _smoothStreak);
+                else std::snprintf(msg, sizeof(msg), "CLEAN");
+                awardBonus((_smoothStreak >= 3 || perfectLanding) ? 4 : 2, Vec2(riderPos().x, riderPos().y + 64.f), msg, PZCfg::kColAccent2);
                 if (_scene->character && _scene->character->s_body) {
                     Sprite* sb = _scene->character->s_body;
                     sb->stopActionByTag(7741);
@@ -3252,6 +3254,9 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         oi.closeDodges = evStats.closeDodges;
         oi.eventsCleared = dailyEvents;
         oi.microDone = evStats.microDone;
+        oi.perfect = evStats.perfect;
+        oi.bestChain = evStats.bestChain;
+        oi.newStamp = evStats.newStamp;
         const auto hl = V2::Outcome2::pick(oi);
         V2::Analytics::shared().log("result_headline", {{"priority", std::to_string(hl.priority)}, {"title", hl.title}});
         const Size win = Director::getInstance()->getWinSize();

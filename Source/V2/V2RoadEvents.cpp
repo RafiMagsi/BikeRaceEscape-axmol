@@ -132,6 +132,8 @@ void RoadEventDirector::reset(uint32_t seed) {
         }
     }
     _rs = RunStats();
+    _chain = 0;
+    _chainT = 0.f;
     _chapter = -1;
     _nextClimaxM = cfg().climaxAtM;
     if (_chapterTitle) { _chapterTitle->removeFromParent(); _chapterTitle = nullptr; }
@@ -442,6 +444,15 @@ void RoadEventDirector::finishEvent(Outcome o) {
                                                {"coins", std::to_string(_evCoins)}});
     if (o == Outcome::Success) {
         if (_cur == EventId::TrexChase) _rs.trexEscaped = true;
+        {   // event mastery stamp: the first clean success on each event / tier is recorded once and paid a small one-time bonus
+            const std::string key = std::string("PZP_V2_stamp_") + eventName(_cur) + "_" + tierName(_tier);
+            if (!UserDefault::getInstance()->getBoolForKey(key.c_str(), false)) {
+                UserDefault::getInstance()->setBoolForKey(key.c_str(), true);
+                reward(10, Vec2(_lastRiderX + 40.f, 360.f), "NEW STAMP! +10");
+                if (_rs.newStamp.empty()) _rs.newStamp = std::string(eventName(_cur)) + "/" + tierName(_tier);
+                Analytics::shared().log("mastery_stamp", {{"event", eventName(_cur)}, {"tier", tierName(_tier)}});
+            }
+        }
         ++_successes;
         ++_streak;
         if (_streak >= 3) {                               // ROAD STREAK: three clean events in a row, growing payout
@@ -1347,6 +1358,8 @@ void RoadEventDirector::updateAmbient(const Context& ctx) {
 void RoadEventDirector::updateActors(const Context& ctx) {
     const float dt = ctx.dt;
     _dodgeCool = std::max(0.f, _dodgeCool - dt);
+    _chainT = std::max(0.f, _chainT - dt);
+    if (_chainT <= 0.f) _chain = 0;
     for (size_t ai = 0; ai < _actors.size(); ++ai) {      // index loop: impact() / drops may spawn new actors mid-loop
         Actor& a = *_actors[ai];
         if (!a.root) continue;
@@ -1479,7 +1492,15 @@ void RoadEventDirector::updateActors(const Context& ctx) {
                 _dodgeCool = 1.2f;
                 ++_dodgesEv;
                 ++_rs.closeDodges;
-                reward(cfg().rewardCloseDodge, Vec2(ctx.rider.x + 10.f, ctx.rider.y + 60.f), "CLOSE! +" + std::to_string(cfg().rewardCloseDodge));
+                _chain = _chainT > 0.f ? _chain + 1 : 1;                 // near-miss chain: each dodge within 6 s extends it
+                _chainT = 6.f;
+                _rs.bestChain = std::max(_rs.bestChain, _chain);
+                if (_chain >= 2) {
+                    reward(cfg().rewardCloseDodge + _chain, Vec2(ctx.rider.x + 10.f, ctx.rider.y + 60.f), "CHAIN x" + std::to_string(_chain) + "! +" + std::to_string(cfg().rewardCloseDodge + _chain));
+                    PZAudio::play("fx_levelup", 0.3f, 0.1f);
+                } else {
+                    reward(cfg().rewardCloseDodge, Vec2(ctx.rider.x + 10.f, ctx.rider.y + 60.f), "CLOSE! +" + std::to_string(cfg().rewardCloseDodge));
+                }
             }
         }
         if (a.x < -230.f && !screenLocked) { removeActor(a); continue; }
@@ -1615,8 +1636,9 @@ void RoadEventDirector::noteRivalResult(bool playerWon) {
     UserDefault::getInstance()->setIntegerForKey("PZP_V2_rv_cool_last", playerWon ? 1 : -1);   // drives the rematch dialogue
 }
 
-void RoadEventDirector::notifySmoothLanding() {
+void RoadEventDirector::notifySmoothLanding(bool perfect) {
     ++_rs.smooth;
+    if (perfect) ++_rs.perfect;
     if (_micro.active && _micro.type == 0) ++_micro.progress;
 }
 

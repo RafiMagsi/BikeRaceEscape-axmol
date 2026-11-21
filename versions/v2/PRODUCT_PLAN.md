@@ -2540,3 +2540,12 @@ not satisfy these gates.
 **Versions:** `rulesVersion` 5, `contentVersion` 6 (chapters change which events appear). `Content/golden_replay.v2r` re-recorded for rules 5 / content 6 (857 ticks, modifier EVENT RUSH): exact in the simulator (`checked=28 endTick=857/857`). Not run with the stall test this time, and not on Android.
 **Graphics review of the latest art:** painted portraits on the dialogue screen and the moving sewer alligator behind the rider rendered correctly; road present behind the dialogue and during the ride-in. Not reviewed: every obstacle at max speed, tablet aspect ratios, Reduced Motion.
 **Run script:** `tools/run.sh ios` (also `tools/run.sh ios --list`, `--device`, `--no-build`); see BUILD_COMMANDS.md.
+
+### 24.9 Mastery grades (24.4) - built, not play-tested (2026-11-21)
+
+- **Landing grade:** a gap-crossing landing with the bike level (|tilt| < 10 deg) is PERFECT (+4), otherwise CLEAN (+2); the existing streak text is kept. Counts feed `RunStats.perfect`.
+- **Near-miss chain:** close dodges within 6 s of each other build a chain ("CHAIN x3! +8"), reset after 6 s without one; `bestChain` is kept for the results.
+- **Event mastery stamp:** the first clean success of each event/tier is stored once (`PZP_V2_stamp_<event>_<tier>`), paid +10 coins ("NEW STAMP!") and logged (`mastery_stamp`).
+- **Results:** the headline's mastery-moment line now prefers a new stamp, then a 3+ chain, 2+ perfect landings, then close dodges / clean landings / challenge / events (text in the plist).
+- `rulesVersion` 6, `contentVersion` 7 (scores change). The bundled golden replay (recorded under rules 5) still replays exactly on the rules-6 build (`checked=28 endTick=857/857`): these changes alter rewards, not physics. A fresh recording under rules 6 is still advisable.
+- Not done: ROUGH landing grade, a visible crown-momentum value, contextual share on the results screen, death-to-retry measurement, and verifying chain/stamp text on screen.

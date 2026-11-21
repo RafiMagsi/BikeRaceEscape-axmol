@@ -20,6 +20,8 @@ struct Inputs {
     bool friendBeaten = false;      // friend challenge: your score beat the link's score
     int  distance = 0, best = 0;
     int  smooth = 0, closeDodges = 0, eventsCleared = 0, microDone = 0;
+    int  perfect = 0, bestChain = 0;
+    std::string newStamp;           // "event/tier" first clean success this run ("" none)
 };
 
 struct Headline {

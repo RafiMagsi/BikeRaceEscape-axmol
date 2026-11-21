@@ -4,6 +4,7 @@
 #include "V2/V2Metrics.h"
 #include "V2/V2Metrics.h"
 #include "V2/V2Metrics.h"
+#include "V2/V2Metrics.h"
 #include "PZGCharacterMenu.h"
 #include "PZGLoadingScene.h"
 #include "PZGMainMenuScene.h"
@@ -50,6 +51,7 @@ void AppDelegate::setDebugModeEnabled(bool enable) {
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+    V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
