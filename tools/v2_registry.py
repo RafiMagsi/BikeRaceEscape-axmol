@@ -113,6 +113,18 @@ def validate(root):
                 errs.append(f"dialogue sequence '{name}': unknown expression '{l.get('expression')}'")
             if not l.get("text") or len(l["text"]) > 40:
                 errs.append(f"dialogue sequence '{name}': line empty or over 40 chars: {l.get('text')}")
+    v2c = load().get("v2", {})
+    prev = -1.0
+    known = {"dino_crossing", "pizza_panic", "cool_kid_race", "construction_chaos", "meteor_shower", "grandma_turbo"}
+    for ch in v2c.get("nightChapters", []):
+        if float(ch.get("fromM", 0)) <= prev:
+            errs.append(f"night chapter '{ch.get('id')}': fromM must ascend")
+        prev = float(ch.get("fromM", 0))
+        if len(ch.get("title", "")) > 24 or not ch.get("title"):
+            errs.append(f"night chapter '{ch.get('id')}': title empty or over 24 characters")
+        for e in ch.get("events", []):
+            if e not in known:
+                errs.append(f"night chapter '{ch.get('id')}': unknown event '{e}'")
     layers = {"BackgroundSky", "BackgroundFar", "BackgroundScenic", "BackgroundMid"}
     for name, b in p.get("scenicBeats", {}).items():
         if b.get("animationId") not in p.get("animations", {}):

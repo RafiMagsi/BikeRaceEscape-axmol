@@ -8,6 +8,7 @@
 #include "V2/V2Cinematic.h"
 #include "V2/V2Ghost.h"
 #include "V2/V2Leaderboard.h"
+#include "V2/V2Outcome.h"
 #include "V2/V2Metrics.h"
 #include "PZRandom.h"
 #include "V2/V2Daily.h"
@@ -929,7 +930,7 @@ void PZRunDirector::update(float dt) {
         ctx.airborne = _scene->character->jump_counter > 0 && !turboActive() && _jetpackT <= 0.f;
         ctx.apex = apex();
         ctx.ridesActive = turboActive() || _jetpackT > 0.f || _rocketT > 0.f;
-        ctx.controlLocked = _readyCountdown || _cinematic || _reviveWait || _riderTweening || _deathPending || frozen();
+        ctx.controlLocked = _introActive || _readyCountdown || _cinematic || _reviveWait || _riderTweening || _deathPending || frozen();
         _events->update(ctx);
         if (_ghost && _ghost->armed() && !ctx.controlLocked && _scene->character && _scene->character->p_body && _scene->character->s_body) {
             _ghost->update(V2::Replay::tick(), _scene->gf_distance, _scene->character->p_body->GetPosition().y, riderPos(), kPhysicsWorldScale(),
@@ -3190,6 +3191,8 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
                                                  [this](int slot) { return slot >= 0 && slot < 3 && _trackerDone[slot]; }),
                                   shown.completedMissions.end());
     PZPopups::attachResults(gameOverLayer, distanceLabel, _stats, shown, claimDoubleCoins, onCoins, onVideo);
+    int outcomeDailyMedal = 0;
+    bool outcomeFriendBeaten = false;
 
     // Daily run: score it, store it (ranked counts once), then show the result card popup.
     if (V2::Daily::mode() != V2::Daily::Mode::None) {
@@ -3212,6 +3215,8 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         const int prevBest = std::max(V2::Daily::hasRanked(dr.dateKey) ? V2::Daily::rankedResult(dr.dateKey).score : 0, V2::Daily::bestPractice(dr.dateKey));
         const int medal = V2::Daily::record(dr, granted);
         dr.medal = medal;
+        outcomeDailyMedal = medal;
+        outcomeFriendBeaten = V2::Daily::challengeActive() && dr.score > V2::Daily::challengeScore();
         if (wasRanked && !V2::Daily::challengeActive()) V2::Leaderboard::submitDaily(dr.score);
         if (dr.score > prevBest && V2::Replay::state() == V2::Replay::State::Recording) {   // new personal best on this road: keep it as the ghost
             V2::Replay::save(V2::Replay::lastRecording(), FileUtils::getInstance()->getWritablePath() + "ghost_" + std::to_string(dr.dateKey) + ".v2r");
@@ -3227,6 +3232,52 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         runAction(Sequence::create(DelayTime::create(1.3f), CallFunc::create([this, shownDr, wasRanked, rankedScore, granted]() {
             if (_scene) PZPopups::showDailyResult(_scene, shownDr, wasRanked, rankedScore, granted, nullptr);
         }), nullptr));
+    }
+
+    // The Midnight Crown headline: ONE primary outcome by priority, the best mastery moment and the next target (PRODUCT_PLAN 24.5).
+    {
+        V2::Outcome2::Inputs oi;
+        oi.trexEscaped = evStats.trexEscaped;
+        if (oi.trexEscaped && !UserDefault::getInstance()->getBoolForKey("PZP_V2_crown_claimed", false)) {
+            oi.firstCrown = true;
+            UserDefault::getInstance()->setBoolForKey("PZP_V2_crown_claimed", true);
+        }
+        oi.rivalBeaten = evStats.rivalBeaten;
+        oi.newDistanceRecord = result.newBest;
+        oi.dailyMedal = outcomeDailyMedal;
+        oi.friendBeaten = outcomeFriendBeaten;
+        oi.distance = _stats.distance;
+        oi.best = result.best;
+        oi.smooth = evStats.smooth;
+        oi.closeDodges = evStats.closeDodges;
+        oi.eventsCleared = dailyEvents;
+        oi.microDone = evStats.microDone;
+        const auto hl = V2::Outcome2::pick(oi);
+        V2::Analytics::shared().log("result_headline", {{"priority", std::to_string(hl.priority)}, {"title", hl.title}});
+        const Size win = Director::getInstance()->getWinSize();
+        const Rect safe = PZLayout::safeRect();
+        const float S = PZLayout::uiScale();
+        auto* plate = Node::create();
+        plate->setPosition(Vec2(safe.getMaxX() - 172.f * S, win.height * 0.64f));   // right of the GAME OVER sign: clear of the live distance read-out
+        auto* bg = PZUI::roundedRect(310.f, hl.moment.empty() ? 66.f : 84.f, 16.f, Color3B(14, 20, 40), 0.9f, hl.priority <= 2 ? Color3B(255, 205, 80) : Color3B(255, 150, 60), 1.f, 2.f);
+        plate->addChild(bg);
+        auto* t = PZUI::heading(hl.title, 14.f, hl.priority <= 2 ? Color3B(255, 215, 90) : Color3B(255, 255, 255));
+        t->setPosition(Vec2(0.f, hl.moment.empty() ? 12.f : 22.f));
+        if (t->getContentSize().width > 280.f) t->setScale(280.f / t->getContentSize().width);
+        plate->addChild(t, 2);
+        if (!hl.moment.empty()) {
+            auto* m = PZUI::label(hl.moment, 8.f, Color3B(200, 235, 255));
+            if (m->getContentSize().width > 280.f) m->setScale(280.f / m->getContentSize().width);
+            m->setPosition(Vec2(0.f, 0.f));
+            plate->addChild(m, 2);
+        }
+        auto* n = PZUI::label(hl.next, 8.f, Color3B(170, 180, 205));
+        n->setPosition(Vec2(0.f, hl.moment.empty() ? -14.f : -22.f));
+        if (n->getContentSize().width > 280.f) n->setScale(280.f / n->getContentSize().width);
+        plate->addChild(n, 2);
+        plate->setScale(0.01f);
+        gameOverLayer->addChild(plate, 50);
+        plate->runAction(Sequence::create(DelayTime::create(0.25f), EaseBackOut::create(ScaleTo::create(0.25f, S)), nullptr));
     }
 }
 

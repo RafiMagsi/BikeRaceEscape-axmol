@@ -8,8 +8,16 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace V2 {
+
+// One Night Run chapter (PRODUCT_PLAN 24.3): a distance band, its title and the road events that may start inside it.
+struct Chapter {
+    std::string id, title;
+    float fromM = 0.f, toM = 1e9f;
+    std::vector<std::string> events;           // event ids (eventName()); empty = every event
+};
 
 struct Config {
     int   rulesVersion = 2;
@@ -43,6 +51,11 @@ struct Config {
     float wBox = 15.f, wBoxMiss = 10.f;// Pizza Express: per caught / per missed box
     int   medal1 = 500, medal2 = 1200, medal3 = 2500;
     int   rewardByMedal[4] = {20, 40, 80, 150};
+
+    // --- Night Run chapters (plist v2.nightChapters / climaxAtM / climaxEveryM) ---
+    std::vector<Chapter> chapters;     // ascending by fromM; empty = one chapter with every event
+    float climaxAtM = 1200.f;          // first safe window after this distance starts the T-Rex chase
+    float climaxEveryM = 900.f;        // then again every this many metres (After Midnight)
 
     struct Mod { float scoreMult = 1.f, medalScale = 1.f, breather = 1.f, coins = 1.f; };
     Mod mods[6];                       // standard, one_life, event_rush, coin_drought, perfect_landing, pizza_express

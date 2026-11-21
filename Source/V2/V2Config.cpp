@@ -72,6 +72,28 @@ void reloadConfig() {
     }
 #undef F
 #undef I
+    c.climaxAtM = clampf(getF(m, "climaxAtM", c.climaxAtM), 200.f, 20000.f);
+    c.climaxEveryM = clampf(getF(m, "climaxEveryM", c.climaxEveryM), 300.f, 20000.f);
+    c.chapters.clear();
+    auto nc = m.find("nightChapters");
+    if (nc != m.end() && nc->second.getType() == Value::Type::VECTOR) {
+        for (const Value& v : nc->second.asValueVector()) {
+            if (v.getType() != Value::Type::MAP) continue;
+            const ValueMap& cm = v.asValueMap();
+            Chapter ch;
+            auto gs = [&](const char* k) { auto it = cm.find(k); return it == cm.end() ? std::string() : it->second.asString(); };
+            ch.id = gs("id");
+            ch.title = gs("title");
+            ch.fromM = getF(cm, "fromM", 0.f);
+            ch.toM = getF(cm, "toM", 1e9f);
+            auto ev = cm.find("events");
+            if (ev != cm.end() && ev->second.getType() == Value::Type::VECTOR) {
+                for (const Value& e : ev->second.asValueVector()) ch.events.push_back(e.asString());
+            }
+            if (!ch.id.empty()) c.chapters.push_back(ch);
+        }
+        std::sort(c.chapters.begin(), c.chapters.end(), [](const Chapter& a, const Chapter& b) { return a.fromM < b.fromM; });
+    }
     // consistency: ordered ranges
     if (c.breatherMax < c.breatherMin) c.breatherMax = c.breatherMin;
     if (c.tierExpertAt < c.tierStandardAt + 20.f) c.tierExpertAt = c.tierStandardAt + 20.f;

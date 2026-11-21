@@ -132,7 +132,9 @@ void RoadEventDirector::reset(uint32_t seed) {
         }
     }
     _rs = RunStats();
-    _nextClimaxAt = cfg().climaxAfter;
+    _chapter = -1;
+    _nextClimaxM = cfg().climaxAtM;
+    if (_chapterTitle) { _chapterTitle->removeFromParent(); _chapterTitle = nullptr; }
     _streak = 0;
     _lastLucky = false;
     _gagState = 0;
@@ -439,6 +441,7 @@ void RoadEventDirector::finishEvent(Outcome o) {
                                                {"hit", _hitThisEvent ? "1" : "0"}, {"progress", std::to_string(_passed) + "/" + std::to_string(_target)},
                                                {"coins", std::to_string(_evCoins)}});
     if (o == Outcome::Success) {
+        if (_cur == EventId::TrexChase) _rs.trexEscaped = true;
         ++_successes;
         ++_streak;
         if (_streak >= 3) {                               // ROAD STREAK: three clean events in a row, growing payout
@@ -483,12 +486,53 @@ void RoadEventDirector::updateScheduler(const Context& ctx) {
     for (auto& a : _actors) {
         if (a->kind != Kind::Ambient) return;           // leftovers (launched dinos) finish first
     }
-    if (_successes >= _nextClimaxAt && _lastDistance >= cfg().tierStandardAt) {   // chapter climax: the T-Rex finally catches up
-        _nextClimaxAt = _successes + cfg().climaxAfter + 1;
+    if (_lastDistance >= _nextClimaxM) {                  // the chapter climax: first safe window after Crown Hunt, then every climaxEveryM
+        _nextClimaxM = _lastDistance + cfg().climaxEveryM;
         startEvent(EventId::TrexChase);
         return;
     }
-    startEvent(static_cast<EventId>(_bag.next(_rng)));
+    // draw from the shuffle bag until the event belongs to the current chapter (bounded; deterministic); a chapter's first listed
+    // event is the registered fallback
+    const int ch = chapterIndexAt(_lastDistance);
+    EventId pick = static_cast<EventId>(_bag.next(_rng));
+    for (int tries = 0; tries < 14 && !chapterAllows(ch, pick); ++tries) pick = static_cast<EventId>(_bag.next(_rng));
+    if (!chapterAllows(ch, pick) && ch >= 0 && !cfg().chapters[ch].events.empty()) {
+        for (int i = 0; i < kEventCount; ++i) {
+            if (cfg().chapters[ch].events.front() == eventName(static_cast<EventId>(i))) pick = static_cast<EventId>(i);
+        }
+    }
+    startEvent(pick);
+}
+
+int RoadEventDirector::chapterIndexAt(float distance) const {
+    const auto& cs = cfg().chapters;
+    int idx = -1;
+    for (int i = 0; i < static_cast<int>(cs.size()); ++i) if (distance >= cs[i].fromM) idx = i;
+    return idx;
+}
+
+bool RoadEventDirector::chapterAllows(int chapter, EventId id) const {
+    if (chapter < 0 || cfg().chapters[chapter].events.empty()) return true;
+    for (const auto& e : cfg().chapters[chapter].events) if (e == eventName(id)) return true;
+    return false;
+}
+
+// One-second wall-band title + a soft sting (PRODUCT_PLAN 24.3 #3): never takes control, never hides the road.
+void RoadEventDirector::announceChapter(const std::string& title) {
+    if (!_hud || title.empty()) return;
+    if (_chapterTitle) _chapterTitle->removeFromParent();
+    const Rect safe = PZLayout::safeRect();
+    const float S = PZLayout::uiScale();
+    auto* l = PZUI::heading(title, 22.f, Color3B(255, 205, 80));
+    l->setScale(S * 0.6f);
+    l->setOpacity(0);
+    l->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 176.f * S));
+    _hud->addChild(l, 18);
+    _chapterTitle = l;
+    l->runAction(Sequence::create(Spawn::create(FadeIn::create(0.18f), ScaleTo::create(0.18f, S), nullptr), DelayTime::create(1.0f),
+                                  FadeOut::create(0.3f), CallFunc::create([this, l]() { if (_chapterTitle == l) _chapterTitle = nullptr; }),
+                                  RemoveSelf::create(), nullptr));
+    PZAudio::play("fx_stage", 0.35f, 0.1f);
 }
 
 void RoadEventDirector::update(const Context& ctxIn) {
@@ -503,6 +547,16 @@ void RoadEventDirector::update(const Context& ctxIn) {
     _lastRiderX = ctx.rider.x;
     _lastDistance = ctx.distance;
 
+    if (!ctx.controlLocked) {
+        const int ch = chapterIndexAt(ctx.distance);
+        if (ch != _chapter) {
+            _chapter = ch;
+            if (ch >= 0) {
+                announceChapter(cfg().chapters[ch].title);
+                Analytics::shared().log("chapter_start", {{"chapter", cfg().chapters[ch].id}, {"dist", std::to_string(static_cast<int>(ctx.distance))}});
+            }
+        }
+    }
     updateScheduler(ctx);
     if (_active) {
         _t += ctx.dt;
@@ -767,6 +821,7 @@ void RoadEventDirector::updateRace(const Context& ctx) {
             _raceT = 0.f;
             reward(cfg().rewardOvertake, Vec2(ctx.rider.x + 30.f, ctx.rider.y + 80.f), "OVERTAKE! +" + std::to_string(cfg().rewardOvertake));
             noteRivalResult(true);
+            _rs.rivalBeaten = true;
             if (rivalWins() % 3 == 0) {                       // rematch milestone: every third win over him
                 reward(25, Vec2(ctx.rider.x + 30.f, ctx.rider.y + 130.f), "RIVAL x" + std::to_string(rivalWins()) + "! +25");
             }

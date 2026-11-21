@@ -76,7 +76,7 @@ public:
     bool forceStart(const std::string& name);     // debug / QA: start a specific event now
     uint32_t seed() const { return _seed; }
     int successCount() const { return _successes; }   // events finished without a hit this run (daily score)
-    struct RunStats { int eventCoins = 0, smooth = 0, boxesCaught = 0, boxesMissed = 0, objectsCollected = 0, microDone = 0, closeDodges = 0; };
+    struct RunStats { int eventCoins = 0, smooth = 0, boxesCaught = 0, boxesMissed = 0, objectsCollected = 0, microDone = 0, closeDodges = 0; bool trexEscaped = false, rivalBeaten = false; };
     const RunStats& runStats() const { return _rs; }
     void notifySmoothLanding();                   // the rider landed smoothly after crossing a gap
     void notifyPowerUp();                         // a power-up was picked up
@@ -135,6 +135,9 @@ private:
     void finishEvent(bool success) { finishEvent(success ? Outcome::Success : Outcome::Failed); }
     void finishEvent(Outcome o);
     void updateScheduler(const Context& ctx);
+    int chapterIndexAt(float distance) const;                 // index into cfg().chapters (-1 = none)
+    bool chapterAllows(int chapter, EventId id) const;
+    void announceChapter(const std::string& title);
     void updateDino(const Context& ctx);
     void updatePizza(const Context& ctx);
     void updateRace(const Context& ctx);
@@ -199,7 +202,9 @@ private:
     Tier _tier = Tier::Intro;
     int _variant = 0;
     ShuffleBag<int> _variantBag[kEventTotal];
-    int _nextClimaxAt = 4;
+    int _chapter = -1;                  // current Night Run chapter
+    float _nextClimaxM = 1200.f;        // distance of the next T-Rex chase window
+    ax::Node* _chapterTitle = nullptr;
     float _draft = 0.f;                 // Grandma variant 1: seconds spent in her slipstream
     bool _drafted = false;
     int _streak = 0;                    // consecutive cleared events
