@@ -63,6 +63,12 @@ def analyse(name, ev):
     r["daily_runs"] = sum(1 for e in runs if e.get("mode", "").startswith("daily"))
     r["challenge_opened"] = sum(1 for e in ev if e["e"] == "challenge_open")
     r["challenge_started"] = sum(1 for e in ev if e["e"] == "challenge_start")
+    d2c = [num(e.get("death_to_control_s"), -1) for e in ev if e["e"] == "run_control" and e.get("death_to_control_s") not in (None, "-")]
+    d2r = [num(e.get("death_to_results_s"), -1) for e in ev if e["e"] == "run_end" and e.get("death_to_results_s") not in (None, "-")]
+    r["median_death_to_control_s"] = statistics.median(d2c) if d2c else None      # gate: < 5 s on voluntary retries (24.7)
+    r["median_death_to_results_s"] = statistics.median(d2r) if d2r else None
+    r["chapters_reached"] = sorted({e.get("chapter") for e in ev if e["e"] == "chapter_start"})
+    r["timeouts"] = sum(1 for e in ev if e["e"] == "road_event_timeout")
     r["cinematic_denied"] = sum(1 for e in ev if e["e"] == "cinematic_denied")
     worst = [num(e.get("ft_worst_ms")) for e in ends]
     r["worst_frame_ms"] = max(worst) if worst else None
@@ -84,6 +90,7 @@ def main():
         print(f"   voluntary 2nd run: {r['voluntary_second_run']} (median retry gap {r['median_retry_gap_s']}s)")
         print(f"   dialogue shown/done: {r['dialogue_shown']}/{r['dialogue_done']}  scenic beats: {r['scenic_beats']}  micro: {r['micro_success']}/{r['micro_total']}")
         print(f"   daily runs: {r['daily_runs']}  challenge opened/started: {r['challenge_opened']}/{r['challenge_started']}  cinematic denied: {r['cinematic_denied']}")
+        print(f"   death->results {r['median_death_to_results_s']}s, death->control {r['median_death_to_control_s']}s, chapters {r['chapters_reached']}, event timeouts {r['timeouts']}")
         print(f"   perf: worst frame {r['worst_frame_ms']} ms, >50ms frames {r['frames_over_50ms_pct']}%")
         for k, v in sorted(r["events"].items()):
             print(f"   event {k}: {v}")

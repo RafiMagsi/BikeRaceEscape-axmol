@@ -5,6 +5,7 @@
 #include "V2/V2Metrics.h"
 #include "V2/V2Metrics.h"
 #include "V2/V2Metrics.h"
+#include "V2/V2Metrics.h"
 #include "PZGCharacterMenu.h"
 #include "PZGLoadingScene.h"
 #include "PZGMainMenuScene.h"
@@ -51,6 +52,7 @@ void AppDelegate::setDebugModeEnabled(bool enable) {
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
+    V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
     V2::Metrics::markLaunch();
@@ -152,6 +154,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
         return false;
     }
     director->runWithScene(scene);
+
+
+
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     // The Java splash overlay covers the window while the native engine initializes. Fade it out shortly after

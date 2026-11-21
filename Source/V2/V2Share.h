@@ -21,6 +21,15 @@ std::string shareText(const Daily::Result& r);
 // the sheet itself is handed over right after. `host` is only used to keep the render alive on the scene.
 void shareDailyResult(ax::Node* host, const Daily::Result& r, std::function<void(const std::string&)> done = nullptr);
 
+// A normal (non-daily) run worth sharing: Crown claimed, rival beaten or a distance record (results headline, PRODUCT_PLAN 24.5).
+struct RunCard {
+    std::string headline;        // "CROWN CLAIMED"
+    int distance = 0;
+    std::string moment;          // best mastery moment ("" none)
+    std::string next;            // next target ("" none)
+};
+void shareRun(ax::Node* host, const RunCard& c);
+
 // Platform part (V2ShareApple.mm / Java ShareBridge): shows the sheet for an existing PNG.
 void sendImage(const std::string& path, const std::string& text);
 

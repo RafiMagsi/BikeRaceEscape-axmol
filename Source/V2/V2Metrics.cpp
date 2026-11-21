@@ -11,7 +11,8 @@ namespace Metrics {
 
 namespace {
 using Clock = std::chrono::steady_clock;
-Clock::time_point g_launch = Clock::now(), g_runStart, g_control, g_lastEnd;
+Clock::time_point g_launch = Clock::now(), g_runStart, g_control, g_lastEnd, g_death;
+bool g_hasDeath = false;
 bool g_firstEventLogged = false;
 bool g_live = false, g_hadControl = false, g_launchLogged = false, g_hasEnd = false;
 int g_runIndex = 0, g_frames = 0;
@@ -22,6 +23,8 @@ std::string g_mode = "normal";
 float since(Clock::time_point t) { return std::chrono::duration<float>(Clock::now() - t).count(); }
 std::string f1(float v) { char b[24]; std::snprintf(b, sizeof(b), "%.1f", v); return b; }
 }
+
+void deathNoted() { g_death = Clock::now(); g_hasDeath = true; }
 
 void markLaunch() { g_launch = Clock::now(); g_launchLogged = false; }
 
@@ -46,6 +49,7 @@ void controlGranted() {
     g_hadControl = true;
     g_control = Clock::now();
     Analytics::shared().log("run_control", {{"n", std::to_string(g_runIndex)}, {"intro_s", f1(since(g_runStart))},
+                                            {"death_to_control_s", (g_runIndex > 1 && g_hasDeath) ? f1(std::chrono::duration<float>(Clock::now() - g_death).count()) : std::string("-")},
                                             {"launch_to_control_s", g_launchLogged ? std::string("-") : f1(since(g_launch))}});
     g_launchLogged = true;
 }
@@ -70,6 +74,7 @@ void runEnded(int distance, int eventsCleared, int coins, const std::string& cau
     g_hasEnd = true;
     g_lastEnd = Clock::now();
     Analytics::shared().log("run_end", {{"n", std::to_string(g_runIndex)}, {"mode", g_mode}, {"cause", cause},
+                                        {"death_to_results_s", g_hasDeath ? f1(std::chrono::duration<float>(g_lastEnd - g_death).count()) : std::string("-")},
                                         {"distance", std::to_string(distance)}, {"events", std::to_string(eventsCleared)},
                                         {"coins", std::to_string(coins)},
                                         {"duration_s", g_hadControl ? f1(std::chrono::duration<float>(g_lastEnd - g_control).count()) : std::string("0")},

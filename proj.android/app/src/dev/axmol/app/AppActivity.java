@@ -58,6 +58,19 @@ public class AppActivity extends AxmolActivity {
         return v == null ? "" : v;
     }
 
+    /** True when the player turned system animations off (Developer options / accessibility "Remove animations"): the game's Reduced Motion. */
+    public static boolean systemReduceMotion() {
+        final AppActivity a = sInstance.get();
+        if (a == null) return false;
+        try {
+            final float scale = android.provider.Settings.Global.getFloat(a.getContentResolver(),
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f);
+            return scale == 0f;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     private static void rememberLink(android.content.Intent intent) {
         if (intent == null || intent.getData() == null) return;
         final String s = intent.getData().toString();

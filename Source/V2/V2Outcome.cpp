@@ -1,6 +1,7 @@
 #include "V2/V2Outcome.h"
 #include "V2/V2Config.h"
 #include "V2/V2Content.h"
+#include <algorithm>
 
 namespace V2 {
 namespace Outcome2 {
@@ -49,6 +50,10 @@ Headline pick(const Inputs& in) {
     if (next.empty() && static_cast<float>(in.distance) < cfg().climaxAtM) next = fmt(text("next_trex"), "m", static_cast<int>(cfg().climaxAtM));
     if (next.empty() || (in.best > in.distance && in.best - in.distance < 150)) next = fmt(text("next_record"), "m", in.best);
     h.next = next;
+    int mo = in.perfect * 8 + in.smooth * 4 + in.bestChain * 10 + in.closeDodges * 3 + in.eventsCleared * 6 + in.microDone * 8;
+    if (in.rivalBeaten) mo += 20;
+    if (in.trexEscaped) mo += 30;
+    h.momentum = std::min(100, mo);
     return h;
 }
 

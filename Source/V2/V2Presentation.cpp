@@ -1,5 +1,8 @@
 #include "V2/V2Presentation.h"
 #include "PZLegacyCompat.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "platform/android/jni/JniHelper.h"
+#endif
 
 USING_NS_AX;
 
@@ -30,7 +33,13 @@ const char* spectacleName(Spectacle s) {
 bool reducedMotion() { return UserDefault::getInstance()->getBoolForKey(kMotionKey, false) || systemReduceMotion(); }
 
 #if !defined(__APPLE__)
-bool systemReduceMotion() { return false; }   // Android: AccessibilityManager / animator scale is not read yet
+bool systemReduceMotion() {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    return ax::JniHelper::callStaticBooleanMethod("dev/axmol/app/AppActivity", "systemReduceMotion");   // animator duration scale == 0
+#else
+    return false;
+#endif
+}
 #endif
 
 void setReducedMotion(bool on) {

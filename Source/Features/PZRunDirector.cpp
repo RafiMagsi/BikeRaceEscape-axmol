@@ -6,9 +6,11 @@
 #include "V2/V2Scenic.h"
 #include "V2/V2Dialogue.h"
 #include "V2/V2Cinematic.h"
+#include "V2/V2Presentation.h"
 #include "V2/V2Ghost.h"
 #include "V2/V2Leaderboard.h"
 #include "V2/V2Outcome.h"
+#include "V2/V2Share.h"
 #include "V2/V2Metrics.h"
 #include "PZRandom.h"
 #include "V2/V2Daily.h"
@@ -95,6 +97,16 @@ bool PZRunDirector::initDirector(PZGGameFieldScene* scene) {
         host.lethal = [this]() { if (_scene && !_scene->gameOver) _scene->gameOverCallBack(true); };
         host.award = [this](int coins, const Vec2& at, const std::string& text) { awardBonus(coins, at, text, PZCfg::kColGood); };
         host.shake = [this](float a, float d) { shakeScene(a, d); };
+        host.climaxReveal = [this]() {                    // wide establishing shot for the T-Rex: slight pull-out, held, eased back (Full motion only)
+            if (!_scene || V2::Presentation::reducedMotion() || V2::Presentation::spectacle() != V2::Presentation::Spectacle::Full) return;
+            constexpr int kRevealTag = 7734;
+            stopActionByTag(kRevealTag);
+            const Size win = Director::getInstance()->getWinSize();
+            cameraTo(Vec2(win.width * 0.5f, win.height * 0.5f), 0.93f, 0.45f);
+            auto* seq = Sequence::create(DelayTime::create(1.2f), CallFunc::create([this]() { cameraReset(0.7f); }), nullptr);
+            seq->setTag(kRevealTag);
+            runAction(seq);
+        };
         _events->setHost(host);
     }
 
@@ -435,6 +447,7 @@ void PZRunDirector::updateGadgetStrip(float dt) {
 }
 
 void PZRunDirector::clearRunVisuals() {
+    stopActionByTag(7734);                              // T-Rex reveal shot
     V2::Cinematic::shared().forceReset();               // new run / scene exit: nobody owns the camera any more
     if (_cinematicFrame) closeCinematicFrame(0.08f);
     for (auto& o : _orbs) {
@@ -2790,6 +2803,9 @@ void PZRunDirector::updateFx(float dt, float scroll) {
             const float strength = std::min(1.f, _airTime / 0.7f);
             dustPuff(Vec2(riderPos().x, groundY + 6.f), 4 + static_cast<int>(strength * 5.f), 110.f);
             if (_airTime >= 0.5f && _events) _events->notifyBoost(35.f);   // a long clean jump helps in a rival race
+            if (_airTime > 0.5f && _scene->character && std::abs(_scene->character->angle) > 40.f) {      // ROUGH landing: no bonus, honest feedback
+                PZUI::floatText(_scene, "ROUGH", riderPos() + Vec2(0, 56), PZCfg::kColBad, 11.f, kZFx);
+            }
             // Smooth landing: crossed a gap in the air and touched down with road ahead (comic squash + small bonus).
             if (_overGap && _airTime > 0.3f && runwayAhead(140.f * kDeviceScale())) {
                 ++_smoothStreak;
@@ -2900,7 +2916,7 @@ void PZRunDirector::updateMissionTracker(float dt) {
 // ---- death / revive --------------------------------------------------------------------------
 
 bool PZRunDirector::onDeath() {
-    if (!_deathDeferred && !_skipDeathOnce) V2::Replay::noteDeath();   // first lethal signal = the replay's end tick
+    if (!_deathDeferred && !_skipDeathOnce) { V2::Replay::noteDeath(); V2::Metrics::deathNoted(); }   // first lethal signal = the replay's end tick
     if (_skipDeathOnce) {              // the deferred decision below already ran and chose a real game over
         _skipDeathOnce = false;
         return false;
@@ -3264,7 +3280,7 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         const float S = PZLayout::uiScale();
         auto* plate = Node::create();
         plate->setPosition(Vec2(safe.getMaxX() - 172.f * S, win.height * 0.64f));   // right of the GAME OVER sign: clear of the live distance read-out
-        auto* bg = PZUI::roundedRect(310.f, hl.moment.empty() ? 66.f : 84.f, 16.f, Color3B(14, 20, 40), 0.9f, hl.priority <= 2 ? Color3B(255, 205, 80) : Color3B(255, 150, 60), 1.f, 2.f);
+        auto* bg = PZUI::roundedRect(310.f, hl.moment.empty() ? 76.f : 94.f, 16.f, Color3B(14, 20, 40), 0.9f, hl.priority <= 2 ? Color3B(255, 205, 80) : Color3B(255, 150, 60), 1.f, 2.f);
         plate->addChild(bg);
         auto* t = PZUI::heading(hl.title, 14.f, hl.priority <= 2 ? Color3B(255, 215, 90) : Color3B(255, 255, 255));
         t->setPosition(Vec2(0.f, hl.moment.empty() ? 12.f : 22.f));
@@ -3280,8 +3296,32 @@ void PZRunDirector::presentResults(Node* gameOverLayer, Label* distanceLabel) {
         n->setPosition(Vec2(0.f, hl.moment.empty() ? -14.f : -22.f));
         if (n->getContentSize().width > 280.f) n->setScale(280.f / n->getContentSize().width);
         plate->addChild(n, 2);
+        {   // CROWN MOMENTUM: one thin bar under the plate text (summary of the run's mastery, not a currency)
+            const float bw = 250.f;
+            auto* track = PZUI::roundedRect(bw, 7.f, 3.f, Color3B(40, 48, 76), 1.f, Color3B(90, 100, 130), 1.f, 1.f);
+            track->setPosition(Vec2(0.f, hl.moment.empty() ? -26.f : -34.f));
+            plate->addChild(track, 2);
+            if (hl.momentum > 0) {
+                const float fw = std::max(8.f, bw * hl.momentum / 100.f);
+                auto* fill = PZUI::roundedRect(fw, 7.f, 3.f, Color3B(255, 190, 60), 1.f, Color3B(255, 220, 120), 1.f, 1.f);
+                fill->setPosition(Vec2(-(bw - fw) * 0.5f, hl.moment.empty() ? -26.f : -34.f));
+                plate->addChild(fill, 3);
+            }
+        }
         plate->setScale(0.01f);
         gameOverLayer->addChild(plate, 50);
+        if (hl.priority <= 3) {                          // share only a meaningful result (crown, rival beaten, record)
+            V2::Share::RunCard rc;
+            rc.headline = hl.title; rc.distance = _stats.distance; rc.moment = hl.moment; rc.next = hl.next;
+            Node* shareHost = gameOverLayer;
+            auto* sh = PZUI::Button::create("SHARE", 150.f, 34.f, Color3B(236, 120, 30), [shareHost, rc]() {
+                V2::Analytics::shared().log("share_prompt", {{"context", "run_headline"}, {"tapped", "1"}});
+                V2::Share::shareRun(shareHost, rc);
+            }, 10.f);
+            sh->setPosition(Vec2(safe.getMaxX() - 172.f * S, win.height * 0.64f - 66.f * S));
+            sh->setScale(S);
+            gameOverLayer->addChild(sh, 50);
+        }
         plate->runAction(Sequence::create(DelayTime::create(0.25f), EaseBackOut::create(ScaleTo::create(0.25f, S)), nullptr));
     }
 }

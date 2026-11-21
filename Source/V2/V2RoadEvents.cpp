@@ -52,8 +52,8 @@ const char* tierName(Tier t) {
 
 static int variantCount(EventId id) {
     switch (id) {
-    case EventId::DinoCrossing: case EventId::ConstructionChaos: case EventId::MeteorShower:
-    case EventId::PizzaPanic: case EventId::CoolKidRace: case EventId::GrandmaTurbo: return 2;
+    case EventId::DinoCrossing: case EventId::ConstructionChaos: case EventId::MeteorShower: case EventId::PizzaPanic: return 3;
+    case EventId::CoolKidRace: case EventId::GrandmaTurbo: return 2;
     default: return 1;
     }
 }
@@ -429,9 +429,12 @@ void RoadEventDirector::startEvent(EventId id) {
     _tier = _lastDistance >= c.tierExpertAt ? Tier::Expert : (_lastDistance >= c.tierStandardAt ? Tier::Standard : Tier::Intro);
     // Variants: the first tier teaches the plain version; later tiers draw from a shuffle bag (never the same one twice in a row).
     _variant = (_tier == Tier::Intro) ? 0 : _variantBag[static_cast<int>(id)].next(_rng);
+    // Expert-only patterns (variant 2) for Dino, Construction, Meteor and Pizza: they change the decision, not just the speed. Below the
+    // expert tier the same bag draw maps to the standard variant 1, so the draw sequence (and replays) never depend on the tier.
+    if (_variant == 2 && _tier != Tier::Expert) _variant = 1;
     if (_micro.active && _micro.type == 2) _micro.armedNoPowerUp = true;
     Metrics::firstEvent();
-    if (id == EventId::TrexChase) Cinematic::shared().request(Cinematic::Owner::Climax);   // no punches / blast zooms during the set piece
+    if (id == EventId::TrexChase && Cinematic::shared().request(Cinematic::Owner::Climax) && _host.climaxReveal) _host.climaxReveal();   // owner granted: one wide shot; no punches / blast zooms during the set piece
     if (id == EventId::TrexChase) UserDefault::getInstance()->setBoolForKey("PZP_V2_trex_seen", true);   // unlocks the T-Rex dialogue next run
     Analytics::shared().log("road_event_start", {{"event", eventName(id)}, {"variant", std::to_string(_variant)}, {"tier", tierName(_tier)},
                                                  {"clock", std::to_string(static_cast<int>(_clock))}, {"dist", std::to_string(static_cast<int>(_lastDistance))}});
@@ -537,7 +540,7 @@ void RoadEventDirector::announceChapter(const std::string& title) {
     auto* l = PZUI::heading(title, 22.f, Color3B(255, 205, 80));
     l->setScale(S * 0.6f);
     l->setOpacity(0);
-    l->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - 176.f * S));
+    l->setPosition(Vec2(safe.getMidX(), safe.getMaxY() - safe.size.height * 0.46f));   // below the stage banner, clear of the rider column
     _hud->addChild(l, 18);
     _chapterTitle = l;
     l->runAction(Sequence::create(Spawn::create(FadeIn::create(0.18f), ScaleTo::create(0.18f, S), nullptr), DelayTime::create(1.0f),
@@ -571,6 +574,19 @@ void RoadEventDirector::update(const Context& ctxIn) {
     updateScheduler(ctx);
     if (_active) {
         _t += ctx.dt;
+        // Fail-safe: no event may run forever (a delivery that never finds road to drop on, a rider that cannot spawn...). Seen in a
+        // full-run review: one Pizza Panic held the scheduler for over a minute and blocked every later chapter and the T-Rex.
+        static const float kCap[7] = {40.f, 32.f, 40.f, 40.f, 40.f, 28.f, 70.f};
+        if (_t > kCap[static_cast<int>(_cur)]) {
+            Analytics::shared().log("road_event_timeout", {{"event", eventName(_cur)}, {"variant", std::to_string(_variant)}, {"progress", std::to_string(_passed) + "/" + std::to_string(_target)}});
+            for (auto& a2 : _actors) {
+                if (a2->kind != Kind::Ambient || a2->id == _rivalId) removeActor(*a2);
+            }
+            _rivalId = 0;
+            finishEvent(Outcome::SkippedNoRoad);
+        }
+    }
+    if (_active) {
         switch (_cur) {
         case EventId::DinoCrossing: updateDino(ctx); break;
         case EventId::PizzaPanic:   updatePizza(ctx); break;
@@ -597,7 +613,7 @@ void RoadEventDirector::updateDino(const Context& ctx) {
     const float winW = Director::getInstance()->getWinSize().width;
     const float spawnX = winW + 110.f;
     const float k = kDeviceScale();
-    const bool stampede = _variant == 1;
+    const bool stampede = _variant >= 1;
     const int n = stampede ? 6 : 4;
     if (_step == 0) {
         _waited += ctx.dt;
@@ -614,7 +630,7 @@ void RoadEventDirector::updateDino(const Context& ctx) {
         }
         return;
     }
-    setObjective(std::string(stampede ? "STAMPEDE!  " : "DINO CROSSING  ") + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
+    setObjective(std::string(_variant == 2 ? "PACK HUNT!  " : (stampede ? "STAMPEDE!  " : "DINO CROSSING  ")) + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
                  (_riskNeed > 0 ? "\n" + _riskLabel + "  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
     if (_step >= 1 && _step <= n) {
         _wait -= ctx.dt;
@@ -628,6 +644,11 @@ void RoadEventDirector::updateDino(const Context& ctx) {
         float gy = 0.f;
         ground(spawnX, gy);
         const float h = big ? std::min(0.62f * ctx.apex, 118.f * k) : std::min(0.42f * ctx.apex, 78.f * k);
+        if (_variant == 2 && (_step == 2 || _step == 4) && !big) {          // PACK HUNT (expert): a second dino right behind the first
+            if (Actor* d2 = spawn(Kind::DinoSmall, "dino_small", 4, spawnX + 140.f, gy, h, false)) {
+                d2->hazard = true; d2->vx = -54.f; d2->fps = 9.f; d2->group = _nextGroup++; ++_total; ++_target;
+            }
+        }
         if (Actor* d = spawn(big ? Kind::DinoBig : Kind::DinoSmall, big ? "dino_big" : "dino_small", 4, spawnX, gy, h, false)) {
             d->hazard = true;
             d->vx = big ? -34.f : -54.f;                  // dinos wander toward you a little
@@ -676,6 +697,7 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
                 _rivalId = r->id;
                 say("pizza_ok", r->id);
                 _step = 1;
+                _waited = 0.f;
             }
         } else if (_waited > 6.f) {
             finishEvent(Outcome::SkippedNoRoad);
@@ -683,13 +705,15 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
         return;
     }
     if (!r) { finishEvent(Outcome::Failed); return; }
-    const bool dbl = _variant == 1;                       // variant 1 "double order": boxes drop in pairs, six of nine needed
-    const int need = dbl ? 6 : 5, maxBoxes = dbl ? 9 : 7;
-    setObjective(std::string(dbl ? "DOUBLE ORDER  " : "PIZZA PANIC  ") + std::to_string(_score) + "/" + std::to_string(need) + " CAUGHT");
+    const bool dbl = _variant >= 1;
+    const bool triple = _variant == 2;                    // TRIPLE ORDER (expert): three boxes per drop, 8 of 12 needed                       // variant 1 "double order": boxes drop in pairs, six of nine needed
+    const int need = triple ? 8 : (dbl ? 6 : 5), maxBoxes = triple ? 12 : (dbl ? 9 : 7);
+    setObjective(std::string(triple ? "TRIPLE ORDER  " : (dbl ? "DOUBLE ORDER  " : "PIZZA PANIC  ")) + std::to_string(_score) + "/" + std::to_string(need) + " CAUGHT");
     const float targetX = std::min(winW - 150.f, ctx.rider.x + 330.f);
     if (_step == 1) {                                     // delivering: ride ahead of the player, dropping boxes
         r->x = approach(r->x, targetX + std::sin(_t * 1.3f) * 26.f, 260.f * ctx.dt);
         _wait -= ctx.dt;
+        _waited += ctx.dt;                                // time since the last drop: a delivery that cannot find road gives up (root cause of the 67 s stall)
         if (_wait <= 0.f && _total < maxBoxes && r->x < winW - 30.f) {
             // where would a box land? (world drift while it falls)
             const float fallT = 0.78f;
@@ -705,20 +729,28 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
                     b->spin = _rng.range(-120.f, 120.f);
                     if (_total >= 2 && _rng.chance(0.2f)) { b->group = 9; b->spr->setColor(Color3B(255, 215, 70)); }   // GOLDEN SLICE: worth more
                     ++_total;
+                    _waited = 0.f;
                     _wait = dbl ? 1.8f : 1.5f;
                     PZAudio::play("fx_powerup", 0.25f, 0.2f);
                 }
-                float gy2 = 0.f;
-                if (dbl && _total < maxBoxes && ground(landX - 75.f, gy2) && landX - 75.f > ctx.rider.x - 30.f) {   // the second box of the pair
-                    if (Actor* b2 = spawn(Kind::Box, "pizza_box", 1, r->x - 99.f, r->y + 60.f * k, 34.f * k, false)) {
-                        b2->vy = 260.f; b2->grounded = false; b2->hazard = false;
-                        b2->w = 40.f * k; b2->h = 34.f * k; b2->spin = _rng.range(-120.f, 120.f);
-                        ++_total;
+                for (int extra = 1; extra < (triple ? 3 : (dbl ? 2 : 1)); ++extra) {         // the 2nd (and 3rd) box of the drop
+                    float gy2 = 0.f;
+                    const float off = 75.f * extra;
+                    if (_total < maxBoxes && ground(landX - off, gy2) && landX - off > ctx.rider.x - 30.f) {
+                        if (Actor* b2 = spawn(Kind::Box, "pizza_box", 1, r->x - 24.f - off, r->y + (52.f + 8.f * extra) * k, 34.f * k, false)) {
+                            b2->vy = 260.f; b2->grounded = false; b2->hazard = false;
+                            b2->w = 40.f * k; b2->h = 34.f * k; b2->spin = _rng.range(-120.f, 120.f);
+                            ++_total;
+                        }
                     }
                 }
             } else {
                 _wait = 0.25f;                            // no safe landing spot right now: try again in a moment
             }
+        }
+        if (_waited > 7.f && _total < maxBoxes) {
+            Analytics::shared().log("pizza_gave_up", {{"dropped", std::to_string(_total)}, {"need", std::to_string(maxBoxes)}});
+            _total = maxBoxes;                                // no landing spot for 7 s: wrap the delivery up instead of stalling the run
         }
         if (_total >= maxBoxes && _wait <= 0.f) { _step = 2; _wait = 2.4f; }
         return;
@@ -884,8 +916,8 @@ void RoadEventDirector::updateConstruction(const Context& ctx) {
     const float winW = Director::getInstance()->getWinSize().width;
     const float spawnX = winW + 110.f;
     const float k = kDeviceScale();
-    const bool flagger = _variant == 1;
-    const int n = flagger ? 3 : 4;
+    const bool flagger = _variant >= 1;
+    const int n = _variant == 2 ? 4 : (flagger ? 3 : 4);          // variant 2 DOUBLE FLAGGER (expert): a second paddle after the drum
     if (_step == 0) {
         _waited += ctx.dt;
         if (roadClear(spawnX - 90.f, spawnX + 300.f, ctx.apex)) {
@@ -901,7 +933,7 @@ void RoadEventDirector::updateConstruction(const Context& ctx) {
         }
         return;
     }
-    setObjective(std::string(flagger ? "READ THE PADDLE  " : "ROAD WORKS  ") + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
+    setObjective(std::string(_variant == 2 ? "DOUBLE FLAGGER  " : (flagger ? "READ THE PADDLE  " : "ROAD WORKS  ")) + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
                  (_riskNeed > 0 ? "\n" + _riskLabel + "  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
     if (_step >= 1 && _step <= n) {
         _wait -= ctx.dt;
@@ -914,7 +946,7 @@ void RoadEventDirector::updateConstruction(const Context& ctx) {
         float gy = 0.f;
         ground(spawnX, gy);
         const float coneH = std::min(0.30f * ctx.apex, 46.f * k);
-        const int kind = flagger ? (_step == 1 ? 0 : (_step == 2 ? 3 : 1)) : (_step == 1 || _step == 3 ? 0 : (_step == 2 ? 1 : 3));   // 0 cones, 1 barrel, 3 worker
+        const int kind = flagger ? (_step == 1 ? 0 : (_step == 2 ? 3 : (_step == 4 ? 3 : 1))) : (_step == 1 || _step == 3 ? 0 : (_step == 2 ? 1 : 3));   // 0 cones, 1 barrel, 3 worker
         if (kind == 0) {                                      // three cones close together: one jump clears all of them
             const int g = _nextGroup++;
             for (int i = 0; i < 3; ++i) {
@@ -985,6 +1017,14 @@ void RoadEventDirector::impact(Actor& m, const Context& ctx) {
     float gy = m.targetY;
     ground(m.x, gy);
     const float k = kDeviceScale();
+    // CHAIN REACTION: the blast flings nearby road hazards (cones, barrels, ...) away, clearing the lane for the rider.
+    if (_cur == EventId::MeteorShower) {
+        int flung = 0;
+        for (auto& o : _actors) {
+            if (o->root && o->hazard && !o->launched && o->kind != Kind::Rock && o->kind != Kind::Meteor && std::abs(o->x - m.x) < 170.f) { launch(*o, ctx.rider.x); ++flung; }
+        }
+        if (flung > 0) reward(3, Vec2(m.x, gy + 120.f), "CHAIN REACTION +3");
+    }
     // Outcomes vary: usually a rock, but one strike in four is a LUCKY METEOR that cracks open into a gold arc (never in the
     // T-Rex chase, which stays a pure dodge test, and only when the previous strike was a rock so luck never comes in pairs).
     const bool lucky = _cur == EventId::MeteorShower && !_lastLucky && _rng.chance(0.25f);
@@ -1025,14 +1065,14 @@ void RoadEventDirector::impact(Actor& m, const Context& ctx) {
 void RoadEventDirector::updateMeteor(const Context& ctx) {
     const float winH = Director::getInstance()->getWinSize().height;
     const float k = kDeviceScale();
-    const bool twin = _variant == 1;
-    const int rounds = twin ? 2 : 4;
+    const bool twin = _variant >= 1;
+    const int rounds = _variant == 2 ? 3 : (twin ? 2 : 4);        // variant 2 BARRAGE (expert): three twin strikes
     if (_step == 0) {                                          // a line from the rider first, then the sky opens up
-        if (_t <= ctx.dt * 1.5f + 0.001f) { say("meteor", 0); _target = 4; }
+        if (_t <= ctx.dt * 1.5f + 0.001f) { say("meteor", 0); _target = _variant == 2 ? 6 : 4; }
         if (_t > 1.5f) { _step = 1; _wait = 0.f; }
         return;
     }
-    setObjective(std::string(twin ? "TWIN STRIKE  " : "METEOR SHOWER  ") + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
+    setObjective(std::string(_variant == 2 ? "BARRAGE  " : (twin ? "TWIN STRIKE  " : "METEOR SHOWER  ")) + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
                  (_riskNeed > 0 ? "\n" + _riskLabel + "  " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
     // _step 1..N: one strike (or pair) every ~1.7 s, each one telegraphed by a growing shadow
     if (_step <= rounds) {
@@ -1138,6 +1178,7 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
                 }
             }
             g->fps = 22.f;
+            bubble(Content::shared().line("grandma_route"), g->id, 1.6f);   // the choice: the safe low trail or the risky high JACKPOT coins
             PZAudio::play("fx_rocket", 0.5f, 0.2f);
             if (_host.shake) _host.shake(3.f, 0.5f);
         }
@@ -1218,7 +1259,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         t->hazard = false;
         _rivalId = t->id;
         _step = 1;
-        _target = 11;
+        _target = 12;
         _wait = 2.4f;
         say("trex", t->id);
         if (_host.shake) _host.shake(8.f, 0.6f);
@@ -1226,12 +1267,39 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         return;
     }
     if (!t) { finishEvent(Outcome::Failed); return; }
-    const int phase = _step <= 4 ? 1 : (_step <= 7 ? 2 : 3);
-    if (_step <= 9) {
+    const int phase = _step <= 4 ? 1 : (_step <= 7 ? 2 : (_step <= 8 || _step == 81 ? 3 : 4));
+    if (_step == 81) {                                          // BITE: a telegraphed lunge; be in the air when his jaws close
+        t->root->setRotation(std::sin(_t * 6.f) * 1.5f);
+        setObjective("T-REX 3/4  BITE - JUMP!\n" + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target));
+        _biteT -= ctx.dt;
+        if (_biteT > 0.40f) {                                   // crouch and shake: the readable wind-up
+            t->x = 125.f + std::sin(_t * 40.f) * 5.f;
+            t->root->setRotation(-5.f);
+        } else if (_biteT > 0.f) {                              // the lunge across the screen
+            const float p = 1.f - _biteT / 0.40f;
+            t->x = 125.f + 240.f * std::sin(p * 3.14159f * 0.5f);
+            if (!_biteHit && _biteT < 0.30f && !ctx.airborne && ctx.rider.x - t->x < 90.f) {   // jaws closed on a rider still on the ground
+                _biteHit = true;
+                _hitThisEvent = true;
+                const bool absorbed = _host.absorbHit ? _host.absorbHit(Vec2(t->x + 60.f, t->y + 40.f)) : false;
+                if (!absorbed && _host.lethal) { Analytics::shared().log("road_event_hit", {{"event", "trex_chase"}, {"kind", "bite"}}); _host.lethal(); }
+            }
+        } else {
+            t->x = 125.f;
+            if (!_biteHit) {
+                ++_passed;
+                reward(5, Vec2(ctx.rider.x + 20.f, ctx.rider.y + 80.f), "DODGED THE BITE! +5");
+            }
+            _step = 9;
+            _wait = 1.3f;
+        }
+        return;
+    }
+    if (_step <= 10) {
         t->x = 125.f + std::sin(_t * 2.f) * 14.f;                // lumbering at the left edge
         t->root->setRotation(std::sin(_t * 6.f) * 1.5f);
-        static const char* kPhase[3] = {"PURSUIT", "LOG KICKS", "TWIN STOMPS"};
-        setObjective("T-REX " + std::to_string(phase) + "/3  " + kPhase[phase - 1] + "\n" + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
+        static const char* kPhase[4] = {"PURSUIT", "LOG KICKS", "BITE", "TWIN STOMPS"};
+        setObjective("T-REX " + std::to_string(phase) + "/4  " + kPhase[phase - 1] + "\n" + std::to_string(std::min(_passed, _target)) + "/" + std::to_string(_target) +
                      (_riskNeed > 0 ? "  -  " + _riskLabel + " " + std::to_string(_riskGot) + "/" + std::to_string(_riskNeed) : std::string()));
         _wait -= ctx.dt;
         if (_wait > 0.f) return;
@@ -1260,7 +1328,16 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
             _wait = 1.9f + _rng.range(0.f, 0.3f);
             return;
         }
-        const bool twin = phase == 3;
+        if (phase == 3) {                                       // start the bite wind-up (resolved in step 81)
+            bubble(Content::shared().line("trex_bite"), t->id, 1.2f);
+            if (_host.shake) _host.shake(4.f, 0.4f);
+            PZAudio::play("fx_tick", 0.6f, 0.1f);
+            _biteT = 1.5f;
+            _biteHit = false;
+            _step = 81;
+            return;
+        }
+        const bool twin = phase == 4;
         const float X = ctx.rider.x + _speed * (dur + 0.85f) + _rng.range(40.f, 200.f);
         const float span = twin ? 230.f : 0.f;
         if (!roadClear(X - 70.f, X + span + 70.f, ctx.apex)) {
@@ -1297,7 +1374,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
         _wait = twin ? 2.5f + _rng.range(0.f, 0.3f) : (_tier == Tier::Expert ? 1.65f : 1.9f) + _rng.range(0.f, 0.3f);
         return;
     }
-    if (_step == 10) {                                          // wait for the last hazards to clear
+    if (_step == 11) {                                          // wait for the last hazards to clear
         for (auto& a : _actors) {
             if (a->kind == Kind::Meteor || a->kind == Kind::Shadow || a->kind == Kind::Rock || a->kind == Kind::Barrel || a->kind == Kind::BonusCoin) return;
         }
@@ -1310,7 +1387,7 @@ void RoadEventDirector::updateTrex(const Context& ctx) {
             PZHaptics::play(PZHaptics::Kind::Success);
         }
         _score = clean ? 1 : 0;
-        _step = 11;
+        _step = 12;
         _wait = 2.1f;                                           // keep the T-Rex (and so his line) alive long enough to read it
         return;
     }

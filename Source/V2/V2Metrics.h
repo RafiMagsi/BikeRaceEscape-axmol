@@ -14,6 +14,7 @@ namespace Metrics {
 void markLaunch();                                   // process start (call once, early)
 void runStarted(const std::string& mode);            // normal | daily_ranked | daily_practice | replay
 void controlGranted();                               // GO: the rider can be controlled (first one logs launch-to-control)
+void deathNoted();                                   // the first lethal signal of a run (death-to-results / death-to-control are measured from here)
 void firstEvent();                                   // the first road event of the run started (once per run)
 void frame(float realDt);                            // every rendered frame while a run is live
 void runEnded(int distance, int eventsCleared, int coins, const std::string& cause);

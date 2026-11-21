@@ -2549,3 +2549,127 @@ not satisfy these gates.
 - **Results:** the headline's mastery-moment line now prefers a new stamp, then a 3+ chain, 2+ perfect landings, then close dodges / clean landings / challenge / events (text in the plist).
 - `rulesVersion` 6, `contentVersion` 7 (scores change). The bundled golden replay (recorded under rules 5) still replays exactly on the rules-6 build (`checked=28 endTick=857/857`): these changes alter rewards, not physics. A fresh recording under rules 6 is still advisable.
 - Not done: ROUGH landing grade, a visible crown-momentum value, contextual share on the results screen, death-to-retry measurement, and verifying chain/stamp text on screen.
+
+### 24.10 Excitement pass - what was built and what a full-run review found (2026-11-21)
+
+**Review method:** an autopilot (gap-jumping bot + a temporary invulnerability / distance-jump hook, removed afterwards) took the build through all five Night Run chapters and the T-Rex chase while screenshots were taken. This is NOT a human play-through and invulnerability distorts coin density and obstacle clutter (smashed obstacles drop coins), so pacing and difficulty are still unjudged.
+**Bug found and fixed:** a Pizza Panic event ran for over a minute and blocked every later chapter and the T-Rex. Every event now has a fail-safe time cap (28-70 s) that clears its actors and ends it as `skipped_no_road` with a `road_event_timeout` log. The root cause of the stall (a delivery that never finds a landing spot) is not fixed, only contained.
+**Built:**
+- **T-Rex BITE phase** (4 phases now: pursuit, log kicks, BITE, twin stomps): a 1.5 s crouch-and-shake telegraph, then a lunge; a rider still on the ground is hit (shield / grace absorb it), an airborne rider earns +5.
+- **Expert-only variant 2** for Dino ("pack hunt": paired dinos), Construction ("double flagger"), Meteor ("barrage": three twin strikes) and Pizza ("triple order": three boxes per drop, 8 of 12). Below the expert tier the same draw maps to variant 1, so the random sequence never depends on the tier.
+- **Meteor chain reaction:** an impact flings nearby cones / barrels away (+3).
+- **ROUGH landing** feedback (tilt over 40 deg after a real jump; no bonus).
+- `rulesVersion` 7, `contentVersion` 8. `Content/golden_replay.v2r` re-recorded (986 ticks, EVENT RUSH... modifier 4): exact in the simulator (`checked=32 endTick=986/986`).
+**Seen on screen:** objective plates for the T-Rex phases (PURSUIT, LOG KICKS), the chapter titles, the results headline. **Not seen on screen:** the BITE lunge, the expert variants, the chain-reaction text, ROUGH.
+**Still not built:** the 3 other scenic beats (need art), camera shots (scenic reveal, rival two-shot, climax reveal), a visible crown-momentum value, contextual share on results, Grandma route decision, more rivals, T-Rex ramp-escape finale, Android runs, player sessions. Entertainment confidence stays unproven until real players use the game (24.7).
+
+## 25. Missing graphics register (2026-11-21)
+
+Everything below is **not yet in the game or is still a code-drawn / reused stand-in**. It is the complete art backlog implied by sections 20-24 and the current build. Every item must follow 21.8 (cinematic painted arcade realism, transparent background, 8% padding, side view, master + exact export, source prompt / reference list / seed recorded), be registered in `CompleteGameInfo.plist` (`v2.presentation`, semantic id, atlas, frames, fps, role, collision policy) **before** code uses it, pass `tools/v2_registry.py validate-content`, and read at 100 / 75 / 50 % size. Existing atlas rectangles, frame names and logical canvases of shipped art must not change. Priorities: **P0** = a built feature currently looks unfinished without it; **P1** = needed for the next release; **P2** = polish / later.
+
+### 25.1 Gameplay actors and props
+
+| # | Semantic id (proposed) | Asset | Spec | Why / where used | Pri |
+|---|---|---|---|---|---|
+| G1 | `trex_gameplay` (replaces the recolored `dino_big` for the chase) | Dedicated gameplay T-Rex: walk cycle, 6-8 frames, ~1.0 x apex tall, facing right (chasing from the left) | 4:3 canvas, ground-contact anchor bottom-centre, separate dust + shadow sprites | The chase currently reuses the Dino Crossing "big" dino with a tint, so the climax is not visually unique and shares a silhouette with a hazard (21.11 requires the T-Rex gameplay actor and the background dinosaurs to be clearly different) | P0 |
+| G2 | `trex_bite` | Bite sequence: `trex_bite_crouch` (2 frames), `trex_bite_lunge` (3 frames, open jaws), `trex_bite_recover` (2 frames) | Same canvas / anchor as G1; the lunge frames may be wider (declare the logical size in the registry) | The new BITE phase (24.10) animates only by shaking / sliding the walk sprite; the telegraph must read from the pose alone | P0 |
+| G3 | `trex_roar` | Roar / taunt pose (2-3 frames) | Same canvas as G1 | Chase intro, payoff line, results "Crown" screen | P1 |
+| G4 | `bite_warning` | Ground-level jaw-reach marker (translucent teeth arc) on the road where the bite will land | 256x96, additive-friendly alpha, no red-only cue (use shape + colour) | Gives the 1.5 s telegraph a second visual channel besides the shake (accessibility: 2 of colour / shape / text / audio) | P1 |
+| G5 | `boulder` + `boulder_crack` | Falling boulder frames (4) for T-Rex stomps, distinct from the meteor, and a 3-frame crack / dust-out when it lands | 128x128 | T-Rex stomps currently reuse the meteor sprite; stomps are not meteors | P1 |
+| G6 | `log_roll` | Kicked log (rolling, 4 frames) | 160x64 | LOG KICKS phase uses the construction barrel | P1 |
+| G7 | `sign_trex` | Warning sign for the chase start (matches `sign_dino` / `sign_work` style) | 160x200 | Chapter climax telegraph; currently no sign, only a bark | P1 |
+| G8 | `paddle_stop` / `paddle_go` / `worker_flag` | Real painted STOP / GO paddle states on the construction worker, plus a "flagging" idle (3 frames) | Same canvas as `worker` | The flagger lamp is a code-drawn red / green circle | P0 |
+| G9 | `dino_small_pair_dust` | Dust puffs for paired dinos (PACK HUNT) and stampede | 3-frame puff, 96x96 | Expert variants need readable impact-free "mass" cues | P2 |
+| G10 | `crater_coins` / `lucky_meteor_burst` | Gold crater and cracking-meteor frames (5) | 192x128 | LUCKY METEOR is currently a plain rock sprite that vanishes into a coin arc | P1 |
+| G11 | `pizza_box_gold` | Golden slice box (and 2-frame sparkle) | Same canvas as `pizza_box` | Golden slice is the normal box tinted in code | P1 |
+| G12 | `grandma_jackpot_basket`, `grandma_draft_trail` | Basket with spilling coins (2 frames) and a slipstream streak that shows the draft zone | 160x100 / 256x48 | SLIPSTREAM has only a percentage in the objective plate; no in-world draft cue | P0 |
+| G13 | `cool_kid_wheelie` | Cool Kid wheelie pose (2 frames) and a taunt / tumble (3 frames) | Same canvas as `rider_cool` | Wheelie duel and the "he tumbles off" win beat use a rotated ride frame | P1 |
+| G14 | `rider_ambient_c..e` + `gag_cone_prop`, `gag_hat`, `gag_horn` | 3 more passing riders and the props they lose (cone, hat, horn) | Same canvas as `rider_ambient_a` | Ambient gags reuse 2 riders and the cone; the pool repeats within a minute | P2 |
+| G15 | `rival_2..3` (names TBD) | Two further named rivals: riding cycle (4), wheelie / taunt, win / loss poses | Same canvas as `rider_cool` | Only Cool Kid has a rivalry record (20.9 #7 - only after Cool Kid engagement is proven) | P2 |
+| G16 | `creature_*_death` | Death / hit-reaction frames for the sewer alligator, lizard and rat when launched or smashed | Match each creature's logical canvas | Creatures now patrol (23.20) but have no reaction when destroyed by turbo / blast | P1 |
+| G17 | `ramp_meteor` | Temporary charred ramp left by a meteor (planned shortcut / ramp outcome, 20.9 #5) | 256x96 + collision policy declared | Needed before the meteor ramp / shortcut is built | P2 |
+
+### 25.2 Background spectacle and environment
+
+| # | Semantic id | Asset | Spec | Why | Pri |
+|---|---|---|---|---|---|
+| E1 | `scenic_bridge_runner` | Bridge crossing beat: dinosaur running across a distant bridge, 4-6 frames + a dust trail | 640x256, atmospheric tint baked low (runtime tints further) | Beat 3 of 21.5 | P1 |
+| E2 | `scenic_tunnel_eye` | Large eye opening / following / blinking in a dark tunnel, 6 frames | 320x200 | Beat 4 of 21.5 | P1 |
+| E3 | `scenic_tiny_chase` | Several tiny dinosaurs chasing a much larger harmless silhouette rider, 6-frame loop | 512x160 | Beat 5 of 21.5 (the callback to the trailer) | P2 |
+| E4 | `scenic_walker_b`, `scenic_peek_b` | Second species / pose for the walker and the wall-peek | Match E-existing canvases | Only one sauropod and one T-Rex head exist; one-per-5-minutes cadence repeats quickly | P1 |
+| E5 | `scenic_reduced_*` | Single still frame of every beat for Spectacle Reduced / Reduced Motion | Same canvases | Reduced mode currently fades the animation's first frame | P1 |
+| E6 | `bg_*_variant2..3` | 2-3 modular variants of the mid and near parallax layers; seamless at all aspect ratios (21.10) | Match current layer sizes; tile without a seam | Backgrounds repeat; scenic placement is tuned to one skyline (clip line at 75% of screen height) | P1 |
+| E7 | `fg_sweep_leaf`, `fg_sweep_post` | Rare low-opacity foreground sweeps | 1024x256 | 21.10 optional layer; off in Reduced / dense hazards | P2 |
+| E8 | `bg_stage_*` | Art for the stage colour treatments (the orange / green / purple tints seen in long runs are full-screen colour washes) | One cohesive palette set per stage instead of a tint over the same art | Long runs look like one picture recoloured | P2 |
+| E9 | `wall_band_title_frame` | Wall-band plate behind the chapter title (stencilled / painted look) | 512x96 | Chapter titles are plain heading text over the wall | P1 |
+
+### 25.3 Portraits and story
+
+| # | Semantic id | Asset | Spec | Why | Pri |
+|---|---|---|---|---|---|
+| P1 | `portrait_grandma_*` x4 expressions | Grandma busts | Same canvas / lighting as the existing rider portraits (21.6) | Midnight Crown story: Grandma "knows shortcuts" but has no face in any scene | P1 |
+| P2 | `portrait_courier_*` x4 | Pizza courier busts | Same | Courier is part of the story spine (23.19) | P2 |
+| P3 | `portrait_trex_*` x2 (roar, calm) | T-Rex close-up for the T-Rex dialogue | Larger canvas, creature-scale | The "Thunder doesn't have teeth" exchange shows two riders, not the T-Rex | P2 |
+| P4 | `story_hook_card` | One painted establishing frame of Dino District's gates opening (first-run hook, 23.19 delivery budget #1) | 1920x864 master, safe-area aware | The first-run hook is two text lines over riders | P1 |
+| P5 | `rival_rematch_*` | Alternate Cool Kid expressions for "rival beaten you" vs "you beat him" (smirk, grudging respect) | Same canvas as the existing Cool Kid set | Rematch dialogue picks from the same four expressions | P2 |
+| P6 | `crown_icon`, `crown_banner` | The Midnight Crown: icon (64) and a results banner (512x160) | Painted metal / gold, readable at 32 px | The results headline CROWN CLAIMED / DEFENDED has no crown art at all | P0 |
+
+### 25.4 UI and results
+
+| # | Semantic id | Asset | Spec | Why | Pri |
+|---|---|---|---|---|---|
+| U1 | `result_plate_9slice` | Painted 9-slice panel for the results headline (replaces the code-drawn rounded rectangle) | 9-slice, navy / steel / cream / orange | Headline plate, objective plates and micro plates are code-drawn flat rectangles and look different from the painted HUD | P0 |
+| U2 | `objective_plate_9slice`, `micro_plate_9slice` | Matching slim plates with an icon slot | 9-slice | Same | P0 |
+| U3 | `icon_event_*` x7 | Event icons: dino, pizza, race, construction, meteor, grandma, T-Rex | 64x64 + 32x32, high contrast | Objective plate is text only; icons make a one-glance read | P1 |
+| U4 | `grade_perfect`, `grade_clean`, `grade_rough` | Landing grade stamps | 128x48 each, 3-frame pop-in | Grades are floating text (21.4: readable at a glance) | P1 |
+| U5 | `chain_x2..x5` | Near-miss chain badges | 96x96 | Chain text is plain "CHAIN xN" | P2 |
+| U6 | `stamp_event_*` + `stamp_new` | Mastery stamps per event / tier (7 x 3) and a "NEW" overlay | 96x96 | Stamps are stored and paid but never shown | P1 |
+| U7 | `medal_bronze/silver/gold` | Painted medals (currently drawn from code) | 128x128 + 48x48 | Daily results, share card, friend invite | P1 |
+| U8 | `modifier_*` x6 | Daily modifier icons (standard, one life, event rush, coin drought, perfect landing, pizza express) | 96x96 | Modifier plate is text only | P1 |
+| U9 | `friend_challenge_banner`, `leaderboard_icon`, `ghost_tag` | Friend challenge invite header, leaderboard button icon, and a "BEST" ghost label frame | 512x128 / 64 / 128x40 | The invite, the Daily buttons and the personal-best ghost label are code-drawn | P1 |
+| U10 | `share_card_bg` | Painted background for the daily share card (V2Share draws it procedurally) | 1080x1350 and 1080x1080 | The share card is the most-seen social asset and is built from flat shapes | P0 |
+| U11 | `dialogue_panel_9slice`, `dialogue_skip_button`, `dialogue_nameplate` | Painted dialogue frame, SKIP button and name plate | 9-slice | Dialogue UI is code-drawn | P1 |
+| U12 | `settings_toggle_*` | Spectacle / Reduced Motion row art (Full / Reduced / Off) | 3-state pill | New settings rows use the generic button | P2 |
+
+### 25.5 Remaining legacy art and effects
+
+| # | Asset | Notes | Pri |
+|---|---|---|---|
+| L1 | Remaining faded hurdles not yet replaced (check the manifest from 21.9 O1: every `Obstacles_*` frame still flagged "faded" after the 23.17 / 23.18 passes) | One family at a time through generate -> repack -> OpenCV overlay -> collision review -> version / replay (21.9) | P1 |
+| L2 | Destruction frames, debris, impact flashes and contact shadows per family (21.9 O3 item 4) | Effects belong in separate sprites, not baked into hazards | P1 |
+| L3 | Coin variants: bonus coin (risk line), jackpot coin, crater coin | Reuse the coin language; the current risk-line coins are the standard coin at a different size | P1 |
+| L4 | Power-up orb art refresh and a unified "reward collected" burst | Orbs are code-drawn circles with an icon | P2 |
+| L5 | Landing dust / skid / wheelie spark sprites for the existing effects | Particles are drawn from code | P2 |
+| L6 | App Store / Play screenshot set re-shoot with the final art (backgrounds, chapter titles, results headline) | Needed once P0 items land | P1 |
+
+### 25.6 Delivery rules for this register
+
+1. **One batch per family**: after one approved master per group (T-Rex set G1-G7, results / UI U1-U2 + P6 + U10, portraits P1-P5, scenic E1-E5, ...), integrate it through the registry, run `validate-content`, play it in the simulator (landscape, camera cut-out left) and only then continue.
+2. **Frame ids are contracts**: keep the semantic ids above; add the physical sheet and frames through `tools/v2_registry.py register-atlas` (dry-run first). Do not rename shipped frames.
+3. **Collision-bearing art** (G5, G6, G17, any hurdle) follows 21.9 and bumps `rulesVersion` + a new golden replay; art-only art bumps only `contentVersion`.
+4. **No new decorative art may look like a hazard** (21.4): scenic and reward art use the "decorative" / "collectible" visual languages.
+5. **Budget before volume**: add up the compressed and decoded sizes per batch and profile on a low-end device before the next batch (21.15).
+6. **Provenance**: every asset ships with its prompt, reference list, seed / version, master and final export under `reskin-automation/art/v2-production/` so it can be regenerated.
+7. **Acceptance per asset**: matches the five reference categories; clean alpha (no fringe); correct anchor and logical canvas; readable at 100 / 75 / 50 %; passes Reduced Motion (a static fallback exists); does not change telegraph timing or UI layout.
+
+### 24.11 Follow-up pass (2026-11-21)
+
+- **Pizza stall root cause:** a delivery that cannot find a landing spot kept retrying forever. It now gives up after 7 s without a drop (`pizza_gave_up` log) and wraps the delivery up; the generic event time cap stays as the second safety net.
+- **Contextual share (24.5):** the results headline shows a SHARE button only for CROWN CLAIMED / DEFENDED, RIVAL BEATEN and NEW DISTANCE RECORD. `V2::Share::shareRun` renders a 1200x630 run card (headline, distance, best moment, next target, the player's bike) through the existing native share sheet. The card is code-drawn: painted card art is item U10 of section 25.
+- **T-Rex reveal shot (21.7):** when the chase starts and the cinematic authority grants the climax, one slight pull-out (0.93x, 0.45 s in, 1.2 s hold, 0.7 s back) runs; skipped for Reduced Motion and Spectacle Reduced / Off; cleaned up by `clearRunVisuals`.
+- **Chapter title placement:** the first full-run review showed the chapter title colliding with the existing stage banner ("STAGE 4 +10 COINS"); the title now sits lower, in the wall band below it.
+- **Tooling:** `tools/qa_hook.py add|remove` is the repeatable simulator driver (play / start / event / dist / god / ranked / replay / selftest, plus a gap-jumping autopilot); `remove` verifies that no marker is left in the sources.
+- **Verification limits:** the T-Rex bite lunge, expert variants and chain / stamp / ROUGH text were not captured on screen (the autopilot falls into pits too often to reach them reliably); the bite counter and event end logs show the phase ran. Still open: scenic reveal / rival two-shot, Grandma route decision, visible crown-momentum value, and everything in section 25 that needs art.
+
+- **Death-to-retry measurement (24.5 / 24.7):** `V2Metrics::deathNoted()` stamps the first lethal signal; `run_end` now logs `death_to_results_s` and the next run's `run_control` logs `death_to_control_s` (the plan's "median death-to-retry control under five seconds" gate), next to the existing `retry_gap_s`. `tools/analyze_sessions.py` does not summarise the two new fields yet.
+
+- **Android compile check:** `./gradlew :BikeRaceEscapeAxmol:assembleDebug` (from `proj.android`) now builds successfully with all V2 code: the JNI link polling, `AppActivity` deep-link handling, `PlayGamesBridge.java`, and the `play-services-games-v2:20.1.2` dependency resolves. This proves it compiles and packages, **not** that it runs: nothing was installed or run on an Android device, the Play Games APP_ID meta-data is still missing from the manifest (sign-in will fail without it), and link verification (`assetlinks.json`) is still the owner's setup.
+
+### 24.12 Pending-task pass (2026-11-21)
+
+- **Android Reduce Motion:** `AppActivity.systemReduceMotion()` (animator duration scale 0, i.e. "remove animations") is read through JNI, so Android now honours the OS setting like iOS. Compiles; not run on a device.
+- **Crown Momentum (24.4):** one 0-100 value (landings, chains, dodges, events, micro-challenges, +20 rival, +30 T-Rex) shown as a thin bar on the results headline plate, plus `Headline.momentum` in `V2Outcome`. It is a run summary, not a currency, and it has no effect on scoring or physics. Seen on screen (empty bar on a run with no mastery events); a filled bar was not captured.
+- **Grandma route choice:** when her rocket lights she now calls "LOW ROAD SAFE, HIGH ROAD PAYS!" (data line `grandma_route`), naming the existing choice between the low trail and the high JACKPOT coins. There is still no painted draft-zone cue (section 25, G12).
+- **`tools/analyze_sessions.py`** now reports median death-to-results and death-to-control, chapters reached and event timeouts per player.
+- Both builds (iOS simulator and `assembleDebug` for Android) succeed after this pass.
+- **Still open:** scenic reveal / rival two-shot camera shots, on-screen proof of the T-Rex bite and expert variants, the Play Games APP_ID, owner-side link / leaderboard setup, all section 25 art, and player sessions.

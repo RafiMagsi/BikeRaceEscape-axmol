@@ -152,6 +152,89 @@ Node* buildCard(const Daily::Result& r, const Daily::Modifier& mod) {
 
 } // namespace
 
+namespace {
+Node* buildRunCard(const RunCard& c) {
+    const float W = 1200.f, H = 630.f;
+    auto* root = Node::create();
+    root->setContentSize(Size(W, H));
+    auto* bg = LayerGradient::create(Color4B(10, 16, 46, 255), Color4B(70, 40, 104, 255), Vec2(0.4f, 1.f));
+    bg->setContentSize(Size(W, H));
+    root->addChild(bg, 0);
+    auto* glow = DrawNode::create();
+    for (int i = 0; i < 8; ++i) {
+        glow->drawSolidCircle(Vec2(240.f, 60.f), 520.f - i * 58.f, 0.f, 48, Color4F(1.f, 0.46f, 0.1f, 0.035f));
+        glow->drawSolidCircle(Vec2(1000.f, 560.f), 460.f - i * 50.f, 0.f, 48, Color4F(0.25f, 0.45f, 1.f, 0.04f));
+    }
+    root->addChild(glow, 1);
+    auto* title = PZUI::heading("DINO BIKE ESCAPE", 34.f, Color3B(255, 222, 80));
+    title->setAnchorPoint(Vec2(0.f, 0.5f));
+    title->setPosition(Vec2(64.f, H - 70.f));
+    root->addChild(title, 5);
+    auto* sub = PZUI::heading("THE MIDNIGHT CROWN", 15.f, Color3B(230, 238, 255));
+    sub->setAnchorPoint(Vec2(0.f, 0.5f));
+    sub->setPosition(Vec2(64.f, H - 118.f));
+    root->addChild(sub, 5);
+    auto* head = PZUI::heading(c.headline, 44.f, Color3B(255, 255, 255));
+    head->setAnchorPoint(Vec2(0.f, 0.5f));
+    head->setPosition(Vec2(64.f, 380.f));
+    if (head->getContentSize().width > 700.f) head->setScale(700.f / head->getContentSize().width);
+    root->addChild(head, 5);
+    auto* dist = PZUI::heading(withCommas(c.distance) + " M", 78.f, Color3B(255, 205, 80));
+    dist->setAnchorPoint(Vec2(0.f, 0.5f));
+    dist->setPosition(Vec2(64.f, 300.f));
+    root->addChild(dist, 5);
+    if (!c.moment.empty()) {
+        auto* m = PZUI::heading(c.moment, 16.f, Color3B(170, 225, 255));
+        m->setAnchorPoint(Vec2(0.f, 0.5f));
+        m->setPosition(Vec2(64.f, 222.f));
+        root->addChild(m, 5);
+    }
+    if (!c.next.empty()) {
+        auto* n = PZUI::heading(c.next, 13.f, Color3B(214, 222, 240));
+        n->setAnchorPoint(Vec2(0.f, 0.5f));
+        n->setPosition(Vec2(64.f, 182.f));
+        root->addChild(n, 5);
+    }
+    if (Sprite* bike = playerBike()) {
+        const float h = std::max(1.f, bike->getContentSize().height);
+        bike->setAnchorPoint(Vec2(0.5f, 0.f));
+        bike->setScale(250.f / h);
+        bike->setPosition(Vec2(930.f, 70.f));
+        root->addChild(bike, 4);
+    }
+    auto* pill = PZUI::roundedRect(430.f, 64.f, 32.f, Color3B(236, 120, 30), 1.f, Color3B(255, 236, 190), 1.f, 3.f);
+    pill->setPosition(Vec2(64.f + 215.f, 80.f));
+    root->addChild(pill, 4);
+    auto* beat = PZUI::heading("CAN YOU BEAT THIS?", 22.f, Color3B(255, 255, 255));
+    beat->setPosition(Vec2(64.f + 215.f, 80.f));
+    root->addChild(beat, 6);
+    auto* url = PZUI::heading(PZCfg::kShareUrl, 11.f, Color3B(190, 200, 224));
+    url->setAnchorPoint(Vec2(1.f, 0.5f));
+    url->setPosition(Vec2(W - 40.f, 26.f));
+    root->addChild(url, 5);
+    return root;
+}
+}
+
+void shareRun(Node* host, const RunCard& c) {
+    Node* card = buildRunCard(c);
+    auto* rt = RenderTexture::create(1200, 630);
+    if (!rt || !host) return;
+    rt->retain();
+    card->retain();
+    rt->beginWithClear(0.04f, 0.06f, 0.18f, 1.f);
+    card->visit();
+    rt->end();
+    const std::string path = FileUtils::getInstance()->getWritablePath() + "dino_run_card.png";
+    const std::string text = c.headline + "! I rode " + withCommas(c.distance) + " m in Dino Bike Escape. Can you beat it? " + PZCfg::kShareUrl;
+    rt->newImage([rt, card, path, text](RefPtr<Image> img) {
+        const bool ok = img && img->saveToFile(path, false);
+        rt->release();
+        card->release();
+        if (ok) sendImage(path, text);
+    });
+}
+
 std::string shareText(const Daily::Result& r) {
     Challenge::Token t;
     t.date = r.dateKey;

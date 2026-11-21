@@ -29,6 +29,7 @@ struct Headline {
     std::string title;              // "CROWN CLAIMED"
     std::string moment;             // best mastery moment, "" when there was none
     std::string next;               // next target
+    int momentum = 0;               // CROWN MOMENTUM 0-100: one presentation value built from landings, chains, dodges, events, rival, T-Rex (a summary, not a currency)
 };
 
 Headline pick(const Inputs& in);

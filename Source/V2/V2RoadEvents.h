@@ -58,6 +58,7 @@ struct Host {
     std::function<void()> lethal;                                                     // the hit kills the rider
     std::function<void(int, const ax::Vec2&, const std::string&)> award;              // coins + floating text
     std::function<void(float, float)> shake;
+    std::function<void()> climaxReveal;                                               // T-Rex chase start: one wide establishing shot (cinematic owner granted)
 };
 
 class RoadEventDirector : public ax::Node {
@@ -202,6 +203,8 @@ private:
     Tier _tier = Tier::Intro;
     int _variant = 0;
     ShuffleBag<int> _variantBag[kEventTotal];
+    float _biteT = 0.f;                 // T-Rex bite: seconds until the lunge resolves
+    bool _biteHit = false;
     float _chainT = 0.f;                // near-miss chain: seconds left to extend it
     int _chain = 0;
     int _chapter = -1;                  // current Night Run chapter
