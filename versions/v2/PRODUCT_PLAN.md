@@ -2343,3 +2343,190 @@ Required verification before release:
    frame rate and under the existing simulated stall.
 4. Test Reduced Motion: collision movement must stay unchanged, but animation may
    be simplified only if the moving hazard remains equally readable.
+
+## 24. Competitor mission checkpoint and entertainment escalation (2026-11-21)
+
+### 24.1 Honest mission status
+
+We have **not beaten the competitors yet**. The game now has a recognizable world,
+painted presentation, comedy riders, road events, moving creatures, daily runs,
+ghost foundations and a share/challenge path. That is enough to be distinctive.
+It is not yet enough to prove that players will stay.
+
+| Area | Current score | Evidence and gap |
+|---|---:|---|
+| Immediate bike readability | 7/10 | One-button riding is understandable and hazards are clearer; real first-session observation is still missing. |
+| Visual/story identity | 8/10 | Midnight Crown, sewer riders and giant dinosaurs are memorable and less generic than ordinary traffic themes. |
+| Moment-to-moment variety | 6/10 | Seven events and moving creatures help, but several events still resolve as the same jump timing. |
+| Run excitement curve | 4/10 | Events are scheduled, but a run does not yet feel like a beginning, escalation and climax. |
+| Mastery and self-expression | 4/10 | Near misses, landings and combos exist, but their relationship to Crown progress is weak and customization is not the entertainment focus. |
+| Rival/social motivation | 5/10 | Cool Kid, daily results, local ghost and challenge tokens exist; platform configuration, device verification and trusted results remain incomplete. |
+| Fast retry and result payoff | 5/10 | Retry exists, but the result screen does not clearly dramatize record, rival and Crown outcomes. |
+| Retention proof | 1/10 | No observed player sessions, D1/D7 cohort data or acquisition-source comparison exists. |
+
+**Mission score: 50/100 product confidence.** This is not a store rating and not a
+prediction of retention. It is a readiness score. Engineering progress is ahead
+of product evidence, so marketing scale now would be premature.
+
+### 24.2 What current competitors teach us
+
+The goal is not to copy their total scope. It is to understand the repeatable
+motivation they provide and build a smaller, sharper version around our identity.
+
+| Competitor | Current repeat motivation | Required response | Do not copy |
+|---|---|---|---|
+| [Hill Climb Racing 2](https://play.google.com/store/apps/details?id=com.fingersoft.hcr2) | Ranked cups, teams, events, leaderboards, vehicle mastery and customization | Make Daily Crown, rival records and friend challenges legible and dependable | A huge upgrade economy, teams or live-service burden before retention is proven |
+| [Touchgrind BMX 2](https://apps.apple.com/us/app/touchgrind-bmx-2/id1313179105) | Location challenges, trophies, rankings, duels and shareable replay videos | Give mastery moments visible grades and eventually create social-ready run clips | Complex gesture controls or a trick catalogue that does not fit this runner |
+| [Trials Rising](https://www.ubisoft.com/en-us/games/trials-rising) | Ghost competition, outrageous locations, challengers, customization and multiplayer | Use optional ghosts, signature dinosaur set pieces and named rivals to make runs memorable | Console-scale track editing, forced loading, loot-box interruption or real-time networking now |
+
+Our defensible position is:
+
+> **The fastest funny night ride:** one-thumb bike action, a rival race for the
+> Midnight Crown, and escalating dinosaur-scale surprises that make a 60-second
+> run worth replaying and sharing.
+
+If players cannot describe that after one session, the positioning has failed.
+
+### 24.3 Highest-impact missing system: Night Run chapters
+
+Random variety is not the same as excitement. Introduce a data-driven
+`nightChapters` sequence in `CompleteGameInfo.plist`. The event director reads it;
+it must not hard-code distance thresholds or event names.
+
+| Chapter | Approximate run band | Player feeling | Content rules |
+|---|---:|---|---|
+| Gate Opens | 0–180 m | Immediate control and curiosity | No modal after control; one readable moving creature; first entertaining beat within 20–35 seconds |
+| Rival Territory | 180–450 m | Competition begins | Prefer Cool Kid or Pizza Panic; introduce one mastery target; no T-Rex |
+| District Unstable | 450–800 m | Patterns combine | Standard-tier Construction, Dino or Meteor; one risk/reward route; shorter breather only after demonstrated success |
+| Crown Hunt | 800–1,200 m | Player is close to something meaningful | Expert pattern becomes eligible; rival or Grandma callback; stronger environmental spectacle |
+| T-Rex Run | first safe window after Crown Hunt | Payoff and climax | T-Rex encounter, temporary chapter presentation, guaranteed recovery breather afterward |
+| After Midnight | after climax | Endless mastery | Loop remixed expert chapters, not a flat speed increase; preserve reaction-time floor |
+
+Requirements:
+
+1. Chapter selection is deterministic in daily/challenge runs and carries the
+   same rules version as the replay.
+2. A skipped event does not silently skip the story beat; retry it at the next
+   safe road window or use a registered fallback.
+3. No chapter transition takes control, hides a hazard or adds another permanent
+   HUD panel. Use a one-second wall-band title and an audio sting.
+4. T-Rex is a climax, not ordinary random traffic. Do not show it before the
+   player understands basic movement unless an explicit trailer/demo mode does so.
+5. Returning skilled players may use an abbreviated start, but chapter gameplay
+   and scoring remain identical.
+6. Chapter tuning, titles, eligible event IDs, fallbacks and distance bands live
+   in `CompleteGameInfo.plist`; C++ owns validation and orchestration only.
+
+### 24.4 Mastery that fits the existing controls
+
+Do not add more buttons. Deepen the actions already available:
+
+- **Clean landing:** grade `ROUGH / CLEAN / PERFECT` using existing landing data;
+  a perfect landing briefly increases Crown momentum but never changes physics.
+- **Near-miss chain:** passing a moving creature or road-event hazard within the
+  fair band builds a visible three-step chain; touching protection ends the chain
+  without killing it unfairly during grace.
+- **Air style:** airtime plus stable bike angle produces a small style grade. Do
+  not require flips unless the current physics and controls make them intentional.
+- **Event mastery stamp:** the first clean success on each event/tier is recorded
+  locally and shown on results. Rewards are modest and one-time.
+
+These systems must feed one `CrownMomentum` presentation value instead of adding
+four meters. It is a run-summary/mastery signal, not a new currency and not a
+pay-to-win stat.
+
+### 24.5 Results must finish the story
+
+Replace the generic result hierarchy with one primary outcome selected in this
+order:
+
+1. `CROWN CLAIMED` — first T-Rex climax survived or defined Crown target beaten.
+2. `RIVAL BEATEN` — Cool Kid result improved.
+3. `NEW DISTANCE RECORD` — personal best.
+4. `DAILY MEDAL / FRIEND BEATEN` — compatible competitive result.
+5. `NIGHT ENDED` — ordinary run with the next reachable target stated.
+
+Then show only three supporting facts: distance, best mastery moment, and next
+target. `RETRY` is the strongest button; share appears only for a meaningful
+result. The result screen must reach an actionable state within one second and
+must not force reward animations, advertisements or level-up ceremonies before
+retry.
+
+### 24.6 Sequenced implementation plan
+
+#### Step 1 — Validate the current build before adding scope
+
+- Run the existing player-session protocol with at least five fresh and five
+  returning players.
+- Record first-event reach, voluntary retry, dialogue skip, understood goal,
+  remembered moment and confusion/death cause.
+- Re-record and verify the rules-v4 golden replay after creature movement.
+
+**Gate:** no critical road/collision regression; at least 8/10 players understand
+how to ride; results provide a baseline, not a required positive verdict.
+
+#### Step 2 — Implement Night Run chapters
+
+- Add validated chapter schema and typed config.
+- Make the scheduler chapter-aware without changing event physics.
+- Add compact transition/audio presentation and analytics.
+- Verify skip/fallback, death/revive, daily seed, replay and Reduced Motion paths.
+
+**Gate:** 9/10 test runs receive a first beat by 35 seconds, T-Rex never starts on
+unsafe road, and the golden replay is exact.
+
+#### Step 3 — Add Crown Momentum and mastery grades
+
+- Reuse landing, airtime, near-miss and event outcome signals.
+- Add one compact presentation, one results summary and local mastery stamps.
+- Tune rewards only after telemetry shows normal attainable ranges.
+
+**Gate:** testers can explain how they improved without being taught by the
+developer; mastery UI never hides the road.
+
+#### Step 4 — Finish the Crown results/retry loop
+
+- Add outcome priority, next target, result animation budget and contextual share.
+- Remove or defer lower-priority result clutter.
+- Measure death-to-retry and results abandonment.
+
+**Gate:** median death-to-control on voluntary retry is under five seconds; no
+forced monetization blocks retry.
+
+#### Step 5 — Finish honest social competition
+
+- Configure and verify Game Center and Play Games daily boards.
+- Complete Universal Links/App Links and real-device friend challenge flow.
+- Verify cross-platform replay compatibility before friend ghosts.
+- Consider short replay-video export only after static-card sharing and challenge
+  completion show demand; use platform encoders, not a social-network SDK.
+
+**Gate:** sender → recipient → compatible run → compared result → rematch works on
+real iOS and Android devices.
+
+#### Step 6 — Scale acquisition only after retention evidence
+
+- Compare the chapter build against the previous cohort.
+- Require improvement in voluntary second run, first-session runs, first-event
+  completion and D1 return without worse crash/frame-time/readability metrics.
+- Produce social videos from genuine gameplay moments, not scenes unavailable in
+  the shipped build.
+
+### 24.7 Win conditions and stop conditions
+
+The competitor mission advances only when all of these are true:
+
+- at least 60% of fresh players voluntarily start a second run in the observed
+  session test;
+- at least 80% reach an entertaining beat and at least 70% can recall one;
+- at least 8/10 can state “race for the Crown / beat the rival / survive dinos”;
+- median death-to-retry control is below five seconds;
+- challenge recipients complete a run at a measurable rate after links ship;
+- D1 and D7 improve against a comparable acquisition cohort;
+- crash-free sessions and frame-time budgets do not regress.
+
+Stop adding content and fix the loop if players see spectacle but do not retry.
+Stop adding difficulty if deaths are described as surprising rather than earned.
+Do not build real-time multiplayer until challenge links, leaderboards and ghosts
+produce repeated competition. Confidence, feature count and social-media views do
+not satisfy these gates.
