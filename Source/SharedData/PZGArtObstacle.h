@@ -24,6 +24,12 @@ public:
     float health;
     float baseSpeed;
     float scale;
+
+    // Optional ground-creature patrol. Zero distance keeps legacy obstacles static.
+    // Authored in CompleteGameInfo.plist so art, animation and motion stay registered together.
+    float patrolDistance = 0.f;
+    float patrolSpeed = 0.f;
+    float patrolPause = 0.25f;
     
     bool destroyCharacter;
     bool collideCharacter;

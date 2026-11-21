@@ -24,6 +24,10 @@ namespace {
 constexpr float kGravity = 1500.f;
 float clampf(float v, float a, float b) { return std::max(a, std::min(b, v)); }
 float approach(float v, float target, float maxStep) { return v + clampf(target - v, -maxStep, maxStep); }
+float riderVisualHeight(const Context& ctx) {
+    const float k = kDeviceScale();
+    return clampf(ctx.riderBox.size.height * 2.05f, 145.f * k, 180.f * k);
+}
 }
 
 const char* outcomeName(Outcome o) {
@@ -600,7 +604,7 @@ void RoadEventDirector::updatePizza(const Context& ctx) {
         _waited += ctx.dt;
         float gy = 0.f;
         if (ground(winW - 140.f, gy)) {
-            r = spawn(Kind::Rider, "rider_delivery", 4, winW + 190.f, gy, 82.f * k, false);
+            r = spawn(Kind::Rider, "rider_delivery", 4, winW + 190.f, gy, riderVisualHeight(ctx), true);
             if (r) {
                 r->fps = 12.f;
                 r->laneLift = 20.f;                   // back lane: he never rides through the player's obstacles
@@ -720,7 +724,6 @@ void RoadEventDirector::updateRaceMarker() {
 
 void RoadEventDirector::updateRace(const Context& ctx) {
     const float winW = Director::getInstance()->getWinSize().width;
-    const float k = kDeviceScale();
     Actor* r = find(_rivalId);
     if (_step == 0) {
         float gy = 0.f;
@@ -729,7 +732,7 @@ void RoadEventDirector::updateRace(const Context& ctx) {
             if (_waited > 8.f) finishEvent(Outcome::SkippedNoRoad);
             return;
         }
-        r = spawn(Kind::Rider, "rider_cool", 4, ctx.rider.x - 240.f, gy, 82.f * k, true);
+        r = spawn(Kind::Rider, "rider_cool", 4, ctx.rider.x - 240.f, gy, riderVisualHeight(ctx), true);
         if (!r) { finishEvent(Outcome::SkippedNoRoad); return; }
         r->fps = 13.f;
         r->laneLift = 8.f;
@@ -1027,7 +1030,7 @@ void RoadEventDirector::updateGrandma(const Context& ctx) {
             if (_waited > 8.f) finishEvent(Outcome::SkippedNoRoad);
             return;
         }
-        g = spawn(Kind::Rider, "rider_grandma", 4, ctx.rider.x - 260.f, gy, 80.f * k, true);
+        g = spawn(Kind::Rider, "rider_grandma", 4, ctx.rider.x - 260.f, gy, riderVisualHeight(ctx), true);
         if (!g) { finishEvent(Outcome::SkippedNoRoad); return; }
         g->fps = 8.f;                                     // slow wheels: she is taking her time
         g->laneLift = 10.f;
@@ -1267,7 +1270,7 @@ void RoadEventDirector::updateAmbient(const Context& ctx) {
     float gy = 0.f;
     if (!ground(ctx.rider.x, gy)) return;
     const bool a = _rng.chance(0.5f);
-    if (Actor* p = spawn(Kind::Ambient, a ? "rider_ambient_a" : "rider_ambient_b", 4, -190.f, gy, 62.f * kDeviceScale(), true)) {
+    if (Actor* p = spawn(Kind::Ambient, a ? "rider_ambient_a" : "rider_ambient_b", 4, -190.f, gy, riderVisualHeight(ctx) * 0.94f, true)) {
         p->fps = 14.f;
         p->laneLift = 18.f;                               // rides the back lane
         p->vx = 330.f;                                    // faster than the road: he passes you

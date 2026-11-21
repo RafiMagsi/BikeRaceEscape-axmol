@@ -35,6 +35,11 @@ PZGArtObstacle* PZGArtObstacle::createWithDictionary(ax::__Dictionary * dictiona
     obj->comingRatio = dictionary-> valueForKey("comingRatio")->floatValue();
     obj->health = dictionary-> valueForKey("health")->floatValue();
     obj->baseSpeed = dictionary-> valueForKey("baseSpeed")->floatValue();
+    obj->patrolDistance = dictionary->valueForKey("patrolDistance")->floatValue();
+    obj->patrolSpeed = dictionary->valueForKey("patrolSpeed")->floatValue();
+    if (dictionary->objectForKey("patrolPause")) {
+        obj->patrolPause = dictionary->valueForKey("patrolPause")->floatValue();
+    }
     
     obj->scale = dictionary-> valueForKey("scale")->floatValue();
     

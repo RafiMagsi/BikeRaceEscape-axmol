@@ -2220,6 +2220,80 @@ older deterministic replays by design. Before calling this release-ready:
 5. Measure texture decode/load time on a low-end device and run two fresh-player
    sessions. Better art does not by itself make the game better than competitors.
 
+### 23.19 Story spine and presentation corrections (2026-11-21)
+
+#### The story: Midnight Crown
+
+This is not a cut-scene-heavy adventure. It is an endless arcade rivalry with a
+clear repeatable premise:
+
+> Once each night, Dino District's maintenance gates open and riders race the
+> unstable sewer route for the Midnight Crown. You are the new rider. Cool Kid
+> owns the record, the pizza courier keeps attracting escaped dinosaurs, Grandma
+> knows shortcuts nobody else remembers, and the T-Rex is catching the pack.
+> Reach farther, beat Cool Kid, survive the nightly climax and own the Crown
+> before dawn.
+
+The premise makes existing systems belong to one world:
+
+- **Cool Kid race:** the persistent personal rivalry and primary emotional goal.
+- **Pizza Panic:** the courier drops orders; the smell is the recurring joke and
+  the reason the T-Rex keeps finding the route.
+- **Dino crossing:** escaped animals moving through the opened district.
+- **Construction:** maintenance crews cannot stabilize the route before the race.
+- **Meteor shower:** the district's spectacular nightly hazard; keep it rare so
+  it reads as escalation rather than ordinary weather.
+- **Grandma Turbo:** a former Crown rider who helps through action, not exposition.
+- **T-Rex chase:** the chapter climax and proof that the player survived the night.
+- **Daily route:** today's official Crown course; best-of-four is the competition.
+
+#### Story delivery budget
+
+Story must increase anticipation without delaying retries:
+
+1. First run: two-line hook explaining Dino District and the Midnight Crown.
+2. Returning normal run: two-line skippable rivalry reminder.
+3. First run after a rival result: win/loss-specific rematch, once per session.
+4. First run after seeing the T-Rex: one reveal connecting the pizza and chase.
+5. First daily run: one course-specific Crown exchange.
+6. During play: one-line barks only; never a modal screen over hazards.
+
+The full-screen dialogue is now guaranteed to have a low-priority returning-run
+fallback, so the characters do not disappear after the first launch. Higher-value
+T-Rex, daily and rival-result conversations still win by priority. Every screen
+remains skippable and replays remain dialogue-free.
+
+#### Corrections implemented from gameplay capture
+
+- Pizza courier now faces the direction of travel. The defect was a wrong facing
+  flag, not bad source art.
+- Pizza, Cool Kid and Grandma riders now derive visual height from the player's
+  hit box and clamp to a phone-safe range. Ambient passing bikes use 94% of that
+  height to preserve depth without looking like toys.
+- Scenic eligibility and cooldown now count real controllable run time. Events
+  can delay a dinosaur until the next safe window but cannot reset or freeze its
+  promised arrival indefinitely.
+- Painted scenic dinosaurs are larger, brighter and clipped at the visible wall
+  skyline rather than the old placeholder silhouette line.
+- Dialogue copy now establishes the Midnight Crown, recurring rivalry, daily
+  stakes and the pizza/T-Rex callback. `contentVersion` is 4.
+
+#### Honest competitive assessment
+
+This story is a useful spine, not proof that the game beats competitors. Its
+advantage is that spectacle, missions and rivals now reinforce one memorable
+identity instead of feeling like unrelated random events. The remaining risks are:
+
+1. The objective and micro-challenge panels occupy too much of the action view on
+   some landscape phones; perform a separate HUD-density pass.
+2. Repeating the same fallback exchange every restart will become stale. Add two
+   more data-driven returning variants only after the current trigger order is
+   verified, then rotate them without gameplay RNG.
+3. There is no end-of-run Crown presentation yet. The results screen must explain
+   whether the player beat their record, Cool Kid or the daily target.
+4. Story comprehension must be tested: after one run, at least 8/10 new players
+   should be able to say “night race, beat the rival, dinosaurs/T-Rex.”
+
 ### 23.17 Graphics review in the simulator (2026-11-21)
 
 Played in the iOS simulator and forced every road event (landscape, camera cut-out on the left). The V2 event atlas is now painted art and reads as one style with the bike, platforms and sewer background; all seven events (Dino stampede, Pizza Panic, Cool Kid race, Construction flagger, Meteor twin strike, Grandma, T-Rex chase), objective plates, barks, the scenic walker and the dialogue screen render without missing frames.
@@ -2231,3 +2305,41 @@ Still open: the T-Rex bark bubble overlaps the objective plate in the top-left; 
 **Serious bug found and fixed:** with a pre-run dialogue, the intro and the dialogue showed an empty sewer (no platforms) and the rider fell at GO. Cause: my dialogue integration froze the world (`freezeFor`) in `beginIntro` *before* the platform generator's first update, so the road was never generated while the world was held. Fix: the dialogue is now chosen in `beginIntro` but shown only after the same 0.30 s beat the ride-in always had, i.e. after the road exists; then the world is frozen behind it. Verified in the simulator: the road is visible behind the dialogue and during the ride-in countdown. Any future feature that freezes the world during start-up must prime the road first (the fixed-step path already does).
 **Other fixes:** objective / micro plates moved to the wall band right of the rider column (27% of the safe width), so they no longer sit over the rider's head, the camera cut-out or the T-Rex's bubble; scenic beats are now tinted cool and drawn at lower opacity for the painted art.
 **Art status:** `v2_events.png`, `v2_portraits.png` and `v2_scenic.png` now hold painted art (same frame names and sizes). `tools/make_v2_scenic.py` and `make_v2_portraits.py` only produce the old flat placeholders and now refuse to run without `--force`. The scenic beat positions (`yFrac`, `heightFrac`, `clipYFrac`) were tuned with the placeholder silhouettes: re-check the painted walker and wall-peek in game and adjust the plist if they look too big / too low.
+
+### 23.20 Animated creature movement (2026-11-21)
+
+The sewer alligator, lizard and rat previously played running cycles while staying
+fixed to one road coordinate. That looked broken. Converting them into unrestricted
+chasing enemies would be worse: it would invalidate learned jump timing, allow a
+hazard to cross platform edges, and destabilize seeded runs.
+
+They now use a bounded **scurry lane**:
+
+- each creature patrols a short distance around its authored spawn point;
+- it pauses briefly and turns at each endpoint, making the reversal readable;
+- the sprite and collision body move together;
+- movement is deterministic and uses simulation `dt`, with no cosmetic or global RNG;
+- barriers, machinery and other non-creature obstacles retain zero patrol distance
+  and therefore remain static;
+- distance, speed and endpoint pause are authored per creature in
+  `CompleteGameInfo.plist`, not hard-coded by obstacle index or name.
+
+The alligator is deliberately heavy and slow, the lizard is quicker, and the rat
+has the widest/faster scurry. This creates three readable motion personalities
+without introducing a new control scheme or unfair pursuit AI. `rulesVersion` is
+4 because moving lethal collision changes run outcomes and replay compatibility;
+`contentVersion` is 5.
+
+Do not expand this into player-chasing AI until playtests prove the existing jump
+controls can support it. A competitive endless runner needs hazards players can
+read and master, not surprise deaths marketed as difficulty.
+
+Required verification before release:
+
+1. Direct hit, near miss and landing tests at minimum and maximum game speed.
+2. Confirm creatures never visibly leave their platform or overlap another lethal
+   obstacle at either patrol endpoint.
+3. Re-record the golden replay for rules v4 and verify exact playback at normal
+   frame rate and under the existing simulated stall.
+4. Test Reduced Motion: collision movement must stay unchanged, but animation may
+   be simplified only if the moving hazard remains equally readable.

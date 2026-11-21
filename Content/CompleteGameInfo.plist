@@ -1974,6 +1974,12 @@
 			<false/>
 			<key>baseSpeed</key>
 			<real>1.0</real>
+			<key>patrolDistance</key>
+			<real>42</real>
+			<key>patrolSpeed</key>
+			<real>72</real>
+			<key>patrolPause</key>
+			<real>0.32</real>
 			<key>bouncingAnimation</key>
 			<false/>
 			<key>className</key>
@@ -2059,6 +2065,12 @@
 			<false/>
 			<key>baseSpeed</key>
 			<real>1.0</real>
+			<key>patrolDistance</key>
+			<real>36</real>
+			<key>patrolSpeed</key>
+			<real>82</real>
+			<key>patrolPause</key>
+			<real>0.24</real>
 			<key>bouncingAnimation</key>
 			<false/>
 			<key>className</key>
@@ -2144,6 +2156,12 @@
 			<false/>
 			<key>baseSpeed</key>
 			<real>1.0</real>
+			<key>patrolDistance</key>
+			<real>58</real>
+			<key>patrolSpeed</key>
+			<real>118</real>
+			<key>patrolPause</key>
+			<real>0.16</real>
 			<key>bouncingAnimation</key>
 			<false/>
 			<key>className</key>
@@ -8986,7 +9004,7 @@
 		<key>rewardPizzaBox</key>
 		<integer>3</integer>
 		<key>rulesVersion</key>
-		<integer>3</integer>
+		<integer>4</integer>
 		<key>telegraphFloor</key>
 		<real>1.3</real>
 		<key>tierExpertAt</key>
@@ -9893,23 +9911,23 @@
 					<key>minRunSeconds</key>
 					<real>25.0</real>
 					<key>heightFrac</key>
-					<real>0.33</real>
+					<real>0.4</real>
 					<key>yFrac</key>
-					<real>0.655</real>
+					<real>0.61</real>
 					<key>xFrac</key>
 					<real>0.5</real>
 					<key>opacity</key>
-					<integer>175</integer>
+					<integer>215</integer>
 					<key>tint</key>
 					<array>
-						<integer>150</integer>
-						<integer>172</integer>
-						<integer>205</integer>
+						<integer>185</integer>
+						<integer>200</integer>
+						<integer>225</integer>
 					</array>
 					<key>collisionPolicy</key>
 					<string>none</string>
 					<key>clipYFrac</key>
-					<real>0.755</real>
+					<real>0.69</real>
 				</dict>
 				<key>wall_peek</key>
 				<dict>
@@ -9928,23 +9946,23 @@
 					<key>minRunSeconds</key>
 					<real>25.0</real>
 					<key>heightFrac</key>
-					<real>0.34</real>
+					<real>0.4</real>
 					<key>yFrac</key>
-					<real>0.655</real>
+					<real>0.61</real>
 					<key>xFrac</key>
 					<real>0.72</real>
 					<key>opacity</key>
-					<integer>175</integer>
+					<integer>215</integer>
 					<key>tint</key>
 					<array>
-						<integer>150</integer>
-						<integer>172</integer>
-						<integer>205</integer>
+						<integer>185</integer>
+						<integer>200</integer>
+						<integer>225</integer>
 					</array>
 					<key>collisionPolicy</key>
 					<string>none</string>
 					<key>clipYFrac</key>
-					<real>0.755</real>
+					<real>0.69</real>
 				</dict>
 			</dict>
 			<key>portraitSets</key>
@@ -10036,7 +10054,7 @@
 							<key>speaker</key>
 							<string>player</string>
 							<key>text</key>
-							<string>Road looks busy.</string>
+							<string>Why is Dino District awake?</string>
 							<key>expression</key>
 							<string>neutral</string>
 						</dict>
@@ -10044,7 +10062,7 @@
 							<key>speaker</key>
 							<string>cool_kid</string>
 							<key>text</key>
-							<string>Only behind me.</string>
+							<string>Midnight Crown. Last rider wins.</string>
 							<key>expression</key>
 							<string>confident</string>
 						</dict>
@@ -10101,7 +10119,7 @@
 							<key>speaker</key>
 							<string>player</string>
 							<key>text</key>
-							<string>Same road. Different finish.</string>
+							<string>You took the Crown. I want it back.</string>
 							<key>expression</key>
 							<string>confident</string>
 						</dict>
@@ -10109,7 +10127,7 @@
 							<key>speaker</key>
 							<string>cool_kid</string>
 							<key>text</key>
-							<string>I saved you second place.</string>
+							<string>Catch me before the T-Rex does.</string>
 							<key>expression</key>
 							<string>confident</string>
 						</dict>
@@ -10166,7 +10184,7 @@
 							<key>speaker</key>
 							<string>player</string>
 							<key>text</key>
-							<string>Keeping up?</string>
+							<string>One Crown. No victory lap?</string>
 							<key>expression</key>
 							<string>confident</string>
 						</dict>
@@ -10174,7 +10192,7 @@
 							<key>speaker</key>
 							<string>cool_kid</string>
 							<key>text</key>
-							<string>I was studying your mistakes.</string>
+							<string>Tonight's route bites back.</string>
 							<key>expression</key>
 							<string>frustrated</string>
 						</dict>
@@ -10231,7 +10249,7 @@
 							<key>speaker</key>
 							<string>player</string>
 							<key>text</key>
-							<string>Tell me that was thunder.</string>
+							<string>The pizza woke it up, didn't it?</string>
 							<key>expression</key>
 							<string>surprised</string>
 						</dict>
@@ -10239,7 +10257,7 @@
 							<key>speaker</key>
 							<string>cool_kid</string>
 							<key>text</key>
-							<string>Thunder doesn't have teeth.</string>
+							<string>Win first. Apologize later.</string>
 							<key>expression</key>
 							<string>neutral</string>
 						</dict>
@@ -10296,7 +10314,7 @@
 							<key>speaker</key>
 							<string>player</string>
 							<key>text</key>
-							<string>One route. Three real tries.</string>
+							<string>Same district. New midnight route.</string>
 							<key>expression</key>
 							<string>neutral</string>
 						</dict>
@@ -10304,7 +10322,72 @@
 							<key>speaker</key>
 							<string>cool_kid</string>
 							<key>text</key>
-							<string>Then make the first one count.</string>
+							<string>Best of four takes today's Crown.</string>
+							<key>expression</key>
+							<string>confident</string>
+						</dict>
+					</array>
+				</dict>
+				<key>crown_return</key>
+				<dict>
+					<key>trigger</key>
+					<string>returning_run</string>
+					<key>oncePolicy</key>
+					<string>always</string>
+					<key>version</key>
+					<integer>1</integer>
+					<key>priority</key>
+					<integer>10</integer>
+					<key>speakers</key>
+					<array>
+						<dict>
+							<key>id</key>
+							<string>player</string>
+							<key>name</key>
+							<string>YOU</string>
+							<key>portraitSet</key>
+							<string>player</string>
+							<key>side</key>
+							<string>left</string>
+							<key>color</key>
+							<array>
+								<integer>255</integer>
+								<integer>205</integer>
+								<integer>80</integer>
+							</array>
+						</dict>
+						<dict>
+							<key>id</key>
+							<string>cool_kid</string>
+							<key>name</key>
+							<string>COOL KID</string>
+							<key>portraitSet</key>
+							<string>cool_kid</string>
+							<key>side</key>
+							<string>right</string>
+							<key>color</key>
+							<array>
+								<integer>110</integer>
+								<integer>170</integer>
+								<integer>255</integer>
+							</array>
+						</dict>
+					</array>
+					<key>lines</key>
+					<array>
+						<dict>
+							<key>speaker</key>
+							<string>player</string>
+							<key>text</key>
+							<string>Still racing for the Crown?</string>
+							<key>expression</key>
+							<string>confident</string>
+						</dict>
+						<dict>
+							<key>speaker</key>
+							<string>cool_kid</string>
+							<key>text</key>
+							<string>Until dawn. And that T-Rex.</string>
 							<key>expression</key>
 							<string>confident</string>
 						</dict>
@@ -10313,7 +10396,7 @@
 			</dict>
 		</dict>
 		<key>contentVersion</key>
-		<integer>3</integer>
+		<integer>5</integer>
 		<key>leaderboards</key>
 		<dict>
 			<key>iosDaily</key>

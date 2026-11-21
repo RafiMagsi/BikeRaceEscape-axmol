@@ -72,6 +72,15 @@ public:
     
     float speed = 0.f;
     float gameSpeed = 0.f;
+
+    // Relative movement on top of world scrolling. The bounded offset preserves the authored
+    // jump location while making a running creature visibly move and keeping Box2D in sync.
+    float patrolDistance = 0.f;
+    float patrolSpeed = 0.f;
+    float patrolPause = 0.25f;
+    float patrolOffset = 0.f;
+    float patrolWait = 0.f;
+    float patrolDirection = -1.f;
     
     PZGObstacleTrajectory trajectory = PZGObstacleTrajectoryLeftLinear;
     

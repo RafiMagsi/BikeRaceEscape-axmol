@@ -97,6 +97,9 @@ void PZGObstacle::init(PZGArtObstacle* obstInfo){
     
     health = obstInfo->health;
     speed = obstInfo->baseSpeed;
+    patrolDistance = std::max(0.f, obstInfo->patrolDistance) * kDeviceScale();
+    patrolSpeed = std::max(0.f, obstInfo->patrolSpeed) * kDeviceScale();
+    patrolPause = clampf(obstInfo->patrolPause, 0.12f, 1.0f);
     
     PZGSharedData *gsd = PZGSharedData::sharedInstanse();
     __Array* sounds = (__Array*)gsd->soundResource->objectForKey("Sounds");
@@ -340,6 +343,25 @@ void PZGObstacle::update( float dt){
     }
     
     Vec2 loc = this->getPosition();
+
+    // Animated ground creatures patrol a short, deterministic lane instead of running in place.
+    // This is deliberately not a free chase: fixed bounds keep jumps readable and replays exact.
+    if (patrolDistance > 0.f && patrolSpeed > 0.f && dt > 0.f) {
+        if (patrolWait > 0.f) {
+            patrolWait = std::max(0.f, patrolWait - dt);
+        } else {
+            float step = patrolDirection * patrolSpeed * dt;
+            float next = patrolOffset + step;
+            if (next <= -patrolDistance || next >= patrolDistance) {
+                next = clampf(next, -patrolDistance, patrolDistance);
+                patrolDirection = -patrolDirection;
+                patrolWait = patrolPause;
+                if (sprite) sprite->setFlippedX(patrolDirection > 0.f);
+            }
+            loc.x += next - patrolOffset;
+            patrolOffset = next;
+        }
+    }
     
     if (velocityLinear.x != 0) {
         loc.x = loc.x  - (( gameSpeed * (1+speed) ) * velocityLinear.x);

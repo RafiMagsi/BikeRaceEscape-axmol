@@ -47,6 +47,7 @@ std::string DialogueDirector::pick(const DialogueContext& ctx) {
     auto* ud = UserDefault::getInstance();
     const bool firstRun = !ud->getBoolForKey("PZP_V2_first_run_done", false);
     ud->setBoolForKey("PZP_V2_first_run_done", true);
+    ud->flush();
     const int last = ud->getIntegerForKey("PZP_V2_rv_cool_last", 0);          // 1 = the player won the last race, -1 = lost
     const bool trexSeen = ud->getBoolForKey("PZP_V2_trex_seen", false);
     const DialogueSeq* best = nullptr;
@@ -58,6 +59,7 @@ std::string DialogueDirector::pick(const DialogueContext& ctx) {
         else if (q.trigger == "rival_last_win") eligible = last > 0;
         else if (q.trigger == "trex_seen") eligible = trexSeen;
         else if (q.trigger == "daily_first_of_day") eligible = ctx.dailyRun;
+        else if (q.trigger == "returning_run") eligible = !firstRun && !ctx.dailyRun;
         if (!eligible || alreadySeen(q, ctx.dateKey)) continue;
         if (!best || q.priority > best->priority) best = &q;
     }

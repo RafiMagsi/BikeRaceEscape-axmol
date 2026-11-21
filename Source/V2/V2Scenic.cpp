@@ -65,13 +65,15 @@ void ScenicDirector::update(float dt, bool safe) {
         if (_node) clear();
         return;
     }
+    // Count real controllable run time. Events and ambient riders may delay the
+    // reveal until a safe window, but must not postpone 25-40 seconds into minutes.
+    _runClock += dt;
+    if (!_node) _cooldown -= dt;
     if (!safe) {                                    // decoration yields instantly: fade a live beat out, never start one
         if (_node && dt > 0.f) _t = std::max(_t, _duration - 0.35f);
         return;
     }
-    _runClock += dt;
     if (!_node) {
-        _cooldown -= dt;
         if (_cooldown > 0.f) return;
         // at most N beats in any five minutes
         _recent.erase(std::remove_if(_recent.begin(), _recent.end(), [this](float t) { return _runClock - t > 300.f; }), _recent.end());
